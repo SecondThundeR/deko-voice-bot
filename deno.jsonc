@@ -1,0 +1,25 @@
+{
+  "imports": {
+    "grammy/": "https://deno.land/x/grammy@v1.19.1/",
+    "grammy_runner/": "https://deno.land/x/grammy_runner@v2.0.3/",
+    "dotenv/": "https://deno.land/std@v0.204.0/dotenv/",
+    "mongo/": "https://deno.land/x/mongo@v0.32.0/",
+    "@/": "./"
+  },
+  "tasks": {
+    "start": "deno run --allow-net --allow-read --allow-env --allow-write bot.ts",
+    "dev": "deno run --allow-net --allow-read --allow-env --allow-write --watch bot.ts"
+  },
+  "lint": {
+    "include": ["src/", "./bot.ts", "./deps.ts"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["ban-untagged-todo"],
+      "exclude": ["ban-ts-comment"]
+    }
+  },
+  "fmt": {
+    "include": ["src/", "./bot.ts", "./deps.ts"],
+    "indentWidth": 4
+  }
+}
