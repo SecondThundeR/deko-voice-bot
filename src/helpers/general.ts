@@ -1,4 +1,5 @@
-import { googleExportDownloadLink, locale } from "@/src/constants.ts";
+import { googleExportDownloadLink } from "@/src/constants/general.ts";
+import { locale } from "@/src/constants/locale.ts";
 
 const { googleExportLinkFail } = locale.general;
 
@@ -9,9 +10,9 @@ const { googleExportLinkFail } = locale.general;
  * @returns Google link for direct download of voice file
  */
 export function convertGoogleDriveLink(link: string) {
-  const fileId = link.match(/(?<=\/d\/)(.*?)(?=\/view)/)?.[0];
-  if (!fileId) throw new Error(googleExportLinkFail);
-  return `${googleExportDownloadLink}${fileId}`;
+    const fileId = link.match(/(?<=\/d\/)(.*?)(?=\/view)/)?.[0];
+    if (!fileId) throw new Error(googleExportLinkFail);
+    return `${googleExportDownloadLink}${fileId}`;
 }
 
 /**
@@ -24,6 +25,6 @@ export function convertGoogleDriveLink(link: string) {
  * @returns Full name of user
  */
 export function getFullName(firstName: string, lastName?: string) {
-  if (!lastName) return firstName;
-  return `${firstName} ${lastName}`;
+    if (!lastName) return firstName;
+    return `${firstName} ${lastName}`;
 }

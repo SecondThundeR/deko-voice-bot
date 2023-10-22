@@ -1,4 +1,4 @@
-import { locale } from "@/src/constants.ts";
+import { locale } from "@/src/constants/locale.ts";
 
 const { allVoices, filteredVoices } = locale.frontend;
 
@@ -11,6 +11,6 @@ const { allVoices, filteredVoices } = locale.frontend;
  * @returns Button text
  */
 export function getCurrentButtonText(queryString: string) {
-  if (queryString.length > 0) return filteredVoices(queryString);
-  return allVoices;
+    if (queryString.length > 0) return filteredVoices(queryString);
+    return allVoices;
 }

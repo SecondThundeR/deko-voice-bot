@@ -7,13 +7,13 @@
  * @returns Object with applied offset for array and new offset value (or undefined, if hit end of array)
  */
 export function offsetArray<T>(
-  array: T[],
-  currentOffset: number,
-  offsetSize: number
+    array: T[],
+    currentOffset: number,
+    offsetSize: number,
 ) {
-  const nextOffset = currentOffset + offsetSize;
-  return {
-    array: array.slice(currentOffset, nextOffset),
-    nextOffset: array.length > nextOffset ? String(nextOffset) : undefined,
-  };
+    const nextOffset = currentOffset + offsetSize;
+    return {
+        array: array.slice(currentOffset, nextOffset),
+        nextOffset: array.length > nextOffset ? String(nextOffset) : undefined,
+    };
 }

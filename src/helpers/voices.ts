@@ -1,11 +1,10 @@
 import { type InlineQueryResultVoice } from "@/deps.ts";
 
+import { rootCacheKey } from "@/src/constants/cache.ts";
 import { getVoices } from "@/src/database/getVoices.ts";
 import { rootQueryCache, textQueryCache } from "@/src/handlers/inlineQuery.ts";
-import { type VoiceSchema } from "@/src/schemas/voice.ts";
 import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
-
-import { rootCacheKey } from "@/src/constants.ts";
+import { type VoiceSchema } from "@/src/schemas/voice.ts";
 
 /**
  * Gets current voice queries data
@@ -23,35 +22,40 @@ import { rootCacheKey } from "@/src/constants.ts";
  * @returns Array of voice queries
 */
 export async function getCurrentVoiceQueriesData(queryString: string) {
-  const formattedQueryString = queryString.toLocaleLowerCase();
-  const isSearchingByQuery = formattedQueryString.length > 0;
+    const formattedQueryString = queryString.toLocaleLowerCase();
+    const isSearchingByQuery = formattedQueryString.length > 0;
 
-  // Cache check
-  // TODO(@secondthunder): Refactor to two different functions
-  if (isSearchingByQuery) {
-    if (textQueryCache.has(formattedQueryString))
-      return [...textQueryCache.get(formattedQueryString)!];
+    // Cache check
+    // TODO(@secondthunder): Refactor to two different functions
+    if (isSearchingByQuery) {
+        if (textQueryCache.has(formattedQueryString)) {
+            return [...textQueryCache.get(formattedQueryString)!];
+        }
 
-    if (rootQueryCache.has(rootCacheKey)) {
-      const filteredQueries = [...rootQueryCache.get(rootCacheKey)!].filter(
-        (query) =>
-          query.title.toLocaleLowerCase().includes(formattedQueryString)
-      );
-      textQueryCache.set(formattedQueryString, filteredQueries);
-      return filteredQueries;
+        if (rootQueryCache.has(rootCacheKey)) {
+            const filteredQueries = [...rootQueryCache.get(rootCacheKey)!]
+                .filter(
+                    (query) =>
+                        query.title.toLocaleLowerCase().includes(
+                            formattedQueryString,
+                        ),
+                );
+            textQueryCache.set(formattedQueryString, filteredQueries);
+            return filteredQueries;
+        }
+    } else {
+        if (rootQueryCache.has(rootCacheKey)) {
+            return [...rootQueryCache.get(rootCacheKey)!];
+        }
     }
-  } else {
-    if (rootQueryCache.has(rootCacheKey))
-      return [...rootQueryCache.get(rootCacheKey)!];
-  }
 
-  // DB fetch
-  // (Setting only in root, as there is no way, user can skip root cache update)
-  const voices = await getVoices(formattedQueryString);
-  const voicesQueries = convertVoiceDataToQueriesArray(voices);
+    // DB fetch
+    // (Setting only in root, as there is no way, user can skip root cache update)
+    const voices = await getVoices(formattedQueryString);
+    const voicesQueries = convertVoiceDataToQueriesArray(voices);
 
-  rootQueryCache.set(rootCacheKey, voicesQueries);
-  return voicesQueries;
+    rootQueryCache.set(rootCacheKey, voicesQueries);
+    return voicesQueries;
 }
 
 /**
@@ -61,16 +65,16 @@ export async function getCurrentVoiceQueriesData(queryString: string) {
  * @returns Converted array, suitable for inline query
  */
 export function convertVoiceDataToQueriesArray(
-  voicesData: VoiceSchema[]
+    voicesData: VoiceSchema[],
 ): InlineQueryResultVoice[] {
-  return voicesData.map((data) => {
-    const { id, title, url } = data;
-    const voice_url = convertGoogleDriveLink(url);
-    return {
-      type: "voice",
-      id,
-      title,
-      voice_url,
-    };
-  });
+    return voicesData.map((data) => {
+        const { id, title, url } = data;
+        const voice_url = convertGoogleDriveLink(url);
+        return {
+            type: "voice",
+            id,
+            title,
+            voice_url,
+        };
+    });
 }
