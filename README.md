@@ -1,6 +1,6 @@
 # Deko Voice Bot
 
-Бот для отправки реплик deko от лица пользователя через [Inline Query](https://core.telegram.org/bots/features#inline-requests)
+Бот для отправки реплик [deko](https://liquipedia.net/counterstrike/Deko) от лица пользователя через [Inline Query](https://core.telegram.org/bots/features#inline-requests)
 
 Бот позволяет просматривать весь список реплик, доступных в базе данных, а также искать нужные с помощью текстового запроса
 
