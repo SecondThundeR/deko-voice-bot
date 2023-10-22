@@ -12,6 +12,10 @@ import {
   rootCacheTime,
   textCacheTime,
 } from "@/src/constants.ts";
+import {
+  updateUsersStats,
+  updateVoiceStats,
+} from "@/src/database/updateStats.ts";
 
 export const rootQueryCache = new TTLCache<
   typeof rootCacheKey,
@@ -27,6 +31,11 @@ export const textQueryCache = new TTLCache<string, InlineQueryResultVoice[]>({
 });
 
 const inlineQueryHandler = new Composer();
+
+inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
+  const { from, result_id: voiceID } = ctx.update.chosen_inline_result;
+  await Promise.all([updateVoiceStats(voiceID), updateUsersStats(from)]);
+});
 
 inlineQueryHandler.on("inline_query", async (ctx) => {
   const currentOffset = Number(ctx.update.inline_query.offset) || 0;
