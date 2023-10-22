@@ -1,6 +1,7 @@
-import { Api } from "@/deps.ts";
+import { Api, User } from "@/deps.ts";
 
 import { creatorCommands } from "@/src/constants.ts";
+import { getFullName } from "@/src/helpers/general.ts";
 
 /**
  * Registers commands for creator
@@ -19,4 +20,20 @@ export async function registerCreatorCommands(api: Api, creatorID?: string) {
       chat_id: Number(creatorID),
     },
   });
+}
+
+/**
+ * Extracts essential fields from user object
+ *
+ * @param ctx User object
+ * @returns Object with user's id, full name and username
+ */
+export function extractUserDetails(from: User) {
+  const { id, first_name, last_name, username } = from;
+
+  return {
+    userID: id,
+    fullName: getFullName(first_name, last_name),
+    username,
+  };
 }
