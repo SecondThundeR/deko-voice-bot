@@ -7,8 +7,8 @@
     "@/": "./"
   },
   "tasks": {
-    "start": "deno run --allow-net --allow-read --allow-env --allow-write bot.ts",
-    "dev": "deno run --allow-net --allow-read --allow-env --allow-write --watch bot.ts"
+    "start": "deno run --allow-net --allow-read --allow-env bot.ts",
+    "dev": "deno run --allow-net --allow-read --allow-env --watch bot.ts"
   },
   "lint": {
     "include": ["src/", "./bot.ts", "./deps.ts"],
