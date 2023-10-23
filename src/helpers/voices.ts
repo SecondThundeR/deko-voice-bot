@@ -1,10 +1,9 @@
 import { type InlineQueryResultVoice } from "@/deps.ts";
 
-import { rootCacheKey } from "@/src/constants/cache.ts";
 import { getVoices } from "@/src/database/getVoices.ts";
-import { rootQueryCache, textQueryCache } from "@/src/handlers/inlineQuery.ts";
 import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
 import { type VoiceSchema } from "@/src/schemas/voice.ts";
+import { checkQueriesCache, updateQueriesCache } from "@/src/helpers/cache.ts";
 
 /**
  * Gets current voice queries data
@@ -23,38 +22,13 @@ import { type VoiceSchema } from "@/src/schemas/voice.ts";
 */
 export async function getCurrentVoiceQueriesData(queryString: string) {
     const formattedQueryString = queryString.toLocaleLowerCase();
-    const isSearchingByQuery = formattedQueryString.length > 0;
+    const cacheData = checkQueriesCache(formattedQueryString);
+    if (cacheData !== undefined) return cacheData;
 
-    // Cache check
-    // TODO(@secondthunder): Refactor to two different functions
-    if (isSearchingByQuery) {
-        if (textQueryCache.has(formattedQueryString)) {
-            return [...textQueryCache.get(formattedQueryString)!];
-        }
-
-        if (rootQueryCache.has(rootCacheKey)) {
-            const filteredQueries = [...rootQueryCache.get(rootCacheKey)!]
-                .filter(
-                    (query) =>
-                        query.title.toLocaleLowerCase().includes(
-                            formattedQueryString,
-                        ),
-                );
-            textQueryCache.set(formattedQueryString, filteredQueries);
-            return filteredQueries;
-        }
-    } else {
-        if (rootQueryCache.has(rootCacheKey)) {
-            return [...rootQueryCache.get(rootCacheKey)!];
-        }
-    }
-
-    // DB fetch
-    // (Setting only in root, as there is no way, user can skip root cache update)
     const voices = await getVoices(formattedQueryString);
     const voicesQueries = convertVoiceDataToQueriesArray(voices);
 
-    rootQueryCache.set(rootCacheKey, voicesQueries);
+    updateQueriesCache(formattedQueryString, voicesQueries);
     return voicesQueries;
 }
 
