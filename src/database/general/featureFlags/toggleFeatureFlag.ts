@@ -2,6 +2,7 @@ import { client } from "@/bot.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 import { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
+import { featureFlagsCache } from "@/src/cache/featureFlags.ts";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;
@@ -27,6 +28,7 @@ export async function toggleFeatureFlag(id: string) {
             },
         },
     );
+    featureFlagsCache.set(id, updatedFeatureFlag.status);
 
     return updatedFeatureFlag;
 }
