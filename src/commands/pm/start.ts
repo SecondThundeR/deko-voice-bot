@@ -10,23 +10,21 @@ const { startHelp, startButtonText, maintenance: { description } } =
 
 const stickerForButtonDeeplink = Deno.env.get("STICKER_FILE_ID_FOR_DEEPLINK");
 
-startCommand
-    .filter((ctx) => ctx.chat?.type === "private")
-    .command("start", async (ctx) => {
-        if (ctx.match === "_") {
-            return (
-                stickerForButtonDeeplink !== undefined &&
-                (await ctx.replyWithSticker(stickerForButtonDeeplink))
-            );
-        }
+startCommand.command("start", async (ctx) => {
+    if (ctx.match === "_") {
+        return (
+            stickerForButtonDeeplink !== undefined &&
+            (await ctx.replyWithSticker(stickerForButtonDeeplink))
+        );
+    }
 
-        if (ctx.match === featureFlags.maintenance) {
-            return await ctx.reply(description);
-        }
+    if (ctx.match === featureFlags.maintenance) {
+        return await ctx.reply(description);
+    }
 
-        return await ctx.reply(startHelp(ctx.me.username), {
-            reply_markup: new InlineKeyboard().switchInline(startButtonText),
-        });
+    return await ctx.reply(startHelp(ctx.me.username), {
+        reply_markup: new InlineKeyboard().switchInline(startButtonText),
     });
+});
 
 export { startCommand };

@@ -13,6 +13,7 @@ import {
 
 import { startCommand } from "@/src/commands/pm/start.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
+import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
 import { locale } from "@/src/constants/locale.ts";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 import { registerCreatorCommands } from "@/src/helpers/api.ts";
@@ -36,8 +37,12 @@ const bot = new Bot(token);
 const botInfo = await bot.api.getMe();
 let runner: RunnerHandle | undefined;
 
-bot.use(startCommand);
-bot.use(invalidateCommand);
+const pm = bot.filter((ctx) => ctx.chat?.type === "private");
+const pmCreator = pm.filter((ctx) => ctx.from?.id == creatorID);
+
+pm.use(startCommand);
+pmCreator.use(invalidateCommand);
+pmCreator.use(maintenanceCommand);
 bot.use(inlineQueryHandler);
 
 bot.catch((err) => {

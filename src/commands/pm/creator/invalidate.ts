@@ -7,16 +7,9 @@ const invalidateCommand = new Composer();
 
 const { invalidatedSuccessfully } = locale.frontend;
 
-invalidateCommand
-    .filter((ctx) => ctx.chat?.type === "private")
-    .command("invalidate", async (ctx) => {
-        const creatorID = Deno.env.get("CREATOR_ID");
-        if (!creatorID || ctx.update.message?.from?.id !== Number(creatorID)) {
-            return;
-        }
-
-        invalidateRootCache();
-        return await ctx.reply(invalidatedSuccessfully);
-    });
+invalidateCommand.command("invalidate", async (ctx) => {
+    invalidateRootCache();
+    return await ctx.reply(invalidatedSuccessfully);
+});
 
 export { invalidateCommand };
