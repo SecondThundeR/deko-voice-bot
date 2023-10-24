@@ -13,3 +13,7 @@ export const collectionNames = {
         usersStats: "usersStats",
     },
 } as const;
+
+export const featureFlags = {
+    maintenance: "maintenance",
+} as const;
