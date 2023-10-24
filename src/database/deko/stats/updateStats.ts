@@ -3,7 +3,7 @@ import { User } from "@/deps.ts";
 
 import { rootCacheKey } from "@/src/constants/cache.ts";
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
-import { rootQueryCache } from "@/src/handlers/inlineQuery.ts";
+import { rootQueryCache } from "@/src/cache/rootQuery.ts";
 import { extractUserDetails } from "@/src/helpers/api.ts";
 import { VoiceStatsSchema } from "@/src/schemas/voiceStats.ts";
 import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";

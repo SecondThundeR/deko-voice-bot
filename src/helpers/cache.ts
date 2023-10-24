@@ -1,6 +1,8 @@
-import { rootQueryCache, textQueryCache } from "@/src/handlers/inlineQuery.ts";
-import { rootCacheKey } from "@/src/constants/cache.ts";
 import { InlineQueryResultVoice } from "@/deps.ts";
+
+import { rootQueryCache } from "@/src/cache/rootQuery.ts";
+import { textQueryCache } from "@/src/cache/textQuery.ts";
+import { rootCacheKey } from "@/src/constants/cache.ts";
 
 /**
  * Invalidates root cache by clearing it

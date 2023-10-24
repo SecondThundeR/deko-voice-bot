@@ -1,12 +1,5 @@
-import TTLCache from "npm:@isaacs/ttlcache@1.4.1";
+import { Composer } from "@/deps.ts";
 
-import { Composer, InlineQueryResultVoice } from "@/deps.ts";
-
-import {
-    rootCacheKey,
-    rootCacheTime,
-    textCacheTime,
-} from "@/src/constants/cache.ts";
 import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
 import {
     updateUsersStats,
@@ -15,19 +8,6 @@ import {
 import { offsetArray } from "@/src/helpers/array.ts";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
-
-export const rootQueryCache = new TTLCache<
-    typeof rootCacheKey,
-    InlineQueryResultVoice[]
->({
-    max: 1,
-    ttl: rootCacheTime,
-});
-
-export const textQueryCache = new TTLCache<string, InlineQueryResultVoice[]>({
-    max: 10000,
-    ttl: textCacheTime,
-});
 
 const inlineQueryHandler = new Composer();
 
