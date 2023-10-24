@@ -1,11 +1,13 @@
 import TTLCache from "npm:@isaacs/ttlcache@1.4.1";
 
-import { featureFlagsCacheTime } from "@/src/constants/cache.ts";
-import { featureFlagsIDs } from "@/src/constants/featureFlagsIDs.ts";
+import {
+    featureFlagsCacheKeys,
+    featureFlagsCacheTime,
+} from "@/src/constants/cache.ts";
 
-type FeatureFlagsCacheKey = typeof featureFlagsIDs[number];
+type FeatureFlagsCacheKey = typeof featureFlagsCacheKeys[number];
 
 export const featureFlagsCache = new TTLCache<FeatureFlagsCacheKey, boolean>({
-    max: featureFlagsIDs.length,
+    max: featureFlagsCacheKeys.length,
     ttl: featureFlagsCacheTime,
 });
