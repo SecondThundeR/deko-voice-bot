@@ -3,14 +3,11 @@ import { Composer } from "@/deps.ts";
 import { featureFlags } from "@/src/constants/database.ts";
 import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
 import { locale } from "@/src/constants/locale.ts";
-import {
-    updateUsersStats,
-    updateVoiceStats,
-} from "@/src/database/deko/stats/updateStats.ts";
+import { updateStats } from "@/src/database/deko/stats/updateStats.ts";
+import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 import { offsetArray } from "@/src/helpers/array.ts";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
-import { featureFlagsCache } from "@/src/cache/featureFlags.ts";
 
 const { button } = locale.frontend.maintenance;
 
@@ -18,11 +15,12 @@ const inlineQueryHandler = new Composer();
 
 inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
     const { from, result_id: voiceID } = ctx.update.chosen_inline_result;
-    await Promise.all([updateVoiceStats(voiceID), updateUsersStats(from)]);
+    await updateStats(voiceID, from);
 });
 
 inlineQueryHandler.on("inline_query", async (ctx) => {
-    if (featureFlagsCache.get(featureFlags.maintenance)) {
+    const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
+    if (isInMaintenance) {
         await ctx.answerInlineQuery([], {
             button: {
                 text: button,
