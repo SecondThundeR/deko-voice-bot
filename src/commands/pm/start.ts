@@ -4,7 +4,8 @@ import { locale } from "@/src/constants/locale.ts";
 
 const startCommand = new Composer();
 
-const { startHelp, startButtonText } = locale.frontend;
+const { startHelp, startButtonText, maintenance: { description } } =
+    locale.frontend;
 
 const stickerForButtonDeeplink = Deno.env.get("STICKER_FILE_ID_FOR_DEEPLINK");
 
@@ -16,6 +17,10 @@ startCommand
                 stickerForButtonDeeplink !== undefined &&
                 (await ctx.replyWithSticker(stickerForButtonDeeplink))
             );
+        }
+
+        if (ctx.match === "maintenance") {
+            return await ctx.reply(description);
         }
 
         return await ctx.reply(startHelp(ctx.me.username), {
