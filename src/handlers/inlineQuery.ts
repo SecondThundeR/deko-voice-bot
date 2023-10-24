@@ -11,7 +11,7 @@ import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
 import {
     updateUsersStats,
     updateVoiceStats,
-} from "@/src/database/updateStats.ts";
+} from "@/src/database/deko/stats/updateStats.ts";
 import { offsetArray } from "@/src/helpers/array.ts";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";

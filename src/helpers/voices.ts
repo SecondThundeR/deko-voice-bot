@@ -1,6 +1,6 @@
 import { type InlineQueryResultVoice } from "@/deps.ts";
 
-import { getVoices } from "@/src/database/getVoices.ts";
+import { getVoices } from "@/src/database/deko/voices/getVoices.ts";
 import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
 import { type VoiceSchema } from "@/src/schemas/voice.ts";
 import { checkQueriesCache, updateQueriesCache } from "@/src/helpers/cache.ts";
