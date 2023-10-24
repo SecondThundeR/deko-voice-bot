@@ -1,5 +1,6 @@
 import { Composer, InlineKeyboard } from "@/deps.ts";
 
+import { featureFlags } from "@/src/constants/database.ts";
 import { locale } from "@/src/constants/locale.ts";
 
 const startCommand = new Composer();
@@ -19,7 +20,7 @@ startCommand
             );
         }
 
-        if (ctx.match === "maintenance") {
+        if (ctx.match === featureFlags.maintenance) {
             return await ctx.reply(description);
         }
 

@@ -1,5 +1,6 @@
 import { Composer } from "@/deps.ts";
 
+import { featureFlags } from "@/src/constants/database.ts";
 import { locale } from "@/src/constants/locale.ts";
 import { toggleFeatureFlag } from "@/src/database/general/featureFlags/toggleFeatureFlag.ts";
 
@@ -15,7 +16,7 @@ maintenanceCommand
             return;
         }
 
-        const { status } = await toggleFeatureFlag("maintenance");
+        const { status } = await toggleFeatureFlag(featureFlags.maintenance);
         return await ctx.reply(status ? enabled : disabled);
     });
 
