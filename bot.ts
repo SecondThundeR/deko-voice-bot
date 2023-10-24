@@ -11,8 +11,8 @@ import {
     RunnerHandle,
 } from "@/deps.ts";
 
-import { invalidateCommand } from "@/src/commands/invalidate.ts";
-import { startCommand } from "@/src/commands/start.ts";
+import { startCommand } from "@/src/commands/pm/start.ts";
+import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { locale } from "@/src/constants/locale.ts";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 import { registerCreatorCommands } from "@/src/helpers/api.ts";
