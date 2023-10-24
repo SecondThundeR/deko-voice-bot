@@ -9,7 +9,6 @@ export const collectionNames = {
     },
     [databaseNames.deko]: {
         voices: "voices",
-        voiceStats: "voiceStats",
         usersStats: "usersStats",
     },
 } as const;
