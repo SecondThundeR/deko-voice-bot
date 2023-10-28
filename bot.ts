@@ -12,6 +12,7 @@ import {
 } from "@/deps.ts";
 
 import { startCommand } from "@/src/commands/pm/start.ts";
+import { myDataCommand } from "@/src/commands/pm/myData.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
 import { locale } from "@/src/constants/locale.ts";
@@ -41,6 +42,7 @@ const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => ctx.from?.id == creatorID);
 
 pm.use(startCommand);
+pm.use(myDataCommand);
 pmCreator.use(invalidateCommand);
 pmCreator.use(maintenanceCommand);
 bot.use(inlineQueryHandler);
