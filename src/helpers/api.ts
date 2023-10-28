@@ -28,7 +28,8 @@ export async function registerCreatorCommands(api: Api, creatorID?: string) {
  * @param ctx User object
  * @returns Object with user's id, full name and username
  */
-export function extractUserDetails(from: User) {
+export function extractUserDetails(from?: User) {
+    if (!from) return null;
     const { id, first_name, last_name, username } = from;
 
     return {
