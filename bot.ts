@@ -13,6 +13,8 @@ import {
 
 import { startCommand } from "@/src/commands/pm/start.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
+import { optInCommand } from "@/src/commands/pm/optIn.ts";
+import { optOutCommand } from "@/src/commands/pm/optOut.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
 import { locale } from "@/src/constants/locale.ts";
@@ -46,6 +48,8 @@ const pmCreator = pm.filter((ctx) => ctx.from?.id == creatorID);
 
 pm.use(startCommand);
 pm.use(myDataCommand);
+pm.use(optInCommand);
+pm.use(optOutCommand);
 pmCreator.use(invalidateCommand);
 pmCreator.use(maintenanceCommand);
 bot.use(inlineQueryHandler);
