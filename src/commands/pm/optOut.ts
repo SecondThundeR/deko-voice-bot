@@ -16,7 +16,9 @@ optOutCommand.command("optout", async (ctx) => {
         const lastUserData = await addIgnoredUser(currentUserID);
         return !lastUserData
             ? await ctx.reply(failed)
-            : await ctx.reply(success(lastUserData));
+            : await ctx.reply(success(lastUserData), {
+                parse_mode: "HTML",
+            });
     } catch (error) {
         console.log(
             `Failed process opt out for "${currentUserID}": ${
