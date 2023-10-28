@@ -17,7 +17,10 @@ import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
 import { locale } from "@/src/constants/locale.ts";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
-import { registerCreatorCommands } from "@/src/helpers/api.ts";
+import {
+    registerCreatorCommands,
+    registerUserCommands,
+} from "@/src/helpers/api.ts";
 
 await dotenv({ export: true });
 
@@ -78,6 +81,7 @@ process.once("SIGTERM", stopOnTerm);
 
 try {
     runner = run(bot);
+    await registerUserCommands(bot.api);
     await registerCreatorCommands(bot.api, creatorID);
     console.log(`Started as ${botInfo.first_name} (@${botInfo.username})`);
 } catch (e) {

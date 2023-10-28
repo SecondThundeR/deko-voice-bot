@@ -1,7 +1,17 @@
 import { Api, User } from "@/deps.ts";
 
 import { creatorCommands } from "@/src/constants/creatorCommands.ts";
+import { usersCommands } from "@/src/constants/usersCommands.ts";
 import { getFullName } from "@/src/helpers/general.ts";
+
+/**
+ * Registers commands for regular user
+ *
+ * @param api Api object to register commands
+ */
+export async function registerUserCommands(api: Api) {
+    await api.setMyCommands(usersCommands);
+}
 
 /**
  * Registers commands for creator
