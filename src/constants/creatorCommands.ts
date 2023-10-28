@@ -1,9 +1,9 @@
 import { BotCommand } from "@/deps.ts";
 
-import { usersCommands } from "@/src/constants/usersCommands.ts";
+import { userCommands } from "./userCommands.ts";
 
 export const creatorCommands: BotCommand[] = [
-    ...usersCommands,
+    ...userCommands,
     {
         command: "/invalidate",
         description: "Инвалидирует текущий кеш для обычного запроса",

@@ -1,6 +1,6 @@
 import { BotCommand } from "@/deps.ts";
 
-export const usersCommands: BotCommand[] = [
+export const userCommands: BotCommand[] = [
     {
         command: "/start",
         description: "Получить информацию о боте",
