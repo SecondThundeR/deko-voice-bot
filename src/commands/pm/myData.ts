@@ -4,7 +4,7 @@ import { locale } from "@/src/constants/locale.ts";
 import { extractUserDetails } from "@/src/helpers/api.ts";
 import { userUsageCache } from "@/src/cache/userUsage.ts";
 import { getUserUsageAmount } from "@/src/database/deko/stats/getUserUsageAmount.ts";
-import { isUserAlreadyIgnored } from "@/src/helpers/cache.ts";
+import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
 
 /**
  * To save cache size and reduce queries to DB,
@@ -22,7 +22,7 @@ myDataCommand.command("mydata", async (ctx) => {
         return await ctx.reply(failedToFindUserData);
     }
 
-    const userIgnoreStatus = await isUserAlreadyIgnored(userDetails.userID);
+    const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
     if (userIgnoreStatus) return await ctx.reply(noDataForIgnoredUser);
 
     const userID = userDetails.userID;

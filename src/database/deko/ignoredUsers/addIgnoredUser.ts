@@ -2,7 +2,7 @@ import { client } from "@/bot.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 import {
-    isUserAlreadyIgnored,
+    getUserIgnoreStatus,
     updateIgnoredUsersCache,
 } from "@/src/helpers/cache.ts";
 import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
@@ -13,7 +13,7 @@ const ignoredColName = collectionNames[dbName].ignoredUsers;
 const statsColName = collectionNames[dbName].usersStats;
 
 export async function addIgnoredUser(userID: number) {
-    if (await isUserAlreadyIgnored(userID)) {
+    if (await getUserIgnoreStatus(userID)) {
         return null;
     }
 

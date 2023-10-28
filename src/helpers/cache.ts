@@ -58,25 +58,14 @@ export function updateQueriesCache(
 }
 
 /**
- * Checks if user is already an ignored user for stats
+ * Checks if user is not an ignored user for stats or not
  *
- * @param userID ID of user
- * @returns True if user is already ignored, false if not
+ * @param userID ID of user to check ignore status
+ * @returns True if user is not ignored, False if already ignored
  */
-export async function isUserAlreadyIgnored(userID: number) {
+export async function getUserIgnoreStatus(userID: number) {
     const currentIgnoredUsers = await getIgnoredUsersArray();
     return currentIgnoredUsers.includes(userID);
-}
-
-/**
- * Checks if user is not an ignored user for stats
- *
- * @param userID ID of user
- * @returns True if user is not ignored, false if already ignored
- */
-export async function isUserNotIgnored(userID: number) {
-    const currentIgnoredUsers = await getIgnoredUsersArray();
-    return !currentIgnoredUsers.includes(userID);
 }
 
 /**
