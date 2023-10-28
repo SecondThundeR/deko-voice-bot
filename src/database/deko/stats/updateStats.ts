@@ -5,6 +5,7 @@ import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 import { extractUserDetails } from "@/src/helpers/api.ts";
 import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";
 import { VoiceSchema } from "@/src/schemas/voice.ts";
+import { userUsageCache } from "@/src/cache/userUsage.ts";
 
 const dbName = databaseNames.deko;
 const voicesColName = collectionNames[dbName].voices;
@@ -25,7 +26,9 @@ export async function updateStats(voiceID: string, from: User) {
         },
     );
 
-    await usersStats.findAndModify(
+    if (userDetails === null) return;
+
+    const modifiedStatsData = await usersStats.findAndModify(
         { userID: userDetails.userID },
         {
             update: {
@@ -39,4 +42,10 @@ export async function updateStats(voiceID: string, from: User) {
             upsert: true,
         },
     );
+
+    if (!modifiedStatsData) return;
+
+    const { userID, usesAmount } = modifiedStatsData;
+    // Should increment usage again, as Mongo returns old value, but sets new one
+    userUsageCache.set(userID, usesAmount + 1);
 }

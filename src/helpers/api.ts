@@ -1,7 +1,17 @@
 import { Api, User } from "@/deps.ts";
 
 import { creatorCommands } from "@/src/constants/creatorCommands.ts";
+import { userCommands } from "../constants/userCommands.ts";
 import { getFullName } from "@/src/helpers/general.ts";
+
+/**
+ * Registers commands for regular user
+ *
+ * @param api Api object to register commands
+ */
+export async function registerUserCommands(api: Api) {
+    await api.setMyCommands(userCommands);
+}
 
 /**
  * Registers commands for creator
@@ -28,7 +38,8 @@ export async function registerCreatorCommands(api: Api, creatorID?: string) {
  * @param ctx User object
  * @returns Object with user's id, full name and username
  */
-export function extractUserDetails(from: User) {
+export function extractUserDetails(from?: User) {
+    if (!from) return null;
     const { id, first_name, last_name, username } = from;
 
     return {
