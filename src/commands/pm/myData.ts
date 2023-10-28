@@ -23,7 +23,7 @@ myDataCommand.command("mydata", async (ctx) => {
     const userID = userDetails.userID;
     if (!userUsageCache.has(userID)) {
         const dbUsageAmount = await getUserUsageAmount(userID);
-        userUsageCache.set(userID, dbUsageAmount ?? 0);
+        userUsageCache.set(userID, dbUsageAmount);
     }
     const usageAmount = userUsageCache.get(userID)!;
 

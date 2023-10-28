@@ -11,5 +11,5 @@ export async function getUserUsageAmount(userID: number) {
     const usersStats = db.collection<UsersStatsSchema>(usersColName);
     const data = await usersStats.find({ userID }).toArray();
 
-    return data ? data[0].usesAmount : null;
+    return data.length > 0 ? data[0].usesAmount : 0;
 }
