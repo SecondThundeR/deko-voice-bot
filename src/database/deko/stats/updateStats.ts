@@ -46,5 +46,6 @@ export async function updateStats(voiceID: string, from: User) {
     if (!modifiedStatsData) return;
 
     const { userID, usesAmount } = modifiedStatsData;
-    userUsageCache.set(userID, usesAmount);
+    // Should increment usage again, as Mongo returns old value, but sets new one
+    userUsageCache.set(userID, usesAmount + 1);
 }
