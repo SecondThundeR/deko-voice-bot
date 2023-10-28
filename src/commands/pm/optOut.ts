@@ -1,6 +1,7 @@
 import { Composer } from "@/deps.ts";
 
 import { locale } from "@/src/constants/locale.ts";
+import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 import { addIgnoredUser } from "@/src/database/deko/ignoredUsers/addIgnoredUser.ts";
 
 const optOutCommand = new Composer();
@@ -25,7 +26,9 @@ optOutCommand.command("optout", async (ctx) => {
                 (error as Error).message
             }`,
         );
-        return await ctx.reply(exception);
+        return await ctx.reply(exception, {
+            reply_markup: sendInlineRequestKeyboard,
+        });
     }
 });
 
