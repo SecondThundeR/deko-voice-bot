@@ -5,15 +5,26 @@ import { addIgnoredUser } from "@/src/database/deko/ignoredUsers/addIgnoredUser.
 
 const optOutCommand = new Composer();
 
-const { failedToFindUserData, addIgnore: { success, failed } } =
+const { failedToFindUserData, addIgnore: { success, failed, exception } } =
     locale.frontend;
 
 optOutCommand.command("optout", async (ctx) => {
     const currentUserID = ctx.from?.id;
     if (!currentUserID) return await ctx.reply(failedToFindUserData);
 
-    const addIgnoreStatus = await addIgnoredUser(currentUserID);
-    return await ctx.reply(addIgnoreStatus ? success : failed);
+    try {
+        const lastUserData = await addIgnoredUser(currentUserID);
+        return !lastUserData
+            ? await ctx.reply(failed)
+            : await ctx.reply(success(lastUserData));
+    } catch (error) {
+        console.log(
+            `Failed process opt out for "${currentUserID}": ${
+                (error as Error).message
+            }`,
+        );
+        return await ctx.reply(exception);
+    }
 });
 
 export { optOutCommand };

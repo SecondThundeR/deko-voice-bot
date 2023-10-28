@@ -14,7 +14,7 @@ const statsColName = collectionNames[dbName].usersStats;
 
 export async function addIgnoredUser(userID: number) {
     if (await isUserAlreadyIgnored(userID)) {
-        return false;
+        return null;
     }
 
     const db = client.database(dbName);
@@ -24,13 +24,19 @@ export async function addIgnoredUser(userID: number) {
     const ignoredUsersCollection = db.collection<IgnoredUsersSchema>(
         ignoredColName,
     );
-    await Promise.all([
-        usersStatsCollection.deleteOne({ userID }),
-        ignoredUsersCollection.insertOne({
-            userID,
-        }),
-    ]);
+    const userData = await usersStatsCollection.findAndModify({ userID }, {
+        remove: true,
+    });
+    if (!userData) {
+        throw new Error(
+            "Failed to delete user data. Make sure, such user is exists before removing it",
+        );
+    }
 
+    await ignoredUsersCollection.insertOne({
+        userID,
+    });
     updateIgnoredUsersCache(userID, "add");
-    return true;
+
+    return userData;
 }
