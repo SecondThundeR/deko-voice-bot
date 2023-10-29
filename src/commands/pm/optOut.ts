@@ -10,9 +10,9 @@ const { failedToFindUserData, addIgnore: { success, failed, exception } } =
     locale.frontend;
 
 optOutCommand.command("optout", async (ctx) => {
-    const currentUserID = ctx.from?.id;
-    if (!currentUserID) return await ctx.reply(failedToFindUserData);
+    if (!ctx.from) return await ctx.reply(failedToFindUserData);
 
+    const currentUserID = ctx.from.id;
     try {
         const lastUserData = await addIgnoredUser(currentUserID);
         return !lastUserData
