@@ -1,3 +1,4 @@
+import { User } from "@/deps.ts";
 import { client } from "@/bot.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
@@ -7,12 +8,14 @@ import {
 } from "@/src/helpers/cache.ts";
 import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
 import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";
+import { extractUserDetails } from "@/src/helpers/api.ts";
 
 const dbName = databaseNames.deko;
 const ignoredColName = collectionNames[dbName].ignoredUsers;
 const statsColName = collectionNames[dbName].usersStats;
 
-export async function removeIgnoredUser(userID: number) {
+export async function removeIgnoredUser(from: User) {
+    const { userID, fullName, username } = extractUserDetails(from)!;
     if (!await getUserIgnoreStatus(userID)) {
         return false;
     }
@@ -25,7 +28,12 @@ export async function removeIgnoredUser(userID: number) {
         ignoredColName,
     );
     const [, deleteStatus] = await Promise.all([
-        usersStatsCollection.insertOne({ userID, usesAmount: 0 }),
+        usersStatsCollection.insertOne({
+            userID,
+            fullName,
+            username,
+            usesAmount: 0,
+        }),
         ignoredUsersCollection.findAndModify({
             userID,
         }, {

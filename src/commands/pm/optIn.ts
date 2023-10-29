@@ -11,11 +11,12 @@ const { failedToFindUserData, removeIgnore: { success, failed, exception } } =
     locale.frontend;
 
 optInCommand.command("optin", async (ctx) => {
-    const currentUserID = ctx.from?.id;
-    if (!currentUserID) return await ctx.reply(failedToFindUserData);
+    if (!ctx.from) return await ctx.reply(failedToFindUserData);
 
-    const removeIgnoreStatus = await removeIgnoredUser(currentUserID);
+    const currentUserID = ctx.from.id;
+    const removeIgnoreStatus = await removeIgnoredUser(ctx.from);
     const isUserDataExists = await isUserUsageExists(currentUserID);
+
     if (!isUserDataExists && !removeIgnoreStatus) {
         return await ctx.reply(exception, {
             reply_markup: sendInlineRequestKeyboard,
