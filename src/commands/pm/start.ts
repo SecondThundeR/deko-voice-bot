@@ -1,12 +1,12 @@
-import { Composer, InlineKeyboard } from "@/deps.ts";
+import { Composer } from "@/deps.ts";
 
 import { featureFlags } from "@/src/constants/database.ts";
 import { locale } from "@/src/constants/locale.ts";
+import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 
 const startCommand = new Composer();
 
-const { startHelp, startButtonText, maintenance: { description } } =
-    locale.frontend;
+const { startHelp, maintenance: { description } } = locale.frontend;
 
 const stickerForButtonDeeplink = Deno.env.get("STICKER_FILE_ID_FOR_DEEPLINK");
 
@@ -23,7 +23,7 @@ startCommand.command("start", async (ctx) => {
     }
 
     return await ctx.reply(startHelp(ctx.me.username), {
-        reply_markup: new InlineKeyboard().switchInline(startButtonText),
+        reply_markup: sendInlineRequestKeyboard,
     });
 });
 

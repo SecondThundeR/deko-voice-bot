@@ -6,6 +6,14 @@ export const userCommands: BotCommand[] = [
         description: "Получить информацию о боте",
     },
     {
+        command: "/optin",
+        description: "Добавить свои данные в статистику",
+    },
+    {
+        command: "/optout",
+        description: "Удалить свои данные из статистики",
+    },
+    {
         command: "/mydata",
         description: "Получение текущих данных о пользователе",
     },

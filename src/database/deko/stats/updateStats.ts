@@ -6,6 +6,7 @@ import { extractUserDetails } from "@/src/helpers/api.ts";
 import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";
 import { VoiceSchema } from "@/src/schemas/voice.ts";
 import { userUsageCache } from "@/src/cache/userUsage.ts";
+import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
 
 const dbName = databaseNames.deko;
 const voicesColName = collectionNames[dbName].voices;
@@ -27,6 +28,9 @@ export async function updateStats(voiceID: string, from: User) {
     );
 
     if (userDetails === null) return;
+
+    const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
+    if (userIgnoreStatus) return;
 
     const modifiedStatsData = await usersStats.findAndModify(
         { userID: userDetails.userID },
