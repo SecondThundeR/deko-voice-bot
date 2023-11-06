@@ -1,5 +1,6 @@
 import { extractUserDetails } from "@/src/helpers/api.ts";
 import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";
+import { convertLastUsedAtTimestamp } from "@/src/helpers/time.ts";
 
 export const locale = {
     general: {
@@ -20,12 +21,21 @@ export const locale = {
             { userID, fullName, username }: NonNullable<
                 ReturnType<typeof extractUserDetails>
             >,
-            usesAmount: number,
+            { usesAmount, lastUsedAt }: Pick<
+                UsersStatsSchema,
+                "usesAmount" | "lastUsedAt"
+            >,
         ) => `Для сохранения полной прозрачности, вот вся информация, которая хранится о Вас:\n- Ваш Telegram ID: <code>${userID}</code>\n- Ваше полное имя в Telegram: ${fullName}\n${
             username !== undefined
                 ? `- Ваше имя пользователя в Telegram: @${username}\n`
                 : ""
-        }- Ваше количество отправленных реплик: ${usesAmount}\n\nЭти данные используются для построения приватных графиков использования, которые помогают увидеть охват бота в динамике и отобразить список самых активных пользователей\nЕсли вы хотите удалить эти данные из базы данных и больше не собирать эти данные, используйте команду /optout`,
+        }- Ваше количество отправленных реплик: ${usesAmount}\n${
+            lastUsedAt !== undefined
+                ? `- Время последней отправки реплики (по МСК): ${
+                    convertLastUsedAtTimestamp(lastUsedAt)
+                }\n`
+                : ""
+        }\nЭти данные используются для построения приватных графиков использования, которые помогают увидеть охват бота в динамике и отобразить список самых активных пользователей\nЕсли вы хотите удалить эти данные из базы данных и больше не собирать эти данные, используйте команду /optout`,
         filteredVoices: (str: string) => `Поиск: ${str}`,
         invalidatedSuccessfully: "Главный кеш был успешно инвалидирован!",
         maintenance: {
@@ -37,7 +47,7 @@ export const locale = {
         },
         addIgnore: {
             success: (
-                { userID, fullName, username, usesAmount }: Omit<
+                { userID, fullName, username, usesAmount, lastUsedAt }: Omit<
                     UsersStatsSchema,
                     "_id"
                 >,
@@ -49,7 +59,13 @@ export const locale = {
                 username !== undefined
                     ? `- Ваше имя пользователя в Telegram: @${username}\n`
                     : ""
-            }- Ваше количество отправленных реплик: ${usesAmount}\n\nЕсли вы хотите снова использовать статистику, используйте команду /optin`,
+            }- Ваше количество отправленных реплик: ${usesAmount}\n${
+                lastUsedAt !== undefined
+                    ? `- Время последней отправки реплики (по МСК): ${
+                        convertLastUsedAtTimestamp(lastUsedAt)
+                    }\n`
+                    : ""
+            }\nЕсли вы хотите снова использовать статистику, используйте команду /optin`,
             failed:
                 "Вы и так уже были удалены из статистики! Если хотите снова записывать количество использований, используйте /optin",
             exception:
