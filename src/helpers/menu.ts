@@ -22,4 +22,18 @@ export async function prepareFavoritesSessionMenu(
         const isFavored = getFavoriteVoiceStatus(userID, id);
         return { id, title, isFavored } satisfies FavoriteItem;
     });
+
+/**
+ * Returns current menu identificator to ensure that it is up to date
+ *
+ * @description Menu identificator consists of
+ * concatenated favorites `id` and `isFavored` data
+ *
+ * @param ctx Context object to get session data
+ * @returns Current menu identificator
+ */
+export function getMenuIdentificator(ctx: BotContext) {
+    return ctx.session.currentFavorites?.map((data) =>
+        `${data.id}-${data.isFavored}`
+    ).join("|") ?? "";
 }

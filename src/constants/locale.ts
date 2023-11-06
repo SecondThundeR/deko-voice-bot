@@ -92,6 +92,7 @@ export const locale = {
             inlineAnswerSuccess: "Идет обновление избранных реплик",
         },
         menu: {
+            outdated: "Меню неактуально. Идет синхронизация...",
             alreadyPrev: "Это и так первая страница",
             alreadyNext: "Больше новых страниц нет",
             failedToGetSessionData:

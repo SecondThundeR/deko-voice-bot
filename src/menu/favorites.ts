@@ -6,11 +6,15 @@ import { prevPageHandler } from "@/src/handlers/menu/prevPageHandler.ts";
 import { BotContext } from "@/src/types/bot.ts";
 import { closeMenuHandler } from "@/src/handlers/menu/closeHandler.ts";
 import { locale } from "@/src/constants/locale.ts";
+import { fingerprintHandler } from "@/src/handlers/menu/fingerprintHandler.ts";
+import { outdatedHandler } from "@/src/handlers/menu/outdatedHandler.ts";
 
 const { prev, close, next } = locale.frontend.favorites;
 
 export const favoritesMenu = new Menu<BotContext>("fav-menu", {
     autoAnswer: false,
+    onMenuOutdated: outdatedHandler,
+    fingerprint: fingerprintHandler,
 })
     .dynamic(dynamicListHandler).row()
     .text(prev, prevPageHandler)
