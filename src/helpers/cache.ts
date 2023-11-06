@@ -7,10 +7,10 @@ import { ignoredUsersCache } from "@/src/cache/ignoredUsers.ts";
 import { getIgnoredUsersArray } from "@/src/database/deko/ignoredUsers/getIgnoredUsersArray.ts";
 import { userUsageCache } from "@/src/cache/userUsage.ts";
 import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
-import { getUserUsageAmount } from "@/src/database/deko/stats/getUserUsageAmount.ts";
-import { getUserLastUsedAtTime } from "@/src/database/deko/stats/getUserLastUsedAtTime.ts";
+import { getUserUsageAmount } from "@/src/database/deko/usersData/getUserUsageAmount.ts";
+import { getUserLastUsedAtTime } from "@/src/database/deko/usersData/getUserLastUsedAtTime.ts";
 import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
-import { getFavoritesData } from "@/src/database/deko/stats/getFavoritesData.ts";
+import { getFavoritesData } from "@/src/database/deko/usersData/getFavoritesData.ts";
 
 /**
  * Invalidates root cache by clearing it

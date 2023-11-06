@@ -6,11 +6,11 @@ import {
     updateIgnoredUsersCache,
 } from "@/src/helpers/cache.ts";
 import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
-import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";
+import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
 const dbName = databaseNames.deko;
 const ignoredColName = collectionNames[dbName].ignoredUsers;
-const statsColName = collectionNames[dbName].usersStats;
+const usersColName = collectionNames[dbName].usersData;
 
 export async function addIgnoredUser(userID: number) {
     if (await getUserIgnoreStatus(userID)) {
@@ -18,13 +18,13 @@ export async function addIgnoredUser(userID: number) {
     }
 
     const db = client.database(dbName);
-    const usersStatsCollection = db.collection<UsersStatsSchema>(
-        statsColName,
+    const usersDataCollection = db.collection<UsersDataSchema>(
+        usersColName,
     );
     const ignoredUsersCollection = db.collection<IgnoredUsersSchema>(
         ignoredColName,
     );
-    const userData = await usersStatsCollection.findAndModify({ userID }, {
+    const userData = await usersDataCollection.findAndModify({ userID }, {
         remove: true,
     });
     if (!userData) {
