@@ -9,12 +9,14 @@ import {
     MongoClient,
     run,
     RunnerHandle,
+    session,
 } from "@/deps.ts";
 
 import { startCommand } from "@/src/commands/pm/start.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
 import { optInCommand } from "@/src/commands/pm/optIn.ts";
 import { optOutCommand } from "@/src/commands/pm/optOut.ts";
+import { favoritesCommand } from "@/src/commands/pm/favorites.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
 import { locale } from "@/src/constants/locale.ts";
@@ -23,6 +25,8 @@ import {
     registerCreatorCommands,
     registerUserCommands,
 } from "@/src/helpers/api.ts";
+import { favoritesMenu } from "@/src/menu/favorites.ts";
+import { BotContext } from "@/src/types/bot.ts";
 
 await dotenv({ export: true });
 
@@ -39,20 +43,30 @@ if (!token || !mongoURL) {
 export const client = new MongoClient();
 await client.connect(mongoURL);
 
-const bot = new Bot(token);
+const bot = new Bot<BotContext>(token);
 const botInfo = await bot.api.getMe();
 let runner: RunnerHandle | undefined;
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => ctx.from?.id == creatorID);
 
+pm.use(session({
+    initial() {
+        return {
+            currentOffset: 0,
+        };
+    },
+}));
+pm.use(favoritesMenu);
+bot.use(inlineQueryHandler);
+
 pm.use(startCommand);
 pm.use(myDataCommand);
 pm.use(optInCommand);
 pm.use(optOutCommand);
+pm.use(favoritesCommand);
 pmCreator.use(invalidateCommand);
 pmCreator.use(maintenanceCommand);
-bot.use(inlineQueryHandler);
 
 bot.catch((err) => {
     const { ctx, error } = err;
