@@ -6,4 +6,5 @@ export interface UsersStatsSchema {
     username?: string;
     fullName?: string;
     usesAmount: number;
+    lastUsedAt?: number;
 }
