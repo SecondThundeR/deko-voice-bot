@@ -3,7 +3,7 @@ import { Composer } from "@/deps.ts";
 import { locale } from "@/src/constants/locale.ts";
 import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 import { removeIgnoredUser } from "@/src/database/deko/ignoredUsers/removeIgnoredUser.ts";
-import { isUserUsageExists } from "@/src/database/deko/stats/isUserUsageExists.ts";
+import { isUserUsageExists } from "@/src/database/deko/usersData/isUserUsageExists.ts";
 
 const optInCommand = new Composer();
 

@@ -1,6 +1,6 @@
 import { ObjectId } from "@/deps.ts";
 
-export interface UsersStatsSchema {
+export interface UsersDataSchema {
     _id: ObjectId;
     userID: number;
     username?: string;

@@ -1,5 +1,5 @@
 import { extractUserDetails } from "@/src/helpers/api.ts";
-import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";
+import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 import { convertLastUsedAtTimestamp } from "@/src/helpers/time.ts";
 
 export const locale = {
@@ -22,7 +22,7 @@ export const locale = {
                 ReturnType<typeof extractUserDetails>
             >,
             { usesAmount, lastUsedAt }: Pick<
-                UsersStatsSchema,
+                UsersDataSchema,
                 "usesAmount" | "lastUsedAt"
             >,
         ) => `Для сохранения полной прозрачности, вот вся информация, которая хранится о Вас:\n- Ваш Telegram ID: <code>${userID}</code>\n- Ваше полное имя в Telegram: ${fullName}\n${
@@ -48,7 +48,7 @@ export const locale = {
         addIgnore: {
             success: (
                 { userID, fullName, username, usesAmount, lastUsedAt }: Omit<
-                    UsersStatsSchema,
+                    UsersDataSchema,
                     "_id"
                 >,
             ) => `Жаль, что вы решили убрать свои данные из статистики. Вот вся информация, которая хранилась о Вас до этого момента:\n- Ваш Telegram ID: <code>${userID}</code>\n${

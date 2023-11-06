@@ -3,7 +3,7 @@ import { Composer } from "@/deps.ts";
 import { featureFlags } from "@/src/constants/database.ts";
 import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
 import { locale } from "@/src/constants/locale.ts";
-import { updateStats } from "@/src/database/deko/stats/updateStats.ts";
+import { updateStats } from "@/src/database/deko/usersData/updateStats.ts";
 import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 import { offsetArray } from "@/src/helpers/array.ts";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";

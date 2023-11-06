@@ -1,7 +1,7 @@
 import { FavoriteItem, MenuBotContext } from "@/src/types/bot.ts";
 import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
 import { locale } from "@/src/constants/locale.ts";
-import { updateFavoritesData } from "@/src/database/deko/stats/updateFavoritesData.ts";
+import { updateFavoritesData } from "@/src/database/deko/usersData/updateFavoritesData.ts";
 
 const { inlineAnswerFail, inlineAnswerSuccess } = locale.frontend.favorites;
 
