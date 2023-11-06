@@ -156,13 +156,13 @@ export async function getFavoriteVoiceStatusArray(userID: number) {
  * @param newStatus New status of voice to add/remove
  * @returns Updated favorites array
  */
-export function updateFavoriteVoiceStatus(
+export async function updateFavoriteVoiceStatus(
     userID: number,
     voiceID: string,
     newStatus: boolean,
 ) {
     const currentFavorites = favoriteVoicesIdsCache.get(userID) ?? [];
-    const currentStatus = getFavoriteVoiceStatus(userID, voiceID);
+    const currentStatus = await getFavoriteVoiceStatus(userID, voiceID);
 
     if (!newStatus && currentStatus) {
         const updatedArray = currentFavorites.filter((id) => id !== voiceID);
@@ -186,6 +186,10 @@ export function updateFavoriteVoiceStatus(
  * @param voiceID ID of voice to check if it is favored
  * @returns True if voice is favored, False otherwise
  */
-export function getFavoriteVoiceStatus(userID: number, voiceID: string) {
-    return (favoriteVoicesIdsCache.get(userID) ?? []).includes(voiceID);
+export async function getFavoriteVoiceStatus(userID: number, voiceID: string) {
+    if (!favoriteVoicesIdsCache.has(userID)) {
+        const currentFavorites = await getFavoriteVoiceStatusArray(userID);
+        return currentFavorites?.includes(voiceID) ?? false;
+    }
+    return favoriteVoicesIdsCache.get(userID)?.includes(voiceID) ?? false;
 }

@@ -18,10 +18,14 @@ export async function prepareFavoritesSessionMenu(
         return;
     }
 
-    ctx.session.currentFavorites = voicesData.map(({ id, title }) => {
-        const isFavored = getFavoriteVoiceStatus(userID, id);
-        return { id, title, isFavored } satisfies FavoriteItem;
-    });
+    const newFavoritesData: FavoriteItem[] = [];
+    for (const { id, title } of voicesData) {
+        const isFavored = await getFavoriteVoiceStatus(userID, id);
+        newFavoritesData.push({ id, title, isFavored });
+    }
+
+    ctx.session.currentFavorites = newFavoritesData;
+}
 
 /**
  * Returns current menu identificator to ensure that it is up to date

@@ -24,7 +24,7 @@ export async function favoriteItemHandler(
     const newFavoriteStatus = !favorite.isFavored;
     const updatedFavorite = { ...favorite, isFavored: newFavoriteStatus };
 
-    const newFavorites = updateFavoriteVoiceStatus(
+    const newFavorites = await updateFavoriteVoiceStatus(
         userID,
         favorite.id,
         newFavoriteStatus,
