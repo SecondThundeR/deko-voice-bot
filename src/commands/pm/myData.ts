@@ -2,9 +2,10 @@ import { Composer } from "@/deps.ts";
 
 import { locale } from "@/src/constants/locale.ts";
 import { extractUserDetails } from "@/src/helpers/api.ts";
-import { userUsageCache } from "@/src/cache/userUsage.ts";
-import { getUserUsageAmount } from "@/src/database/deko/stats/getUserUsageAmount.ts";
-import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
+import {
+    extractOtherUserData,
+    getUserIgnoreStatus,
+} from "@/src/helpers/cache.ts";
 
 /**
  * To save cache size and reduce queries to DB,
@@ -26,15 +27,14 @@ myDataCommand.command("mydata", async (ctx) => {
     if (userIgnoreStatus) return await ctx.reply(noDataForIgnoredUser);
 
     const userID = userDetails.userID;
-    if (!userUsageCache.has(userID)) {
-        const dbUsageAmount = await getUserUsageAmount(userID);
-        userUsageCache.set(userID, dbUsageAmount);
-    }
-    const usageAmount = userUsageCache.get(userID)!;
+    const otherData = await extractOtherUserData(userID);
 
-    return await ctx.reply(userDataMessage(userDetails, usageAmount), {
-        parse_mode: "HTML",
-    });
+    return await ctx.reply(
+        userDataMessage(userDetails, otherData),
+        {
+            parse_mode: "HTML",
+        },
+    );
 });
 
 export { myDataCommand };

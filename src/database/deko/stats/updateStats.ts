@@ -7,6 +7,7 @@ import { UsersStatsSchema } from "@/src/schemas/usersStats.ts";
 import { VoiceSchema } from "@/src/schemas/voice.ts";
 import { userUsageCache } from "@/src/cache/userUsage.ts";
 import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
+import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
 
 const dbName = databaseNames.deko;
 const voicesColName = collectionNames[dbName].voices;
@@ -32,12 +33,14 @@ export async function updateStats(voiceID: string, from: User) {
     const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
     if (userIgnoreStatus) return;
 
+    const lastUsedAt = Date.now();
     const modifiedStatsData = await usersStats.findAndModify(
         { userID: userDetails.userID },
         {
             update: {
                 $set: {
                     ...userDetails,
+                    lastUsedAt,
                 },
                 $inc: {
                     usesAmount: 1,
@@ -52,4 +55,5 @@ export async function updateStats(voiceID: string, from: User) {
     const { userID, usesAmount } = modifiedStatsData;
     // Should increment usage again, as Mongo returns old value, but sets new one
     userUsageCache.set(userID, usesAmount + 1);
+    lastUsedAtCache.set(userID, lastUsedAt);
 }

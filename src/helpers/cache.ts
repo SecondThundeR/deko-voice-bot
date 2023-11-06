@@ -5,6 +5,10 @@ import { textQueryCache } from "@/src/cache/textQuery.ts";
 import { ignoredUsersCacheKey, rootCacheKey } from "@/src/constants/cache.ts";
 import { ignoredUsersCache } from "@/src/cache/ignoredUsers.ts";
 import { getIgnoredUsersArray } from "@/src/database/deko/ignoredUsers/getIgnoredUsersArray.ts";
+import { userUsageCache } from "@/src/cache/userUsage.ts";
+import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
+import { getUserUsageAmount } from "@/src/database/deko/stats/getUserUsageAmount.ts";
+import { getUserLastUsedAtTime } from "@/src/database/deko/stats/getUserLastUsedAtTime.ts";
 
 /**
  * Invalidates root cache by clearing it
@@ -97,4 +101,26 @@ export function updateIgnoredUsersCache(
             currentCacheStatus.filter((uid) => uid !== userID),
         );
     }
+}
+
+/**
+ * Extracts non-Telegram user data from cache/DB
+ *
+ * @param userID ID of user to extract uses amount and last used at time
+ * @returns Object with extracted data
+ */
+export async function extractOtherUserData(userID: number) {
+    if (!userUsageCache.has(userID)) {
+        const dbUsageAmount = await getUserUsageAmount(userID);
+        userUsageCache.set(userID, dbUsageAmount);
+    }
+    const usesAmount = userUsageCache.get(userID)!;
+
+    if (!lastUsedAtCache.has(userID)) {
+        const lastUsedAtTime = await getUserLastUsedAtTime(userID);
+        lastUsedAtCache.set(userID, lastUsedAtTime);
+    }
+    const lastUsedAt = lastUsedAtCache.get(userID)!;
+
+    return { usesAmount, lastUsedAt };
 }
