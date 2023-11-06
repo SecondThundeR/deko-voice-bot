@@ -8,6 +8,7 @@ import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFl
 import { offsetArray } from "@/src/helpers/array.ts";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
+import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache.ts";
 
 const { button } = locale.frontend.maintenance;
 
@@ -30,9 +31,14 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
         });
     }
 
+    const userID = ctx.from.id;
     const currentOffset = Number(ctx.update.inline_query.offset) || 0;
     const data = ctx.update.inline_query.query;
-    const currentQueriesArray = await getCurrentVoiceQueriesData(data);
+    const favoritesIds = await getFavoriteVoiceStatusArray(userID);
+    const currentQueriesArray = await getCurrentVoiceQueriesData(
+        data,
+        favoritesIds,
+    );
     const { array: paginatedQueries, nextOffset } = offsetArray(
         currentQueriesArray,
         currentOffset,
