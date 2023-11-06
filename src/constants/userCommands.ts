@@ -17,4 +17,8 @@ export const userCommands: BotCommand[] = [
         command: "/mydata",
         description: "Получение текущих данных о пользователе",
     },
+    {
+        command: "/favorites",
+        description: "Управление списком избранных реплик",
+    },
 ];

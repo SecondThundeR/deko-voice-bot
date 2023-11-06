@@ -2,7 +2,8 @@
   "imports": {
     "grammy/": "https://deno.land/x/grammy@v1.19.2/",
     "grammy_runner/": "https://deno.land/x/grammy_runner@v2.0.3/",
-    "dotenv/": "https://deno.land/std@v0.204.0/dotenv/",
+    "grammy_menu/": "https://deno.land/x/grammy_menu@v1.2.1/",
+    "dotenv/": "https://deno.land/std@v0.205.0/dotenv/",
     "mongo/": "https://deno.land/x/mongo@v0.32.0/",
     "@/": "./"
   },

@@ -7,4 +7,5 @@ export interface UsersStatsSchema {
     fullName?: string;
     usesAmount: number;
     lastUsedAt?: number;
+    favoritesIds?: string[];
 }
