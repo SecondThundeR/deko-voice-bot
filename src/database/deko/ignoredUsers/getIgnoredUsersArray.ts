@@ -18,9 +18,9 @@ export async function getIgnoredUsersArray() {
         usersColName,
     );
     const ignoredUsersData = await ignoredUsersCollection.find().toArray();
-    const extractedIDsArray = ignoredUsersData.map((data) => data.userID);
+    const extractedIdsArray = ignoredUsersData.map((data) => data.userID);
 
-    ignoredUsersCache.set(ignoredUsersCacheKey, extractedIDsArray);
+    ignoredUsersCache.set(ignoredUsersCacheKey, extractedIdsArray);
 
-    return extractedIDsArray;
+    return extractedIdsArray;
 }
