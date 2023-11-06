@@ -9,6 +9,8 @@ import { userUsageCache } from "@/src/cache/userUsage.ts";
 import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
 import { getUserUsageAmount } from "@/src/database/deko/stats/getUserUsageAmount.ts";
 import { getUserLastUsedAtTime } from "@/src/database/deko/stats/getUserLastUsedAtTime.ts";
+import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
+import { getFavoritesData } from "@/src/database/deko/stats/getFavoritesData.ts";
 
 /**
  * Invalidates root cache by clearing it
@@ -123,4 +125,67 @@ export async function extractOtherUserData(userID: number) {
     const lastUsedAt = lastUsedAtCache.get(userID)!;
 
     return { usesAmount, lastUsedAt };
+}
+
+/**
+ * Retrieves current favorite voice status array for certain user
+ *
+ * @description If cache has data, returns it. Otherwise, gets latest from database
+ *
+ * @param userID ID of user to get current favorite voice status array
+ * @returns Array with favorite voice ids
+ */
+export async function getFavoriteVoiceStatusArray(userID: number) {
+    if (favoriteVoicesIdsCache.has(userID)) {
+        return favoriteVoicesIdsCache.get(userID);
+    }
+
+    const latestFavoritesData = await getFavoritesData(userID);
+    favoriteVoicesIdsCache.set(userID, latestFavoritesData);
+    return latestFavoritesData;
+}
+
+/**
+ * Updates cached favorites voice data and returns updated array
+ *
+ * @summary If there are certain situations (e.g, false/false or true/true),
+ * so cache won't be updated and current array will be returned as is
+ *
+ * @param userID ID of user to update favorites array
+ * @param voiceID ID of voice to add/remove to/from cached array
+ * @param newStatus New status of voice to add/remove
+ * @returns Updated favorites array
+ */
+export function updateFavoriteVoiceStatus(
+    userID: number,
+    voiceID: string,
+    newStatus: boolean,
+) {
+    const currentFavorites = favoriteVoicesIdsCache.get(userID) ?? [];
+    const currentStatus = getFavoriteVoiceStatus(userID, voiceID);
+
+    if (!newStatus && currentStatus) {
+        const updatedArray = currentFavorites.filter((id) => id !== voiceID);
+        favoriteVoicesIdsCache.set(userID, updatedArray);
+        return updatedArray;
+    }
+
+    if (newStatus && !currentStatus) {
+        const updatedArray = [...currentFavorites, voiceID];
+        favoriteVoicesIdsCache.set(userID, updatedArray);
+        return updatedArray;
+    }
+
+    return currentFavorites;
+}
+
+/**
+ * Returns voice favorite status for certain user
+ *
+ * @param userID ID of user to get favorites for
+ * @param voiceID ID of voice to check if it is favored
+ * @returns True if voice is favored, False otherwise
+ */
+export function getFavoriteVoiceStatus(userID: number, voiceID: string) {
+    return (favoriteVoicesIdsCache.get(userID) ?? []).includes(voiceID);
 }
