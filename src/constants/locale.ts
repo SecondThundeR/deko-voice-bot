@@ -93,6 +93,8 @@ export const locale = {
         },
         menu: {
             outdated: "Меню неактуально. Идет синхронизация...",
+            failedToUpdate:
+                "Telegram не позволяет обновить это сообщение после 48 часов. Удалите сообщение вручную",
             alreadyPrev: "Это и так первая страница",
             alreadyNext: "Больше новых страниц нет",
             failedToGetSessionData:
