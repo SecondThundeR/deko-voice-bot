@@ -1,4 +1,4 @@
-import { Api, User } from "@/deps.ts";
+import { Api, Context, User } from "@/deps.ts";
 
 import { creatorCommands } from "@/src/constants/creatorCommands.ts";
 import { userCommands } from "@/src/constants/userCommands.ts";
@@ -47,4 +47,19 @@ export function extractUserDetails(from: User | undefined) {
         fullName: getFullName(first_name, last_name),
         username,
     };
+}
+
+/**
+ * Sends chat action to check, if user blocks bot (Method throws error, if bot is blocked)
+ *
+ * @param ctx Context object to send chat action
+ * @returns Status of bot block
+ */
+export async function isBotBlockedByUser(ctx: Context) {
+    try {
+        await ctx.replyWithChatAction("typing");
+        return false;
+    } catch (_error: unknown) {
+        return true;
+    }
 }

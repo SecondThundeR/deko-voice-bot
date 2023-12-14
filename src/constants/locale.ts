@@ -9,6 +9,7 @@ export const locale = {
             "Failed to get some of required environment variables. Make sure you have entered them!",
     },
     frontend: {
+        botBlocked: "Разблокируйте бота, чтобы продолжить",
         startButtonText: "Начать использование",
         startHelp: (botUsername: string) =>
             `Чтобы отправлять фразы дЕко (или декО?) или найти ту самую нужную, введи в любом другом чате мою юзерку @${botUsername} или нажми кнопку снизу`,
@@ -95,6 +96,8 @@ export const locale = {
             outdated: "Меню неактуально. Идет синхронизация...",
             failedToUpdate:
                 "Telegram не позволяет обновить это сообщение после 48 часов. Удалите сообщение вручную",
+            failedToDelete:
+                "Не удалось удалить это меню. Возможно, прошло более 48 часов, после чего, Telegram не даёт удалять мне сообщения. Удалите сообщение вручную",
             alreadyPrev: "Это и так первая страница",
             alreadyNext: "Больше новых страниц нет",
             failedToGetSessionData:
