@@ -1,5 +1,5 @@
 import { MenuRange } from "@/deps.ts";
-import { BotContext } from "@/src/types/bot.ts";
+import { BotContext, MenuBotContext } from "@/src/types/bot.ts";
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
 import { favoriteItemHandler } from "@/src/handlers/menu/favoriteItemHandler.ts";
 import { locale } from "@/src/constants/locale.ts";
@@ -26,7 +26,8 @@ export function dynamicListHandler(
         range
             .text(
                 `${isFavoredText}${title}`,
-                async (ctx) => await favoriteItemHandler(ctx, favoriteItem),
+                async (ctx: MenuBotContext) =>
+                    await favoriteItemHandler(ctx, favoriteItem),
             )
             .row();
     }
