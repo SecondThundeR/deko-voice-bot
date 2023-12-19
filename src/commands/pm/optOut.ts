@@ -1,15 +1,24 @@
 import { Composer } from "@/deps.ts";
 
-import { locale } from "@/src/constants/locale.ts";
+import { featureFlags } from "@/src/constants/database.ts";
 import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
+import { locale } from "@/src/constants/locale.ts";
+
 import { addIgnoredUser } from "@/src/database/deko/ignoredUsers/addIgnoredUser.ts";
+import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 
 const optOutCommand = new Composer();
 
-const { failedToFindUserData, addIgnore: { success, failed, exception } } =
-    locale.frontend;
+const {
+    failedToFindUserData,
+    addIgnore: { success, failed, exception },
+    maintenance: { pmText },
+} = locale.frontend;
 
 optOutCommand.command("optout", async (ctx) => {
+    const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
+    if (isInMaintenance) return await ctx.reply(pmText);
+
     if (!ctx.from) return await ctx.reply(failedToFindUserData);
 
     const currentUserID = ctx.from.id;
