@@ -1,9 +1,7 @@
-FROM denoland/deno:1.37.2
+FROM denoland/deno:alpine
 
 WORKDIR /app
 
-USER deno
-
 ADD . .
 
-CMD deno task start
+CMD ["deno", "task", "start"]
