@@ -1,6 +1,7 @@
 import { extractUserDetails } from "@/src/helpers/api.ts";
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 import { convertLastUsedAtTimestamp } from "@/src/helpers/time.ts";
+
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
 export const locale = {
     general: {
@@ -72,7 +73,7 @@ export const locale = {
             failed:
                 "Вы и так уже были удалены из статистики! Если хотите снова записывать количество использований, используйте /optin",
             exception:
-                "Что-то пошло не так и не получилось удалить данные из базы данных. Похоже в базе данных нет записи о Вас, поэтому и удалять нечего! Попробуйте отправить любое голосовое сообщение, чтобы добавить себя в статистику, по кнопке ниже",
+                "Что-то пошло не так и не получилось удалить данные. Похоже в базе данных нет записи о Вас, поэтому и удалять нечего! Попробуйте отправить любое голосовое сообщение, чтобы добавить себя в статистику, по кнопке ниже",
         },
         removeIgnore: {
             success:

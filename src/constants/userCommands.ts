@@ -1,4 +1,4 @@
-import { BotCommand } from "@/deps.ts";
+import type { BotCommand } from "@/deps.ts";
 
 export const userCommands: BotCommand[] = [
     {
