@@ -1,6 +1,8 @@
-import { MenuBotContext } from "@/src/types/bot.ts";
 import { locale } from "@/src/constants/locale.ts";
+
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
+
+import type { MenuBotContext } from "@/src/types/bot.ts";
 
 const { botBlocked, menu: { outdated, failedToUpdate } } = locale.frontend;
 
@@ -9,27 +11,28 @@ export async function outdatedHandler(ctx: MenuBotContext) {
         return void await ctx.answerCallbackQuery(botBlocked);
     }
 
-    let isFailedToUpdate = false;
-
     try {
         if (!ctx.session.currentFavorites) {
             await ctx.deleteMessage();
         } else {
             ctx.menu.update();
         }
+
+        const answerText = ctx.session.currentFavorites ? outdated : undefined;
+        await ctx.answerCallbackQuery(answerText);
     } catch (error: unknown) {
-        isFailedToUpdate = true;
         console.error(
             `Failed to run outdatedHandler: ${(error as Error).message}`,
         );
-        await ctx.reply(failedToUpdate, {
-            reply_to_message_id: ctx.message?.message_id,
-        });
-    } finally {
-        await ctx.answerCallbackQuery(
-            ctx.session.currentFavorites && !isFailedToUpdate
-                ? outdated
+        const messageId = ctx.msg?.message_id;
+        const replyParams = {
+            reply_parameters: messageId
+                ? {
+                    message_id: messageId,
+                }
                 : undefined,
-        );
+        };
+        await ctx.reply(failedToUpdate, replyParams);
+        await ctx.answerCallbackQuery();
     }
 }

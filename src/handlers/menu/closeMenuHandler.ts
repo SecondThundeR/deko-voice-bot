@@ -1,6 +1,8 @@
-import { BotContext } from "@/src/types/bot.ts";
 import { locale } from "@/src/constants/locale.ts";
+
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
+
+import type { BotContext } from "@/src/types/bot.ts";
 
 const { botBlocked, menu: { failedToDelete } } = locale.frontend;
 
@@ -18,9 +20,15 @@ export async function closeMenuHandler(ctx: BotContext) {
         console.error(
             `Failed to run closeMenuHandler: ${(error as Error).message}`,
         );
-        await ctx.reply(failedToDelete, {
-            reply_to_message_id: ctx.message?.message_id,
-        });
+        const messageId = ctx.msg?.message_id;
+        const replyParams = {
+            reply_parameters: messageId
+                ? {
+                    message_id: messageId,
+                }
+                : undefined,
+        };
+        await ctx.reply(failedToDelete, replyParams);
     } finally {
         await ctx.answerCallbackQuery();
     }

@@ -37,10 +37,9 @@ export async function favoriteItemHandler(
     });
     await updateFavoritesData(userID, newFavorites);
 
-    const updatedFavorites =
-        currentFavorites?.map((item) =>
-            item.id !== favorite.id ? item : updatedFavorite
-        ) ?? null;
+    const updatedFavorites = currentFavorites
+        ?.map((item) => item.id !== favorite.id ? item : updatedFavorite) ??
+        null;
     ctx.session.currentFavorites = updatedFavorites;
 
     ctx.menu.update();

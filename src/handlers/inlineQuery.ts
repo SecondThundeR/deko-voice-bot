@@ -3,19 +3,21 @@ import { Composer } from "@/deps.ts";
 import { featureFlags } from "@/src/constants/database.ts";
 import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
 import { locale } from "@/src/constants/locale.ts";
+
 import { updateStats } from "@/src/database/deko/usersData/updateStats.ts";
 import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
+
 import { offsetArray } from "@/src/helpers/array.ts";
+import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache.ts";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
-import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache.ts";
 
 const { button } = locale.frontend.maintenance;
 
-const inlineQueryHandler = new Composer();
+export const inlineQueryHandler = new Composer();
 
 inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
-    const { from, result_id: voiceID } = ctx.update.chosen_inline_result;
+    const { from, result_id: voiceID } = ctx.chosenInlineResult;
     await updateStats(voiceID, from);
 });
 
@@ -54,5 +56,3 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
         cache_time: 0,
     });
 });
-
-export { inlineQueryHandler };

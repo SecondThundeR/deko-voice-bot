@@ -1,7 +1,9 @@
-import { MenuBotContext } from "@/src/types/bot.ts";
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
 import { locale } from "@/src/constants/locale.ts";
+
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
+
+import type { MenuBotContext } from "@/src/types/bot.ts";
 
 const { botBlocked, menu: { alreadyPrev } } = locale.frontend;
 
