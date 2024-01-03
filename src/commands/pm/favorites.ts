@@ -10,9 +10,7 @@ import { prepareFavoritesSessionMenu } from "@/src/helpers/menu.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
 
-import { BotContext } from "@/src/types/bot.ts";
-
-const favoritesCommand = new Composer<BotContext>();
+import type { BotContext } from "@/src/types/bot.ts";
 
 const {
     failedToFindUserData,
@@ -20,19 +18,18 @@ const {
     maintenance: { pmText },
 } = locale.frontend;
 
+export const favoritesCommand = new Composer<BotContext>();
+
 favoritesCommand.command("favorites", async (ctx) => {
     const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
     if (isInMaintenance) return await ctx.reply(pmText);
 
-    if (!ctx.from) return await ctx.reply(failedToFindUserData);
-    const userID = ctx.from.id;
+    const userID = ctx.from?.id;
+    if (!userID) return await ctx.reply(failedToFindUserData);
 
     const userIgnoreStatus = await getUserIgnoreStatus(userID);
     if (userIgnoreStatus) return await ctx.reply(optout);
 
     await prepareFavoritesSessionMenu(ctx, userID);
-
-    return await ctx.reply(header, { reply_markup: favoritesMenu });
+    await ctx.reply(header, { reply_markup: favoritesMenu });
 });
-
-export { favoritesCommand };
