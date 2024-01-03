@@ -7,7 +7,7 @@ interface SessionData {
     currentOffset: number;
 }
 
-interface CustomContext {
+interface ConfigContext {
     config?: {
         creatorID?: number;
         isCreator: boolean;
@@ -16,5 +16,5 @@ interface CustomContext {
 
 type Session = SessionFlavor<SessionData>;
 
-export type BotContext = Context & CustomContext & Session & I18nFlavor;
+export type BotContext = Context & ConfigContext & Session & I18nFlavor;
 export type MenuBotContext = BotContext & MenuFlavor;
