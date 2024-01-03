@@ -7,7 +7,7 @@ import type { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;
 
-export async function listAllFeatureFlags() {
+export async function getAllFeatureFlags() {
     const db = client.database(dbName);
     const featureFlagsCollection = db.collection<FeatureFlagSchema>(colName);
     const featureFlags = await featureFlagsCollection
