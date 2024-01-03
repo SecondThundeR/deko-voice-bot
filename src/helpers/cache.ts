@@ -1,6 +1,7 @@
 import { InlineQueryResultVoice } from "@/deps.ts";
 
 import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
+import { featureFlagsCache } from "@/src/cache/featureFlags.ts";
 import { ignoredUsersCache } from "@/src/cache/ignoredUsers.ts";
 import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
 import { rootQueryCache } from "@/src/cache/rootQuery.ts";
@@ -188,6 +189,37 @@ export async function updateFavoriteVoiceStatus(
 export async function getFavoriteVoiceStatus(userID: number, voiceID: string) {
     const favoriteVoiceData = await getFavoriteVoiceStatusArray(userID);
     return favoriteVoiceData?.includes(voiceID) ?? false;
+}
+
+/**
+ * Returns cached status of feature flag
+ *
+ * @description If feature flag is not cached, returns `undefined` instead
+ *
+ * @param id ID of feature flag to get cached value
+ * @returns Feature flag status or `undefined`, if cache isn't set
+ */
+export function getCachedFeatureFlag(id: string) {
+    return featureFlagsCache.get(id);
+}
+
+/**
+ * Sets new status for feature flag in cache
+ *
+ * @param id ID of feature flag to update
+ * @param status Status of feature flag to set
+ */
+export function updateCachedFeatureFlag(id: string, status: boolean) {
+    featureFlagsCache.set(id, status);
+}
+
+/**
+ * Removes feature flag status from cache
+ *
+ * @param id ID of feature flag to remove
+ */
+export function deleteCachedFeatureFlag(id: string) {
+    featureFlagsCache.delete(id);
 }
 
 /**

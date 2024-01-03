@@ -1,8 +1,11 @@
 import { client } from "@/bot.ts";
 
-import { featureFlagsCache } from "@/src/cache/featureFlags.ts";
-
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+
+import {
+    getCachedFeatureFlag,
+    updateCachedFeatureFlag,
+} from "@/src/helpers/cache.ts";
 
 import type { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
 
@@ -10,8 +13,9 @@ const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;
 
 export async function getFeatureFlag(id: string) {
-    if (featureFlagsCache.has(id)) {
-        return featureFlagsCache.get(id)!;
+    const cachedFeatureFlagStatus = getCachedFeatureFlag(id);
+    if (cachedFeatureFlagStatus !== undefined) {
+        return cachedFeatureFlagStatus;
     }
 
     const db = client.database(dbName);
@@ -20,12 +24,17 @@ export async function getFeatureFlag(id: string) {
         .find({ id })
         .toArray();
 
-    if (!featureFlag.length) {
-        throw new Error("Failed to find feature flag by ID: " + id);
+    if (!featureFlag) {
+        throw new Error("Failed to get feature flag by ID: " + id);
     }
 
-    const featureFlagStatus = featureFlag[0].status;
+    const featureFlagData = featureFlag.at(0);
+    if (!featureFlagData) {
+        throw new Error("Failed to extract feature flag data for ID: " + id);
+    }
 
-    featureFlagsCache.set(id, featureFlagStatus);
+    const featureFlagStatus = featureFlagData.status;
+
+    updateCachedFeatureFlag(id, featureFlagStatus);
     return featureFlagStatus;
 }

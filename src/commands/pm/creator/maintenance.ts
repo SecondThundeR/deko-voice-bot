@@ -2,7 +2,7 @@ import { Composer } from "@/deps.ts";
 
 import { featureFlags } from "@/src/constants/database.ts";
 
-import { toggleFeatureFlag } from "@/src/database/general/featureFlags/toggleFeatureFlag.ts";
+import { toggleFeatureFlag } from "@/src/helpers/database.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
