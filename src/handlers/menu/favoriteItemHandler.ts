@@ -1,8 +1,10 @@
-import { FavoriteItem, MenuBotContext } from "@/src/types/bot.ts";
 import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
 import { locale } from "@/src/constants/locale.ts";
 import { updateFavoritesData } from "@/src/database/deko/usersData/updateFavoritesData.ts";
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
+
+import type { MenuBotContext } from "@/src/types/bot.ts";
+import type { FavoriteItem } from "@/src/types/favoriteItem.ts";
 
 const { botBlocked, favorites: { inlineAnswerFail, inlineAnswerSuccess } } =
     locale.frontend;
