@@ -1,6 +1,6 @@
 import { type InlineQueryResultVoice } from "@/deps.ts";
 
-import { locale } from "@/src/constants/locale.ts";
+import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
 
 import { getVoices } from "@/src/database/deko/voices/getVoices.ts";
 
@@ -12,8 +12,6 @@ import {
 import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
 
 import { type VoiceSchema } from "@/src/schemas/voice.ts";
-
-const { favEmoji } = locale.frontend.favorites;
 
 /**
  * Gets current voice queries data
@@ -99,7 +97,7 @@ export function filterFavoriteVoices(
         .filter((voice) => favoritesIds.includes(voice.id))
         .map((voice) => ({
             ...voice,
-            title: `${favEmoji} ${voice.title}`,
+            title: `${FAVORITE_EMOJI} ${voice.title}`,
         }));
     const regularVoices = data.filter((voice) =>
         !favoritesIds.includes(voice.id)

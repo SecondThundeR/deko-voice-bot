@@ -1,7 +1,5 @@
 import { googleExportDownloadLink } from "@/src/constants/general.ts";
-import { locale } from "@/src/constants/locale.ts";
-
-const { googleExportLinkFail } = locale.general;
+import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale.ts";
 
 const GOOGLE_LINK_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
 
@@ -13,7 +11,7 @@ const GOOGLE_LINK_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
  */
 export function convertGoogleDriveLink(link: string) {
     const fileId = link.match(GOOGLE_LINK_REGEX)?.[0];
-    if (!fileId) throw new Error(googleExportLinkFail);
+    if (!fileId) throw new Error(GOOGLE_EXPORT_LINK_FAIL);
     return `${googleExportDownloadLink}${fileId}`;
 }
 

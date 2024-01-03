@@ -1,8 +1,6 @@
 import { InlineKeyboard } from "@/deps.ts";
 
-import { locale } from "@/src/constants/locale.ts";
-
-const { startButtonText } = locale.frontend;
+import { KEYBOARD_START_BUTTON } from "@/src/constants/locale.ts";
 
 export const sendInlineRequestKeyboard = new InlineKeyboard()
-    .switchInline(startButtonText);
+    .switchInline(KEYBOARD_START_BUTTON);
