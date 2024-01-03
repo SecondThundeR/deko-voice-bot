@@ -2,32 +2,34 @@ import { Composer } from "@/deps.ts";
 
 import { featureFlags } from "@/src/constants/database.ts";
 import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
-import { locale } from "@/src/constants/locale.ts";
 
 import { addIgnoredUser } from "@/src/database/deko/ignoredUsers/addIgnoredUser.ts";
 import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 
-const {
-    failedToFindUserData,
-    addIgnore: { success, failed, exception },
-    maintenance: { pmText },
-} = locale.frontend;
+import { getOptOutMessageText } from "@/src/helpers/locale.ts";
 
-export const optOutCommand = new Composer();
+import type { BotContext } from "@/src/types/bot.ts";
+
+export const optOutCommand = new Composer<BotContext>();
 
 optOutCommand.command("optout", async (ctx) => {
     const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
 
-    if (isInMaintenance) return await ctx.reply(pmText);
-    if (!ctx.from) return await ctx.reply(failedToFindUserData);
+    if (isInMaintenance) {
+        return await ctx.reply(ctx.t("maintenance.description-chat"));
+    }
+    if (!ctx.from) {
+        return await ctx.reply(ctx.t("general.failedToFindUserData"));
+    }
 
     const currentUserID = ctx.from.id;
 
     try {
         const lastUserData = await addIgnoredUser(currentUserID);
+        if (!lastUserData) return await ctx.reply(ctx.t("optout.failed"));
 
-        if (!lastUserData) return await ctx.reply(failed);
-        await ctx.reply(success(lastUserData), {
+        const successText = getOptOutMessageText(ctx, lastUserData);
+        await ctx.reply(successText, {
             parse_mode: "HTML",
         });
     } catch (error) {
@@ -36,7 +38,8 @@ optOutCommand.command("optout", async (ctx) => {
                 (error as Error).message
             }`,
         );
-        return await ctx.reply(exception, {
+
+        await ctx.reply(ctx.t("optout.exception"), {
             reply_markup: sendInlineRequestKeyboard,
         });
     }

@@ -1,6 +1,4 @@
-import { locale } from "@/src/constants/locale.ts";
-
-const { allVoices, filteredVoices } = locale.frontend;
+import type { BotContext } from "@/src/types/bot.ts";
 
 /**
  * Gets current text for inline query button
@@ -10,10 +8,12 @@ const { allVoices, filteredVoices } = locale.frontend;
  * @param queryString String for filtering voice queries
  * @returns Button text
  */
-export function getCurrentButtonText(queryString: string) {
+export function getCurrentButtonText(ctx: BotContext, queryString: string) {
     if (queryString.length === 0) {
-        return allVoices;
+        return ctx.t("inline.searchPlaceholder");
     }
 
-    return filteredVoices(queryString);
+    return ctx.t("inline.searchHeader", {
+        query: queryString,
+    });
 }

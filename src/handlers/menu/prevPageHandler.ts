@@ -1,21 +1,18 @@
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
-import { locale } from "@/src/constants/locale.ts";
 
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
-const { botBlocked, menu: { alreadyPrev } } = locale.frontend;
-
 export async function prevPageHandler(ctx: MenuBotContext) {
     if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(botBlocked);
+        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
     }
 
     const { currentOffset } = ctx.session;
     if (currentOffset === 0) {
         return void await ctx.answerCallbackQuery({
-            text: alreadyPrev,
+            text: ctx.t("menu.alreadyPrev"),
             show_alert: true,
         });
     }

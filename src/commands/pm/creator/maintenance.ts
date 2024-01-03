@@ -1,17 +1,18 @@
 import { Composer } from "@/deps.ts";
 
 import { featureFlags } from "@/src/constants/database.ts";
-import { locale } from "@/src/constants/locale.ts";
 
 import { toggleFeatureFlag } from "@/src/database/general/featureFlags/toggleFeatureFlag.ts";
 
-const { enabled, disabled } = locale.frontend.maintenance;
+import type { BotContext } from "@/src/types/bot.ts";
 
-export const maintenanceCommand = new Composer();
+export const maintenanceCommand = new Composer<BotContext>();
 
 maintenanceCommand.command("maintenance", async (ctx) => {
-    const status = await toggleFeatureFlag(featureFlags.maintenance);
-    const replyText = status ? enabled : disabled;
+    const maintenanceStatus = await toggleFeatureFlag(
+        featureFlags.maintenance,
+    );
+    const translationPath = maintenanceStatus ? "enabled" : "disabled";
 
-    await ctx.reply(replyText);
+    await ctx.reply(ctx.t(`maintenance.${translationPath}`));
 });
