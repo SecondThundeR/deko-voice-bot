@@ -27,7 +27,7 @@ optInCommand.command("optin", async (ctx) => {
     const isExceptionTriggered = !isUserDataExists && !removeIgnoreStatus;
 
     if (isExceptionTriggered) {
-        return await ctx.reply(ctx.t("option.exception"), {
+        return await ctx.reply(ctx.t("optin.exception"), {
             reply_markup: sendInlineRequestKeyboard,
         });
     }
