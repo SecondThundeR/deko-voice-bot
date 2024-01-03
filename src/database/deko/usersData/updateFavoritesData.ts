@@ -1,8 +1,10 @@
 import { client } from "@/bot.ts";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
+
+import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
 const dbName = databaseNames.deko;
 const usersColName = collectionNames[dbName].usersData;
@@ -26,5 +28,6 @@ export async function updateFavoritesData(
     );
 
     if (!modifiedStatsData) return;
+
     favoriteVoicesIdsCache.set(userID, favoritesIds);
 }

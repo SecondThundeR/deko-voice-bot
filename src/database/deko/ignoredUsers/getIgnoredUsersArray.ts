@@ -1,9 +1,11 @@
 import { client } from "@/bot.ts";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
-import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
 import { ignoredUsersCache } from "@/src/cache/ignoredUsers.ts";
+
 import { ignoredUsersCacheKey } from "@/src/constants/cache.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+
+import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
 
 const dbName = databaseNames.deko;
 const usersColName = collectionNames[dbName].ignoredUsers;

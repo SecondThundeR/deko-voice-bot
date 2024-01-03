@@ -1,5 +1,5 @@
-import { User } from "@/deps.ts";
 import { client } from "@/bot.ts";
+import type { User } from "@/deps.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 
@@ -7,9 +7,10 @@ import {
     getUserIgnoreStatus,
     removeIgnoredUserFromCache,
 } from "@/src/helpers/cache.ts";
-import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 import { extractUserDetails } from "@/src/helpers/api.ts";
+
+import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
 const dbName = databaseNames.deko;
 const ignoredColName = collectionNames[dbName].ignoredUsers;

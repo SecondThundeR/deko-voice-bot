@@ -6,8 +6,9 @@ import {
     addNewIgnoredUserInCache,
     getUserIgnoreStatus,
 } from "@/src/helpers/cache.ts";
-import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
+
+import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
 const dbName = databaseNames.deko;
 const ignoredColName = collectionNames[dbName].ignoredUsers;

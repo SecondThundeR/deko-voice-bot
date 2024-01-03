@@ -1,13 +1,16 @@
 import { client } from "@/bot.ts";
-import { User } from "@/deps.ts";
+import type { User } from "@/deps.ts";
+
+import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
+import { userUsageCache } from "@/src/cache/userUsage.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+
 import { extractUserDetails } from "@/src/helpers/api.ts";
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
-import { VoiceSchema } from "@/src/schemas/voice.ts";
-import { userUsageCache } from "@/src/cache/userUsage.ts";
 import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
-import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
+
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { VoiceSchema } from "@/src/schemas/voice.ts";
 
 const dbName = databaseNames.deko;
 const voicesColName = collectionNames[dbName].voices;
@@ -15,9 +18,10 @@ const usersColName = collectionNames[dbName].usersData;
 
 export async function updateStats(voiceID: string, from: User) {
     const db = client.database(dbName);
-    const userDetails = extractUserDetails(from);
     const usersData = db.collection<UsersDataSchema>(usersColName);
     const voicesCol = db.collection<VoiceSchema>(voicesColName);
+    const userDetails = extractUserDetails(from);
+    const lastUsedAt = Date.now();
 
     await voicesCol.updateOne(
         { id: voiceID },
@@ -28,12 +32,11 @@ export async function updateStats(voiceID: string, from: User) {
         },
     );
 
-    if (userDetails === null) return;
+    if (!userDetails) return;
 
     const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
     if (userIgnoreStatus) return;
 
-    const lastUsedAt = Date.now();
     const modifiedStatsData = await usersData.findAndModify(
         { userID: userDetails.userID },
         {
@@ -53,6 +56,7 @@ export async function updateStats(voiceID: string, from: User) {
     if (!modifiedStatsData) return;
 
     const { userID, usesAmount } = modifiedStatsData;
+
     // Should increment usage again, as Mongo returns old value, but sets new one
     userUsageCache.set(userID, usesAmount + 1);
     lastUsedAtCache.set(userID, lastUsedAt);

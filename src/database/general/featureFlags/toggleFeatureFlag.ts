@@ -1,8 +1,10 @@
 import { client } from "@/bot.ts";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
-import { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
 import { featureFlagsCache } from "@/src/cache/featureFlags.ts";
+
+import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+
+import type { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;
@@ -11,7 +13,9 @@ export async function toggleFeatureFlag(id: string) {
     const db = client.database(dbName);
     const featureFlagsCollection = db.collection<FeatureFlagSchema>(colName);
 
-    const featureFlag = await featureFlagsCollection.find({ id }).toArray();
+    const featureFlag = await featureFlagsCollection
+        .find({ id })
+        .toArray();
     if (!featureFlag.length) {
         throw new Error("Failed to find feature flag by ID: " + id);
     }
@@ -30,5 +34,5 @@ export async function toggleFeatureFlag(id: string) {
     );
     featureFlagsCache.set(id, updatedFeatureFlag.status);
 
-    return updatedFeatureFlag;
+    return updatedFeatureFlag.status;
 }

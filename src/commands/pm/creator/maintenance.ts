@@ -9,8 +9,8 @@ const maintenanceCommand = new Composer();
 const { enabled, disabled } = locale.frontend.maintenance;
 
 maintenanceCommand.command("maintenance", async (ctx) => {
-    const { status } = await toggleFeatureFlag(featureFlags.maintenance);
     return await ctx.reply(status ? enabled : disabled);
 });
+    const status = await toggleFeatureFlag(featureFlags.maintenance);
 
 export { maintenanceCommand };
