@@ -1,7 +1,5 @@
 import { Menu } from "@/deps.ts";
 
-import { locale } from "@/src/constants/locale.ts";
-
 import { closeMenuHandler } from "@/src/handlers/menu/closeMenuHandler.ts";
 import { dynamicListHandler } from "@/src/handlers/menu/dynamicListHandler.ts";
 import { fingerprintHandler } from "@/src/handlers/menu/fingerprintHandler.ts";
@@ -9,9 +7,7 @@ import { nextPageHandler } from "@/src/handlers/menu/nextPageHandler.ts";
 import { outdatedHandler } from "@/src/handlers/menu/outdatedHandler.ts";
 import { prevPageHandler } from "@/src/handlers/menu/prevPageHandler.ts";
 
-import { BotContext } from "@/src/types/bot.ts";
-
-const { prev, close, next } = locale.frontend.favorites;
+import type { BotContext } from "@/src/types/bot.ts";
 
 export const favoritesMenu = new Menu<BotContext>("fav-menu", {
     autoAnswer: false,
@@ -19,6 +15,6 @@ export const favoritesMenu = new Menu<BotContext>("fav-menu", {
     fingerprint: fingerprintHandler,
 })
     .dynamic(dynamicListHandler).row()
-    .text(prev, prevPageHandler)
-    .text(close, closeMenuHandler)
-    .text(next, nextPageHandler);
+    .text((ctx) => ctx.t("menu.prev"), prevPageHandler)
+    .text((ctx) => ctx.t("menu.close"), closeMenuHandler)
+    .text((ctx) => ctx.t("menu.next"), nextPageHandler);

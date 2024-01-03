@@ -1,21 +1,17 @@
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
-import { locale } from "@/src/constants/locale.ts";
 
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
-const { botBlocked, menu: { failedToGetSessionData, alreadyNext } } =
-    locale.frontend;
-
 export async function nextPageHandler(ctx: MenuBotContext) {
     if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(botBlocked);
+        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
     }
 
     if (!ctx.session.currentFavorites) {
         return void await ctx.answerCallbackQuery({
-            text: failedToGetSessionData,
+            text: ctx.t("menu.failedToGetSessionData"),
             show_alert: true,
         });
     }
@@ -24,7 +20,7 @@ export async function nextPageHandler(ctx: MenuBotContext) {
 
     if (newOffset >= ctx.session.currentFavorites.length) {
         return void ctx.answerCallbackQuery({
-            text: alreadyNext,
+            text: ctx.t("menu.alreadyNext"),
             show_alert: true,
         });
     }

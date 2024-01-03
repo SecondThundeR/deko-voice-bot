@@ -1,14 +1,10 @@
-import { locale } from "@/src/constants/locale.ts";
-
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
-const { botBlocked, menu: { outdated, failedToUpdate } } = locale.frontend;
-
 export async function outdatedHandler(ctx: MenuBotContext) {
     if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(botBlocked);
+        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
     }
 
     try {
@@ -18,7 +14,9 @@ export async function outdatedHandler(ctx: MenuBotContext) {
             ctx.menu.update();
         }
 
-        const answerText = ctx.session.currentFavorites ? outdated : undefined;
+        const answerText = ctx.session.currentFavorites
+            ? ctx.t("menu.outdated")
+            : undefined;
         await ctx.answerCallbackQuery(answerText);
     } catch (error: unknown) {
         console.error(
@@ -32,7 +30,7 @@ export async function outdatedHandler(ctx: MenuBotContext) {
                 }
                 : undefined,
         };
-        await ctx.reply(failedToUpdate, replyParams);
+        await ctx.reply(ctx.t("menu.failedToUpdate"), replyParams);
         await ctx.answerCallbackQuery();
     }
 }

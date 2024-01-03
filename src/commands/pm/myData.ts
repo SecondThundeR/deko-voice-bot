@@ -1,7 +1,6 @@
 import { Composer } from "@/deps.ts";
 
 import { featureFlags } from "@/src/constants/database.ts";
-import { locale } from "@/src/constants/locale.ts";
 
 import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 
@@ -10,34 +9,39 @@ import {
     extractOtherUserData,
     getUserIgnoreStatus,
 } from "@/src/helpers/cache.ts";
+import { getUserDataMessageText } from "@/src/helpers/locale.ts";
 
-const {
-    failedToFindUserData,
-    noDataForIgnoredUser,
-    userDataMessage,
-    maintenance: { pmText },
-} = locale.frontend;
+import type { BotContext } from "@/src/types/bot.ts";
 
 /**
  * To save cache size and reduce queries to DB,
  * this command will extract user's ID, fullName and username from
  * message object and only will deal with getting usage amount
  */
-export const myDataCommand = new Composer();
+export const myDataCommand = new Composer<BotContext>();
 
 myDataCommand.command("mydata", async (ctx) => {
     const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
-    if (isInMaintenance) return await ctx.reply(pmText);
+    if (isInMaintenance) {
+        return await ctx.reply(ctx.t("maintenance.description-chat"));
+    }
 
     const userDetails = extractUserDetails(ctx.from);
-    if (!userDetails) return await ctx.reply(failedToFindUserData);
+    if (!userDetails) {
+        return await ctx.reply(ctx.t("general.failedToFindUserData"));
+    }
 
     const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
-    if (userIgnoreStatus) return await ctx.reply(noDataForIgnoredUser);
+    if (userIgnoreStatus) {
+        return await ctx.reply(ctx.t("myData.ignoredUser"));
+    }
 
     const { userID } = userDetails;
     const otherData = await extractOtherUserData(userID);
-    const replyText = userDataMessage(userDetails, otherData);
+    const replyText = getUserDataMessageText(ctx, {
+        ...userDetails,
+        ...otherData,
+    });
 
     await ctx.reply(replyText, {
         parse_mode: "HTML",

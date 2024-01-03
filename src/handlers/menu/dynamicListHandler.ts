@@ -1,13 +1,11 @@
 import { MenuRange } from "@/deps.ts";
 
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
-import { locale } from "@/src/constants/locale.ts";
+import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
 
 import { favoriteItemHandler } from "@/src/handlers/menu/favoriteItemHandler.ts";
 
 import type { BotContext, MenuBotContext } from "@/src/types/bot.ts";
-
-const { favEmoji } = locale.frontend.favorites;
 
 export function dynamicListHandler(
     ctx: BotContext,
@@ -24,7 +22,7 @@ export function dynamicListHandler(
     currentFavorites.slice(currentOffset, indexLimit).forEach(
         (favoriteItem) => {
             const { isFavored, title } = favoriteItem;
-            const isFavoredText = isFavored ? `${favEmoji} ` : "";
+            const isFavoredText = isFavored ? `${FAVORITE_EMOJI} ` : "";
 
             range
                 .text(

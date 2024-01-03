@@ -1,14 +1,10 @@
-import { locale } from "@/src/constants/locale.ts";
-
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-const { botBlocked, menu: { failedToDelete } } = locale.frontend;
-
 export async function closeMenuHandler(ctx: BotContext) {
     if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(botBlocked);
+        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
     }
 
     ctx.session.currentFavorites = null;
@@ -28,7 +24,7 @@ export async function closeMenuHandler(ctx: BotContext) {
                 }
                 : undefined,
         };
-        await ctx.reply(failedToDelete, replyParams);
+        await ctx.reply(ctx.t("menu.failedToDelete"), replyParams);
     } finally {
         await ctx.answerCallbackQuery();
     }

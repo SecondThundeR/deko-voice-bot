@@ -1,7 +1,6 @@
 import { Composer } from "@/deps.ts";
 
 import { featureFlags } from "@/src/constants/database.ts";
-import { locale } from "@/src/constants/locale.ts";
 
 import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 
@@ -12,24 +11,20 @@ import { favoritesMenu } from "@/src/menu/favorites.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-const {
-    failedToFindUserData,
-    favorites: { header, optout },
-    maintenance: { pmText },
-} = locale.frontend;
-
 export const favoritesCommand = new Composer<BotContext>();
 
 favoritesCommand.command("favorites", async (ctx) => {
     const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
-    if (isInMaintenance) return await ctx.reply(pmText);
+    if (isInMaintenance) {
+        return await ctx.reply(ctx.t("maintenance.description-chat"));
+    }
 
     const userID = ctx.from?.id;
-    if (!userID) return await ctx.reply(failedToFindUserData);
+    if (!userID) return await ctx.reply(ctx.t("general.failedToFindUserData"));
 
     const userIgnoreStatus = await getUserIgnoreStatus(userID);
-    if (userIgnoreStatus) return await ctx.reply(optout);
+    if (userIgnoreStatus) return await ctx.reply(ctx.t("favorites.optout"));
 
     await prepareFavoritesSessionMenu(ctx, userID);
-    await ctx.reply(header, { reply_markup: favoritesMenu });
+    await ctx.reply(ctx.t("favorites.header"), { reply_markup: favoritesMenu });
 });

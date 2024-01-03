@@ -1,5 +1,3 @@
-import { locale } from "@/src/constants/locale.ts";
-
 import { updateFavoritesData } from "@/src/database/deko/usersData/updateFavoritesData.ts";
 
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
@@ -8,21 +6,18 @@ import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
 import type { MenuBotContext } from "@/src/types/bot.ts";
 import type { FavoriteItem } from "@/src/types/favoriteItem.ts";
 
-const { botBlocked, favorites: { inlineAnswerFail, inlineAnswerSuccess } } =
-    locale.frontend;
-
 export async function favoriteItemHandler(
     ctx: MenuBotContext,
     favorite: FavoriteItem,
 ) {
     if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(botBlocked);
+        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
     }
 
     const userID = ctx.from?.id;
     if (!userID) {
         return void await ctx.answerCallbackQuery({
-            text: inlineAnswerFail,
+            text: ctx.t("favorites.inlineAnswerFail"),
         });
     }
 
@@ -44,6 +39,6 @@ export async function favoriteItemHandler(
 
     ctx.menu.update();
     await ctx.answerCallbackQuery({
-        text: inlineAnswerSuccess,
+        text: ctx.t("favorites.inlineAnswerSuccess"),
     });
 }

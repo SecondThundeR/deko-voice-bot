@@ -15,6 +15,8 @@ export { run, type RunnerHandle, sequentialize } from "grammy_runner/mod.ts";
 export { Menu } from "grammy_menu/mod.ts";
 export type { MenuFlavor, MenuRange } from "grammy_menu/mod.ts";
 
+export { I18n, type I18nFlavor } from "grammy_i18n/mod.ts";
+
 export { load as dotenv } from "dotenv/mod.ts";
 
 export {

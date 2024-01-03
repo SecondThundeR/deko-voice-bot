@@ -1,4 +1,4 @@
-import { Context, MenuFlavor, SessionFlavor } from "@/deps.ts";
+import { Context, I18nFlavor, MenuFlavor, SessionFlavor } from "@/deps.ts";
 
 import { FavoriteItem } from "@/src/types/favoriteItem.ts";
 
@@ -9,5 +9,5 @@ interface SessionData {
 
 type Session = SessionFlavor<SessionData>;
 
-export type BotContext = Context & Session;
+export type BotContext = Context & Session & I18nFlavor;
 export type MenuBotContext = BotContext & MenuFlavor;

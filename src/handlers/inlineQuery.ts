@@ -2,7 +2,6 @@ import { Composer } from "@/deps.ts";
 
 import { featureFlags } from "@/src/constants/database.ts";
 import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
-import { locale } from "@/src/constants/locale.ts";
 
 import { updateStats } from "@/src/database/deko/usersData/updateStats.ts";
 import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
@@ -12,9 +11,9 @@ import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache.ts";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
 
-const { button } = locale.frontend.maintenance;
+import type { BotContext } from "@/src/types/bot.ts";
 
-export const inlineQueryHandler = new Composer();
+export const inlineQueryHandler = new Composer<BotContext>();
 
 inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
     const { from, result_id: voiceID } = ctx.chosenInlineResult;
@@ -26,7 +25,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     if (isInMaintenance) {
         await ctx.answerInlineQuery([], {
             button: {
-                text: button,
+                text: ctx.t("maintenance.inline-button"),
                 start_parameter: featureFlags.maintenance,
             },
             cache_time: 0,
@@ -50,7 +49,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     await ctx.answerInlineQuery(paginatedQueries, {
         next_offset: nextOffset,
         button: {
-            text: getCurrentButtonText(data),
+            text: getCurrentButtonText(ctx, data),
             start_parameter: "_",
         },
         cache_time: 0,

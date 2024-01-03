@@ -1,14 +1,12 @@
 import { Composer } from "@/deps.ts";
 
-import { locale } from "@/src/constants/locale.ts";
-
 import { invalidateRootCache } from "@/src/helpers/cache.ts";
 
-const { invalidatedSuccessfully } = locale.frontend;
+import type { BotContext } from "@/src/types/bot.ts";
 
-export const invalidateCommand = new Composer();
+export const invalidateCommand = new Composer<BotContext>();
 
 invalidateCommand.command("invalidate", async (ctx) => {
     invalidateRootCache();
-    await ctx.reply(invalidatedSuccessfully);
+    await ctx.reply(ctx.t("invalidate.success"));
 });
