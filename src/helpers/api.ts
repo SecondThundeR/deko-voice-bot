@@ -80,3 +80,15 @@ export function getReplyParameters(messageId?: number) {
         },
     };
 }
+
+/**
+ * Returns chat ID as string for using as a session key
+ *
+ * @description Needed for runner's `sequentialize`
+ *
+ * @param ctx Context object
+ * @returns String representation of chat's ID
+ */
+export function getSessionKey(ctx: Context) {
+    return ctx.chat?.id.toString();
+}
