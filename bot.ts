@@ -97,7 +97,10 @@ bot.catch((err) => {
     console.error("Unknown error occurred:", error);
 });
 
-const stopRunner = () => runner?.isRunning() && runner.stop();
+const stopRunner = () => {
+    runner?.isRunning() && runner.stop();
+    Deno.exit();
+};
 
 Deno.addSignalListener("SIGINT", stopRunner);
 Deno.addSignalListener("SIGTERM", stopRunner);
