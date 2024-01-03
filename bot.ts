@@ -108,8 +108,10 @@ Deno.addSignalListener("SIGTERM", stopRunner);
 try {
     runner = run(bot);
 
-    await registerUserCommands(bot.api);
-    await registerCreatorCommands(bot.api, creatorID);
+    await Promise.all([
+        registerUserCommands(bot.api),
+        registerCreatorCommands(bot.api, creatorID),
+    ]);
 
     const botInfo = await bot.api.getMe();
     console.log(`Started as ${botInfo.first_name} (@${botInfo.username})`);
