@@ -3,6 +3,7 @@ import {
     dotenv,
     GrammyError,
     HttpError,
+    I18n,
     MongoClient,
     run,
     RunnerHandle,
@@ -17,7 +18,7 @@ import { optInCommand } from "@/src/commands/pm/optIn.ts";
 import { optOutCommand } from "@/src/commands/pm/optOut.ts";
 import { startCommand } from "@/src/commands/pm/start.ts";
 
-import { locale } from "@/src/constants/locale.ts";
+import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
 
@@ -31,14 +32,12 @@ import type { BotContext } from "@/src/types/bot.ts";
 
 await dotenv({ export: true });
 
-const { envsCheckFail } = locale.general;
-
 const token = Deno.env.get("BOT_TOKEN");
 const mongoURL = Deno.env.get("MONGO_URL");
 const creatorID = Deno.env.get("CREATOR_ID");
 
 if (!token || !mongoURL) {
-    console.error(envsCheckFail);
+    console.error(ENVS_CHECK_FAIL);
     Deno.exit(1);
 }
 
@@ -46,12 +45,23 @@ export const client = new MongoClient();
 await client.connect(mongoURL);
 
 const bot = new Bot<BotContext>(token);
+const i18n = new I18n<BotContext>({
+    defaultLocale: "ru",
+    directory: "locales",
+    globalTranslationContext(ctx) {
+        return {
+            botUsername: `@${ctx.me.username}`,
+        };
+    },
+});
 let runner: RunnerHandle | undefined;
+
+bot.use(i18n);
+bot.use(inlineQueryHandler);
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => ctx.from?.id == creatorID);
 
-bot.use(inlineQueryHandler);
 pm.use(session({
     initial() {
         return {
