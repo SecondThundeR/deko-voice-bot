@@ -1,9 +1,10 @@
 import { client } from "@/bot.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+
 import {
+    addNewIgnoredUserInCache,
     getUserIgnoreStatus,
-    updateIgnoredUsersCache,
 } from "@/src/helpers/cache.ts";
 import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
 import { UsersDataSchema } from "@/src/schemas/usersData.ts";
@@ -36,7 +37,7 @@ export async function addIgnoredUser(userID: number) {
     await ignoredUsersCollection.insertOne({
         userID,
     });
-    updateIgnoredUsersCache(userID, "add");
+    addNewIgnoredUserInCache(userID);
 
     return userData;
 }

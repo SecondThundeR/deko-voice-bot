@@ -1,10 +1,17 @@
 import { type InlineQueryResultVoice } from "@/deps.ts";
 
-import { getVoices } from "@/src/database/deko/voices/getVoices.ts";
-import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
-import { type VoiceSchema } from "@/src/schemas/voice.ts";
-import { checkQueriesCache, updateQueriesCache } from "@/src/helpers/cache.ts";
 import { locale } from "@/src/constants/locale.ts";
+
+import { getVoices } from "@/src/database/deko/voices/getVoices.ts";
+
+import {
+    checkQueriesCache,
+    updateRootQueryCache,
+    updateTextQueryCache,
+} from "@/src/helpers/cache.ts";
+import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
+
+import { type VoiceSchema } from "@/src/schemas/voice.ts";
 
 const { favEmoji } = locale.frontend.favorites;
 
@@ -31,35 +38,38 @@ export async function getCurrentVoiceQueriesData(
     queryString = "",
     favoritesIds?: string[],
 ) {
-    const isSearchingByQuery = queryString.length > 0;
-    const formattedQueryString = queryString.toLocaleLowerCase();
-    const cacheData = checkQueriesCache(formattedQueryString);
-    if (cacheData !== undefined) {
-        return isSearchingByQuery
-            ? cacheData
-            : filterFavoriteVoices(cacheData, favoritesIds);
+    const isQueryTextPassed = queryString.length > 0;
+    const lowercasedQueryText = queryString.toLocaleLowerCase();
+    const cachedQueries = checkQueriesCache(lowercasedQueryText);
+
+    if (cachedQueries) {
+        return isQueryTextPassed
+            ? cachedQueries
+            : filterFavoriteVoices(cachedQueries, favoritesIds);
     }
 
-    const voices = await getVoices(formattedQueryString);
-    const voicesQueries = convertVoiceDataToQueriesArray(voices);
+    const latestVoices = await getVoices(lowercasedQueryText);
+    const convertedVoiceQueries = convertVoiceDataToQueriesArray(latestVoices);
 
-    updateQueriesCache(formattedQueryString, voicesQueries);
-    return isSearchingByQuery
-        ? voicesQueries
-        : filterFavoriteVoices(voicesQueries, favoritesIds);
+    if (isQueryTextPassed) {
+        updateTextQueryCache(lowercasedQueryText, convertedVoiceQueries);
+        return convertedVoiceQueries;
+    }
+
+    updateRootQueryCache(convertedVoiceQueries);
+    return filterFavoriteVoices(convertedVoiceQueries, favoritesIds);
 }
 
 /**
  * Converts array of voices data to array of inline query data
  *
  * @param voicesData Array of voices from DB
- * @returns Converted array, suitable for inline query
+ * @returns Converted array, suitable for inline query usage
  */
 export function convertVoiceDataToQueriesArray(
     voicesData: VoiceSchema[],
 ): InlineQueryResultVoice[] {
-    return voicesData.map((data) => {
-        const { id, title, url } = data;
+    return voicesData.map(({ id, title, url }) => {
         const voice_url = convertGoogleDriveLink(url);
         return {
             type: "voice",
@@ -85,19 +95,15 @@ export function filterFavoriteVoices(
 ) {
     if (!favoritesIds) return data;
 
-    const favoriteVoices: InlineQueryResultVoice[] = [];
-    const regularVoices: InlineQueryResultVoice[] = [];
-
-    for (const voice of data) {
-        if (favoritesIds.includes(voice.id)) {
-            favoriteVoices.push({
-                ...voice,
-                title: `${favEmoji} ${voice.title}`,
-            });
-        } else {
-            regularVoices.push(voice);
-        }
-    }
+    const favoriteVoices = data
+        .filter((voice) => favoritesIds.includes(voice.id))
+        .map((voice) => ({
+            ...voice,
+            title: `${favEmoji} ${voice.title}`,
+        }));
+    const regularVoices = data.filter((voice) =>
+        !favoritesIds.includes(voice.id)
+    );
 
     return [...favoriteVoices, ...regularVoices];
 }

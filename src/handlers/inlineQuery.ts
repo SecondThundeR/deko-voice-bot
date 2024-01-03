@@ -39,11 +39,11 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
         data,
         favoritesIds,
     );
-    const { array: paginatedQueries, nextOffset } = offsetArray(
-        currentQueriesArray,
+    const { array: paginatedQueries, nextOffset } = offsetArray({
+        array: currentQueriesArray,
         currentOffset,
-        maxQueryElementsPerPage,
-    );
+        offsetSize: maxQueryElementsPerPage,
+    });
 
     await ctx.answerInlineQuery(paginatedQueries, {
         next_offset: nextOffset,

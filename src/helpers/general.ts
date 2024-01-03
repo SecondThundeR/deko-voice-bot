@@ -3,6 +3,8 @@ import { locale } from "@/src/constants/locale.ts";
 
 const { googleExportLinkFail } = locale.general;
 
+const GOOGLE_LINK_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
+
 /**
  * Converts regular Google Drive sharing link to direct download link
  *
@@ -10,7 +12,7 @@ const { googleExportLinkFail } = locale.general;
  * @returns Google link for direct download of voice file
  */
 export function convertGoogleDriveLink(link: string) {
-    const fileId = link.match(/(?<=\/d\/)(.*?)(?=\/view)/)?.[0];
+    const fileId = link.match(GOOGLE_LINK_REGEX)?.[0];
     if (!fileId) throw new Error(googleExportLinkFail);
     return `${googleExportDownloadLink}${fileId}`;
 }

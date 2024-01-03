@@ -1,6 +1,7 @@
 import { getFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
-import { BotContext, FavoriteItem } from "@/src/types/bot.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
+
+import { BotContext } from "@/src/types/bot.ts";
 
 /**
  * Prepares context session for favorites menu launch
@@ -18,11 +19,12 @@ export async function prepareFavoritesSessionMenu(
         return;
     }
 
-    const newFavoritesData: FavoriteItem[] = [];
-    for (const { id, title } of voicesData) {
-        const isFavored = await getFavoriteVoiceStatus(userID, id);
-        newFavoritesData.push({ id, title, isFavored });
-    }
+    const newFavoritesData = await Promise.all(
+        voicesData.map(async ({ id, title }) => {
+            const isFavored = await getFavoriteVoiceStatus(userID, id);
+            return { id, title, isFavored };
+        }),
+    );
 
     ctx.session.currentFavorites = newFavoritesData;
 }

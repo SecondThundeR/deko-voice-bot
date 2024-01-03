@@ -2,6 +2,7 @@ import { Api, Context, User } from "@/deps.ts";
 
 import { creatorCommands } from "@/src/constants/creatorCommands.ts";
 import { userCommands } from "@/src/constants/userCommands.ts";
+
 import { getFullName } from "@/src/helpers/general.ts";
 
 /**
@@ -38,15 +39,13 @@ export async function registerCreatorCommands(api: Api, creatorID?: string) {
  * @param ctx User object
  * @returns Object with user's id, full name and username
  */
-export function extractUserDetails(from: User | undefined) {
+export function extractUserDetails(from?: User) {
     if (!from) return null;
-    const { id, first_name, last_name, username } = from;
 
-    return {
-        userID: id,
-        fullName: getFullName(first_name, last_name),
-        username,
-    };
+    const { id: userID, first_name, last_name, username } = from;
+    const fullName = getFullName(first_name, last_name);
+
+    return { userID, fullName, username };
 }
 
 /**

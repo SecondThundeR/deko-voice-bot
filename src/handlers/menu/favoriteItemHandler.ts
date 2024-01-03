@@ -1,7 +1,9 @@
-import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
 import { locale } from "@/src/constants/locale.ts";
+
 import { updateFavoritesData } from "@/src/database/deko/usersData/updateFavoritesData.ts";
+
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
+import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
 import type { FavoriteItem } from "@/src/types/favoriteItem.ts";
@@ -28,11 +30,11 @@ export async function favoriteItemHandler(
     const newFavoriteStatus = !favorite.isFavored;
     const updatedFavorite = { ...favorite, isFavored: newFavoriteStatus };
 
-    const newFavorites = await updateFavoriteVoiceStatus(
+    const newFavorites = await updateFavoriteVoiceStatus({
         userID,
-        favorite.id,
-        newFavoriteStatus,
-    );
+        voiceID: favorite.id,
+        newStatus: newFavoriteStatus,
+    });
     await updateFavoritesData(userID, newFavorites);
 
     const updatedFavorites =

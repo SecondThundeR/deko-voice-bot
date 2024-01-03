@@ -2,9 +2,10 @@ import { User } from "@/deps.ts";
 import { client } from "@/bot.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+
 import {
     getUserIgnoreStatus,
-    updateIgnoredUsersCache,
+    removeIgnoredUserFromCache,
 } from "@/src/helpers/cache.ts";
 import { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
 import { UsersDataSchema } from "@/src/schemas/usersData.ts";
@@ -41,8 +42,8 @@ export async function removeIgnoredUser(from: User) {
         }),
     ]);
 
-    if (deleteStatus === null) return false;
-    updateIgnoredUsersCache(userID, "remove");
+    if (!deleteStatus) return false;
 
+    removeIgnoredUserFromCache(userID);
     return true;
 }
