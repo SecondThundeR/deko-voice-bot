@@ -62,3 +62,21 @@ export async function isBotBlockedByUser(ctx: Context) {
         return true;
     }
 }
+
+/**
+ * Returns object for setting up reply on message
+ *
+ * @description If passed `messageId` is missing, returning `undefined` instead
+ *
+ * @param messageId ID of message to reply on
+ * @returns Object with reply parameters or `undefined`, if message ID in `undefined`
+ */
+export function getReplyParameters(messageId?: number) {
+    if (!messageId) return;
+
+    return {
+        reply_parameters: {
+            message_id: messageId,
+        },
+    };
+}

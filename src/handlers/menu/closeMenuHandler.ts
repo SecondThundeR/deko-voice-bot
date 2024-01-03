@@ -1,4 +1,4 @@
-import { isBotBlockedByUser } from "@/src/helpers/api.ts";
+import { getReplyParameters, isBotBlockedByUser } from "@/src/helpers/api.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
@@ -17,14 +17,10 @@ export async function closeMenuHandler(ctx: BotContext) {
             `Failed to run closeMenuHandler: ${(error as Error).message}`,
         );
         const messageId = ctx.msg?.message_id;
-        const replyParams = {
-            reply_parameters: messageId
-                ? {
-                    message_id: messageId,
-                }
-                : undefined,
-        };
-        await ctx.reply(ctx.t("menu.failedToDelete"), replyParams);
+        await ctx.reply(
+            ctx.t("menu.failedToDelete"),
+            getReplyParameters(messageId),
+        );
     } finally {
         await ctx.answerCallbackQuery();
     }

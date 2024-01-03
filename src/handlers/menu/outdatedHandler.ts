@@ -1,4 +1,4 @@
-import { isBotBlockedByUser } from "@/src/helpers/api.ts";
+import { getReplyParameters, isBotBlockedByUser } from "@/src/helpers/api.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
@@ -23,14 +23,10 @@ export async function outdatedHandler(ctx: MenuBotContext) {
             `Failed to run outdatedHandler: ${(error as Error).message}`,
         );
         const messageId = ctx.msg?.message_id;
-        const replyParams = {
-            reply_parameters: messageId
-                ? {
-                    message_id: messageId,
-                }
-                : undefined,
-        };
-        await ctx.reply(ctx.t("menu.failedToUpdate"), replyParams);
+        await ctx.reply(
+            ctx.t("menu.failedToUpdate"),
+            getReplyParameters(messageId),
+        );
         await ctx.answerCallbackQuery();
     }
 }
