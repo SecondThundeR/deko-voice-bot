@@ -56,7 +56,7 @@ export function extractUserDetails(from?: User) {
  */
 export async function isBotBlockedByUser(ctx: Context) {
     try {
-        await ctx.replyWithChatAction("typing");
+        await ctx.replyWithChatAction("find_location");
         return false;
     } catch (_error: unknown) {
         return true;
