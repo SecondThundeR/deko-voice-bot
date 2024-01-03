@@ -6,11 +6,12 @@
 
 > Ссылка на "боевого" бота: <https://t.me/dekoquotes_bot>
 
-## Используемый стек
+## Используемые технологии
 
 - Бот построен на [Deno](https://deno.com/) с использованием [TypeScript](https://www.typescriptlang.org/)
 - В качестве библиотеки для взаимодействия с Telegram Bot API используется [grammY](https://github.com/grammyjs/grammY/)
-- Данные хранятся в [MongoDB](https://www.mongodb.com/) и управляются с помощью [драйвера](https://deno.land/x/mongo@v0.32.0) для Deno
+- Данные хранятся в [MongoDB Atlas](https://www.mongodb.com/atlas/database/) и управляются с помощью [драйвера](https://deno.land/x/mongo@v0.32.0/) для Deno
+- Строки сообщений и другого текста бота находятся в [Fluent](https://projectfluent.org/) формате и обрабатываются с помощью [grammy-i18n](https://grammy.dev/plugins/i18n/) плагина
 - Бот хранится и работает на хостинге [Railway](https://railway.app/)
 
 ## Как работает бот
