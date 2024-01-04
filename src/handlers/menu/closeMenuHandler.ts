@@ -1,5 +1,3 @@
-import { getReplyParameters } from "@/src/helpers/api.ts";
-
 import type { BotContext } from "@/src/types/bot.ts";
 
 export async function closeMenuHandler(ctx: BotContext) {
@@ -12,11 +10,17 @@ export async function closeMenuHandler(ctx: BotContext) {
         console.error(
             `Failed to run closeMenuHandler: ${(error as Error).message}`,
         );
+
         const messageId = ctx.msg?.message_id;
-        await ctx.reply(
-            ctx.t("menu.failedToDelete"),
-            getReplyParameters(messageId),
-        );
+        if (!messageId) {
+            return void await ctx.reply(ctx.t("menu.failedToDelete"));
+        }
+
+        await ctx.reply(ctx.t("menu.failedToDelete"), {
+            reply_parameters: {
+                message_id: messageId,
+            },
+        });
     } finally {
         await ctx.answerCallbackQuery();
     }

@@ -1,5 +1,3 @@
-import { getReplyParameters } from "@/src/helpers/api.ts";
-
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function outdatedHandler(ctx: MenuBotContext) {
@@ -19,10 +17,13 @@ export async function outdatedHandler(ctx: MenuBotContext) {
             `Failed to run outdatedHandler: ${(error as Error).message}`,
         );
         const messageId = ctx.msg?.message_id;
-        await ctx.reply(
-            ctx.t("menu.failedToUpdate"),
-            getReplyParameters(messageId),
-        );
+        if (!messageId) {
+            return void await ctx.reply(ctx.t("menu.failedToUpdate"));
+        }
+
+        await ctx.reply(ctx.t("menu.failedToUpdate"), {
+            reply_parameters: { message_id: messageId },
+        });
         await ctx.answerCallbackQuery();
     }
 }
