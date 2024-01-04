@@ -67,7 +67,7 @@ bot.use(botConfig);
 bot.use(inlineQueryHandler);
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
-const pmCreator = pm.filter((ctx) => ctx.config?.isCreator === true);
+const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
 
 pm.use(favoritesMenu);
 pm.use(startCommand);
