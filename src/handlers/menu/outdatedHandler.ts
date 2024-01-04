@@ -1,3 +1,5 @@
+import { GrammyError } from "@/deps.ts";
+
 import { outdatedExceptionHandler } from "@/src/helpers/menu.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
@@ -20,7 +22,10 @@ export async function outdatedHandler(ctx: MenuBotContext) {
             (error as Error).message,
         );
 
-        await outdatedExceptionHandler(ctx);
+        if (!(error instanceof GrammyError)) {
+            await outdatedExceptionHandler(ctx);
+        }
+
         await ctx.answerCallbackQuery();
     }
 }
