@@ -21,6 +21,8 @@ export { I18n, type I18nFlavor } from "grammy_i18n/mod.ts";
 
 export { apiThrottler } from "grammy_transformer_throttler/mod.ts";
 
+export { autoRetry } from "https://esm.sh/@grammyjs/auto-retry@1.1.1/";
+
 export { load as dotenv } from "dotenv/mod.ts";
 
 export {

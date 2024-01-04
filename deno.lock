@@ -12,6 +12,7 @@
     }
   },
   "redirects": {
+    "https://esm.sh/@grammyjs/auto-retry/": "https://esm.sh/@grammyjs/auto-retry@1.1.1/",
     "https://esm.sh/bottleneck@2": "https://esm.sh/bottleneck@2.19.5",
     "https://lib.deno.dev/x/grammy@1.x/mod.ts": "https://deno.land/x/grammy@v1.20.2/mod.ts",
     "https://lib.deno.dev/x/grammy@1.x/types.ts": "https://deno.land/x/grammy@v1.20.2/types.ts",
@@ -222,7 +223,9 @@
     "https://deno.land/x/mongo@v0.32.0/src/utils/srv.ts": "ed5f78ffe6480faac68291a87e51e3674eff5f28aec937ee97248e99e1317b16",
     "https://deno.land/x/mongo@v0.32.0/src/utils/uri.ts": "dcfab8e1dcfcc875c75ada1d9f366664480c03b65594990d6342ed88925452e5",
     "https://deno.land/x/web_bson@v0.3.0/mod.js": "8e14aecd31ee63abd30e2dbaa284b4b67abb7ba51fcef5b96af74727cb7c7940",
+    "https://esm.sh/@grammyjs/auto-retry@1.1.1/": "1a69b8084079d7af1bcff359437c61a606dfe7384e9d9fe316f9c27e33613769",
     "https://esm.sh/bottleneck@2.19.5": "b01bc45eca907717e26d284a94579ac4868bfd27f5c8dc7d4dea9fd8e81812f5",
+    "https://esm.sh/v135/@grammyjs/auto-retry@1.1.1/denonext/auto-retry.mjs": "edec78738089752385e82695960db2644c6573721698a1486b023cd3343f3afb",
     "https://esm.sh/v135/bottleneck@2.19.5/denonext/bottleneck.mjs": "553e2770ebf80e30b5ceda2a29d158f983090d11eab0d5301e0843ab54417e95"
   }
 }

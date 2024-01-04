@@ -1,5 +1,6 @@
 import {
     apiThrottler,
+    autoRetry,
     Bot,
     dotenv,
     GrammyError,
@@ -64,6 +65,7 @@ const botConfig = configSetup(creatorID);
 
 const throttler = apiThrottler() as Transformer<RawApi>;
 bot.api.config.use(throttler);
+bot.api.config.use(autoRetry());
 
 bot.use(sequentialize(getSessionKey));
 bot.use(sessionSetup());
