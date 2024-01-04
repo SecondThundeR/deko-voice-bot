@@ -2,7 +2,7 @@ import { type InlineQueryResultVoice } from "@/deps.ts";
 
 import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
 
-import { getVoices } from "@/src/database/deko/voices/getVoices.ts";
+import { getVoices } from "@/src/database/general/voices/getVoices.ts";
 
 import {
     checkQueriesCache,

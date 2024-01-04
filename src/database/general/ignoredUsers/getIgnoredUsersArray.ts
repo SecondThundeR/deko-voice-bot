@@ -7,7 +7,7 @@ import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 
 import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
 
-const dbName = databaseNames.deko;
+const dbName = databaseNames.general;
 const usersColName = collectionNames[dbName].ignoredUsers;
 
 export async function getIgnoredUsersArray() {

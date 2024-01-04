@@ -12,7 +12,7 @@ import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
 import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 import type { VoiceSchema } from "@/src/schemas/voice.ts";
 
-const dbName = databaseNames.deko;
+const dbName = databaseNames.general;
 const voicesColName = collectionNames[dbName].voices;
 const usersColName = collectionNames[dbName].usersData;
 

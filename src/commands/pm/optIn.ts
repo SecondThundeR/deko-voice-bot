@@ -2,8 +2,8 @@ import { Composer } from "@/deps.ts";
 
 import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 
-import { removeIgnoredUser } from "@/src/database/deko/ignoredUsers/removeIgnoredUser.ts";
-import { isUserUsageExists } from "@/src/database/deko/usersData/isUserUsageExists.ts";
+import { removeIgnoredUser } from "@/src/database/general/ignoredUsers/removeIgnoredUser.ts";
+import { isUserUsageExists } from "@/src/database/general/usersData/isUserUsageExists.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 

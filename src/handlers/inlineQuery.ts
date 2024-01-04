@@ -2,7 +2,7 @@ import { Composer } from "@/deps.ts";
 
 import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
 
-import { updateStats } from "@/src/database/deko/usersData/updateStats.ts";
+import { updateStats } from "@/src/database/general/usersData/updateStats.ts";
 
 import { offsetArray } from "@/src/helpers/array.ts";
 import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache.ts";

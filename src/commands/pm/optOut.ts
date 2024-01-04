@@ -2,7 +2,7 @@ import { Composer } from "@/deps.ts";
 
 import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 
-import { addIgnoredUser } from "@/src/database/deko/ignoredUsers/addIgnoredUser.ts";
+import { addIgnoredUser } from "@/src/database/general/ignoredUsers/addIgnoredUser.ts";
 
 import { getOptOutMessageText } from "@/src/helpers/locale.ts";
 

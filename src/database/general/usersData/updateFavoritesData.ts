@@ -6,7 +6,7 @@ import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 
 import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
-const dbName = databaseNames.deko;
+const dbName = databaseNames.general;
 const usersColName = collectionNames[dbName].usersData;
 
 export async function updateFavoritesData(

@@ -1,4 +1,4 @@
-import { updateFavoritesData } from "@/src/database/deko/usersData/updateFavoritesData.ts";
+import { updateFavoritesData } from "@/src/database/general/usersData/updateFavoritesData.ts";
 
 import { isBotBlockedByUser } from "@/src/helpers/api.ts";
 import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";

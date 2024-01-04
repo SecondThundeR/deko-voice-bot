@@ -10,10 +10,10 @@ import { userUsageCache } from "@/src/cache/userUsage.ts";
 
 import { ignoredUsersCacheKey, rootCacheKey } from "@/src/constants/cache.ts";
 
-import { getIgnoredUsersArray } from "@/src/database/deko/ignoredUsers/getIgnoredUsersArray.ts";
-import { getFavoritesData } from "@/src/database/deko/usersData/getFavoritesData.ts";
-import { getLastUsedAtTime } from "@/src/database/deko/usersData/getLastUsedAtTime.ts";
-import { getUserUsageAmount } from "@/src/database/deko/usersData/getUserUsageAmount.ts";
+import { getIgnoredUsersArray } from "@/src/database/general/ignoredUsers/getIgnoredUsersArray.ts";
+import { getFavoritesData } from "@/src/database/general/usersData/getFavoritesData.ts";
+import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime.ts";
+import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount.ts";
 
 type FavoriteStatusUpdateData = {
     userID: number;

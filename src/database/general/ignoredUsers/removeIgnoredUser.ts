@@ -12,7 +12,7 @@ import { extractUserDetails } from "@/src/helpers/api.ts";
 import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
 import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
-const dbName = databaseNames.deko;
+const dbName = databaseNames.general;
 const ignoredColName = collectionNames[dbName].ignoredUsers;
 const usersColName = collectionNames[dbName].usersData;
 

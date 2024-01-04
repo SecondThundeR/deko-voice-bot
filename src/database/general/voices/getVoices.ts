@@ -4,7 +4,7 @@ import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 
 import type { VoiceSchema } from "@/src/schemas/voice.ts";
 
-const dbName = databaseNames.deko;
+const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
 
 export async function getVoices(queryString?: string) {
