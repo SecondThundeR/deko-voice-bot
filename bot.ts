@@ -36,6 +36,7 @@ import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 
 import { configSetup } from "@/src/middlewares/configSetup.ts";
 import { maintenanceGatekeep } from "@/src/middlewares/maintenanceGatekeep.ts";
+import { menuBanCheck } from "@/src/middlewares/menuBanCheck.ts";
 import { sessionSetup } from "@/src/middlewares/sessionSetup.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
@@ -75,6 +76,7 @@ bot
     .use(i18n)
     .use(botConfig)
     .use(maintenanceGatekeep)
+    .use(menuBanCheck)
     .use(inlineQueryHandler);
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
