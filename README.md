@@ -60,9 +60,12 @@ rm -rfv ogg/*
 for file in *.mp3; do ffmpeg -hide_banner -loglevel error -i "$file" -c:a libopus "ogg/${file%.mp3}".ogg; done
 ```
 
-Теперь, открываем нашу коллекцию "voices" в базе данных "deko"
+Теперь, открываем нашу коллекцию "voices" в базе данных "general"
 
 ![Пример коллекции](assets/voicesCollectionExample.png)
+
+> [!CAUTION]
+> Скриншот на данный момент устарел, поэтому на нем имя базы данных все еще `deko`
 
 И добавляем новый документ в следующем формате:
 
