@@ -1,12 +1,15 @@
 import {
+    apiThrottler,
     Bot,
     dotenv,
     GrammyError,
     HttpError,
     I18n,
     MongoClient,
+    type RawApi,
     run,
     sequentialize,
+    type Transformer,
 } from "@/deps.ts";
 
 await dotenv({ export: true });
@@ -58,6 +61,9 @@ const i18n = new I18n<BotContext>({
     },
 });
 const botConfig = configSetup(creatorID);
+
+const throttler = apiThrottler() as Transformer<RawApi>;
+bot.api.config.use(throttler);
 
 bot.use(sequentialize(getSessionKey));
 bot.use(sessionSetup());
