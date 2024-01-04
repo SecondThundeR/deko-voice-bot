@@ -4,6 +4,7 @@
     "grammy_runner/": "https://deno.land/x/grammy_runner@v2.0.3/",
     "grammy_menu/": "https://deno.land/x/grammy_menu@v1.2.1/",
     "grammy_i18n/": "https://deno.land/x/grammy_i18n@v1.0.1/",
+    "grammy_transformer_throttler/": "https://deno.land/x/grammy_transformer_throttler@v1.2.1/",
     "dotenv/": "https://deno.land/std@v0.210.0/dotenv/",
     "mongo/": "https://deno.land/x/mongo@v0.32.0/",
     "@/": "./"
