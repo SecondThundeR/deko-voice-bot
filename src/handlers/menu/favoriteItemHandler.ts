@@ -32,7 +32,9 @@ export async function favoriteItemHandler(
         null;
     ctx.session.currentFavorites = updatedFavorites;
 
-    ctx.menu.update();
+    await ctx.menu.update({
+        immediate: true,
+    });
     await ctx.answerCallbackQuery({
         text: ctx.t("favorites.inlineAnswerSuccess"),
     });

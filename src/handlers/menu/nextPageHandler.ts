@@ -21,6 +21,8 @@ export async function nextPageHandler(ctx: MenuBotContext) {
 
     ctx.session.currentOffset = newOffset;
 
-    ctx.menu.update();
+    await ctx.menu.update({
+        immediate: true,
+    });
     await ctx.answerCallbackQuery();
 }

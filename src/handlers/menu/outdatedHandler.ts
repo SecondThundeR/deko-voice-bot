@@ -1,29 +1,26 @@
+import { outdatedExceptionHandler } from "@/src/helpers/menu.ts";
+
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function outdatedHandler(ctx: MenuBotContext) {
     try {
         if (!ctx.session.currentFavorites) {
             await ctx.deleteMessage();
-        } else {
-            ctx.menu.update();
+            await ctx.answerCallbackQuery();
+            return;
         }
 
-        const answerText = ctx.session.currentFavorites
-            ? ctx.t("menu.outdated")
-            : undefined;
-        await ctx.answerCallbackQuery(answerText);
+        await ctx.menu.update({
+            immediate: true,
+        });
+        await ctx.answerCallbackQuery(ctx.t("menu.outdated"));
     } catch (error: unknown) {
         console.error(
-            `Failed to run outdatedHandler: ${(error as Error).message}`,
+            "Something prevented from updating menu:",
+            (error as Error).message,
         );
-        const messageId = ctx.msg?.message_id;
-        if (!messageId) {
-            return void await ctx.reply(ctx.t("menu.failedToUpdate"));
-        }
 
-        await ctx.reply(ctx.t("menu.failedToUpdate"), {
-            reply_parameters: { message_id: messageId },
-        });
+        await outdatedExceptionHandler(ctx);
         await ctx.answerCallbackQuery();
     }
 }

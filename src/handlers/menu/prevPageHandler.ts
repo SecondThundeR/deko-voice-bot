@@ -15,6 +15,8 @@ export async function prevPageHandler(ctx: MenuBotContext) {
     const newOffset = currentOffset - maxMenuElementsPerPage;
     ctx.session.currentOffset = newOffset < 0 ? 0 : newOffset;
 
-    ctx.menu.update();
+    await ctx.menu.update({
+        immediate: true,
+    });
     await ctx.answerCallbackQuery();
 }
