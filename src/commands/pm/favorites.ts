@@ -1,9 +1,5 @@
 import { Composer } from "@/deps.ts";
 
-import { featureFlags } from "@/src/constants/database.ts";
-
-import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
-
 import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
 import { prepareFavoritesSessionMenu } from "@/src/helpers/menu.ts";
 
@@ -14,11 +10,6 @@ import type { BotContext } from "@/src/types/bot.ts";
 export const favoritesCommand = new Composer<BotContext>();
 
 favoritesCommand.command("favorites", async (ctx) => {
-    const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
-    if (isInMaintenance) {
-        return await ctx.reply(ctx.t("maintenance.description-chat"));
-    }
-
     const userID = ctx.from?.id;
     if (!userID) return await ctx.reply(ctx.t("general.failedToFindUserData"));
 

@@ -1,22 +1,15 @@
 import { Composer } from "@/deps.ts";
 
-import { featureFlags } from "@/src/constants/database.ts";
 import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 
 import { removeIgnoredUser } from "@/src/database/deko/ignoredUsers/removeIgnoredUser.ts";
 import { isUserUsageExists } from "@/src/database/deko/usersData/isUserUsageExists.ts";
-import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
 export const optInCommand = new Composer<BotContext>();
 
 optInCommand.command("optin", async (ctx) => {
-    const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
-
-    if (isInMaintenance) {
-        return await ctx.reply(ctx.t("maintenance.description-chat"));
-    }
     if (!ctx.from) {
         return await ctx.reply(ctx.t("general.failedToFindUserData"));
     }

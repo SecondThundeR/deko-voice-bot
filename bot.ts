@@ -35,6 +35,7 @@ import {
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 
 import { configSetup } from "@/src/middlewares/configSetup.ts";
+import { maintenanceGatekeep } from "@/src/middlewares/maintenanceGatekeep.ts";
 import { sessionSetup } from "@/src/middlewares/sessionSetup.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
@@ -64,28 +65,32 @@ const i18n = new I18n<BotContext>({
 const botConfig = configSetup(creatorID);
 
 const throttler = apiThrottler() as Transformer<RawApi>;
-bot.api.config.use(throttler);
-bot.api.config.use(autoRetry());
+bot.api.config
+    .use(throttler)
+    .use(autoRetry());
 
-bot.use(sequentialize(getSessionKey));
-bot.use(sessionSetup());
-
-bot.use(i18n);
-bot.use(botConfig);
-bot.use(inlineQueryHandler);
+bot
+    .use(sequentialize(getSessionKey))
+    .use(sessionSetup())
+    .use(i18n)
+    .use(botConfig)
+    .use(maintenanceGatekeep)
+    .use(inlineQueryHandler);
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
 
-pm.use(favoritesMenu);
-pm.use(startCommand);
-pm.use(myDataCommand);
-pm.use(optInCommand);
-pm.use(optOutCommand);
-pm.use(favoritesCommand);
+pm
+    .use(favoritesMenu)
+    .use(startCommand)
+    .use(myDataCommand)
+    .use(optInCommand)
+    .use(optOutCommand)
+    .use(favoritesCommand);
 
-pmCreator.use(invalidateCommand);
-pmCreator.use(maintenanceCommand);
+pmCreator
+    .use(invalidateCommand)
+    .use(maintenanceCommand);
 
 bot.catch((err) => {
     const { ctx, error } = err;

@@ -1,10 +1,8 @@
 import { Composer } from "@/deps.ts";
 
-import { featureFlags } from "@/src/constants/database.ts";
 import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 
 import { addIgnoredUser } from "@/src/database/deko/ignoredUsers/addIgnoredUser.ts";
-import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 
 import { getOptOutMessageText } from "@/src/helpers/locale.ts";
 
@@ -13,11 +11,6 @@ import type { BotContext } from "@/src/types/bot.ts";
 export const optOutCommand = new Composer<BotContext>();
 
 optOutCommand.command("optout", async (ctx) => {
-    const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
-
-    if (isInMaintenance) {
-        return await ctx.reply(ctx.t("maintenance.description-chat"));
-    }
     if (!ctx.from) {
         return await ctx.reply(ctx.t("general.failedToFindUserData"));
     }

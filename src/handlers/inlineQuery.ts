@@ -1,10 +1,8 @@
 import { Composer } from "@/deps.ts";
 
-import { featureFlags } from "@/src/constants/database.ts";
 import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
 
 import { updateStats } from "@/src/database/deko/usersData/updateStats.ts";
-import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
 
 import { offsetArray } from "@/src/helpers/array.ts";
 import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache.ts";
@@ -21,17 +19,6 @@ inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
 });
 
 inlineQueryHandler.on("inline_query", async (ctx) => {
-    const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
-    if (isInMaintenance) {
-        await ctx.answerInlineQuery([], {
-            button: {
-                text: ctx.t("maintenance.inline-button"),
-                start_parameter: featureFlags.maintenance,
-            },
-            cache_time: 0,
-        });
-    }
-
     const userID = ctx.from.id;
     const currentOffset = Number(ctx.update.inline_query.offset) || 0;
     const data = ctx.update.inline_query.query;
