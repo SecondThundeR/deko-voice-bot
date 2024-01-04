@@ -1,6 +1,5 @@
 import { updateFavoritesData } from "@/src/database/general/usersData/updateFavoritesData.ts";
 
-import { isBotBlockedByUser } from "@/src/helpers/api.ts";
 import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
@@ -10,10 +9,6 @@ export async function favoriteItemHandler(
     ctx: MenuBotContext,
     favorite: FavoriteItem,
 ) {
-    if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
-    }
-
     const userID = ctx.from?.id;
     if (!userID) {
         return void await ctx.answerCallbackQuery({

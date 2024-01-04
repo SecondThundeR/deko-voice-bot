@@ -1,12 +1,8 @@
-import { getReplyParameters, isBotBlockedByUser } from "@/src/helpers/api.ts";
+import { getReplyParameters } from "@/src/helpers/api.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function outdatedHandler(ctx: MenuBotContext) {
-    if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
-    }
-
     try {
         if (!ctx.session.currentFavorites) {
             await ctx.deleteMessage();

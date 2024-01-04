@@ -1,12 +1,8 @@
-import { getReplyParameters, isBotBlockedByUser } from "@/src/helpers/api.ts";
+import { getReplyParameters } from "@/src/helpers/api.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
 export async function closeMenuHandler(ctx: BotContext) {
-    if (await isBotBlockedByUser(ctx)) {
-        return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
-    }
-
     ctx.session.currentFavorites = null;
     ctx.session.currentOffset = 0;
 
