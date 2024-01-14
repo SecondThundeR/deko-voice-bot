@@ -12,4 +12,12 @@ export const creatorCommands: BotCommand[] = [
         command: "/maintenance",
         description: "Переводит бота в статус тех. работ",
     },
+    {
+        command: "/stats",
+        description: "Выводит общую статистику по использованию бота",
+    },
+    {
+        command: "/fullstats",
+        description: "Выводит полную статистику по использованию бота",
+    },
 ];
