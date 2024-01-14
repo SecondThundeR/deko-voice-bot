@@ -55,14 +55,12 @@ await client.connect(mongoURL);
 const bot = new Bot<BotContext>(token);
 // @ts-expect-error Grammy's types has mismatch error for some reason, but it still working
 const i18n = new I18n<BotContext>({
-    defaultLocale: "ru",
-    directory: "locales",
-    globalTranslationContext(ctx) {
-        return {
-            botUsername: `@${ctx.me.username}`,
-        };
-    },
+    globalTranslationContext: (ctx) => ({
+        botUsername: `@${ctx.me.username}`,
+    }),
 });
+
+await i18n.loadLocale("ru", { filePath: "locales/ru.ftl" });
 const botConfig = configSetup(creatorID);
 
 const throttler = apiThrottler() as Transformer<RawApi>;
