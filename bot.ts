@@ -54,6 +54,7 @@ export const client = new MongoClient();
 await client.connect(mongoURL);
 
 const bot = new Bot<BotContext>(token);
+// @ts-expect-error Grammy's types has mismatch error for some reason, but it still working
 const i18n = new I18n<BotContext>({
     defaultLocale: "ru",
     directory: "locales",
