@@ -33,7 +33,7 @@ export const usersStatsInctiveFilter = (currentDate: Date) => {
         const userLastUsedDate = dayjs(lastUsedAt);
         const threeMonthsAgo = dayjs(currentDate).subtract(3, "month");
 
-        return userLastUsedDate.isAfter(threeMonthsAgo);
+        return userLastUsedDate.isBefore(threeMonthsAgo);
     };
 };
 
