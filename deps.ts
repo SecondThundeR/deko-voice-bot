@@ -1,3 +1,5 @@
+import dayjs from "https://esm.sh/dayjs@1.11.10";
+
 export {
     Api,
     Bot,
@@ -31,3 +33,5 @@ export {
     MongoClient,
     type ObjectId,
 } from "mongo/mod.ts";
+
+export { dayjs };

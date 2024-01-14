@@ -266,7 +266,9 @@
     "https://deno.land/x/web_bson@v0.3.0/mod.js": "8e14aecd31ee63abd30e2dbaa284b4b67abb7ba51fcef5b96af74727cb7c7940",
     "https://esm.sh/@grammyjs/auto-retry@1.1.1/": "1a69b8084079d7af1bcff359437c61a606dfe7384e9d9fe316f9c27e33613769",
     "https://esm.sh/bottleneck@2.19.5": "b01bc45eca907717e26d284a94579ac4868bfd27f5c8dc7d4dea9fd8e81812f5",
+    "https://esm.sh/dayjs@1.11.10": "d1ff723b3aa01743a3244f46bf47fdfb2731cf72858abe27fe8a05ed41841da1",
     "https://esm.sh/v135/@grammyjs/auto-retry@1.1.1/denonext/auto-retry.mjs": "edec78738089752385e82695960db2644c6573721698a1486b023cd3343f3afb",
-    "https://esm.sh/v135/bottleneck@2.19.5/denonext/bottleneck.mjs": "553e2770ebf80e30b5ceda2a29d158f983090d11eab0d5301e0843ab54417e95"
+    "https://esm.sh/v135/bottleneck@2.19.5/denonext/bottleneck.mjs": "553e2770ebf80e30b5ceda2a29d158f983090d11eab0d5301e0843ab54417e95",
+    "https://esm.sh/v135/dayjs@1.11.10/denonext/dayjs.mjs": "6de3caef41ea8e21568a8de0dfaacf0861ea7032d5240689677dec6b0253f860"
   }
 }
