@@ -19,10 +19,10 @@ export function getUserDataMessageText(
 
     const userIDString = String(userID);
     const usernameText = username
-        ? `- Ваше имя пользователя в Telegram: @${username}`
+        ? `\n- Ваше имя пользователя в Telegram: @${username}`
         : "";
     const lastUsedAtText = lastUsedAt
-        ? `- Время последней отправки реплики (по МСК): ${
+        ? `\n- Время последней отправки реплики (по МСК): ${
             convertLastUsedAtTimestamp(lastUsedAt)
         }`
         : "";
@@ -41,13 +41,13 @@ export function getOptOutMessageText(ctx: BotContext, data: OptOutUserData) {
 
     const userIDString = String(userID);
     const fullNameText = fullName
-        ? `- Ваше полное имя в Telegram: ${fullName}`
+        ? `\n- Ваше полное имя в Telegram: ${fullName}`
         : "";
     const usernameText = username
-        ? `- Ваше имя пользователя в Telegram: @${username}`
+        ? `\n- Ваше имя пользователя в Telegram: @${username}`
         : "";
     const lastUsedAtText = lastUsedAt
-        ? `- Время последней отправки реплики (по МСК): ${
+        ? `\n- Время последней отправки реплики (по МСК): ${
             convertLastUsedAtTimestamp(lastUsedAt)
         }`
         : "";
