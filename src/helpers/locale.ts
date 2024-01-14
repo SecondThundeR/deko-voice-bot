@@ -1,5 +1,19 @@
+import { getUsersDataStats } from "@/src/database/general/usersData/getUsersDataStats.ts";
+import { getVoicesStats } from "@/src/database/general/voices/getVoicesStats.ts";
+
 import { extractUserDetails } from "@/src/helpers/api.ts";
 import { convertLastUsedAtTimestamp } from "@/src/helpers/time.ts";
+import {
+    usersStatsInctiveFilter,
+    usersStatsLastActiveSort,
+    usersStatsMap,
+    usersStatsMAUFilter,
+    usersStatsMostUsedSort,
+    usersStatsNonUsedFilter,
+    voicesStatsMap,
+    voicesStatsMostUsedSort,
+    voicesStatsUsesAmountReduce,
+} from "@/src/helpers/stats.ts";
 
 import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
@@ -10,6 +24,71 @@ type UserDataMessageDetails =
     & Pick<UsersDataSchema, "usesAmount" | "lastUsedAt">;
 
 type OptOutUserData = Omit<UsersDataSchema, "_id">;
+
+export async function getStatsMessageText(ctx: BotContext) {
+    const currentDate = new Date();
+
+    const usersStats = await getUsersDataStats();
+    const voicesStats = await getVoicesStats();
+
+    const allUsedUsers = usersStats?.length ?? 0;
+    const allMAUUsers = usersStats
+        ?.filter(usersStatsMAUFilter(currentDate)).length ?? 0;
+    const allInactiveUsers = usersStats
+        ?.filter(usersStatsInctiveFilter(currentDate)).length ?? 0;
+
+    const allUsedVoices = voicesStats
+        .reduce(voicesStatsUsesAmountReduce, 0);
+
+    return ctx.t("stats.regular", {
+        allUsedUsers,
+        allMAUUsers,
+        allInactiveUsers,
+        allUsedVoices,
+    });
+}
+
+export async function getFullStatsMessageText(ctx: BotContext) {
+    const currentDate = new Date();
+
+    const usersStats = await getUsersDataStats();
+    const voicesStats = await getVoicesStats();
+
+    const allUsedUsers = usersStats?.length ?? 0;
+    const allMAUUsers = usersStats
+        ?.filter(usersStatsMAUFilter(currentDate)).length ?? 0;
+    const allInactiveUsers = usersStats
+        ?.filter(usersStatsInctiveFilter(currentDate)).length ?? 0;
+    const mostUsedUsers = usersStats
+        .sort(usersStatsMostUsedSort)
+        .slice(0, 5)
+        .map(usersStatsMap)
+        .join("\n");
+    const lastUsedUsers = usersStats
+        .filter(usersStatsNonUsedFilter)
+        .sort(usersStatsLastActiveSort)
+        .slice(0, 5)
+        .map(usersStatsMap)
+        .join("\n");
+
+    const allUsedVoices = voicesStats
+        .reduce(voicesStatsUsesAmountReduce, 0);
+    const mostUsedVoices = voicesStats
+        .sort(voicesStatsMostUsedSort)
+        .slice(0, 5)
+        .map(voicesStatsMap)
+        .join("\n");
+
+    return ctx.t("stats.full", {
+        allUsedUsers,
+        allMAUUsers,
+        allInactiveUsers,
+        mostUsedUsers,
+        lastUsedUsers,
+        allUsedVoices,
+        mostUsedVoices,
+    });
+}
 
 export function getUserDataMessageText(
     ctx: BotContext,
