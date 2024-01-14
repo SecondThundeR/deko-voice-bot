@@ -15,8 +15,10 @@ import {
 
 await dotenv({ export: true });
 
+import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
+import { statsCommand } from "@/src/commands/pm/creator/stats.ts";
 import { favoritesCommand } from "@/src/commands/pm/favorites.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
 import { optInCommand } from "@/src/commands/pm/optIn.ts";
@@ -89,7 +91,9 @@ pm
 
 pmCreator
     .use(invalidateCommand)
-    .use(maintenanceCommand);
+    .use(maintenanceCommand)
+    .use(fullStatsCommand)
+    .use(statsCommand);
 
 bot.catch((err) => {
     const { ctx, error } = err;

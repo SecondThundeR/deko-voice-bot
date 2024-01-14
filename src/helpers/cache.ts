@@ -1,5 +1,7 @@
 import { InlineQueryResultVoice } from "@/deps.ts";
 
+import { usersStatsCache } from "@/src/cache/stats/users.ts";
+import { voicesStatsCache } from "@/src/cache/stats/voices.ts";
 import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
 import { featureFlagsCache } from "@/src/cache/featureFlags.ts";
 import { ignoredUsersCache } from "@/src/cache/ignoredUsers.ts";
@@ -8,12 +10,20 @@ import { rootQueryCache } from "@/src/cache/rootQuery.ts";
 import { textQueryCache } from "@/src/cache/textQuery.ts";
 import { userUsageCache } from "@/src/cache/userUsage.ts";
 
-import { ignoredUsersCacheKey, rootCacheKey } from "@/src/constants/cache.ts";
+import {
+    ignoredUsersCacheKey,
+    rootCacheKey,
+    usersStatsCacheKey,
+    voicesStatsCacheKey,
+} from "@/src/constants/cache.ts";
 
 import { getIgnoredUsersArray } from "@/src/database/general/ignoredUsers/getIgnoredUsersArray.ts";
 import { getFavoritesData } from "@/src/database/general/usersData/getFavoritesData.ts";
 import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime.ts";
 import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount.ts";
+
+import { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import { VoiceSchema } from "@/src/schemas/voice.ts";
 
 type FavoriteStatusUpdateData = {
     userID: number;
@@ -220,6 +230,38 @@ export function updateCachedFeatureFlag(id: string, status: boolean) {
  */
 export function deleteCachedFeatureFlag(id: string) {
     featureFlagsCache.delete(id);
+}
+
+/**
+ * Returns cached users stats data
+ */
+export function getCachedUsersStatsData() {
+    return usersStatsCache.get(usersStatsCacheKey);
+}
+
+/**
+ * Returns cached voices stats data
+ */
+export function getCachedVoicesStatsData() {
+    return voicesStatsCache.get(voicesStatsCacheKey);
+}
+
+/**
+ * Sets new cached users stats data
+ *
+ * @param usersStats New users stats to cache
+ */
+export function setCachedUsersStatsData(usersStats: UsersDataSchema[]) {
+    usersStatsCache.set(usersStatsCacheKey, usersStats);
+}
+
+/**
+ * Sets new cached voices stats data
+ *
+ * @param voicesStats New voices stats to cache
+ */
+export function setCachedVoicesStatsData(voicesStats: VoiceSchema[]) {
+    voicesStatsCache.set(voicesStatsCacheKey, voicesStats);
 }
 
 /**
