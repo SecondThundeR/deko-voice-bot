@@ -25,6 +25,13 @@ type UserDataMessageDetails =
 
 type OptOutUserData = Omit<UsersDataSchema, "_id">;
 
+/**
+ * Returns regular stats data as formatted text
+ * with locale for using in messages
+ *
+ * @param ctx Current context object
+ * @returns Formatted locale text for sending in messages
+ */
 export async function getStatsMessageText(ctx: BotContext) {
     const currentDate = new Date();
 
@@ -48,6 +55,13 @@ export async function getStatsMessageText(ctx: BotContext) {
     });
 }
 
+/**
+ * Returns extended stats data as formatted text
+ * with locale for using in messages
+ *
+ * @param ctx Current context object
+ * @returns Formatted locale text for sending in messages
+ */
 export async function getFullStatsMessageText(ctx: BotContext) {
     const currentDate = new Date();
 
@@ -90,6 +104,14 @@ export async function getFullStatsMessageText(ctx: BotContext) {
     });
 }
 
+/**
+ * Returns user's data as formatted text with locale
+ * for using in messages
+ *
+ * @param ctx Current context object
+ * @param data User data object
+ * @returns Formatted locale text for sending in messages
+ */
 export function getUserDataMessageText(
     ctx: BotContext,
     data: UserDataMessageDetails,
@@ -115,6 +137,14 @@ export function getUserDataMessageText(
     });
 }
 
+/**
+ * Returns opt out user's data as formatted text
+ * with locale for using in messages
+ *
+ * @param ctx Current context object
+ * @param data Opt out user data object
+ * @returns Formatted locale text for sending in messages
+ */
 export function getOptOutMessageText(ctx: BotContext, data: OptOutUserData) {
     const { userID, fullName, username, usesAmount, lastUsedAt } = data;
 
