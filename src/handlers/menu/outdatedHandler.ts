@@ -1,5 +1,6 @@
 import { GrammyError } from "@/deps.ts";
 
+import { isBotBlockedByUser } from "@/src/helpers/api.ts";
 import { outdatedExceptionHandler } from "@/src/helpers/menu.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
@@ -17,6 +18,11 @@ export async function outdatedHandler(ctx: MenuBotContext) {
         });
         await ctx.answerCallbackQuery(ctx.t("menu.outdated"));
     } catch (error: unknown) {
+        const isBannedByUser = await isBotBlockedByUser(ctx);
+        if (isBannedByUser) {
+            return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
+        }
+
         console.error(
             "Something prevented from updating menu:",
             (error as Error).message,
