@@ -1,7 +1,5 @@
 import dayjs from "https://esm.sh/dayjs@1.11.10";
 
-import drive from "https://esm.sh/@googleapis/drive@8.6.0";
-
 import TTLCache from "https://esm.sh/@isaacs/ttlcache@1.4.1";
 
 export {
@@ -38,4 +36,4 @@ export {
     type ObjectId,
 } from "mongo/mod.ts";
 
-export { dayjs, drive, TTLCache };
+export { dayjs, TTLCache };
