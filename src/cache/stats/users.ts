@@ -1,4 +1,4 @@
-import TTLCache from "npm:@isaacs/ttlcache@1.4.1";
+import { TTLCache } from "@/deps.ts";
 
 import { statsCacheTime, usersStatsCacheKey } from "@/src/constants/cache.ts";
 

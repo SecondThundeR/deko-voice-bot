@@ -1,5 +1,9 @@
 import dayjs from "https://esm.sh/dayjs@1.11.10";
 
+import drive from "https://esm.sh/@googleapis/drive@8.6.0";
+
+import TTLCache from "https://esm.sh/@isaacs/ttlcache@1.4.1";
+
 export {
     Api,
     Bot,
@@ -34,4 +38,4 @@ export {
     type ObjectId,
 } from "mongo/mod.ts";
 
-export { dayjs };
+export { dayjs, drive, TTLCache };

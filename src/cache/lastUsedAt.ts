@@ -1,4 +1,4 @@
-import TTLCache from "npm:@isaacs/ttlcache@1.4.1";
+import { TTLCache } from "@/deps.ts";
 
 export const lastUsedAtCache = new TTLCache<number, number | undefined>({
     ttl: Infinity,
