@@ -7,6 +7,7 @@ import {
     HttpError,
     I18n,
     MongoClient,
+    MongoError,
     type RawApi,
     run,
     sequentialize,
@@ -108,6 +109,12 @@ bot.catch((err) => {
 
     if (error instanceof HttpError) {
         return console.error("Could not contact Telegram:", error);
+    }
+
+    if (error instanceof MongoError) {
+        console.error("Something broken with Mongo:", error);
+        console.warn("Shutting down bot to prevent further damage");
+        Deno.exit(1);
     }
 
     console.error("Unknown error occurred:", error);

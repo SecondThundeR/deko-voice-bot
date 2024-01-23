@@ -34,4 +34,6 @@ export {
     type ObjectId,
 } from "mongo/mod.ts";
 
+export { MongoError } from "mongo/src/error.ts";
+
 export { dayjs };
