@@ -4,6 +4,7 @@ export interface VoiceSchema {
     _id: ObjectId;
     id: string;
     title: string;
-    url: string;
+    url?: string;
+    fileId?: string;
     usesAmount: number;
 }
