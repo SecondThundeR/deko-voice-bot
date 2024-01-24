@@ -15,7 +15,12 @@ export {
     type Transformer,
 } from "grammy/mod.ts";
 export type { Context, SessionFlavor } from "grammy/mod.ts";
-export type { BotCommand, InlineQueryResultVoice, User } from "grammy/types.ts";
+export type {
+    BotCommand,
+    InlineQueryResultCachedVoice,
+    InlineQueryResultVoice,
+    User,
+} from "grammy/types.ts";
 
 export { run, sequentialize } from "grammy_runner/mod.ts";
 
