@@ -1,5 +1,3 @@
-import { InlineQueryResultVoice } from "@/deps.ts";
-
 import { usersStatsCache } from "@/src/cache/stats/users.ts";
 import { voicesStatsCache } from "@/src/cache/stats/voices.ts";
 import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
@@ -24,6 +22,8 @@ import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsag
 
 import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 import { VoiceSchema } from "@/src/schemas/voice.ts";
+
+import { InlineResultVoice } from "@/src/types/inline.ts";
 
 type FavoriteStatusUpdateData = {
     userID: number;
@@ -77,7 +77,7 @@ export function checkQueriesCache(queryString: string) {
  */
 export function updateTextQueryCache(
     queryString: string,
-    voicesQueries: InlineQueryResultVoice[],
+    voicesQueries: InlineResultVoice[],
 ) {
     return textQueryCache.set(queryString, voicesQueries);
 }
@@ -87,7 +87,7 @@ export function updateTextQueryCache(
  *
  * @param voicesQueries Array of queries with voice results
  */
-export function updateRootQueryCache(voicesQueries: InlineQueryResultVoice[]) {
+export function updateRootQueryCache(voicesQueries: InlineResultVoice[]) {
     return rootQueryCache.set(rootCacheKey, voicesQueries);
 }
 
@@ -272,7 +272,7 @@ export function setCachedVoicesStatsData(voicesStats: VoiceSchema[]) {
  * @returns Callback for use in filter method
  */
 function rootQueryCacheFilterCallback(queryString: string) {
-    return function (query: InlineQueryResultVoice) {
+    return function (query: InlineResultVoice) {
         return query.title.toLocaleLowerCase().includes(queryString);
     };
 }

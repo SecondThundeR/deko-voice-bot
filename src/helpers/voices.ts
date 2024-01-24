@@ -1,5 +1,3 @@
-import { type InlineQueryResultVoice } from "@/deps.ts";
-
 import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
 
 import { getVoices } from "@/src/database/general/voices/getVoices.ts";
@@ -12,6 +10,8 @@ import {
 import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
 
 import { type VoiceSchema } from "@/src/schemas/voice.ts";
+
+import { InlineResultVoice } from "@/src/types/inline.ts";
 
 /**
  * Gets current voice queries data
@@ -66,14 +66,22 @@ export async function getCurrentVoiceQueriesData(
  */
 export function convertVoiceDataToQueriesArray(
     voicesData: VoiceSchema[],
-): InlineQueryResultVoice[] {
-    return voicesData.map(({ id, title, url }) => {
-        const voice_url = convertGoogleDriveLink(url);
+): InlineResultVoice[] {
+    return voicesData.map(({ id, title, url, fileId }) => {
+        if (url !== undefined) {
+            const voice_url = convertGoogleDriveLink(url);
+            return {
+                type: "voice",
+                id,
+                title,
+                voice_url,
+            };
+        }
         return {
             type: "voice",
             id,
             title,
-            voice_url,
+            voice_file_id: fileId,
         };
     });
 }
@@ -88,7 +96,7 @@ export function convertVoiceDataToQueriesArray(
  * @returns Filtered or non-filtered query array
  */
 export function filterFavoriteVoices(
-    data: InlineQueryResultVoice[],
+    data: InlineResultVoice[],
     favoritesIds?: string[],
 ) {
     if (!favoritesIds) return data;

@@ -10,6 +10,7 @@ import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
+import { InlineQueriesArray } from "@/src/types/inline.ts";
 
 export const inlineQueryHandler = new Composer<BotContext>();
 
@@ -26,7 +27,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const currentQueriesArray = await getCurrentVoiceQueriesData(
         data,
         favoritesIds,
-    );
+    ) as InlineQueriesArray;
     const { array: paginatedQueries, nextOffset } = offsetArray({
         array: currentQueriesArray,
         currentOffset,
