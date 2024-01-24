@@ -9,7 +9,7 @@ import { prevPageHandler } from "@/src/handlers/menu/prevPageHandler.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-// @ts-expect-error Grammy's types has mismatch error for some reason, but it still working
+// @ts-expect-error
 export const favoritesMenu = new Menu<BotContext>("fav-menu", {
     autoAnswer: false,
     onMenuOutdated: outdatedHandler,
