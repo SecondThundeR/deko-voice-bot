@@ -3,6 +3,11 @@ import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale.ts";
 
 const GOOGLE_LINK_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
 
+type ConvertReturn = { status: true; error: undefined } | {
+    status: false;
+    error: string;
+};
+
 /**
  * Converts regular Google Drive sharing link to direct download link
  *
@@ -27,4 +32,40 @@ export function convertGoogleDriveLink(link: string) {
 export function getFullName(firstName: string, lastName?: string) {
     if (!lastName) return firstName;
     return `${firstName} ${lastName}`;
+}
+
+/**
+ * Converts MP3 to OGG Opus for using as Telegram voice message
+ *
+ * @param inputFilename Name of input file to read
+ * @param outputFilename Name of output file for ffmpeg to output
+ * @returns Object with convert status
+ */
+export async function convertMP3ToOGGOpus(
+    inputFilename: string,
+    outputFilename: string,
+): Promise<ConvertReturn> {
+    const ffmpeg = new Deno.Command("ffmpeg", {
+        args: [
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            inputFilename,
+            "-c:a",
+            "libopus",
+            outputFilename,
+        ],
+    });
+    const { success, stderr } = await ffmpeg.output();
+
+    return success
+        ? {
+            status: true,
+            error: undefined,
+        }
+        : {
+            status: false,
+            error: new TextDecoder().decode(stderr),
+        };
 }
