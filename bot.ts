@@ -2,6 +2,8 @@ import {
     apiThrottler,
     autoRetry,
     Bot,
+    conversations,
+    createConversation,
     dotenv,
     GrammyError,
     HttpError,
@@ -19,6 +21,7 @@ await dotenv({ export: true });
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
+import { newVoiceCommand } from "@/src/commands/pm/creator/newVoice.ts";
 import { statsCommand } from "@/src/commands/pm/creator/stats.ts";
 import { favoritesCommand } from "@/src/commands/pm/favorites.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
@@ -27,6 +30,8 @@ import { optOutCommand } from "@/src/commands/pm/optOut.ts";
 import { startCommand } from "@/src/commands/pm/start.ts";
 
 import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
+
+import { newVoice } from "@/src/conversations/newVoice.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
 
@@ -56,7 +61,7 @@ export const client = new MongoClient();
 await client.connect(mongoURL);
 
 const bot = new Bot<BotContext>(token);
-// @ts-expect-error Grammy's types has mismatch error for some reason, but it still working
+// @ts-expect-error
 const i18n = new I18n<BotContext>({
     globalTranslationContext: (ctx) => ({
         botUsername: `@${ctx.me.username}`,
@@ -77,7 +82,13 @@ bot
     .use(i18n)
     .use(botConfig)
     .use(maintenanceGatekeep)
-    .use(inlineQueryHandler);
+    .use(inlineQueryHandler)
+    // @ts-expect-error Types, bruh
+    .use(conversations());
+
+bot.command("cancel", async (ctx) => await ctx.conversation.exit());
+// @ts-expect-error Types, bruh
+bot.use(createConversation(newVoice, "new-voice"));
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
@@ -94,7 +105,8 @@ pmCreator
     .use(invalidateCommand)
     .use(maintenanceCommand)
     .use(fullStatsCommand)
-    .use(statsCommand);
+    .use(statsCommand)
+    .use(newVoiceCommand);
 
 bot.catch((err) => {
     const { ctx, error } = err;
