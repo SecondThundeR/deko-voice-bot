@@ -13,16 +13,14 @@ export async function updateFavoritesData(
     userID: number,
     favoritesIds: string[],
 ) {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const usersData = db.collection<UsersDataSchema>(usersColName);
 
-    const modifiedStatsData = await usersData.findAndModify(
+    const modifiedStatsData = await usersData.findOneAndUpdate(
         { userID },
         {
-            update: {
-                $set: {
-                    favoritesIds,
-                },
+            $set: {
+                favoritesIds,
             },
         },
     );

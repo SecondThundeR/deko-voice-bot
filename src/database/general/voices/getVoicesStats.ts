@@ -16,7 +16,7 @@ export async function getVoicesStats() {
     const cachedVoicesStats = getCachedVoicesStatsData();
     if (cachedVoicesStats) return cachedVoicesStats;
 
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const voices = db.collection<VoiceSchema>(colName);
 
     const voicesStats = await voices.find().toArray();
