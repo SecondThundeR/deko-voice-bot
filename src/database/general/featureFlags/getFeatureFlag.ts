@@ -18,7 +18,7 @@ export async function getFeatureFlag(id: string) {
         return cachedFeatureFlagStatus;
     }
 
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const featureFlagsCollection = db.collection<FeatureFlagSchema>(colName);
     const featureFlag = await featureFlagsCollection
         .find({ id })

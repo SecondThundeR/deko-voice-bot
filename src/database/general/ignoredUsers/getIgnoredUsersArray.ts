@@ -15,7 +15,7 @@ export async function getIgnoredUsersArray() {
         return ignoredUsersCache.get(ignoredUsersCacheKey)!;
     }
 
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const ignoredUsersCollection = db.collection<IgnoredUsersSchema>(
         usersColName,
     );

@@ -27,13 +27,6 @@ export { autoRetry } from "https://esm.sh/@grammyjs/auto-retry@1.1.1/";
 
 export { load as dotenv } from "dotenv/mod.ts";
 
-export {
-    Bson,
-    type Collection,
-    MongoClient,
-    type ObjectId,
-} from "mongo/mod.ts";
-
-export { MongoError } from "mongo/src/error.ts";
+export { BSON, type Collection, MongoClient, MongoError } from "mongo";
 
 export { dayjs };

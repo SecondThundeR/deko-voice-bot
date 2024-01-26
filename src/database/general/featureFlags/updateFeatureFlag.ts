@@ -13,7 +13,7 @@ export async function updateFeatureFlag(
     id: string,
     newStatus: boolean,
 ) {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const featureFlagsCollection = db.collection<FeatureFlagSchema>(colName);
 
     await featureFlagsCollection.updateOne(

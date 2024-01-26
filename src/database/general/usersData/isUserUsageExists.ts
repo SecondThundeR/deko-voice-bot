@@ -8,7 +8,7 @@ const dbName = databaseNames.general;
 const usersColName = collectionNames[dbName].usersData;
 
 export async function isUserUsageExists(userID: number) {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const usersData = db.collection<UsersDataSchema>(usersColName);
     const data = await usersData
         .find({ userID })

@@ -17,7 +17,7 @@ const voicesColName = collectionNames[dbName].voices;
 const usersColName = collectionNames[dbName].usersData;
 
 export async function updateStats(voiceID: string, from: User) {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const usersData = db.collection<UsersDataSchema>(usersColName);
     const voicesCol = db.collection<VoiceSchema>(voicesColName);
     const userDetails = extractUserDetails(from);
@@ -37,20 +37,18 @@ export async function updateStats(voiceID: string, from: User) {
     const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
     if (userIgnoreStatus) return;
 
-    const modifiedStatsData = await usersData.findAndModify(
+    const modifiedStatsData = await usersData.findOneAndUpdate(
         { userID: userDetails.userID },
         {
-            update: {
-                $set: {
-                    ...userDetails,
-                    lastUsedAt,
-                },
-                $inc: {
-                    usesAmount: 1,
-                },
+            $set: {
+                ...userDetails,
+                lastUsedAt,
             },
-            upsert: true,
+            $inc: {
+                usesAmount: 1,
+            },
         },
+        { upsert: true },
     );
 
     if (!modifiedStatsData) return;
