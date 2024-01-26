@@ -7,12 +7,15 @@
     "grammy_transformer_throttler/": "https://deno.land/x/grammy_transformer_throttler@v1.2.1/",
     "grammy_conversation/": "https://deno.land/x/grammy_conversations@v1.2.0/",
     "dotenv/": "https://deno.land/std@v0.212.0/dotenv/",
-    "mongo/": "https://deno.land/x/mongo@v0.32.0/",
+    "mongo": "npm:mongodb@6.3.0",
+    "grammy_auto-retry": "https://esm.sh/@grammyjs/auto-retry@1.1.1/",
+    "dayjs": "https://esm.sh/dayjs@1.11.10/",
+    "ttlcache": "https://esm.sh/@isaacs/ttlcache@1.4.1/",
     "@/": "./"
   },
   "tasks": {
-    "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-run bot.ts",
-    "dev": "DEBUG=\"grammy*\" deno run --allow-net --allow-read --allow-write --allow-env --allow-run --watch bot.ts"
+    "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-run --allow-sys bot.ts",
+    "dev": "DEBUG=\"grammy*\" deno run --allow-net --allow-read --allow-write --allow-env --allow-run --allow-sys --watch bot.ts"
   },
   "lint": {
     "include": ["src/", "./bot.ts", "./deps.ts"],

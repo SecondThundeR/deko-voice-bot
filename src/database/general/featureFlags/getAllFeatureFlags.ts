@@ -8,7 +8,7 @@ const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;
 
 export async function getAllFeatureFlags() {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const featureFlagsCollection = db.collection<FeatureFlagSchema>(colName);
     const featureFlags = await featureFlagsCollection
         .find()

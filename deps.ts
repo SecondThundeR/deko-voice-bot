@@ -1,6 +1,7 @@
-import dayjs from "https://esm.sh/dayjs@1.11.10";
+import dayjs from "dayjs";
+import TTLCache from "ttlcache";
 
-import TTLCache from "https://esm.sh/@isaacs/ttlcache@1.4.1";
+export { dayjs, TTLCache };
 
 export {
     Api,
@@ -38,17 +39,8 @@ export {
 
 export { apiThrottler } from "grammy_transformer_throttler/mod.ts";
 
-export { autoRetry } from "https://esm.sh/@grammyjs/auto-retry@1.1.1/";
+export { autoRetry } from "grammy_auto-retry";
 
 export { load as dotenv } from "dotenv/mod.ts";
 
-export {
-    Bson,
-    type Collection,
-    MongoClient,
-    type ObjectId,
-} from "mongo/mod.ts";
-
-export { MongoError } from "mongo/src/error.ts";
-
-export { dayjs, TTLCache };
+export { BSON, type Collection, MongoClient, MongoError } from "mongo";

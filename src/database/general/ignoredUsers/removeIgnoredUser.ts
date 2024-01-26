@@ -22,7 +22,7 @@ export async function removeIgnoredUser(from: User) {
         return false;
     }
 
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const usersDataCollection = db.collection<UsersDataSchema>(
         usersColName,
     );
@@ -36,11 +36,7 @@ export async function removeIgnoredUser(from: User) {
             username,
             usesAmount: 0,
         }),
-        ignoredUsersCollection.findAndModify({
-            userID,
-        }, {
-            remove: true,
-        }),
+        ignoredUsersCollection.findOneAndDelete({ userID }),
     ]);
 
     if (!deleteStatus) return false;

@@ -19,16 +19,14 @@ export async function addIgnoredUser(userID: number) {
         return null;
     }
 
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const usersDataCollection = db.collection<UsersDataSchema>(
         usersColName,
     );
     const ignoredUsersCollection = db.collection<IgnoredUsersSchema>(
         ignoredColName,
     );
-    const userData = await usersDataCollection.findAndModify({ userID }, {
-        remove: true,
-    });
+    const userData = await usersDataCollection.findOneAndDelete({ userID });
     if (!userData) {
         throw new Error(
             "Failed to delete user data. Make sure, such user is exists before removing it",

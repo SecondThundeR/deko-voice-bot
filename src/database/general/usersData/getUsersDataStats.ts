@@ -16,7 +16,7 @@ export async function getUsersDataStats() {
     const cachedUsersStats = getCachedUsersStatsData();
     if (cachedUsersStats) return cachedUsersStats;
 
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const usersData = db.collection<UsersDataSchema>(usersColName);
 
     const usersStats = await usersData.find().toArray();

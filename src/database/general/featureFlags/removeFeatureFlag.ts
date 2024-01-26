@@ -10,10 +10,10 @@ const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;
 
 export async function removeFeatureFlag(id: string) {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const featureFlagsCollection = db.collection<FeatureFlagSchema>(colName);
-    const isDeleted = await featureFlagsCollection
-        .deleteOne({ id }) > 0;
+    const isDeleted =
+        (await featureFlagsCollection.deleteOne({ id })).deletedCount > 0;
 
     if (isDeleted) {
         deleteCachedFeatureFlag(id);

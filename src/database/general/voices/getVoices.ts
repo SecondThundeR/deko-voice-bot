@@ -8,7 +8,7 @@ const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
 
 export async function getVoices(queryString?: string) {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const voices = db.collection<VoiceSchema>(colName);
     const voiceToFind = !queryString ? "" : new RegExp(queryString, "i");
 

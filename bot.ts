@@ -57,8 +57,8 @@ if (!token || !mongoURL) {
     Deno.exit(1);
 }
 
-export const client = new MongoClient();
-await client.connect(mongoURL);
+export const client = new MongoClient(mongoURL);
+await client.connect();
 
 const bot = new Bot<BotContext>(token);
 // @ts-expect-error
@@ -124,9 +124,7 @@ bot.catch((err) => {
     }
 
     if (error instanceof MongoError) {
-        console.error("Something broken with Mongo:", error);
-        console.warn("Shutting down bot to prevent further damage");
-        Deno.exit(1);
+        return console.error("Something broken with Mongo:", error);
     }
 
     console.error("Unknown error occurred:", error);
