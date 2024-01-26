@@ -12,8 +12,8 @@
     "@/": "./"
   },
   "tasks": {
-    "start": "deno run --allow-net --allow-read --allow-env bot.ts",
-    "dev": "DEBUG=\"grammy*\" deno run --allow-net --allow-read --allow-env --watch bot.ts"
+    "start": "deno run --allow-net --allow-read --allow-env --allow-sys bot.ts",
+    "dev": "DEBUG=\"grammy*\" deno run --allow-net --allow-read --allow-env --allow-sys --watch bot.ts"
   },
   "lint": {
     "include": ["src/", "./bot.ts", "./deps.ts"],
