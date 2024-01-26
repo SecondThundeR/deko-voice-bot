@@ -1,4 +1,6 @@
-import dayjs from "https://esm.sh/dayjs@1.11.10";
+import dayjs from "dayjs";
+
+export { dayjs };
 
 export {
     Api,
@@ -23,10 +25,8 @@ export { I18n, type I18nFlavor } from "grammy_i18n/mod.ts";
 
 export { apiThrottler } from "grammy_transformer_throttler/mod.ts";
 
-export { autoRetry } from "https://esm.sh/@grammyjs/auto-retry@1.1.1/";
+export { autoRetry } from "grammy_auto-retry";
 
 export { load as dotenv } from "dotenv/mod.ts";
 
 export { BSON, type Collection, MongoClient, MongoError } from "mongo";
-
-export { dayjs };
