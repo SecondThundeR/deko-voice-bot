@@ -159,7 +159,10 @@ try {
     ]);
 
     const botInfo = await bot.api.getMe();
-    console.log(`Started as ${botInfo.first_name} (@${botInfo.username})`);
+    const { deno, typescript, v8 } = Deno.version;
+    console.log(
+        `Started as ${botInfo.first_name} (@${botInfo.username})\nRunning on Deno ${deno} (TS: ${typescript}; V8: ${v8})`,
+    );
 } catch (e) {
     console.log(e);
 }
