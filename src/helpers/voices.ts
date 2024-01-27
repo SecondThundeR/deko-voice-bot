@@ -20,7 +20,7 @@ import { InlineResultVoice } from "@/src/types/inline.ts";
  * Method tries to minimize queries to main MongoDB by caching some parts in local TTL cache
  *
  * Main cache saves data for longer period
- (when needed to clear right away, there are built-in invalidate command for creator)
+ (when needed to clear right away, there is built-in invalidate command for creator)
  *
  * Text query cache saves queries for certain string for a shorter period of time, not to waste too many space.
  * This helps to reduce calls for DB when searching for specific voice (also, it doesn't calls DB on scrolling)

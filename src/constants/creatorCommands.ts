@@ -21,6 +21,10 @@ export const creatorCommands: BotCommand[] = [
         description: "Выводит полную статистику по использованию бота",
     },
     {
+        command: "/voices",
+        description: "Отображает меню со списком всех реплик",
+    },
+    {
         command: "/newvoice",
         description: "Добавляет новую реплику в базу данных",
     },

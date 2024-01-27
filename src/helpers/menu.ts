@@ -34,7 +34,7 @@ export async function prepareFavoritesSessionMenu(
  * that it is up to date
  *
  * @description Menu identificator consists of
- * concatenated favorites `id`, `isFavored` and `currentOffset` data
+ * concatenated favorites `id`, `isFavored` and `currentFavoritesOffset` data
  *
  * @param ctx Context object to get session data
  * @returns Current menu identificator
@@ -44,6 +44,38 @@ export function getFavoritesMenuIdentificator(ctx: BotContext) {
         ?.map(({ id, isFavored }) => `${id}-${isFavored}`)
         .join("|")
         .concat(String(ctx.session.currentFavoritesOffset)) ?? "";
+}
+
+/**
+ * Prepares context session for voices menu launch
+ *
+ * @param ctx Context object to access session data
+ */
+export async function prepareVoicesSessionMenu(ctx: BotContext) {
+    const voicesData = await getCurrentVoiceQueriesData();
+    if (!voicesData) {
+        ctx.session.currentVoices = null;
+        return;
+    }
+
+    ctx.session.currentVoices = voicesData;
+}
+
+/**
+ * Returns current voices menu identificator to ensure
+ * that it is up to date
+ *
+ * @description Menu identificator consists of
+ * concatenated voices `id`, `title` and `currentVoicesOffset` data
+ *
+ * @param ctx Context object to get session data
+ * @returns Current menu identificator
+ */
+export function getVoicesMenuIdentificator(ctx: BotContext) {
+    return ctx.session.currentVoices
+        ?.map(({ id, title }) => `${id}-${title}`)
+        .join("|")
+        .concat(String(ctx.session.currentVoicesOffset)) ?? "";
 }
 
 /**

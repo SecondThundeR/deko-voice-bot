@@ -23,6 +23,7 @@ import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
 import { newVoiceCommand } from "@/src/commands/pm/creator/newVoice.ts";
 import { statsCommand } from "@/src/commands/pm/creator/stats.ts";
+import { voicesCommand } from "@/src/commands/pm/creator/voices.ts";
 import { favoritesCommand } from "@/src/commands/pm/favorites.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
 import { optInCommand } from "@/src/commands/pm/optIn.ts";
@@ -34,6 +35,7 @@ import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
 import { newVoice } from "@/src/conversations/newVoice.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
+import { voicesMenu } from "@/src/menu/voices.ts";
 
 import {
     getSessionKey,
@@ -102,11 +104,13 @@ pm
     .use(favoritesCommand);
 
 pmCreator
+    .use(voicesMenu)
     .use(invalidateCommand)
     .use(maintenanceCommand)
     .use(fullStatsCommand)
     .use(statsCommand)
-    .use(newVoiceCommand);
+    .use(newVoiceCommand)
+    .use(voicesCommand);
 
 bot.catch((err) => {
     const { ctx, error } = err;
