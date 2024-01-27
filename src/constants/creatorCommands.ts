@@ -6,26 +6,30 @@ export const creatorCommands: BotCommand[] = [
     ...userCommands,
     {
         command: "/invalidate",
-        description: "Инвалидирует текущий кеш для обычного запроса",
+        description: "Инвалидировать текущий кеш для обычного запроса",
     },
     {
         command: "/maintenance",
-        description: "Переводит бота в статус тех. работ",
+        description: "Перевести бота в статус тех. работ",
     },
     {
         command: "/stats",
-        description: "Выводит общую статистику по использованию бота",
+        description: "Получить общую статистику по использованию бота",
     },
     {
         command: "/fullstats",
-        description: "Выводит полную статистику по использованию бота",
+        description: "Получить полную статистику по использованию бота",
     },
     {
         command: "/voices",
-        description: "Отображает меню со списком всех реплик",
+        description: "Получить меню со списком всех реплик",
     },
     {
         command: "/newvoice",
-        description: "Добавляет новую реплику в базу данных",
+        description: "Добавить новую реплику через файл",
+    },
+    {
+        command: "/newremotevoice",
+        description: "Добавить новую реплику через ссылку",
     },
 ];

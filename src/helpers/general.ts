@@ -1,7 +1,11 @@
 import { googleExportDownloadLink } from "@/src/constants/general.ts";
 import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale.ts";
 
+const GOOGLE_DRIVE_LINK_CHECK_REGEX =
+    /https:\/\/drive\.google\.com\/file\/d\/(.*?)\/.*?\?usp=[sharing|drive_link]/g;
 const GOOGLE_DRIVE_LINK_CONVERT_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
+const GENERAL_URL_REGEX =
+    /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
 
 type ConvertReturn = { status: true; error: undefined } | {
     status: false;
@@ -25,6 +29,30 @@ export function convertGoogleDriveLink(link: string) {
     const fileId = link.match(GOOGLE_DRIVE_LINK_CONVERT_REGEX)?.[0];
     if (!fileId) throw new Error(GOOGLE_EXPORT_LINK_FAIL);
     return `${googleExportDownloadLink}${fileId}`;
+}
+
+/**
+ * Check if passed URL is a Google Drive sharing link
+ *
+ * Used as sub-helper for {@link convertGoogleDriveLink}
+ *
+ * @deprecated See reason in {@link convertGoogleDriveLink}
+ *
+ * @param url URL to check for Google Drive link match
+ * @returns Result of regex check
+ */
+export function isGoogleDriveLink(link: string) {
+    return link.match(GOOGLE_DRIVE_LINK_CHECK_REGEX) !== null;
+}
+
+/**
+ * Check if passed URL is a valid one
+ *
+ * @param url URL to check validity
+ * @returns Result of regex check
+ */
+export function isValidURL(url: string) {
+    return url.match(GENERAL_URL_REGEX) !== null;
 }
 
 /**

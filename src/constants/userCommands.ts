@@ -15,10 +15,10 @@ export const userCommands: BotCommand[] = [
     },
     {
         command: "/mydata",
-        description: "Получение текущих данных о пользователе",
+        description: "Получить мои данные по использованию",
     },
     {
         command: "/favorites",
-        description: "Управление списком избранных реплик",
+        description: "Управлять списком избранных реплик",
     },
 ];

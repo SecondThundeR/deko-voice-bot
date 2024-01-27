@@ -21,6 +21,7 @@ await dotenv({ export: true });
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
+import { newRemoteVoiceCommand } from "@/src/commands/pm/creator/newRemoteVoice.ts";
 import { newVoiceCommand } from "@/src/commands/pm/creator/newVoice.ts";
 import { statsCommand } from "@/src/commands/pm/creator/stats.ts";
 import { voicesCommand } from "@/src/commands/pm/creator/voices.ts";
@@ -32,6 +33,7 @@ import { startCommand } from "@/src/commands/pm/start.ts";
 
 import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
 
+import { newRemoteVoice } from "@/src/conversations/newRemoteVoice.ts";
 import { newVoice } from "@/src/conversations/newVoice.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
@@ -89,8 +91,13 @@ bot
     .use(conversations());
 
 bot.command("cancel", async (ctx) => await ctx.conversation.exit());
-// @ts-expect-error Types, bruh
-bot.use(createConversation(newVoice, "new-voice"));
+bot
+    // @ts-expect-error Types, bruh
+    .use(createConversation(newVoice, "new-voice"))
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(newRemoteVoice, "new-remote-voice"),
+    );
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
@@ -110,6 +117,7 @@ pmCreator
     .use(fullStatsCommand)
     .use(statsCommand)
     .use(newVoiceCommand)
+    .use(newRemoteVoiceCommand)
     .use(voicesCommand);
 
 bot.catch((err) => {

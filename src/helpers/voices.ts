@@ -7,7 +7,10 @@ import {
     updateRootQueryCache,
     updateTextQueryCache,
 } from "@/src/helpers/cache.ts";
-import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
+import {
+    convertGoogleDriveLink,
+    isGoogleDriveLink,
+} from "@/src/helpers/general.ts";
 
 import { type VoiceSchema } from "@/src/schemas/voice.ts";
 
@@ -69,7 +72,10 @@ export function convertVoiceDataToQueriesArray(
 ): InlineResultVoice[] {
     return voicesData.map(({ id, title, url, fileId }) => {
         if (url !== undefined) {
-            const voice_url = convertGoogleDriveLink(url);
+            const googleDriveLinkCheck = isGoogleDriveLink(url);
+            const voice_url = googleDriveLinkCheck
+                ? convertGoogleDriveLink(url)
+                : url;
             return {
                 type: "voice",
                 id,
