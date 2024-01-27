@@ -2,27 +2,27 @@ import { InputFile } from "@/deps.ts";
 
 import { INPUT_FILENAME, OUTPUT_FILENAME } from "@/src/constants/convert.ts";
 
+import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath.ts";
+import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText.ts";
+import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText.ts";
+
 import { addNewVoice } from "@/src/database/general/voices/addNewVoice.ts";
 
 import { fetchMediaFileBlob } from "@/src/helpers/api.ts";
 import { convertMP3ToOGGOpus } from "@/src/helpers/general.ts";
 
-import { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
 
 export async function newVoice(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    await ctx.reply(ctx.t("newvoice.audioHint"));
-
-    const audioMessage = await conversation.waitFor(":audio");
-    const audioFile = await audioMessage.getFile();
-    const filePath = audioFile.file_path;
-    if (!filePath) {
+    const audioFilePath = await getAudioFilePath(conversation, ctx);
+    if (!audioFilePath) {
         return void await ctx.reply(ctx.t("newvoice.audioPathEmpty"));
     }
 
-    const mp3Blob = await fetchMediaFileBlob(filePath);
+    const mp3Blob = await fetchMediaFileBlob(audioFilePath);
     if (!mp3Blob) {
         return void await ctx.reply(ctx.t("newvoice.audioFetchFailed"));
     }
@@ -34,25 +34,10 @@ export async function newVoice(
 
     await ctx.reply(ctx.t("newvoice.idHint"), { parse_mode: "HTML" });
 
-    let fileID: string | undefined;
-    do {
-        ctx = await conversation.wait();
-        const messageText = ctx.message?.text;
+    const fileID = await getVoiceIDText(conversation, ctx);
+    if (!fileID) return void await ctx.reply(ctx.t("newvoice.idEmpty"));
 
-        if (!messageText) {
-            continue;
-        } else if (messageText.length <= 64) {
-            fileID = messageText;
-            break;
-        }
-
-        await ctx.reply(ctx.t("newvoice.idLong"));
-    } while (!ctx.message?.text);
-    if (!fileID) return;
-
-    await ctx.reply(ctx.t("newvoice.titleHint"));
-    const titleText = await conversation.form.text();
-
+    const titleText = await getVoiceTitleText(conversation, ctx);
     if (!titleText) {
         return void ctx.reply(ctx.t("newvoice.titleEmpty"));
     }
