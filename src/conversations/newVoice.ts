@@ -32,8 +32,6 @@ export async function newVoice(
         Deno.writeFile(INPUT_FILENAME, new Uint8Array(fileArrayBuffer))
     );
 
-    await ctx.reply(ctx.t("newvoice.idHint"), { parse_mode: "HTML" });
-
     const fileID = await getVoiceIDText(conversation, ctx);
     if (!fileID) return void await ctx.reply(ctx.t("newvoice.idEmpty"));
 
