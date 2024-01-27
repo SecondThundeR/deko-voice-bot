@@ -9,7 +9,7 @@ const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
 
 export async function addNewVoice(id: string, title: string, fileId: string) {
-    const db = client.database(dbName);
+    const db = client.db(dbName);
     const voices = db.collection<VoiceSchema>(colName);
 
     await voices.insertOne({
