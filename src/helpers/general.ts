@@ -1,7 +1,7 @@
 import { googleExportDownloadLink } from "@/src/constants/general.ts";
 import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale.ts";
 
-const GOOGLE_LINK_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
+const GOOGLE_DRIVE_LINK_CONVERT_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
 
 type ConvertReturn = { status: true; error: undefined } | {
     status: false;
@@ -11,11 +11,18 @@ type ConvertReturn = { status: true; error: undefined } | {
 /**
  * Converts regular Google Drive sharing link to direct download link
  *
+ * @deprecated This function was previously (and still is) used to
+ * convert Google Drive links into direct download links in order
+ * to retrieve voice file from them. With the new feature of
+ * adding replicas from PM, this helper function is no longer relevant
+ * for general use and has been left as a helper for old voices
+ * in the current production database
+ *
  * @param link Google link for voice file
  * @returns Google link for direct download of voice file
  */
 export function convertGoogleDriveLink(link: string) {
-    const fileId = link.match(GOOGLE_LINK_REGEX)?.[0];
+    const fileId = link.match(GOOGLE_DRIVE_LINK_CONVERT_REGEX)?.[0];
     if (!fileId) throw new Error(GOOGLE_EXPORT_LINK_FAIL);
     return `${googleExportDownloadLink}${fileId}`;
 }
