@@ -1,7 +1,8 @@
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
 
-import type { MenuBotContext } from "@/src/types/bot.ts";
 import { genericNextHandler } from "@/src/handlers/menu/genericNextHandler.ts";
+
+import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function nextPageHandler(ctx: MenuBotContext) {
     const { currentFavorites, currentFavoritesOffset } = ctx.session;
