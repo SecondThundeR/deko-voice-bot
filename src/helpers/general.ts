@@ -70,6 +70,18 @@ export function getFullName(firstName: string, lastName?: string) {
 }
 
 /**
+ * Checks if ffmpeg can be called on the system to ensure that it's exists
+ * by running `ffmpeg -h`
+ *
+ * @returns Status of ffmpeg's help command execution
+ */
+export async function canRunFFMPEG() {
+    const ffmpeg = new Deno.Command("ffmpeg", { args: ["-h"] });
+    const { success } = await ffmpeg.output();
+    return success;
+}
+
+/**
  * Converts MP3 to OGG Opus for using as Telegram voice message
  *
  * @param inputFilename Name of input file to read

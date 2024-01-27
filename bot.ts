@@ -44,6 +44,7 @@ import {
     registerCreatorCommands,
     registerUserCommands,
 } from "@/src/helpers/api.ts";
+import { canRunFFMPEG } from "@/src/helpers/general.ts";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 
 import { configSetup } from "@/src/middlewares/configSetup.ts";
@@ -55,10 +56,17 @@ import type { BotContext } from "@/src/types/bot.ts";
 const token = Deno.env.get("BOT_TOKEN");
 const mongoURL = Deno.env.get("MONGO_URL");
 const creatorID = Deno.env.get("CREATOR_ID");
+const hasFFMPEG = await canRunFFMPEG();
 
 if (!token || !mongoURL) {
     console.error(ENVS_CHECK_FAIL);
-    Deno.exit(1);
+    Deno.exit();
+}
+if (!hasFFMPEG) {
+    console.error(
+        "Check that ffmpeg is installed on your system/container before running bot",
+    );
+    Deno.exit();
 }
 
 export const client = new MongoClient(mongoURL);
