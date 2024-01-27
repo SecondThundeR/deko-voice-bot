@@ -70,6 +70,18 @@ export function checkQueriesCache(queryString: string) {
 }
 
 /**
+ * Checks if passed voice ID is not unique among other voices in cache
+ *
+ * @param voiceID ID of voice to check
+ * @returns Check for uniqueness of voice ID
+ */
+export function isNotUniqueVoiceID(voiceID: string) {
+    return (rootQueryCache.get(rootCacheKey) ?? []).some(({ id }) =>
+        id === voiceID
+    );
+}
+
+/**
  * Updates cache with filtered voice queries
  *
  * @param queryString Query string for inline
