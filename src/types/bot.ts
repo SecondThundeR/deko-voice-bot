@@ -8,10 +8,13 @@ import type {
 } from "@/deps.ts";
 
 import { FavoriteItem } from "@/src/types/favoriteItem.ts";
+import { InlineResultVoice } from "@/src/types/inline.ts";
 
 interface SessionData {
     currentFavorites?: FavoriteItem[] | null;
-    currentOffset: number;
+    currentFavoritesOffset: number;
+    currentVoices?: InlineResultVoice[] | null;
+    currentVoicesOffset: number;
 }
 
 interface ConfigContext {

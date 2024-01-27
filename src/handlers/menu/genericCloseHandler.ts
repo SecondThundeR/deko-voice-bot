@@ -2,11 +2,15 @@ import { closeMenuExceptionHandler } from "@/src/helpers/menu.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-export async function closeMenuHandler(ctx: BotContext) {
+type OnCloseCallback = (ctx: BotContext) => void;
+
+export async function genericCloseHandler(
+    ctx: BotContext,
+    onClose: OnCloseCallback,
+) {
     try {
         await ctx.deleteMessage();
-        ctx.session.currentFavorites = null;
-        ctx.session.currentOffset = 0;
+        onClose(ctx);
     } catch (error: unknown) {
         console.error(
             "Something prevented from closing menu:",

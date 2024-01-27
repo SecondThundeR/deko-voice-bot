@@ -5,9 +5,18 @@ import { outdatedExceptionHandler } from "@/src/helpers/menu.ts";
 
 import type { MenuBotContext } from "@/src/types/bot.ts";
 
-export async function outdatedHandler(ctx: MenuBotContext) {
+type OutdatedHandlerData<T> = {
+    menuElements: T[] | null | undefined;
+};
+
+export async function genericOutdatedHandler<T>(
+    ctx: MenuBotContext,
+    data: OutdatedHandlerData<T>,
+) {
+    const { menuElements } = data;
+
     try {
-        if (!ctx.session.currentFavorites) {
+        if (!menuElements) {
             await ctx.deleteMessage();
             await ctx.answerCallbackQuery();
             return;

@@ -30,7 +30,8 @@ export async function prepareFavoritesSessionMenu(
 }
 
 /**
- * Returns current menu identificator to ensure that it is up to date
+ * Returns current favorites menu identificator to ensure
+ * that it is up to date
  *
  * @description Menu identificator consists of
  * concatenated favorites `id`, `isFavored` and `currentOffset` data
@@ -38,11 +39,11 @@ export async function prepareFavoritesSessionMenu(
  * @param ctx Context object to get session data
  * @returns Current menu identificator
  */
-export function getMenuIdentificator(ctx: BotContext) {
+export function getFavoritesMenuIdentificator(ctx: BotContext) {
     return ctx.session.currentFavorites
         ?.map(({ id, isFavored }) => `${id}-${isFavored}`)
         .join("|")
-        .concat(String(ctx.session.currentOffset)) ?? "";
+        .concat(String(ctx.session.currentFavoritesOffset)) ?? "";
 }
 
 /**
