@@ -15,6 +15,7 @@ interface SessionData {
     currentFavoritesOffset: number;
     currentVoices?: InlineResultVoice[] | null;
     currentVoicesOffset: number;
+    currentVoice?: InlineResultVoice | null;
 }
 
 interface ConfigContext {
