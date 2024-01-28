@@ -26,6 +26,7 @@ export async function prepareFavoritesSessionMenu(
         }),
     );
 
+    ctx.session.currentFavoritesOffset = 0;
     ctx.session.currentFavorites = newFavoritesData;
 }
 
@@ -58,7 +59,9 @@ export async function prepareVoicesSessionMenu(ctx: BotContext) {
         return;
     }
 
+    ctx.session.currentVoice = null;
     ctx.session.currentVoices = voicesData;
+    ctx.session.currentVoicesOffset = 0;
 }
 
 /**

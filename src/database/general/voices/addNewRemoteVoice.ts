@@ -2,8 +2,9 @@ import { client } from "@/bot.ts";
 
 import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 
+import { addVoiceToCache } from "@/src/helpers/cache.ts";
+
 import type { VoiceSchema } from "@/src/schemas/voice.ts";
-import { invalidateRootCache } from "@/src/helpers/cache.ts";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
@@ -23,5 +24,10 @@ export async function addNewRemoteVoice(
         usesAmount: 0,
     });
 
-    invalidateRootCache();
+    addVoiceToCache({
+        id,
+        title,
+        type: "voice",
+        voice_url: url,
+    });
 }

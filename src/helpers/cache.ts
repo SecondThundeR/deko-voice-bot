@@ -36,10 +36,11 @@ type FavoritesCacheUpdateData = Omit<FavoriteStatusUpdateData, "newStatus"> & {
 };
 
 /**
- * Invalidates root cache by clearing it
+ * Invalidates root and text caches by clearing them
  */
-export function invalidateRootCache() {
+export function invalidateVoiceCaches() {
     rootQueryCache.clear();
+    textQueryCache.clear();
 }
 
 /**
@@ -274,6 +275,70 @@ export function setCachedUsersStatsData(usersStats: UsersDataSchema[]) {
  */
 export function setCachedVoicesStatsData(voicesStats: VoiceSchema[]) {
     voicesStatsCache.set(voicesStatsCacheKey, voicesStats);
+}
+
+/**
+ * Adds new voice to cache
+ *
+ * @description Because there are possibility of saved text query cache which can't display
+ * newly added voice, it is cleared out here
+ *
+ * @param voice Voice to add
+ */
+export function addVoiceToCache(voice: InlineResultVoice) {
+    if (!rootQueryCache.has(rootCacheKey)) return;
+
+    const updatedCache = [...rootQueryCache.get(rootCacheKey)!, voice]
+        .sort((a, b) => a.title.localeCompare(b.title));
+    rootQueryCache.set(rootCacheKey, updatedCache);
+    textQueryCache.clear();
+}
+
+/**
+ * Updates voice in cache
+ *
+ * @description Because there are possibility of saved text query cache which can display
+ * old version of voice, it is cleared out here
+ *
+ * @param voice Voice to update
+ * @param prevVoiceId Previous voice ID to change in case of new voice ID
+ */
+export function updateVoiceInCache(
+    voice: InlineResultVoice,
+    prevVoiceId?: string,
+) {
+    if (!rootQueryCache.has(rootCacheKey)) return;
+
+    const cacheCopy = rootQueryCache
+        .get(rootCacheKey)!
+        .slice();
+    const elementIndex = cacheCopy.findIndex((item) =>
+        item.id === (prevVoiceId ?? voice.id)
+    );
+    if (elementIndex === -1) return;
+    cacheCopy[elementIndex] = voice;
+    cacheCopy.sort((a, b) => a.title.localeCompare(b.title));
+
+    rootQueryCache.set(rootCacheKey, cacheCopy);
+    textQueryCache.clear();
+}
+
+/**
+ * Removes voice from cache
+ *
+ * @description Because there are possibility of saved text query cache which can display
+ * saved version of voice, it is cleared out here
+ *
+ * @param voiceID Voice ID to remove
+ */
+export function removeVoiceFromCache(voiceID: string) {
+    if (!rootQueryCache.has(rootCacheKey)) return;
+
+    const updatedCache = rootQueryCache
+        .get(rootCacheKey)!
+        .filter((item) => item.id !== voiceID);
+    rootQueryCache.set(rootCacheKey, updatedCache);
+    textQueryCache.clear();
 }
 
 /**
