@@ -15,23 +15,23 @@ export async function newRemoteVoice(
         return void await ctx.reply(ctx.t("newremotevoice.URLEmpty"));
     }
 
-    const fileID = await getVoiceIDText(conversation, ctx);
-    if (!fileID) return void await ctx.reply(ctx.t("newvoice.idEmpty"));
+    const voiceID = await getVoiceIDText(conversation, ctx);
+    if (!voiceID) return void await ctx.reply(ctx.t("newvoice.idEmpty"));
 
-    const titleText = await getVoiceTitleText(conversation, ctx);
-    if (!titleText) {
+    const voiceTitle = await getVoiceTitleText(conversation, ctx);
+    if (!voiceTitle) {
         return void ctx.reply(ctx.t("newvoice.titleEmpty"));
     }
 
     try {
         await ctx.replyWithVoice(audioRemoteURL, {
             caption: ctx.t("newremotevoice.success", {
-                title: titleText,
+                title: voiceTitle,
             }),
             parse_mode: "HTML",
         });
         await conversation.external(() =>
-            addNewRemoteVoice(fileID, titleText, audioRemoteURL)
+            addNewRemoteVoice(voiceID, voiceTitle, audioRemoteURL)
         );
     } catch (error: unknown) {
         console.error(error);

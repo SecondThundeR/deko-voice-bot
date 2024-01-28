@@ -32,11 +32,11 @@ export async function newVoice(
         Deno.writeFile(INPUT_FILENAME, new Uint8Array(fileArrayBuffer))
     );
 
-    const fileID = await getVoiceIDText(conversation, ctx);
-    if (!fileID) return void await ctx.reply(ctx.t("newvoice.idEmpty"));
+    const voiceID = await getVoiceIDText(conversation, ctx);
+    if (!voiceID) return void await ctx.reply(ctx.t("newvoice.idEmpty"));
 
-    const titleText = await getVoiceTitleText(conversation, ctx);
-    if (!titleText) {
+    const voiceTitle = await getVoiceTitleText(conversation, ctx);
+    if (!voiceTitle) {
         return void ctx.reply(ctx.t("newvoice.titleEmpty"));
     }
 
@@ -54,13 +54,13 @@ export async function newVoice(
 
     const message = await ctx.replyWithVoice(new InputFile(OUTPUT_FILENAME), {
         caption: ctx.t("newvoice.success", {
-            title: titleText,
+            title: voiceTitle,
         }),
     });
     const voiceFileID = message.voice.file_id;
 
     const finishPromises = Promise.all([
-        addNewVoice(fileID, titleText, voiceFileID),
+        addNewVoice(voiceID, voiceTitle, voiceFileID),
         Deno.remove(INPUT_FILENAME),
         Deno.remove(OUTPUT_FILENAME),
     ]);
