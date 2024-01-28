@@ -6,11 +6,11 @@ type OnCloseCallback = (ctx: BotContext) => void;
 
 export async function genericCloseHandler(
     ctx: BotContext,
-    onClose: OnCloseCallback,
+    onClose?: OnCloseCallback,
 ) {
     try {
         await ctx.deleteMessage();
-        onClose(ctx);
+        onClose?.(ctx);
     } catch (error: unknown) {
         console.error(
             "Something prevented from closing menu:",
