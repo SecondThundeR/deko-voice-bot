@@ -4,6 +4,6 @@ import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function outdatedHandler(ctx: MenuBotContext) {
     await genericOutdatedHandler(ctx, {
-        menuElements: ctx.session.currentVoices,
+        menuElement: ctx.session.currentVoices,
     });
 }
