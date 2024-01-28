@@ -82,6 +82,22 @@ export function getVoicesMenuIdentificator(ctx: BotContext) {
 }
 
 /**
+ * Returns current voice submenu identificator to ensure
+ * that it is up to date
+ *
+ * @description Submenu identificator consists of
+ * concatenated voice `id` and `title` data
+ *
+ * @param ctx Context object to get session data
+ * @returns Current submenu identificator
+ */
+export function getVoiceSubmenuIdentificator(ctx: BotContext) {
+    if (!ctx.session.currentVoice) return "";
+    const { id, title } = ctx.session.currentVoice;
+    return `${id}-${title}`;
+}
+
+/**
  * Handles exception for close menu handler
  *
  * @param ctx Context object to get message data

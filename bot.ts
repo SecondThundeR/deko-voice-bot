@@ -35,6 +35,8 @@ import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
 
 import { newRemoteVoice } from "@/src/conversations/newRemoteVoice.ts";
 import { newVoice } from "@/src/conversations/newVoice.ts";
+import { updateVoiceID } from "@/src/conversations/updateVoiceID.ts";
+import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
 import { voicesMenu } from "@/src/menu/voices.ts";
@@ -105,6 +107,14 @@ bot
     .use(
         // @ts-expect-error Types, bruh
         createConversation(newRemoteVoice, "new-remote-voice"),
+    )
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(updateVoiceID, "voice-id-update"),
+    )
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(updateVoiceTitle, "voice-title-update"),
     );
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");

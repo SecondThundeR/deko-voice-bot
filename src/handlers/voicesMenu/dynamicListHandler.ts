@@ -20,7 +20,11 @@ export function dynamicListHandler(
             const { title } = voiceItem;
 
             range
-                .text(title)
+                .submenu(
+                    title,
+                    "voice-menu",
+                    (ctx) => ctx.session.currentVoice = voiceItem,
+                )
                 .row();
         },
     });
