@@ -1,6 +1,5 @@
-import { InlineQueryResultVoice } from "@/deps.ts";
+import { InlineResultVoice } from "@/src/types/inline.ts";
 
-export interface FavoriteItem
-    extends Pick<InlineQueryResultVoice, "id" | "title"> {
+export interface FavoriteItem extends Pick<InlineResultVoice, "id" | "title"> {
     isFavored: boolean;
 }

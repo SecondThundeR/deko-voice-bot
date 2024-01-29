@@ -74,3 +74,21 @@ export async function isBotBlockedByUser(ctx: Context) {
 export function getSessionKey(ctx: Context) {
     return ctx.chat?.id.toString();
 }
+
+/**
+ * Fetches media file and returns blob of it
+ *
+ * @param filePath Telegram's file path to get file
+ * @returns Blob of fetched file
+ */
+export async function fetchMediaFileBlob(filePath: string) {
+    const token = Deno.env.get("BOT_TOKEN");
+    if (!token) return null;
+
+    const file = await fetch(
+        `https://api.telegram.org/file/bot${token}/${filePath}`,
+    );
+    const blob = await file.blob();
+
+    return blob;
+}

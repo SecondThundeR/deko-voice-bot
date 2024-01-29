@@ -1,5 +1,3 @@
-import { InlineQueryResultVoice } from "@/deps.ts";
-
 import { usersStatsCache } from "@/src/cache/stats/users.ts";
 import { voicesStatsCache } from "@/src/cache/stats/voices.ts";
 import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
@@ -25,6 +23,8 @@ import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsag
 import { UsersDataSchema } from "@/src/schemas/usersData.ts";
 import { VoiceSchema } from "@/src/schemas/voice.ts";
 
+import { InlineResultVoice } from "@/src/types/inline.ts";
+
 type FavoriteStatusUpdateData = {
     userID: number;
     voiceID: string;
@@ -36,10 +36,11 @@ type FavoritesCacheUpdateData = Omit<FavoriteStatusUpdateData, "newStatus"> & {
 };
 
 /**
- * Invalidates root cache by clearing it
+ * Invalidates root and text caches by clearing them
  */
-export function invalidateRootCache() {
+export function invalidateVoiceCaches() {
     rootQueryCache.clear();
+    textQueryCache.clear();
 }
 
 /**
@@ -70,6 +71,18 @@ export function checkQueriesCache(queryString: string) {
 }
 
 /**
+ * Checks if passed voice ID is not unique among other voices in cache
+ *
+ * @param voiceID ID of voice to check
+ * @returns Check for uniqueness of voice ID
+ */
+export function isNotUniqueVoiceID(voiceID: string) {
+    return (rootQueryCache.get(rootCacheKey) ?? []).some(({ id }) =>
+        id === voiceID
+    );
+}
+
+/**
  * Updates cache with filtered voice queries
  *
  * @param queryString Query string for inline
@@ -77,7 +90,7 @@ export function checkQueriesCache(queryString: string) {
  */
 export function updateTextQueryCache(
     queryString: string,
-    voicesQueries: InlineQueryResultVoice[],
+    voicesQueries: InlineResultVoice[],
 ) {
     return textQueryCache.set(queryString, voicesQueries);
 }
@@ -87,7 +100,7 @@ export function updateTextQueryCache(
  *
  * @param voicesQueries Array of queries with voice results
  */
-export function updateRootQueryCache(voicesQueries: InlineQueryResultVoice[]) {
+export function updateRootQueryCache(voicesQueries: InlineResultVoice[]) {
     return rootQueryCache.set(rootCacheKey, voicesQueries);
 }
 
@@ -265,6 +278,70 @@ export function setCachedVoicesStatsData(voicesStats: VoiceSchema[]) {
 }
 
 /**
+ * Adds new voice to cache
+ *
+ * @description Because there are possibility of saved text query cache which can't display
+ * newly added voice, it is cleared out here
+ *
+ * @param voice Voice to add
+ */
+export function addVoiceToCache(voice: InlineResultVoice) {
+    if (!rootQueryCache.has(rootCacheKey)) return;
+
+    const updatedCache = [...rootQueryCache.get(rootCacheKey)!, voice]
+        .sort((a, b) => a.title.localeCompare(b.title));
+    rootQueryCache.set(rootCacheKey, updatedCache);
+    textQueryCache.clear();
+}
+
+/**
+ * Updates voice in cache
+ *
+ * @description Because there are possibility of saved text query cache which can display
+ * old version of voice, it is cleared out here
+ *
+ * @param voice Voice to update
+ * @param prevVoiceId Previous voice ID to change in case of new voice ID
+ */
+export function updateVoiceInCache(
+    voice: InlineResultVoice,
+    prevVoiceId?: string,
+) {
+    if (!rootQueryCache.has(rootCacheKey)) return;
+
+    const cacheCopy = rootQueryCache
+        .get(rootCacheKey)!
+        .slice();
+    const elementIndex = cacheCopy.findIndex((item) =>
+        item.id === (prevVoiceId ?? voice.id)
+    );
+    if (elementIndex === -1) return;
+    cacheCopy[elementIndex] = voice;
+    cacheCopy.sort((a, b) => a.title.localeCompare(b.title));
+
+    rootQueryCache.set(rootCacheKey, cacheCopy);
+    textQueryCache.clear();
+}
+
+/**
+ * Removes voice from cache
+ *
+ * @description Because there are possibility of saved text query cache which can display
+ * saved version of voice, it is cleared out here
+ *
+ * @param voiceID Voice ID to remove
+ */
+export function removeVoiceFromCache(voiceID: string) {
+    if (!rootQueryCache.has(rootCacheKey)) return;
+
+    const updatedCache = rootQueryCache
+        .get(rootCacheKey)!
+        .filter((item) => item.id !== voiceID);
+    rootQueryCache.set(rootCacheKey, updatedCache);
+    textQueryCache.clear();
+}
+
+/**
  * Closure, that returns a callback for use in queries filter method
  * with saved query string value
  *
@@ -272,7 +349,7 @@ export function setCachedVoicesStatsData(voicesStats: VoiceSchema[]) {
  * @returns Callback for use in filter method
  */
 function rootQueryCacheFilterCallback(queryString: string) {
-    return function (query: InlineQueryResultVoice) {
+    return function (query: InlineResultVoice) {
         return query.title.toLocaleLowerCase().includes(queryString);
     };
 }

@@ -2,6 +2,8 @@ import {
     apiThrottler,
     autoRetry,
     Bot,
+    conversations,
+    createConversation,
     dotenv,
     GrammyError,
     HttpError,
@@ -19,7 +21,10 @@ await dotenv({ export: true });
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
+import { newRemoteVoiceCommand } from "@/src/commands/pm/creator/newRemoteVoice.ts";
+import { newVoiceCommand } from "@/src/commands/pm/creator/newVoice.ts";
 import { statsCommand } from "@/src/commands/pm/creator/stats.ts";
+import { voicesCommand } from "@/src/commands/pm/creator/voices.ts";
 import { favoritesCommand } from "@/src/commands/pm/favorites.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
 import { optInCommand } from "@/src/commands/pm/optIn.ts";
@@ -28,13 +33,20 @@ import { startCommand } from "@/src/commands/pm/start.ts";
 
 import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
 
+import { newRemoteVoice } from "@/src/conversations/newRemoteVoice.ts";
+import { newVoice } from "@/src/conversations/newVoice.ts";
+import { updateVoiceID } from "@/src/conversations/updateVoiceID.ts";
+import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle.ts";
+
 import { favoritesMenu } from "@/src/menu/favorites.ts";
+import { voicesMenu } from "@/src/menu/voices.ts";
 
 import {
     getSessionKey,
     registerCreatorCommands,
     registerUserCommands,
 } from "@/src/helpers/api.ts";
+import { canRunFFMPEG } from "@/src/helpers/general.ts";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 
 import { configSetup } from "@/src/middlewares/configSetup.ts";
@@ -46,17 +58,24 @@ import type { BotContext } from "@/src/types/bot.ts";
 const token = Deno.env.get("BOT_TOKEN");
 const mongoURL = Deno.env.get("MONGO_URL");
 const creatorID = Deno.env.get("CREATOR_ID");
+const hasFFMPEG = await canRunFFMPEG();
 
 if (!token || !mongoURL) {
     console.error(ENVS_CHECK_FAIL);
-    Deno.exit(1);
+    Deno.exit();
+}
+if (!hasFFMPEG) {
+    console.error(
+        "Check that ffmpeg is installed on your system/container before running bot",
+    );
+    Deno.exit();
 }
 
 export const client = new MongoClient(mongoURL);
 await client.connect();
 
 const bot = new Bot<BotContext>(token);
-// @ts-expect-error Grammy's types has mismatch error for some reason, but it still working
+// @ts-expect-error
 const i18n = new I18n<BotContext>({
     globalTranslationContext: (ctx) => ({
         botUsername: `@${ctx.me.username}`,
@@ -77,7 +96,26 @@ bot
     .use(i18n)
     .use(botConfig)
     .use(maintenanceGatekeep)
-    .use(inlineQueryHandler);
+    .use(inlineQueryHandler)
+    // @ts-expect-error Types, bruh
+    .use(conversations());
+
+bot.command("cancel", async (ctx) => await ctx.conversation.exit());
+bot
+    // @ts-expect-error Types, bruh
+    .use(createConversation(newVoice, "new-voice"))
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(newRemoteVoice, "new-remote-voice"),
+    )
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(updateVoiceID, "voice-id-update"),
+    )
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(updateVoiceTitle, "voice-title-update"),
+    );
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
@@ -91,10 +129,14 @@ pm
     .use(favoritesCommand);
 
 pmCreator
+    .use(voicesMenu)
     .use(invalidateCommand)
     .use(maintenanceCommand)
     .use(fullStatsCommand)
-    .use(statsCommand);
+    .use(statsCommand)
+    .use(newVoiceCommand)
+    .use(newRemoteVoiceCommand)
+    .use(voicesCommand);
 
 bot.catch((err) => {
     const { ctx, error } = err;
@@ -135,7 +177,10 @@ try {
     ]);
 
     const botInfo = await bot.api.getMe();
-    console.log(`Started as ${botInfo.first_name} (@${botInfo.username})`);
+    const { deno, typescript, v8 } = Deno.version;
+    console.log(
+        `Started as ${botInfo.first_name} (@${botInfo.username})\nRunning on Deno ${deno} (TS: ${typescript}; V8: ${v8})`,
+    );
 } catch (e) {
     console.log(e);
 }

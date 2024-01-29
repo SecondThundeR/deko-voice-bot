@@ -1,5 +1,3 @@
-import { type InlineQueryResultVoice } from "@/deps.ts";
-
 import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
 
 import { getVoices } from "@/src/database/general/voices/getVoices.ts";
@@ -9,9 +7,14 @@ import {
     updateRootQueryCache,
     updateTextQueryCache,
 } from "@/src/helpers/cache.ts";
-import { convertGoogleDriveLink } from "@/src/helpers/general.ts";
+import {
+    convertGoogleDriveLink,
+    isGoogleDriveLink,
+} from "@/src/helpers/general.ts";
 
 import { type VoiceSchema } from "@/src/schemas/voice.ts";
+
+import { InlineResultVoice } from "@/src/types/inline.ts";
 
 /**
  * Gets current voice queries data
@@ -20,7 +23,7 @@ import { type VoiceSchema } from "@/src/schemas/voice.ts";
  * Method tries to minimize queries to main MongoDB by caching some parts in local TTL cache
  *
  * Main cache saves data for longer period
- (when needed to clear right away, there are built-in invalidate command for creator)
+ (when needed to clear right away, there is built-in invalidate command for creator)
  *
  * Text query cache saves queries for certain string for a shorter period of time, not to waste too many space.
  * This helps to reduce calls for DB when searching for specific voice (also, it doesn't calls DB on scrolling)
@@ -66,10 +69,22 @@ export async function getCurrentVoiceQueriesData(
  */
 export function convertVoiceDataToQueriesArray(
     voicesData: VoiceSchema[],
-): InlineQueryResultVoice[] {
-    const queries = voicesData.map(({ id, title, url }) => {
+): InlineResultVoice[] {
+    const queries = voicesData.map(({ id, title, url, fileId }) => {
+        if (!url) {
+            return {
+                type: "voice",
+                id,
+                title,
+                voice_file_id: fileId,
+            };
+        }
+
         try {
-            const voice_url = convertGoogleDriveLink(url);
+            const googleDriveLinkCheck = isGoogleDriveLink(url);
+            const voice_url = googleDriveLinkCheck
+                ? convertGoogleDriveLink(url)
+                : url;
             return {
                 type: "voice",
                 id,
@@ -81,7 +96,7 @@ export function convertVoiceDataToQueriesArray(
             return null;
         }
     });
-    return queries.filter((item) => item !== null) as InlineQueryResultVoice[];
+    return queries.filter((item) => item !== null) as InlineResultVoice[];
 }
 
 /**
@@ -94,7 +109,7 @@ export function convertVoiceDataToQueriesArray(
  * @returns Filtered or non-filtered query array
  */
 export function filterFavoriteVoices(
-    data: InlineQueryResultVoice[],
+    data: InlineResultVoice[],
     favoritesIds?: string[],
 ) {
     if (!favoritesIds) return data;

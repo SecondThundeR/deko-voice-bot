@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
+import TTLCache from "ttlcache";
 
-export { dayjs };
+export { dayjs, TTLCache };
 
 export {
     Api,
@@ -9,12 +10,18 @@ export {
     GrammyError,
     HttpError,
     InlineKeyboard,
+    InputFile,
     type RawApi,
     session,
     type Transformer,
 } from "grammy/mod.ts";
 export type { Context, SessionFlavor } from "grammy/mod.ts";
-export type { BotCommand, InlineQueryResultVoice, User } from "grammy/types.ts";
+export type {
+    BotCommand,
+    InlineQueryResultCachedVoice,
+    InlineQueryResultVoice,
+    User,
+} from "grammy/types.ts";
 
 export { run, sequentialize } from "grammy_runner/mod.ts";
 
@@ -22,6 +29,13 @@ export { Menu } from "grammy_menu/mod.ts";
 export type { MenuFlavor, MenuRange } from "grammy_menu/mod.ts";
 
 export { I18n, type I18nFlavor } from "grammy_i18n/mod.ts";
+
+export {
+    type Conversation,
+    type ConversationFlavor,
+    conversations,
+    createConversation,
+} from "grammy_conversation/mod.ts";
 
 export { apiThrottler } from "grammy_transformer_throttler/mod.ts";
 

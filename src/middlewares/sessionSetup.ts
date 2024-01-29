@@ -7,7 +7,8 @@ export function sessionSetup() {
         getSessionKey,
         initial() {
             return {
-                currentOffset: 0,
+                currentFavoritesOffset: 0,
+                currentVoicesOffset: 0,
             };
         },
     });

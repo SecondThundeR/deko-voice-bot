@@ -26,23 +26,75 @@ export async function prepareFavoritesSessionMenu(
         }),
     );
 
+    ctx.session.currentFavoritesOffset = 0;
     ctx.session.currentFavorites = newFavoritesData;
 }
 
 /**
- * Returns current menu identificator to ensure that it is up to date
+ * Returns current favorites menu identificator to ensure
+ * that it is up to date
  *
  * @description Menu identificator consists of
- * concatenated favorites `id`, `isFavored` and `currentOffset` data
+ * concatenated favorites `id`, `isFavored` and `currentFavoritesOffset` data
  *
  * @param ctx Context object to get session data
  * @returns Current menu identificator
  */
-export function getMenuIdentificator(ctx: BotContext) {
+export function getFavoritesMenuIdentificator(ctx: BotContext) {
     return ctx.session.currentFavorites
         ?.map(({ id, isFavored }) => `${id}-${isFavored}`)
         .join("|")
-        .concat(String(ctx.session.currentOffset)) ?? "";
+        .concat(String(ctx.session.currentFavoritesOffset)) ?? "";
+}
+
+/**
+ * Prepares context session for voices menu launch
+ *
+ * @param ctx Context object to access session data
+ */
+export async function prepareVoicesSessionMenu(ctx: BotContext) {
+    const voicesData = await getCurrentVoiceQueriesData();
+    if (!voicesData) {
+        ctx.session.currentVoices = null;
+        return;
+    }
+
+    ctx.session.currentVoice = null;
+    ctx.session.currentVoices = voicesData;
+    ctx.session.currentVoicesOffset = 0;
+}
+
+/**
+ * Returns current voices menu identificator to ensure
+ * that it is up to date
+ *
+ * @description Menu identificator consists of
+ * concatenated voices `id`, `title` and `currentVoicesOffset` data
+ *
+ * @param ctx Context object to get session data
+ * @returns Current menu identificator
+ */
+export function getVoicesMenuIdentificator(ctx: BotContext) {
+    return ctx.session.currentVoices
+        ?.map(({ id, title }) => `${id}-${title}`)
+        .join("|")
+        .concat(String(ctx.session.currentVoicesOffset)) ?? "";
+}
+
+/**
+ * Returns current voice submenu identificator to ensure
+ * that it is up to date
+ *
+ * @description Submenu identificator consists of
+ * concatenated voice `id` and `title` data
+ *
+ * @param ctx Context object to get session data
+ * @returns Current submenu identificator
+ */
+export function getVoiceSubmenuIdentificator(ctx: BotContext) {
+    if (!ctx.session.currentVoice) return "";
+    const { id, title } = ctx.session.currentVoice;
+    return `${id}-${title}`;
 }
 
 /**
