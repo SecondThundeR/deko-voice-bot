@@ -26,7 +26,7 @@ type ConvertReturn = { status: true; error: undefined } | {
  * @returns Google link for direct download of voice file
  */
 export function convertGoogleDriveLink(link: string) {
-    if (!link) throw new Error("Link is empty for some reason");
+    if (!link) throw new Error(`Link is empty for some reason: "${link}"`);
     const fileId = link.match(GOOGLE_DRIVE_LINK_CONVERT_REGEX)?.[0];
     if (!fileId) throw new Error(GOOGLE_EXPORT_LINK_FAIL);
     return `${googleExportDownloadLink}${fileId}`;

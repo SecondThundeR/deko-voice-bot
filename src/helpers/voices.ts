@@ -92,7 +92,7 @@ export function convertVoiceDataToQueriesArray(
                 voice_url,
             };
         } catch (error: unknown) {
-            console.error(error);
+            console.error(`Failed to process "${title}" (${id})\n${error}`);
             return null;
         }
     });
