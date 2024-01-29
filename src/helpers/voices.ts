@@ -70,8 +70,17 @@ export async function getCurrentVoiceQueriesData(
 export function convertVoiceDataToQueriesArray(
     voicesData: VoiceSchema[],
 ): InlineResultVoice[] {
-    return voicesData.map(({ id, title, url, fileId }) => {
-        if (url !== undefined) {
+    const queries = voicesData.map(({ id, title, url, fileId }) => {
+        if (!url) {
+            return {
+                type: "voice",
+                id,
+                title,
+                voice_file_id: fileId,
+            };
+        }
+
+        try {
             const googleDriveLinkCheck = isGoogleDriveLink(url);
             const voice_url = googleDriveLinkCheck
                 ? convertGoogleDriveLink(url)
@@ -82,14 +91,12 @@ export function convertVoiceDataToQueriesArray(
                 title,
                 voice_url,
             };
+        } catch (error: unknown) {
+            console.error(error);
+            return null;
         }
-        return {
-            type: "voice",
-            id,
-            title,
-            voice_file_id: fileId,
-        };
     });
+    return queries.filter((item) => item !== null) as InlineResultVoice[];
 }
 
 /**
