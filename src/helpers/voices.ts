@@ -67,15 +67,21 @@ export async function getCurrentVoiceQueriesData(
 export function convertVoiceDataToQueriesArray(
     voicesData: VoiceSchema[],
 ): InlineQueryResultVoice[] {
-    return voicesData.map(({ id, title, url }) => {
-        const voice_url = convertGoogleDriveLink(url);
-        return {
-            type: "voice",
-            id,
-            title,
-            voice_url,
-        };
+    const queries = voicesData.map(({ id, title, url }) => {
+        try {
+            const voice_url = convertGoogleDriveLink(url);
+            return {
+                type: "voice",
+                id,
+                title,
+                voice_url,
+            };
+        } catch (error: unknown) {
+            console.error(`Failed to process "${title}" (${id})\n${error}`);
+            return null;
+        }
     });
+    return queries.filter((item) => item !== null) as InlineQueryResultVoice[];
 }
 
 /**
