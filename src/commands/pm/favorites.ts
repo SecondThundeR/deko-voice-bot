@@ -16,6 +16,7 @@ favoritesCommand.command("favorites", async (ctx) => {
     const userIgnoreStatus = await getUserIgnoreStatus(userID);
     if (userIgnoreStatus) return await ctx.reply(ctx.t("favorites.optout"));
 
-    await prepareFavoritesSessionMenu(ctx, userID);
+    const status = await prepareFavoritesSessionMenu(ctx, userID);
+    if (!status) return await ctx.reply(ctx.t("favorites.noData"));
     await ctx.reply(ctx.t("favorites.header"), { reply_markup: favoritesMenu });
 });

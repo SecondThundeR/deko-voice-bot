@@ -14,9 +14,9 @@ export async function prepareFavoritesSessionMenu(
     userID: number,
 ) {
     const voicesData = await getCurrentVoiceQueriesData();
-    if (!voicesData) {
+    if (!voicesData || voicesData.length === 0) {
         ctx.session.currentFavorites = null;
-        return;
+        return false;
     }
 
     const newFavoritesData = await Promise.all(
@@ -28,6 +28,7 @@ export async function prepareFavoritesSessionMenu(
 
     ctx.session.currentFavoritesOffset = 0;
     ctx.session.currentFavorites = newFavoritesData;
+    return true;
 }
 
 /**
@@ -54,14 +55,15 @@ export function getFavoritesMenuIdentificator(ctx: BotContext) {
  */
 export async function prepareVoicesSessionMenu(ctx: BotContext) {
     const voicesData = await getCurrentVoiceQueriesData();
-    if (!voicesData) {
+    if (!voicesData || voicesData.length === 0) {
         ctx.session.currentVoices = null;
-        return;
+        return false;
     }
 
     ctx.session.currentVoice = null;
     ctx.session.currentVoices = voicesData;
     ctx.session.currentVoicesOffset = 0;
+    return true;
 }
 
 /**
