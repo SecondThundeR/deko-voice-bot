@@ -97,10 +97,16 @@ export async function getFullStatsMessageText(ctx: BotContext) {
         allUsedUsers,
         allMAUUsers,
         allInactiveUsers,
-        mostUsedUsers,
-        lastUsedUsers,
+        mostUsedUsers: mostUsedUsers.length === 0
+            ? "Нет информации"
+            : mostUsedUsers,
+        lastUsedUsers: lastUsedUsers.length === 0
+            ? "Нет информации"
+            : lastUsedUsers,
         allUsedVoices,
-        mostUsedVoices,
+        mostUsedVoices: mostUsedVoices.length === 0
+            ? "Нет информации"
+            : mostUsedVoices,
     });
 }
 
