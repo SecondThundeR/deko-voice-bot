@@ -24,14 +24,10 @@ export async function getFeatureFlag(id: string) {
         .find({ id })
         .toArray();
 
-    if (!featureFlag) {
-        throw new Error("Failed to get feature flag by ID: " + id);
-    }
+    if (!featureFlag) return false;
 
     const featureFlagData = featureFlag.at(0);
-    if (!featureFlagData) {
-        throw new Error("Failed to extract feature flag data for ID: " + id);
-    }
+    if (!featureFlagData) return false;
 
     const featureFlagStatus = featureFlagData.status;
 

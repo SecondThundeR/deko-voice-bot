@@ -23,6 +23,7 @@ export async function updateFeatureFlag(
                 status: newStatus,
             },
         },
+        { upsert: true },
     );
 
     updateCachedFeatureFlag(id, newStatus);
