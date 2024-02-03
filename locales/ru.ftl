@@ -89,6 +89,10 @@ inline =
     .searchHeader = Поиск: { $query }
     .blocked = Разблокируйте бота, чтобы продолжить
 
+conversation =
+    .addCancel = Добавление отменено!
+    .updateCancel = Обновление отменено!
+
 newvoice =
     .audioHint = Отправьте новую реплику в формате ".mp3" или напишите /cancel в любой момент для отмены
     .audioPathEmpty = Похоже, мне не удалось получить путь к этому файлу на серверах Telegram

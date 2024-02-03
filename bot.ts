@@ -100,7 +100,15 @@ bot
     // @ts-expect-error Types, bruh
     .use(conversations());
 
-bot.command("cancel", async (ctx) => await ctx.conversation.exit());
+bot.command("cancel", async (ctx) => {
+    const activeConversations = await ctx.conversation.active();
+    if (
+        activeConversations["voice-id-update"] ||
+        activeConversations["voice-title-update"]
+    ) await ctx.reply(ctx.t("conversation.updateCancel"));
+    else await ctx.reply(ctx.t("conversation.addCancel"));
+    await ctx.conversation.exit();
+});
 bot
     // @ts-expect-error Types, bruh
     .use(createConversation(newVoice, "new-voice"))
