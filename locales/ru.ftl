@@ -83,6 +83,7 @@ menu =
     .failedToGetSessionData = Не удалось получить часть данных для работы меню
 
 inline =
+    .noData = Нет доступных реплик
     .searchPlaceholder = Для поиска начните вводить текст
     .searchHeader = Поиск: { $query }
     .blocked = Разблокируйте бота, чтобы продолжить

@@ -1,3 +1,5 @@
+import { checkQueriesCache } from "@/src/helpers/cache.ts";
+
 import type { BotContext } from "@/src/types/bot.ts";
 
 /**
@@ -9,9 +11,10 @@ import type { BotContext } from "@/src/types/bot.ts";
  * @returns Button text
  */
 export function getCurrentButtonText(ctx: BotContext, queryString: string) {
-    if (queryString.length === 0) {
-        return ctx.t("inline.searchPlaceholder");
-    }
+    const queries = checkQueriesCache();
+
+    if (!queries || queries.length === 0) return ctx.t("inline.noData");
+    if (queryString.length === 0) return ctx.t("inline.searchPlaceholder");
 
     return ctx.t("inline.searchHeader", {
         query: queryString,
