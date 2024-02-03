@@ -51,7 +51,7 @@ export function invalidateVoiceCaches() {
  * @param queryString Query string from inline request
  * @returns Array of voice queries or undefined, if cache doesn't have related data
  */
-export function checkQueriesCache(queryString: string) {
+export function checkQueriesCache(queryString = "") {
     if (queryString.length === 0 && rootQueryCache.has(rootCacheKey)) {
         return rootQueryCache.get(rootCacheKey)!;
     }
