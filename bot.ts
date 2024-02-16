@@ -154,7 +154,7 @@ bot.catch((err) => {
     }
 
     if (error instanceof MongoError) {
-        return console.error("Something broken with Mongo:", error);
+        return console.error("Something broken with Mongo:", error.errmsg);
     }
 
     console.error("Unknown error occurred:", error);
@@ -169,6 +169,17 @@ const stopRunner = () => {
 
 Deno.addSignalListener("SIGINT", stopRunner);
 Deno.addSignalListener("SIGTERM", stopRunner);
+
+addEventListener("error", (event) => {
+    const errorObject = event.error;
+    if (errorObject instanceof MongoError) {
+        console.error("Something broken with Mongo:", errorObject.errmsg);
+        Deno.exit();
+    }
+
+    console.log("Caught unhandled event:", event.message);
+    event.preventDefault();
+});
 
 try {
     await Promise.all([
