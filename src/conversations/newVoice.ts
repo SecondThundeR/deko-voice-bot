@@ -22,6 +22,8 @@ export async function newVoice(
         return void await ctx.reply(ctx.t("newvoice.audioPathEmpty"));
     }
 
+    await ctx.replyWithChatAction("typing");
+
     const mp3Blob = await fetchMediaFileBlob(audioFilePath);
     if (!mp3Blob) {
         return void await ctx.reply(ctx.t("newvoice.audioFetchFailed"));
@@ -39,6 +41,8 @@ export async function newVoice(
     if (!voiceTitle) {
         return void ctx.reply(ctx.t("newvoice.titleEmpty"));
     }
+
+    await ctx.replyWithChatAction("typing");
 
     const { status, error } = await conversation.external(() =>
         convertMP3ToOGGOpus(

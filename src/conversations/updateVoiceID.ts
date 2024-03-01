@@ -18,6 +18,8 @@ export async function updateVoiceID(
     });
     if (!newVoiceID) return void await ctx.reply(ctx.t("voiceid.idEmpty"));
 
+    await ctx.replyWithChatAction("typing");
+
     const status = await conversation.external(() =>
         updateID(voiceData.id, newVoiceID)
     );

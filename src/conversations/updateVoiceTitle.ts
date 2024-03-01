@@ -18,6 +18,8 @@ export async function updateVoiceTitle(
     );
     if (!newVoiceTitle) return void await ctx.reply(ctx.t("voicetitle.empty"));
 
+    await ctx.replyWithChatAction("typing");
+
     const status = await conversation.external(() =>
         updateTitle(voiceData.id, newVoiceTitle)
     );
