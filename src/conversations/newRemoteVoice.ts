@@ -23,6 +23,8 @@ export async function newRemoteVoice(
         return void ctx.reply(ctx.t("newvoice.titleEmpty"));
     }
 
+    await ctx.replyWithChatAction("typing");
+
     try {
         await ctx.replyWithVoice(audioRemoteURL, {
             caption: ctx.t("newremotevoice.success", {
