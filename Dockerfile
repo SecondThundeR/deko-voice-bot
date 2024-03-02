@@ -1,11 +1,11 @@
 FROM denoland/deno:debian
 
-WORKDIR /app
-
 # Adding ffmpeg binary for conversion from bot
-RUN apt update
-RUN apt upgrade
-RUN apt install ffmpeg
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get install -y ffmpeg
+
+WORKDIR /app
 
 ADD . .
 
