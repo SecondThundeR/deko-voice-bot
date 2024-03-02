@@ -14,6 +14,8 @@ import { infoButtonHandler } from "@/src/handlers/voicesSubmenu/infoButtonHandle
 import { outdatedHandler as outdatedSubmenuHandler } from "@/src/handlers/voicesSubmenu/outdatedHandler.ts";
 import { updateIDHandler } from "@/src/handlers/voicesSubmenu/updateIDHandler.ts";
 import { updateTitleHandler } from "@/src/handlers/voicesSubmenu/updateTitleHandler.ts";
+import { updateVoiceDataHandler } from "@/src/handlers/voicesSubmenu/updateVoiceDataHandler.ts";
+import { updateVoiceLabelHandler } from "@/src/handlers/voicesSubmenu/voiceDataLabelHandler.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
@@ -38,6 +40,7 @@ const voicesSubmenu = new Menu<BotContext>("voice-menu", {
     .text((ctx) => ctx.t("voices.updateID"), updateIDHandler)
     .text((ctx) => ctx.t("voices.updateTitle"), updateTitleHandler)
     .text((ctx) => ctx.t("voices.delete"), deleteVoiceHandler).row()
+    .text(updateVoiceLabelHandler, updateVoiceDataHandler).row()
     .text((ctx) => ctx.t("menu.back"), backMenuHandler);
 
 voicesMenu.register(voicesSubmenu);
