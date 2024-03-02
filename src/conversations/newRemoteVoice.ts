@@ -26,14 +26,22 @@ export async function newRemoteVoice(
     await ctx.replyWithChatAction("typing");
 
     try {
-        await ctx.replyWithVoice(audioRemoteURL, {
-            caption: ctx.t("newremotevoice.success", {
-                title: voiceTitle,
-            }),
-            parse_mode: "HTML",
-        });
+        const { voice: { file_unique_id } } = await ctx.replyWithVoice(
+            audioRemoteURL,
+            {
+                caption: ctx.t("newremotevoice.success", {
+                    title: voiceTitle,
+                }),
+                parse_mode: "HTML",
+            },
+        );
         await conversation.external(() =>
-            addNewRemoteVoice(voiceID, voiceTitle, audioRemoteURL)
+            addNewRemoteVoice(
+                voiceID,
+                voiceTitle,
+                audioRemoteURL,
+                file_unique_id,
+            )
         );
     } catch (error: unknown) {
         console.error(error);

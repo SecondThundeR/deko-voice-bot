@@ -9,7 +9,12 @@ import type { VoiceSchema } from "@/src/schemas/voice.ts";
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
 
-export async function addNewVoice(id: string, title: string, fileId: string) {
+export async function addNewVoice(
+    id: string,
+    title: string,
+    fileId: string,
+    uniqueId: string,
+) {
     const db = client.db(dbName);
     const voices = db.collection<VoiceSchema>(colName);
 
@@ -18,6 +23,7 @@ export async function addNewVoice(id: string, title: string, fileId: string) {
         title,
         fileId,
         usesAmount: 0,
+        voiceUniqueId: uniqueId,
     });
 
     addVoiceToCache({

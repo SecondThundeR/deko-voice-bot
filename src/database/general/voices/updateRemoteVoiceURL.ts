@@ -9,12 +9,17 @@ import type { VoiceSchema } from "@/src/schemas/voice.ts";
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
 
-export async function updateRemoteVoiceURL(id: string, newUrl: string) {
+export async function updateRemoteVoiceURL(
+    id: string,
+    newUrl: string,
+    newUniqueId: string,
+) {
     const db = client.db(dbName);
     const voices = db.collection<VoiceSchema>(colName);
     const voiceData = await voices.findOneAndUpdate({ id }, {
         $set: {
             url: newUrl,
+            voiceUniqueId: newUniqueId,
         },
     });
 
