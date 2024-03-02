@@ -56,15 +56,17 @@ export async function newVoice(
         await conversation.external(() => Deno.remove(INPUT_FILENAME));
     }
 
-    const message = await ctx.replyWithVoice(new InputFile(OUTPUT_FILENAME), {
-        caption: ctx.t("newvoice.success", {
-            title: voiceTitle,
-        }),
-    });
-    const voiceFileID = message.voice.file_id;
+    const { voice: { file_id, file_unique_id } } = await ctx.replyWithVoice(
+        new InputFile(OUTPUT_FILENAME),
+        {
+            caption: ctx.t("newvoice.success", {
+                title: voiceTitle,
+            }),
+        },
+    );
 
     const finishPromises = Promise.all([
-        addNewVoice(voiceID, voiceTitle, voiceFileID),
+        addNewVoice(voiceID, voiceTitle, file_id, file_unique_id),
         Deno.remove(INPUT_FILENAME),
         Deno.remove(OUTPUT_FILENAME),
     ]);
