@@ -16,14 +16,20 @@ export async function updateVoiceID(
         notUnique: ctx.t("voiceid.notUnique"),
         long: ctx.t("voiceid.long"),
     });
-    if (!newVoiceID) return void await ctx.reply(ctx.t("voiceid.idEmpty"));
+    if (!newVoiceID) {
+        ctx.session.currentVoice = null;
+        return void await ctx.reply(ctx.t("voiceid.idEmpty"));
+    }
 
     await ctx.replyWithChatAction("typing");
 
     const status = await conversation.external(() =>
         updateID(voiceData.id, newVoiceID)
     );
-    if (!status) return await ctx.reply(ctx.t("voiceid.failed"));
+    if (!status) {
+        ctx.session.currentVoice = null;
+        return void await ctx.reply(ctx.t("voiceid.failed"));
+    }
 
     await ctx.reply(ctx.t("voiceid.success", { voiceID: newVoiceID }), {
         parse_mode: "HTML",

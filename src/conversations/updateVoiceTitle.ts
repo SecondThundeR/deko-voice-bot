@@ -16,14 +16,20 @@ export async function updateVoiceTitle(
         ctx,
         ctx.t("voicetitle.hint"),
     );
-    if (!newVoiceTitle) return void await ctx.reply(ctx.t("voicetitle.empty"));
+    if (!newVoiceTitle) {
+        ctx.session.currentVoice = null;
+        return void await ctx.reply(ctx.t("voicetitle.empty"));
+    }
 
     await ctx.replyWithChatAction("typing");
 
     const status = await conversation.external(() =>
         updateTitle(voiceData.id, newVoiceTitle)
     );
-    if (!status) return await ctx.reply(ctx.t("voicetitle.failed"));
+    if (!status) {
+        ctx.session.currentVoice = null;
+        return await ctx.reply(ctx.t("voicetitle.failed"));
+    }
 
     await ctx.reply(
         ctx.t("voicetitle.success", { voiceTitle: newVoiceTitle }),
