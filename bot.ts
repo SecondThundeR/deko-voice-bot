@@ -35,8 +35,10 @@ import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
 
 import { newRemoteVoice } from "@/src/conversations/newRemoteVoice.ts";
 import { newVoice } from "@/src/conversations/newVoice.ts";
+import { updateVoiceFile } from "@/src/conversations/updateVoiceFile.ts";
 import { updateVoiceID } from "@/src/conversations/updateVoiceID.ts";
 import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle.ts";
+import { updateVoiceURL } from "@/src/conversations/updateVoiceURL.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
 import { voicesMenu } from "@/src/menu/voices.ts";
@@ -95,10 +97,10 @@ bot
 bot.command("cancel", async (ctx) => {
     const activeConversations = await ctx.conversation.active();
     if (
-        activeConversations["voice-id-update"] ||
-        activeConversations["voice-title-update"]
-    ) await ctx.reply(ctx.t("conversation.updateCancel"));
-    else await ctx.reply(ctx.t("conversation.addCancel"));
+        activeConversations["new-voice"] ||
+        activeConversations["new-remote-voice"]
+    ) await ctx.reply(ctx.t("conversation.addCancel"));
+    else await ctx.reply(ctx.t("conversation.updateCancel"));
     await ctx.conversation.exit();
 });
 bot
@@ -115,6 +117,14 @@ bot
     .use(
         // @ts-expect-error Types, bruh
         createConversation(updateVoiceTitle, "voice-title-update"),
+    )
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(updateVoiceFile, "voice-file-update"),
+    )
+    .use(
+        // @ts-expect-error Types, bruh
+        createConversation(updateVoiceURL, "voice-url-update"),
     );
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
