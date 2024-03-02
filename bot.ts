@@ -96,11 +96,12 @@ bot
 
 bot.command("cancel", async (ctx) => {
     const activeConversations = await ctx.conversation.active();
-    if (
-        activeConversations["new-voice"] ||
-        activeConversations["new-remote-voice"]
-    ) await ctx.reply(ctx.t("conversation.addCancel"));
-    else await ctx.reply(ctx.t("conversation.updateCancel"));
+    const translationPath = (activeConversations["new-voice"] ||
+            activeConversations["new-remote-voice"])
+        ? "add"
+        : "update";
+
+    await ctx.reply(ctx.t(`conversation.${translationPath}Cancel`));
     await ctx.conversation.exit();
 });
 bot
