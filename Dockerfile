@@ -1,11 +1,11 @@
-FROM denoland/deno:alpine
+FROM denoland/deno:debian
 
 WORKDIR /app
 
 # Adding ffmpeg binary for conversion from bot
-RUN apk add ffmpeg
-RUN apk add libgcc
-RUN apk add libhwy
+RUN apt update
+RUN apt upgrade
+RUN apt install ffmpeg
 
 ADD . .
 
