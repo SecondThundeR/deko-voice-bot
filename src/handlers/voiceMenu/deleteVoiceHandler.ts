@@ -8,6 +8,10 @@ export async function deleteVoiceHandler(ctx: MenuBotContext) {
     if (!ctx.session.currentVoice) return;
 
     const voiceID = ctx.session.currentVoice.id;
-    await deleteVoice(voiceID);
+    const status = await deleteVoice(voiceID);
+
     await closeMenuHandler(ctx);
+
+    const translationPath = status ? "Success" : "Failure";
+    await ctx.reply(ctx.t(`voices.deleted${translationPath}`));
 }

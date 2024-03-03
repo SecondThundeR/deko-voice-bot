@@ -143,4 +143,6 @@ voices =
     .updateURL = Заменить ссылку на файл
     .updateTitle = Обновить название
     .delete = Удалить
+    .deletedSuccess = Реплика была успешно удалена!
+    .deletedFailure = Что-то пошло не так и реплика не была удалена
     .unknown = Неизвестная реплика

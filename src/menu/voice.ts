@@ -1,8 +1,8 @@
 import { Menu } from "@/deps.ts";
 
 import { closeMenuHandler } from "@/src/handlers/voiceMenu/closeMenuHandler.ts";
+import { deleteVoiceHandler } from "@/src/handlers/voiceMenu/deleteVoiceHandler.ts";
 
-import { deleteVoiceHandler } from "@/src/handlers/voicesSubmenu/deleteVoiceHandler.ts";
 import { fingerprintHandler } from "@/src/handlers/voicesSubmenu/fingerprintHandler.ts";
 import { infoButtonHandler } from "@/src/handlers/voicesSubmenu/infoButtonHandler.ts";
 import { outdatedHandler } from "@/src/handlers/voicesSubmenu/outdatedHandler.ts";
