@@ -1,6 +1,8 @@
-import type { MenuBotContext } from "@/src/types/bot.ts";
-import { genericBackHandler } from "@/src/handlers/menu/genericBackHandler.ts";
 import { deleteVoice } from "@/src/database/general/voices/deleteVoice.ts";
+
+import { genericBackHandler } from "@/src/handlers/menu/genericBackHandler.ts";
+
+import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function deleteVoiceHandler(ctx: MenuBotContext) {
     if (!ctx.session.currentVoice) return;

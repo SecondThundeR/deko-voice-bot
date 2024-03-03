@@ -1,5 +1,6 @@
-import type { MenuBotContext } from "@/src/types/bot.ts";
 import { genericCloseHandler } from "@/src/handlers/menu/genericCloseHandler.ts";
+
+import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function updateVoiceDataHandler(ctx: MenuBotContext) {
     const conversationPath =

@@ -24,6 +24,7 @@ import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
 import { newRemoteVoiceCommand } from "@/src/commands/pm/creator/newRemoteVoice.ts";
 import { newVoiceCommand } from "@/src/commands/pm/creator/newVoice.ts";
 import { statsCommand } from "@/src/commands/pm/creator/stats.ts";
+import { voiceCommand } from "@/src/commands/pm/creator/voice.ts";
 import { voicesCommand } from "@/src/commands/pm/creator/voices.ts";
 import { favoritesCommand } from "@/src/commands/pm/favorites.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
@@ -41,6 +42,7 @@ import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle.ts";
 import { updateVoiceURL } from "@/src/conversations/updateVoiceURL.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
+import { voiceMenu } from "@/src/menu/voice.ts";
 import { voicesMenu } from "@/src/menu/voices.ts";
 
 import {
@@ -48,7 +50,9 @@ import {
     registerCreatorCommands,
     registerUserCommands,
 } from "@/src/helpers/api.ts";
+
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
+import { voiceItemHandler } from "@/src/handlers/voiceItem.ts";
 
 import { configSetup } from "@/src/middlewares/configSetup.ts";
 import { maintenanceGatekeep } from "@/src/middlewares/maintenanceGatekeep.ts";
@@ -141,12 +145,15 @@ pm
 
 pmCreator
     .use(voicesMenu)
+    .use(voiceMenu)
+    .use(voiceItemHandler)
     .use(invalidateCommand)
     .use(maintenanceCommand)
     .use(fullStatsCommand)
     .use(statsCommand)
     .use(newVoiceCommand)
     .use(newRemoteVoiceCommand)
+    .use(voiceCommand)
     .use(voicesCommand);
 
 bot.catch((err) => {

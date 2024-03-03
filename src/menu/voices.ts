@@ -31,7 +31,7 @@ export const voicesMenu = new Menu<BotContext>("voices-menu", {
     .text((ctx) => ctx.t("menu.next"), nextPageHandler);
 
 // @ts-expect-error
-const voicesSubmenu = new Menu<BotContext>("voice-menu", {
+const voicesSubmenu = new Menu<BotContext>("voice-submenu", {
     autoAnswer: false,
     onMenuOutdated: outdatedSubmenuHandler,
     fingerprint: fingerprintSubmenuHandler,
