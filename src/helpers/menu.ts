@@ -1,7 +1,7 @@
 import { getFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
 
-import { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot.ts";
 
 /**
  * Prepares context session for favorites menu launch
@@ -16,6 +16,7 @@ export async function prepareFavoritesSessionMenu(
     const voicesData = await getCurrentVoiceQueriesData();
     if (!voicesData || voicesData.length === 0) {
         ctx.session.currentFavorites = null;
+
         return false;
     }
 
@@ -28,6 +29,7 @@ export async function prepareFavoritesSessionMenu(
 
     ctx.session.currentFavoritesOffset = 0;
     ctx.session.currentFavorites = newFavoritesData;
+
     return true;
 }
 
@@ -57,12 +59,14 @@ export async function prepareVoicesSessionMenu(ctx: BotContext) {
     const voicesData = await getCurrentVoiceQueriesData();
     if (!voicesData || voicesData.length === 0) {
         ctx.session.currentVoices = null;
+
         return false;
     }
 
     ctx.session.currentVoice = null;
     ctx.session.currentVoices = voicesData;
     ctx.session.currentVoicesOffset = 0;
+
     return true;
 }
 
@@ -95,7 +99,9 @@ export function getVoicesMenuIdentificator(ctx: BotContext) {
  */
 export function getVoiceSubmenuIdentificator(ctx: BotContext) {
     if (!ctx.session.currentVoice) return "";
+
     const { id, title } = ctx.session.currentVoice;
+
     return `${id}-${title}`;
 }
 

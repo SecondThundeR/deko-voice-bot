@@ -29,7 +29,8 @@ export async function genericOutdatedHandler<T>(
     } catch (error: unknown) {
         const isBannedByUser = await isBotBlockedByUser(ctx);
         if (isBannedByUser) {
-            return void await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
+            await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
+            return;
         }
 
         console.error(

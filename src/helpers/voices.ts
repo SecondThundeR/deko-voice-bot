@@ -12,9 +12,9 @@ import {
     isGoogleDriveLink,
 } from "@/src/helpers/general.ts";
 
-import { type VoiceSchema } from "@/src/schemas/voice.ts";
+import type { VoiceSchema } from "@/src/schemas/voice.ts";
 
-import { InlineResultVoice } from "@/src/types/inline.ts";
+import type { InlineResultVoice } from "@/src/types/inline.ts";
 
 /**
  * Gets current voice queries data
@@ -54,10 +54,12 @@ export async function getCurrentVoiceQueriesData(
 
     if (isQueryTextPassed) {
         updateTextQueryCache(lowercasedQueryText, convertedVoiceQueries);
+
         return convertedVoiceQueries;
     }
 
     updateRootQueryCache(convertedVoiceQueries);
+
     return filterFavoriteVoices(convertedVoiceQueries, favoritesIds);
 }
 
@@ -85,6 +87,7 @@ export function convertVoiceDataToQueriesArray(
             const voice_url = googleDriveLinkCheck
                 ? convertGoogleDriveLink(url)
                 : url;
+
             return {
                 type: "voice",
                 id,
@@ -93,9 +96,11 @@ export function convertVoiceDataToQueriesArray(
             };
         } catch (error: unknown) {
             console.error(`Failed to process "${title}" (${id})\n${error}`);
+
             return null;
         }
     });
+
     return queries.filter((item) => item !== null) as InlineResultVoice[];
 }
 

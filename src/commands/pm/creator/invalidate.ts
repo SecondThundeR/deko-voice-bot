@@ -8,5 +8,6 @@ export const invalidateCommand = new Composer<BotContext>();
 
 invalidateCommand.command("invalidate", async (ctx) => {
     invalidateVoiceCaches();
+
     await ctx.reply(ctx.t("invalidate.success"));
 });

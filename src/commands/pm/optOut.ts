@@ -22,6 +22,7 @@ optOutCommand.command("optout", async (ctx) => {
         if (!lastUserData) return await ctx.reply(ctx.t("optout.failed"));
 
         const successText = getOptOutMessageText(ctx, lastUserData);
+
         await ctx.reply(successText, {
             parse_mode: "HTML",
         });

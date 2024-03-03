@@ -10,7 +10,7 @@ import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
 import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
-import { InlineQueriesArray } from "@/src/types/inline.ts";
+import type { InlineQueriesArray } from "@/src/types/inline.ts";
 
 export const inlineQueryHandler = new Composer<BotContext>();
 

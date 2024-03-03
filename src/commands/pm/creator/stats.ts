@@ -8,6 +8,7 @@ export const statsCommand = new Composer<BotContext>();
 
 statsCommand.command("stats", async (ctx) => {
     const statsMessageText = await getStatsMessageText(ctx);
+
     await ctx.reply(statsMessageText, {
         parse_mode: "HTML",
     });

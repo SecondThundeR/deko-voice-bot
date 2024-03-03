@@ -1,4 +1,4 @@
-import { Api, Context, User } from "@/deps.ts";
+import type { Api, Context, User } from "@/deps.ts";
 
 import { creatorCommands } from "@/src/constants/creatorCommands.ts";
 import { userCommands } from "@/src/constants/userCommands.ts";
@@ -88,7 +88,6 @@ export async function fetchMediaFileBlob(filePath: string) {
     const file = await fetch(
         `https://api.telegram.org/file/bot${token}/${filePath}`,
     );
-    const blob = await file.blob();
 
-    return blob;
+    return await file.blob();
 }

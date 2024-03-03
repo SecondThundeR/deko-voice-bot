@@ -11,6 +11,7 @@ newVoicesCommand.command(
     async (ctx) => {
         const hasFFMPEG = await canRunFFMPEG();
         if (!hasFFMPEG) return await ctx.reply(ctx.t("newvoices.noFFMPEG"));
+
         await ctx.conversation.enter("new-voices");
     },
 );

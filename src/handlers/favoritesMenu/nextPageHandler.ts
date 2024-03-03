@@ -6,6 +6,7 @@ import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function nextPageHandler(ctx: MenuBotContext) {
     const { currentFavorites, currentFavoritesOffset } = ctx.session;
+
     await genericNextHandler(ctx, {
         menuElements: currentFavorites,
         currentOffset: currentFavoritesOffset,

@@ -1,14 +1,18 @@
 import { InputFile } from "@/deps.ts";
 
-import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "../constants/extensions.ts";
+import {
+    INPUT_EXTENSION,
+    OUTPUT_EXTENSION,
+} from "@/src/constants/extensions.ts";
 
 import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath.ts";
+
+import { updateVoiceFileID } from "@/src/database/general/voices/updateVoiceFileID.ts";
 
 import { fetchMediaFileBlob } from "@/src/helpers/api.ts";
 import { convertMP3ToOGGOpus } from "@/src/helpers/general.ts";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
-import { updateVoiceFileID } from "@/src/database/general/voices/updateVoiceFileID.ts";
 
 export async function updateVoiceFile(
     conversation: ConversationContext,

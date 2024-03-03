@@ -12,5 +12,6 @@ export async function toggleFeatureFlag(id: string) {
     const newFeatureFlagStatus = !featureFlagStatus;
 
     await updateFeatureFlag(id, newFeatureFlagStatus);
+
     return newFeatureFlagStatus;
 }

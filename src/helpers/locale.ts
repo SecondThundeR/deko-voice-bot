@@ -15,7 +15,7 @@ import {
     voicesStatsUsesAmountReduce,
 } from "@/src/helpers/stats.ts";
 
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
@@ -43,7 +43,6 @@ export async function getStatsMessageText(ctx: BotContext) {
         ?.filter(usersStatsMAUFilter(currentDate)).length ?? 0;
     const allInactiveUsers = usersStats
         ?.filter(usersStatsInctiveFilter(currentDate)).length ?? 0;
-
     const allUsedVoices = voicesStats
         .reduce(voicesStatsUsesAmountReduce, 0);
 
@@ -84,7 +83,6 @@ export async function getFullStatsMessageText(ctx: BotContext) {
         .slice(0, 5)
         .map(usersStatsMap)
         .join("\n");
-
     const allUsedVoices = voicesStats
         .reduce(voicesStatsUsesAmountReduce, 0);
     const mostUsedVoices = voicesStats
@@ -123,7 +121,6 @@ export function getUserDataMessageText(
     data: UserDataMessageDetails,
 ) {
     const { userID, fullName, username, usesAmount, lastUsedAt } = data;
-
     const userIDString = String(userID);
     const usernameText = username
         ? `\n- Ваше имя пользователя в Telegram: @${username}`
@@ -153,7 +150,6 @@ export function getUserDataMessageText(
  */
 export function getOptOutMessageText(ctx: BotContext, data: OptOutUserData) {
     const { userID, fullName, username, usesAmount, lastUsedAt } = data;
-
     const userIDString = String(userID);
     const fullNameText = fullName
         ? `\n- Ваше полное имя в Telegram: ${fullName}`

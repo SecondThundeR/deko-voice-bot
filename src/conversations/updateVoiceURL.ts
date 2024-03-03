@@ -1,7 +1,8 @@
+import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL.ts";
+
 import { updateRemoteVoiceURL } from "@/src/database/general/voices/updateRemoteVoiceURL.ts";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
-import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL.ts";
 
 export async function updateVoiceURL(
     conversation: ConversationContext,

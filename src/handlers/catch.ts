@@ -1,6 +1,6 @@
 import { BotError, GrammyError, HttpError, MongoError } from "@/deps.ts";
 
-import { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot.ts";
 
 export const catchHandler = (err: BotError<BotContext>) => {
     const { ctx, error } = err;

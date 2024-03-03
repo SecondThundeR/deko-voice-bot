@@ -1,6 +1,9 @@
 import { InputFile } from "@/deps.ts";
 
-import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "../constants/extensions.ts";
+import {
+    INPUT_EXTENSION,
+    OUTPUT_EXTENSION,
+} from "@/src/constants/extensions.ts";
 
 import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath.ts";
 import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText.ts";

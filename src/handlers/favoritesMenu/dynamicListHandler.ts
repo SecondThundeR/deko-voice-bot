@@ -1,4 +1,4 @@
-import { MenuRange } from "@/deps.ts";
+import type { MenuRange } from "@/deps.ts";
 
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
 import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
@@ -14,6 +14,7 @@ export function dynamicListHandler(
     range: MenuRange<BotContext>,
 ) {
     const { currentFavoritesOffset, currentFavorites } = ctx.session;
+
     genericListHandler(ctx, range, {
         menuElements: currentFavorites,
         currentOffset: currentFavoritesOffset,

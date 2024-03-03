@@ -22,6 +22,7 @@ cancelCommand.command("cancel", async (ctx) => {
         await ctx.reply(ctx.t("conversation.addCancel"));
     } else {
         const voices = addedVoices.join("\n");
+
         await ctx.reply(ctx.t("conversation.addResults", {
             voices,
         }));

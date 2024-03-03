@@ -6,6 +6,7 @@ import type { MenuBotContext } from "@/src/types/bot.ts";
 
 export async function nextPageHandler(ctx: MenuBotContext) {
     const { currentVoices, currentVoicesOffset } = ctx.session;
+
     await genericNextHandler(ctx, {
         menuElements: currentVoices,
         currentOffset: currentVoicesOffset,

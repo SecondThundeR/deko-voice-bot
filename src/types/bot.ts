@@ -7,8 +7,8 @@ import type {
     SessionFlavor,
 } from "@/deps.ts";
 
-import { FavoriteItem } from "@/src/types/favoriteItem.ts";
-import { InlineResultVoice } from "@/src/types/inline.ts";
+import type { FavoriteItem } from "@/src/types/favoriteItem.ts";
+import type { InlineResultVoice } from "@/src/types/inline.ts";
 
 interface SessionData {
     currentFavorites?: FavoriteItem[] | null;

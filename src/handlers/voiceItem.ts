@@ -4,8 +4,9 @@ import { getByUniqueID } from "@/src/database/general/voices/getByUniqueID.ts";
 
 import { convertVoiceDataToQueriesArray } from "@/src/helpers/voices.ts";
 
-import { BotContext } from "@/src/types/bot.ts";
 import { voiceMenu } from "@/src/menu/voice.ts";
+
+import type { BotContext } from "@/src/types/bot.ts";
 
 export const voiceItemHandler = new Composer<BotContext>();
 

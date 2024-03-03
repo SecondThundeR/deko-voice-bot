@@ -27,8 +27,10 @@ type ConvertReturn = { status: true; error: undefined } | {
  */
 export function convertGoogleDriveLink(link: string) {
     if (!link) throw new Error(`Link is empty for some reason: "${link}"`);
+
     const fileId = link.match(GOOGLE_DRIVE_LINK_CONVERT_REGEX)?.[0];
     if (!fileId) throw new Error(GOOGLE_EXPORT_LINK_FAIL);
+
     return `${googleExportDownloadLink}${fileId}`;
 }
 
@@ -66,8 +68,7 @@ export function isValidURL(url: string) {
  * @returns Full name of user
  */
 export function getFullName(firstName: string, lastName?: string) {
-    if (!lastName) return firstName;
-    return `${firstName} ${lastName}`;
+    return !lastName ? firstName : `${firstName} ${lastName}`;
 }
 
 /**
@@ -79,6 +80,7 @@ export function getFullName(firstName: string, lastName?: string) {
 export async function canRunFFMPEG() {
     const ffmpeg = new Deno.Command("ffmpeg", { args: ["-h"] });
     const { success } = await ffmpeg.output();
+
     return success;
 }
 

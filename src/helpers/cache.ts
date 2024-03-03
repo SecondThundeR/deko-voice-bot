@@ -20,10 +20,10 @@ import { getFavoritesData } from "@/src/database/general/usersData/getFavoritesD
 import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime.ts";
 import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount.ts";
 
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
-import { VoiceSchema } from "@/src/schemas/voice.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { VoiceSchema } from "@/src/schemas/voice.ts";
 
-import { InlineResultVoice } from "@/src/types/inline.ts";
+import type { InlineResultVoice } from "@/src/types/inline.ts";
 
 type FavoriteStatusUpdateData = {
     userID: number;
@@ -65,7 +65,9 @@ export function checkQueriesCache(queryString = "") {
         const filteredQueries = rootQueryCache.get(rootCacheKey)!.filter(
             filterCallback,
         );
+
         textQueryCache.set(queryString, filteredQueries);
+
         return filteredQueries;
     }
 }
@@ -112,6 +114,7 @@ export function updateRootQueryCache(voicesQueries: InlineResultVoice[]) {
  */
 export async function getUserIgnoreStatus(userID: number) {
     const currentIgnoredUsers = await getIgnoredUsersArray();
+
     return currentIgnoredUsers.includes(userID);
 }
 
@@ -171,6 +174,7 @@ export async function getFavoriteVoiceStatusArray(userID: number) {
     }
 
     await updateFavoriteVoiceStatusArray(userID);
+
     return favoriteVoicesIdsCache.get(userID);
 }
 
@@ -211,6 +215,7 @@ export async function updateFavoriteVoiceStatus(
  */
 export async function getFavoriteVoiceStatus(userID: number, voiceID: string) {
     const favoriteVoiceData = await getFavoriteVoiceStatusArray(userID);
+
     return favoriteVoiceData?.includes(voiceID) ?? false;
 }
 
@@ -290,6 +295,7 @@ export function addVoiceToCache(voice: InlineResultVoice) {
 
     const updatedCache = [...rootQueryCache.get(rootCacheKey)!, voice]
         .sort((a, b) => a.title.localeCompare(b.title));
+
     rootQueryCache.set(rootCacheKey, updatedCache);
     textQueryCache.clear();
 }
@@ -316,6 +322,7 @@ export function updateVoiceInCache(
         item.id === (prevVoiceId ?? voice.id)
     );
     if (elementIndex === -1) return;
+
     cacheCopy[elementIndex] = voice;
     cacheCopy.sort((a, b) => a.title.localeCompare(b.title));
 
@@ -337,6 +344,7 @@ export function removeVoiceFromCache(voiceID: string) {
     const updatedCache = rootQueryCache
         .get(rootCacheKey)!
         .filter((item) => item.id !== voiceID);
+
     rootQueryCache.set(rootCacheKey, updatedCache);
     textQueryCache.clear();
 }
@@ -349,9 +357,8 @@ export function removeVoiceFromCache(voiceID: string) {
  * @returns Callback for use in filter method
  */
 function rootQueryCacheFilterCallback(queryString: string) {
-    return function (query: InlineResultVoice) {
-        return query.title.toLocaleLowerCase().includes(queryString);
-    };
+    return (query: InlineResultVoice) =>
+        query.title.toLocaleLowerCase().includes(queryString);
 }
 
 /**
@@ -361,6 +368,7 @@ function rootQueryCacheFilterCallback(queryString: string) {
  */
 async function updateUserUsageCacheData(userID: number) {
     const dbUsageAmount = await getUserUsageAmount(userID);
+
     userUsageCache.set(userID, dbUsageAmount);
 }
 
@@ -376,6 +384,7 @@ async function getUserUsageCacheData(userID: number) {
     }
 
     await updateUserUsageCacheData(userID);
+
     return userUsageCache.get(userID)!;
 }
 
@@ -386,6 +395,7 @@ async function getUserUsageCacheData(userID: number) {
  */
 async function updateLastUsedAtCacheData(userID: number) {
     const lastUsedAtTime = await getLastUsedAtTime(userID);
+
     lastUsedAtCache.set(userID, lastUsedAtTime);
 }
 
@@ -401,6 +411,7 @@ async function getLastUsedAtCacheData(userID: number) {
     }
 
     await updateLastUsedAtCacheData(userID);
+
     return lastUsedAtCache.get(userID)!;
 }
 
@@ -411,6 +422,7 @@ async function getLastUsedAtCacheData(userID: number) {
  */
 async function updateFavoriteVoiceStatusArray(userID: number) {
     const latestFavoritesData = await getFavoritesData(userID);
+
     favoriteVoicesIdsCache.set(userID, latestFavoritesData);
 }
 
@@ -426,7 +438,9 @@ function addFavoriteFromCache({
     voiceID,
 }: FavoritesCacheUpdateData) {
     const updatedArray = currentFavorites.concat(voiceID);
+
     favoriteVoicesIdsCache.set(userID, updatedArray);
+
     return updatedArray;
 }
 
@@ -442,7 +456,9 @@ function removeFavoriteFromCache({
     voiceID,
 }: FavoritesCacheUpdateData) {
     const updatedArray = currentFavorites.filter((id) => id !== voiceID);
+
     favoriteVoicesIdsCache.set(userID, updatedArray);
+
     return updatedArray;
 }
 

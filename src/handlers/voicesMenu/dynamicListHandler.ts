@@ -1,4 +1,4 @@
-import { MenuRange } from "@/deps.ts";
+import type { MenuRange } from "@/deps.ts";
 
 import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
 
@@ -12,6 +12,7 @@ export function dynamicListHandler(
     range: MenuRange<BotContext>,
 ) {
     const { currentVoicesOffset, currentVoices } = ctx.session;
+
     genericListHandler(ctx, range, {
         menuElements: currentVoices,
         currentOffset: currentVoicesOffset,

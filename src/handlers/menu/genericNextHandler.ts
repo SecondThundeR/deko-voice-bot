@@ -10,22 +10,24 @@ type NextHandlerData<T> = {
 export async function genericNextHandler<T>(
     ctx: MenuBotContext,
     data: NextHandlerData<T>,
-): Promise<void> {
+) {
     const { menuElements, currentOffset, elementsPerPage, offsetUpdate } = data;
 
     if (!menuElements) {
-        return void await ctx.answerCallbackQuery({
+        await ctx.answerCallbackQuery({
             text: ctx.t("menu.failedToGetSessionData"),
             show_alert: true,
         });
+        return;
     }
 
     const newOffset = currentOffset + elementsPerPage;
     if (newOffset >= menuElements.length) {
-        return void ctx.answerCallbackQuery({
+        await ctx.answerCallbackQuery({
             text: ctx.t("menu.alreadyNext"),
             show_alert: true,
         });
+        return;
     }
 
     offsetUpdate(newOffset);

@@ -1,4 +1,4 @@
-import { MenuRange } from "@/deps.ts";
+import type { MenuRange } from "@/deps.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 

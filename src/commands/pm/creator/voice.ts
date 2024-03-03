@@ -2,8 +2,9 @@ import { Composer } from "@/deps.ts";
 
 import { sendCurrentInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
 
-import type { BotContext } from "@/src/types/bot.ts";
 import { checkQueriesCache } from "@/src/helpers/cache.ts";
+
+import type { BotContext } from "@/src/types/bot.ts";
 
 export const voiceCommand = new Composer<BotContext>();
 

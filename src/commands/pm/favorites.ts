@@ -18,5 +18,6 @@ favoritesCommand.command("favorites", async (ctx) => {
 
     const status = await prepareFavoritesSessionMenu(ctx, userID);
     if (!status) return await ctx.reply(ctx.t("favorites.noData"));
+
     await ctx.reply(ctx.t("favorites.header"), { reply_markup: favoritesMenu });
 });

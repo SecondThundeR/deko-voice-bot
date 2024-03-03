@@ -7,7 +7,7 @@ import {
     setCachedUsersStatsData,
 } from "@/src/helpers/cache.ts";
 
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
 
 const dbName = databaseNames.general;
 const usersColName = collectionNames[dbName].usersData;

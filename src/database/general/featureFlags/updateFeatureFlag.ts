@@ -4,7 +4,7 @@ import { collectionNames, databaseNames } from "@/src/constants/database.ts";
 
 import { updateCachedFeatureFlag } from "@/src/helpers/cache.ts";
 
-import { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
+import type { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;

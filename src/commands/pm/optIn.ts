@@ -18,14 +18,13 @@ optInCommand.command("optin", async (ctx) => {
     const isUserDataExists = await isUserUsageExists(currentUserID);
     const removeIgnoreStatus = await removeIgnoredUser(ctx.from);
     const isExceptionTriggered = !isUserDataExists && !removeIgnoreStatus;
+    const translationPath = removeIgnoreStatus ? "success" : "failed";
 
     if (isExceptionTriggered) {
         return await ctx.reply(ctx.t("optin.exception"), {
             reply_markup: sendInlineRequestKeyboard,
         });
     }
-
-    const translationPath = removeIgnoreStatus ? "success" : "failed";
 
     await ctx.reply(ctx.t(`optin.${translationPath}`));
 });
