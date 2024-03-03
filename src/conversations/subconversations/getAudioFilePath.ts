@@ -4,7 +4,7 @@ export async function getAudioFilePath(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    await ctx.reply(ctx.t("newvoice.audioHint"));
+    await ctx.reply(ctx.t("newvoices.audioHint"));
 
     const audioMessage = await conversation.waitFor(":audio");
     const audioFile = await audioMessage.getFile();

@@ -5,16 +5,16 @@ export async function getVoiceTitleText(
     ctx: BotContext,
     otherLocaleText?: string,
 ) {
-    await ctx.reply(otherLocaleText ?? ctx.t("newvoice.titleHint"));
+    await ctx.reply(otherLocaleText ?? ctx.t("newvoices.titleHint"));
 
     do {
-        ctx = await conversation.wait();
-        const messageText = ctx.message?.text;
+        ctx = await conversation.waitFor("message:text");
+        const messageText = ctx.msg?.text;
 
         if (!messageText) {
             continue;
         }
 
         return messageText;
-    } while (!ctx.message?.text);
+    } while (!ctx.msg?.text);
 }

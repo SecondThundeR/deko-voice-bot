@@ -5,11 +5,11 @@ export async function getAudioRemoteURL(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    await ctx.reply(ctx.t("newremotevoice.URLHint"), { parse_mode: "HTML" });
+    await ctx.reply(ctx.t("newremotevoices.URLHint"), { parse_mode: "HTML" });
 
     do {
-        ctx = await conversation.wait();
-        const messageText = ctx.message?.text;
+        ctx = await conversation.waitFor("message:text");
+        const messageText = ctx.msg?.text;
 
         if (!messageText) {
             continue;
@@ -17,6 +17,6 @@ export async function getAudioRemoteURL(
             return messageText;
         }
 
-        await ctx.reply(ctx.t("newremotevoice.URLInvalid"));
-    } while (!ctx.message?.text);
+        await ctx.reply(ctx.t("newremotevoices.URLInvalid"));
+    } while (!ctx.msg?.text);
 }

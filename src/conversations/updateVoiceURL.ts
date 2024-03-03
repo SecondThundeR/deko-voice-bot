@@ -10,15 +10,11 @@ export async function updateVoiceURL(
     const voiceData = ctx.session.currentVoice;
     if (!voiceData) return;
 
-    const { id, title, voice_url } = voiceData;
-    await ctx.reply(ctx.t("newremotevoice.currentFileURL", {
-        fileUrl: voice_url!,
-    }));
-
+    const { id, title } = voiceData;
     const newRemoteVoiceURL = await getAudioRemoteURL(conversation, ctx);
     if (!newRemoteVoiceURL) {
         ctx.session.currentVoice = null;
-        return void await ctx.reply(ctx.t("newremotevoice.URLEmpty"));
+        return void await ctx.reply(ctx.t("newremotevoices.URLEmpty"));
     }
 
     await ctx.replyWithChatAction("typing");
@@ -27,7 +23,7 @@ export async function updateVoiceURL(
         const { voice: { file_unique_id } } = await ctx.replyWithVoice(
             newRemoteVoiceURL,
             {
-                caption: ctx.t("newremotevoice.updated", {
+                caption: ctx.t("newremotevoices.updated", {
                     title: title,
                 }),
                 parse_mode: "HTML",
@@ -38,7 +34,7 @@ export async function updateVoiceURL(
         );
     } catch (error: unknown) {
         console.error(error);
-        await ctx.reply(ctx.t("newremotevoice.failed"));
+        await ctx.reply(ctx.t("newremotevoices.failed"));
     } finally {
         ctx.session.currentVoice = null;
     }
