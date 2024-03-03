@@ -5,7 +5,12 @@ type OnBackCallback = (ctx: BotContext) => void;
 export function genericBackHandler(
     ctx: MenuBotContext,
     onBack?: OnBackCallback,
+    deleteMessage?: boolean,
 ) {
-    ctx.menu.back();
+    if (!deleteMessage) {
+        ctx.menu.back();
+    } else {
+        ctx.deleteMessage();
+    }
     onBack?.(ctx);
 }

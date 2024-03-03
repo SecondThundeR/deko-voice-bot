@@ -14,9 +14,11 @@ export async function deleteVoiceHandler(ctx: MenuBotContext) {
 
     await deleteVoice(voiceID);
 
+    const shouldDeleteMessage = filteredVoices.length === 0;
+
     genericBackHandler(ctx, (ctx) => {
         ctx.session.currentVoice = null;
         ctx.session.currentVoices = filteredVoices;
         ctx.session.currentVoicesOffset = 0;
-    });
+    }, shouldDeleteMessage);
 }
