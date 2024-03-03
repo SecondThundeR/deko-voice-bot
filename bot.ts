@@ -1,5 +1,4 @@
 import {
-    apiThrottler,
     autoRetry,
     Bot,
     conversations,
@@ -8,10 +7,8 @@ import {
     I18n,
     MongoClient,
     MongoError,
-    type RawApi,
     run,
     sequentialize,
-    type Transformer,
 } from "@/deps.ts";
 
 await dotenv({ export: true });
@@ -83,10 +80,7 @@ const i18n = new I18n<BotContext>({
 await i18n.loadLocale("ru", { filePath: "locales/ru.ftl" });
 const botConfig = configSetup(creatorID);
 
-const throttler = apiThrottler() as Transformer<RawApi>;
-bot.api.config
-    .use(throttler)
-    .use(autoRetry());
+bot.api.config.use(autoRetry());
 
 bot
     .use(sequentialize(getSessionKey))

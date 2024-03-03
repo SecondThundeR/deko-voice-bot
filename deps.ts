@@ -12,9 +12,7 @@ export {
     HttpError,
     InlineKeyboard,
     InputFile,
-    type RawApi,
     session,
-    type Transformer,
 } from "grammy/mod.ts";
 export type { Context, SessionFlavor } from "grammy/mod.ts";
 export type {
@@ -37,8 +35,6 @@ export {
     conversations,
     createConversation,
 } from "grammy_conversation/mod.ts";
-
-export { apiThrottler } from "grammy_transformer_throttler/mod.ts";
 
 export { autoRetry } from "grammy_auto-retry";
 
