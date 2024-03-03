@@ -28,14 +28,8 @@ import { optOutCommand } from "@/src/commands/pm/optOut.ts";
 import { startCommand } from "@/src/commands/pm/start.ts";
 import { cancelCommand } from "@/src/commands/cancel.ts";
 
+import { CONVERSATIONS } from "@/src/constants/conversations.ts";
 import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
-
-import { newRemoteVoices } from "@/src/conversations/newRemoteVoices.ts";
-import { newVoices } from "@/src/conversations/newVoices.ts";
-import { updateVoiceFile } from "@/src/conversations/updateVoiceFile.ts";
-import { updateVoiceID } from "@/src/conversations/updateVoiceID.ts";
-import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle.ts";
-import { updateVoiceURL } from "@/src/conversations/updateVoiceURL.ts";
 
 import { favoritesMenu } from "@/src/menu/favorites.ts";
 import { voiceMenu } from "@/src/menu/voice.ts";
@@ -67,8 +61,6 @@ if (!token || !mongoURL) {
 }
 
 export const client = new MongoClient(mongoURL);
-await client.connect();
-
 const bot = new Bot<BotContext>(token);
 // @ts-expect-error
 const i18n = new I18n<BotContext>({
@@ -76,8 +68,6 @@ const i18n = new I18n<BotContext>({
         botUsername: `@${ctx.me.username}`,
     }),
 });
-
-await i18n.loadLocale("ru", { filePath: "locales/ru.ftl" });
 const botConfig = configSetup(creatorID);
 
 bot.api.config.use(autoRetry());
@@ -91,29 +81,12 @@ bot
     .use(inlineQueryHandler)
     // @ts-expect-error Types, bruh
     .use(conversations())
-    // @ts-expect-error Types, bruh
-    .use(createConversation(newVoices, "new-voices"))
-    .use(
-        // @ts-expect-error Types, bruh
-        createConversation(newRemoteVoices, "new-remote-voices"),
-    )
-    .use(
-        // @ts-expect-error Types, bruh
-        createConversation(updateVoiceID, "voice-id-update"),
-    )
-    .use(
-        // @ts-expect-error Types, bruh
-        createConversation(updateVoiceTitle, "voice-title-update"),
-    )
-    .use(
-        // @ts-expect-error Types, bruh
-        createConversation(updateVoiceFile, "voice-file-update"),
-    )
-    .use(
-        // @ts-expect-error Types, bruh
-        createConversation(updateVoiceURL, "voice-url-update"),
-    )
     .use(cancelCommand);
+
+CONVERSATIONS.forEach(([id, conversation]) => {
+    // @ts-expect-error Types, bruh
+    bot.use(createConversation(conversation, id));
+});
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
@@ -163,6 +136,8 @@ addEventListener("error", (event) => {
 });
 
 try {
+    await client.connect();
+    await i18n.loadLocale("ru", { filePath: "locales/ru.ftl" });
     await Promise.all([
         registerUserCommands(bot.api),
         registerCreatorCommands(bot.api, creatorID),
@@ -170,6 +145,7 @@ try {
 
     const botInfo = await bot.api.getMe();
     const { deno, typescript, v8 } = Deno.version;
+
     console.log(
         `Started as ${botInfo.first_name} (@${botInfo.username})\nRunning on Deno ${deno} (TS: ${typescript}; V8: ${v8})`,
     );
