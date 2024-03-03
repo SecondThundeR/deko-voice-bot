@@ -22,7 +22,7 @@ export function dynamicListHandler(
             range
                 .submenu(
                     title,
-                    "voice-menu",
+                    "voice-submenu",
                     (ctx) => ctx.session.currentVoice = voiceItem,
                 )
                 .row();
