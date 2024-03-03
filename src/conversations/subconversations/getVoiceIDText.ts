@@ -8,27 +8,34 @@ type LocaleStrings = {
     long: string;
 };
 
+const VOICE_ID_LENGTH = 64;
+
 export async function getVoiceIDText(
     conversation: ConversationContext,
     ctx: BotContext,
     otherLocale?: LocaleStrings,
 ) {
-    const { hint, notUnique, long } = otherLocale ?? {};
+    let text: string | undefined;
+    const {
+        hint = ctx.t("newvoices.idHint"),
+        notUnique = ctx.t("newvoices.idNotUnique"),
+        long = ctx.t("newvoices.idLong"),
+    } = { ...otherLocale };
 
-    await ctx.reply(hint ?? ctx.t("newvoices.idHint"), { parse_mode: "HTML" });
+    await ctx.reply(hint, { parse_mode: "HTML" });
 
     do {
-        ctx = await conversation.waitFor("message:text");
-        const messageText = ctx.msg?.text;
+        text = await conversation.form.text();
 
-        if (!messageText) {
+        if (isNotUniqueVoiceID(text)) {
+            await ctx.reply(notUnique);
             continue;
-        } else if (isNotUniqueVoiceID(messageText)) {
-            await ctx.reply(notUnique ?? ctx.t("newvoices.idNotUnique"));
-        } else if (messageText.length <= 64) {
-            return messageText;
-        } else {
-            await ctx.reply(long ?? ctx.t("newvoices.idLong"));
         }
-    } while (!ctx.msg?.text);
+        if (text.length > VOICE_ID_LENGTH) {
+            await ctx.reply(long);
+            continue;
+        }
+
+        return text;
+    } while (true);
 }

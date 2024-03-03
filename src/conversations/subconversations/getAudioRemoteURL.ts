@@ -1,5 +1,3 @@
-import { isValidURL } from "@/src/helpers/general.ts";
-
 import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
 
 export async function getAudioRemoteURL(
@@ -8,16 +6,9 @@ export async function getAudioRemoteURL(
 ) {
     await ctx.reply(ctx.t("newremotevoices.URLHint"), { parse_mode: "HTML" });
 
-    do {
-        ctx = await conversation.waitFor("message:text");
-        const messageText = ctx.msg?.text;
+    const url = await conversation.form.url((ctx) =>
+        ctx.reply(ctx.t("newremotevoices.URLInvalid"))
+    );
 
-        if (!messageText) {
-            continue;
-        } else if (isValidURL(messageText)) {
-            return messageText;
-        }
-
-        await ctx.reply(ctx.t("newremotevoices.URLInvalid"));
-    } while (!ctx.msg?.text);
+    return url.toString();
 }

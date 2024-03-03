@@ -1,5 +1,7 @@
 import { Composer } from "@/deps.ts";
 
+import { invalidateVoiceCaches } from "@/src/helpers/cache.ts";
+
 import type { BotContext } from "@/src/types/bot.ts";
 
 export const cancelCommand = new Composer<BotContext>();
@@ -23,6 +25,7 @@ cancelCommand.command("cancel", async (ctx) => {
     } else {
         const voices = addedVoices.join("\n");
 
+        invalidateVoiceCaches();
         await ctx.reply(ctx.t("conversation.addResults", {
             voices,
         }));

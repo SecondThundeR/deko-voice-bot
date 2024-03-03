@@ -6,27 +6,22 @@ import {
 } from "@/src/constants/extensions.ts";
 
 import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath.ts";
+import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText.ts";
+import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText.ts";
 
-import { updateVoiceFileID } from "@/src/database/general/voices/updateVoiceFileID.ts";
+import { addNewVoice } from "@/src/database/general/voices/addNewVoice.ts";
 
 import { fetchMediaFileBlob } from "@/src/helpers/api.ts";
 import { convertMP3ToOGGOpus } from "@/src/helpers/general.ts";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
 
-export async function updateVoiceFile(
+export async function newVoice(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    const voiceData = ctx.session.currentVoice;
-    if (!voiceData) return;
-
-    const { id, title } = voiceData;
-    const input = title + INPUT_EXTENSION;
-    const output = title + OUTPUT_EXTENSION;
     const audioFilePath = await getAudioFilePath(conversation, ctx);
     if (!audioFilePath) {
-        ctx.session.currentVoice = null;
         await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
         return;
     }
@@ -35,44 +30,49 @@ export async function updateVoiceFile(
 
     const fileBlob = await fetchMediaFileBlob(audioFilePath);
     if (!fileBlob) {
-        ctx.session.currentVoice = null;
         await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
         return;
     }
 
+    const voiceID = await getVoiceIDText(conversation, ctx);
+    const voiceTitle = await getVoiceTitleText(conversation, ctx);
+
+    await ctx.replyWithChatAction("upload_voice");
+
+    const input = voiceTitle + INPUT_EXTENSION;
+    const output = voiceTitle + OUTPUT_EXTENSION;
     const arrayBuffer = await fileBlob.arrayBuffer();
+
     await conversation.external(() =>
         Deno.writeFile(input, new Uint8Array(arrayBuffer))
     );
 
     const { status, error } = await conversation.external(() =>
-        convertMP3ToOGGOpus(
-            input,
-            output,
-        )
+        convertMP3ToOGGOpus(input, output)
     );
     if (!status) {
-        ctx.session.currentVoice = null;
-        await conversation.external(() => Deno.remove(input));
-        await ctx.reply(ctx.t("newvoices.convertFailed", { errorMsg: error }));
+        await ctx.reply(
+            ctx.t("newvoices.convertFailed", { errorMsg: error }),
+        );
+        return;
     }
 
     const { voice: { file_id, file_unique_id } } = await ctx.replyWithVoice(
         new InputFile(output),
         {
-            caption: ctx.t("newvoices.updated", {
-                title: title,
+            caption: ctx.t("newvoices.success", {
+                title: voiceTitle,
             }),
         },
     );
 
     await conversation.external(() =>
-        Promise.all([
-            updateVoiceFileID(id, file_id, file_unique_id),
-            Deno.remove(input),
-            Deno.remove(output),
-        ])
+        addNewVoice(voiceID, voiceTitle, file_id, file_unique_id)
     );
+    await conversation.external(() => Deno.remove(input));
+    await conversation.external(() => Deno.remove(output));
 
-    ctx.session.currentVoice = null;
+    if (conversation.session.addedVoices) {
+        conversation.session.addedVoices.push(voiceTitle);
+    }
 }

@@ -4,8 +4,6 @@ import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale.ts";
 const GOOGLE_DRIVE_LINK_CHECK_REGEX =
     /https:\/\/drive\.google\.com\/file\/d\/(.*?)\/.*?\?usp=[sharing|drive_link]/g;
 const GOOGLE_DRIVE_LINK_CONVERT_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
-const GENERAL_URL_REGEX =
-    /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
 
 type ConvertReturn = { status: true; error: undefined } | {
     status: false;
@@ -49,16 +47,6 @@ export function isGoogleDriveLink(link: string) {
 }
 
 /**
- * Check if passed URL is a valid one
- *
- * @param url URL to check validity
- * @returns Result of regex check
- */
-export function isValidURL(url: string) {
-    return url.match(GENERAL_URL_REGEX) !== null;
-}
-
-/**
  * Returns full name of user, based on availability of last name
  *
  * If last name is present, combines it with first name, otherwise returns only first name as is
@@ -94,7 +82,7 @@ export async function canRunFFMPEG() {
 export async function convertMP3ToOGGOpus(
     inputFilename: string,
     outputFilename: string,
-): Promise<ConvertReturn> {
+) {
     const ffmpeg = new Deno.Command("ffmpeg", {
         args: [
             "-hide_banner",
@@ -109,7 +97,7 @@ export async function convertMP3ToOGGOpus(
     });
     const { success, stderr } = await ffmpeg.output();
 
-    return success
+    return (success
         ? {
             status: true,
             error: undefined,
@@ -117,5 +105,5 @@ export async function convertMP3ToOGGOpus(
         : {
             status: false,
             error: new TextDecoder().decode(stderr),
-        };
+        }) as ConvertReturn;
 }

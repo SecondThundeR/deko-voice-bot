@@ -283,24 +283,6 @@ export function setCachedVoicesStatsData(voicesStats: VoiceSchema[]) {
 }
 
 /**
- * Adds new voice to cache
- *
- * @description Because there are possibility of saved text query cache which can't display
- * newly added voice, it is cleared out here
- *
- * @param voice Voice to add
- */
-export function addVoiceToCache(voice: InlineResultVoice) {
-    if (!rootQueryCache.has(rootCacheKey)) return;
-
-    const updatedCache = [...rootQueryCache.get(rootCacheKey)!, voice]
-        .sort((a, b) => a.title.localeCompare(b.title));
-
-    rootQueryCache.set(rootCacheKey, updatedCache);
-    textQueryCache.clear();
-}
-
-/**
  * Updates voice in cache
  *
  * @description Because there are possibility of saved text query cache which can display

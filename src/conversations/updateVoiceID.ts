@@ -16,10 +16,6 @@ export async function updateVoiceID(
         notUnique: ctx.t("voiceid.notUnique"),
         long: ctx.t("voiceid.long"),
     });
-    if (!newVoiceID) {
-        ctx.session.currentVoice = null;
-        return void await ctx.reply(ctx.t("voiceid.idEmpty"));
-    }
 
     await ctx.replyWithChatAction("typing");
 
@@ -28,11 +24,13 @@ export async function updateVoiceID(
     );
     if (!status) {
         ctx.session.currentVoice = null;
-        return void await ctx.reply(ctx.t("voiceid.failed"));
+        await ctx.reply(ctx.t("voiceid.failed"));
+        return;
     }
 
     await ctx.reply(ctx.t("voiceid.success", { voiceID: newVoiceID }), {
         parse_mode: "HTML",
     });
+
     ctx.session.currentVoice = null;
 }

@@ -13,10 +13,6 @@ export async function updateVoiceURL(
 
     const { id, title } = voiceData;
     const newRemoteVoiceURL = await getAudioRemoteURL(conversation, ctx);
-    if (!newRemoteVoiceURL) {
-        ctx.session.currentVoice = null;
-        return void await ctx.reply(ctx.t("newremotevoices.URLEmpty"));
-    }
 
     await ctx.replyWithChatAction("typing");
 
@@ -30,11 +26,13 @@ export async function updateVoiceURL(
                 parse_mode: "HTML",
             },
         );
+
         await conversation.external(() =>
             updateRemoteVoiceURL(id, newRemoteVoiceURL, file_unique_id)
         );
     } catch (error: unknown) {
         console.error(error);
+
         await ctx.reply(ctx.t("newremotevoices.failed"));
     } finally {
         ctx.session.currentVoice = null;
