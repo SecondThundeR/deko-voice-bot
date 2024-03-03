@@ -5,8 +5,6 @@ import {
     conversations,
     createConversation,
     dotenv,
-    GrammyError,
-    HttpError,
     I18n,
     MongoClient,
     MongoError,
@@ -51,6 +49,7 @@ import {
     registerUserCommands,
 } from "@/src/helpers/api.ts";
 
+import { catchHandler } from "@/src/handlers/catch.ts";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 import { voiceItemHandler } from "@/src/handlers/voiceItem.ts";
 
@@ -156,27 +155,7 @@ pmCreator
     .use(voiceCommand)
     .use(voicesCommand);
 
-bot.catch((err) => {
-    const { ctx, error } = err;
-
-    console.error(
-        `Error while handling update: ${JSON.stringify(ctx.update, null, 4)}`,
-    );
-
-    if (error instanceof GrammyError) {
-        return console.error("Error in request:", error.description);
-    }
-
-    if (error instanceof HttpError) {
-        return console.error("Could not contact Telegram:", error);
-    }
-
-    if (error instanceof MongoError) {
-        return console.error("Something broken with Mongo:", error.errmsg);
-    }
-
-    console.error("Unknown error occurred:", error);
-});
+bot.catch(catchHandler);
 
 const runner = run(bot);
 
