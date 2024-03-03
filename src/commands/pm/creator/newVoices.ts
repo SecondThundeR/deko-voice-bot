@@ -4,13 +4,13 @@ import { canRunFFMPEG } from "@/src/helpers/general.ts";
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-export const newVoiceCommand = new Composer<BotContext>();
+export const newVoicesCommand = new Composer<BotContext>();
 
-newVoiceCommand.command(
-    "newvoice",
+newVoicesCommand.command(
+    "newvoices",
     async (ctx) => {
         const hasFFMPEG = await canRunFFMPEG();
-        if (!hasFFMPEG) return await ctx.reply(ctx.t("newvoice.noFFMPEG"));
-        await ctx.conversation.enter("new-voice");
+        if (!hasFFMPEG) return await ctx.reply(ctx.t("newvoices.noFFMPEG"));
+        await ctx.conversation.enter("new-voices");
     },
 );

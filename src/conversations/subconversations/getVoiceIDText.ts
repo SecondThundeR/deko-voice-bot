@@ -15,20 +15,20 @@ export async function getVoiceIDText(
 ) {
     const { hint, notUnique, long } = otherLocale ?? {};
 
-    await ctx.reply(hint ?? ctx.t("newvoice.idHint"), { parse_mode: "HTML" });
+    await ctx.reply(hint ?? ctx.t("newvoices.idHint"), { parse_mode: "HTML" });
 
     do {
-        ctx = await conversation.wait();
-        const messageText = ctx.message?.text;
+        ctx = await conversation.waitFor("message:text");
+        const messageText = ctx.msg?.text;
 
         if (!messageText) {
             continue;
         } else if (isNotUniqueVoiceID(messageText)) {
-            await ctx.reply(notUnique ?? ctx.t("newvoice.idNotUnique"));
+            await ctx.reply(notUnique ?? ctx.t("newvoices.idNotUnique"));
         } else if (messageText.length <= 64) {
             return messageText;
         } else {
-            await ctx.reply(long ?? ctx.t("newvoice.idLong"));
+            await ctx.reply(long ?? ctx.t("newvoices.idLong"));
         }
-    } while (!ctx.message?.text);
+    } while (!ctx.msg?.text);
 }

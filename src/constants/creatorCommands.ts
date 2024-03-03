@@ -29,11 +29,11 @@ export const creatorCommands: BotCommand[] = [
         description: "Получить меню со списком всех реплик",
     },
     {
-        command: "/newvoice",
-        description: "Добавить новую реплику через файл",
+        command: "/newvoices",
+        description: "Добавить новые реплики через файлы",
     },
     {
-        command: "/newremotevoice",
-        description: "Добавить новую реплику через ссылку",
+        command: "/newremotevoices",
+        description: "Добавить новые реплики через ссылки",
     },
 ];

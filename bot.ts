@@ -5,8 +5,6 @@ import {
     conversations,
     createConversation,
     dotenv,
-    GrammyError,
-    HttpError,
     I18n,
     MongoClient,
     MongoError,
@@ -21,8 +19,8 @@ await dotenv({ export: true });
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats.ts";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate.ts";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance.ts";
-import { newRemoteVoiceCommand } from "@/src/commands/pm/creator/newRemoteVoice.ts";
-import { newVoiceCommand } from "@/src/commands/pm/creator/newVoice.ts";
+import { newRemoteVoicesCommand } from "@/src/commands/pm/creator/newRemoteVoices.ts";
+import { newVoicesCommand } from "@/src/commands/pm/creator/newVoices.ts";
 import { statsCommand } from "@/src/commands/pm/creator/stats.ts";
 import { voiceCommand } from "@/src/commands/pm/creator/voice.ts";
 import { voicesCommand } from "@/src/commands/pm/creator/voices.ts";
@@ -31,11 +29,12 @@ import { myDataCommand } from "@/src/commands/pm/myData.ts";
 import { optInCommand } from "@/src/commands/pm/optIn.ts";
 import { optOutCommand } from "@/src/commands/pm/optOut.ts";
 import { startCommand } from "@/src/commands/pm/start.ts";
+import { cancelCommand } from "@/src/commands/cancel.ts";
 
 import { ENVS_CHECK_FAIL } from "@/src/constants/locale.ts";
 
-import { newRemoteVoice } from "@/src/conversations/newRemoteVoice.ts";
-import { newVoice } from "@/src/conversations/newVoice.ts";
+import { newRemoteVoices } from "@/src/conversations/newRemoteVoices.ts";
+import { newVoices } from "@/src/conversations/newVoices.ts";
 import { updateVoiceFile } from "@/src/conversations/updateVoiceFile.ts";
 import { updateVoiceID } from "@/src/conversations/updateVoiceID.ts";
 import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle.ts";
@@ -51,6 +50,7 @@ import {
     registerUserCommands,
 } from "@/src/helpers/api.ts";
 
+import { catchHandler } from "@/src/handlers/catch.ts";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery.ts";
 import { voiceItemHandler } from "@/src/handlers/voiceItem.ts";
 
@@ -96,24 +96,12 @@ bot
     .use(maintenanceGatekeep)
     .use(inlineQueryHandler)
     // @ts-expect-error Types, bruh
-    .use(conversations());
-
-bot.command("cancel", async (ctx) => {
-    const activeConversations = await ctx.conversation.active();
-    const translationPath = (activeConversations["new-voice"] ||
-            activeConversations["new-remote-voice"])
-        ? "add"
-        : "update";
-
-    await ctx.reply(ctx.t(`conversation.${translationPath}Cancel`));
-    await ctx.conversation.exit();
-});
-bot
+    .use(conversations())
     // @ts-expect-error Types, bruh
-    .use(createConversation(newVoice, "new-voice"))
+    .use(createConversation(newVoices, "new-voices"))
     .use(
         // @ts-expect-error Types, bruh
-        createConversation(newRemoteVoice, "new-remote-voice"),
+        createConversation(newRemoteVoices, "new-remote-voices"),
     )
     .use(
         // @ts-expect-error Types, bruh
@@ -130,7 +118,8 @@ bot
     .use(
         // @ts-expect-error Types, bruh
         createConversation(updateVoiceURL, "voice-url-update"),
-    );
+    )
+    .use(cancelCommand);
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
@@ -151,32 +140,12 @@ pmCreator
     .use(maintenanceCommand)
     .use(fullStatsCommand)
     .use(statsCommand)
-    .use(newVoiceCommand)
-    .use(newRemoteVoiceCommand)
+    .use(newVoicesCommand)
+    .use(newRemoteVoicesCommand)
     .use(voiceCommand)
     .use(voicesCommand);
 
-bot.catch((err) => {
-    const { ctx, error } = err;
-
-    console.error(
-        `Error while handling update: ${JSON.stringify(ctx.update, null, 4)}`,
-    );
-
-    if (error instanceof GrammyError) {
-        return console.error("Error in request:", error.description);
-    }
-
-    if (error instanceof HttpError) {
-        return console.error("Could not contact Telegram:", error);
-    }
-
-    if (error instanceof MongoError) {
-        return console.error("Something broken with Mongo:", error.errmsg);
-    }
-
-    console.error("Unknown error occurred:", error);
-});
+bot.catch(catchHandler);
 
 const runner = run(bot);
 

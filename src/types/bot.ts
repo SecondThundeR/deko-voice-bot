@@ -16,6 +16,7 @@ interface SessionData {
     currentVoices?: InlineResultVoice[] | null;
     currentVoicesOffset: number;
     currentVoice?: InlineResultVoice | null;
+    addedVoices?: string[] | null;
 }
 
 interface ConfigContext {

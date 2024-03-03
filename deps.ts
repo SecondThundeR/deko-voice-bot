@@ -6,6 +6,7 @@ export { dayjs, TTLCache };
 export {
     Api,
     Bot,
+    BotError,
     Composer,
     GrammyError,
     HttpError,
