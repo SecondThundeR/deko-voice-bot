@@ -10,7 +10,7 @@
       "env": {
         "DEBUG": "grammy*"
       },
-      "runtimeExecutable": "/Users/secondthunder/.deno/bin/deno",
+      "runtimeExecutable": "deno",
       "runtimeArgs": [
         "run",
         "--unstable",
