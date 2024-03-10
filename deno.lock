@@ -2,11 +2,11 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "npm:mongodb@6.3.0": "npm:mongodb@6.3.0"
+      "npm:mongodb@6.4.0": "npm:mongodb@6.4.0"
     },
     "npm": {
-      "@mongodb-js/saslprep@1.1.4": {
-        "integrity": "sha512-8zJ8N1x51xo9hwPh6AWnKdLGEC5N3lDa6kms1YHmFBoRhTpJR6HG8wWk0td1MVCu9cD4YBrvjZEtd5Obw0Fbnw==",
+      "@mongodb-js/saslprep@1.1.5": {
+        "integrity": "sha512-XLNOMH66KhJzUJNwT/qlMnS4WsNDWD5ASdyaSH3EtK+F4r/CFGa3jT4GNi4mfOitGvWXtdLgQJkQjxSVrio+jA==",
         "dependencies": {
           "sparse-bitfield": "sparse-bitfield@3.0.3"
         }
@@ -21,8 +21,8 @@
           "@types/webidl-conversions": "@types/webidl-conversions@7.0.3"
         }
       },
-      "bson@6.2.0": {
-        "integrity": "sha512-ID1cI+7bazPDyL9wYy9GaQ8gEEohWvcUl/Yf0dIdutJxnmInEEyCsb4awy/OiBfall7zBA179Pahi3vCdFze3Q==",
+      "bson@6.4.0": {
+        "integrity": "sha512-6/gSSEdbkuFlSb+ufj5jUSU4+wo8xQOwm2bDSqwmxiPE17JTpsP63eAwoN8iF8Oy4gJYj+PAL3zdRCTdaw5Y1g==",
         "dependencies": {}
       },
       "memory-pager@1.5.0": {
@@ -36,11 +36,11 @@
           "whatwg-url": "whatwg-url@13.0.0"
         }
       },
-      "mongodb@6.3.0": {
-        "integrity": "sha512-tt0KuGjGtLUhLoU263+xvQmPHEGTw5LbcNC73EoFRYgSHwZt5tsoJC110hDyO1kjQzpgNrpdcSza9PknWN4LrA==",
+      "mongodb@6.4.0": {
+        "integrity": "sha512-MdFHsyb1a/Ee0H3NmzWTSLqchacDV/APF0H6BNQvraWrOiIocys2EmTFZPgHxWhcfO94c1F34I9MACU7x0hHKA==",
         "dependencies": {
-          "@mongodb-js/saslprep": "@mongodb-js/saslprep@1.1.4",
-          "bson": "bson@6.2.0",
+          "@mongodb-js/saslprep": "@mongodb-js/saslprep@1.1.5",
+          "bson": "bson@6.4.0",
           "mongodb-connection-string-url": "mongodb-connection-string-url@3.0.0"
         }
       },
@@ -125,9 +125,9 @@
     "https://deno.land/std@0.211.0/path/windows/basename.ts": "e2dbf31d1d6385bfab1ce38c333aa290b6d7ae9e0ecb8234a654e583cf22f8fe",
     "https://deno.land/std@0.211.0/streams/_common.ts": "4f9f2958d853b9a456be033631dabb7519daa68ee4d02caf53e2ecbffaf5805f",
     "https://deno.land/std@0.211.0/streams/iterate_reader.ts": "353e516908ce637e8b2a2e1301fa60316825667d0d880d47ea4c427a9a7758cf",
-    "https://deno.land/std@v0.218.2/dotenv/mod.ts": "0180eaeedaaf88647318811cdaa418cc64dc51fb08354f91f5f480d0a1309f7d",
-    "https://deno.land/std@v0.218.2/dotenv/parse.ts": "a49ed243bd62ec26f38614042cda4e5e3a47b18337c93b0f9f8556a5c918884b",
-    "https://deno.land/std@v0.218.2/dotenv/stringify.ts": "0047ad7068289735d08964046aea267a750c141b494ca0e38831b89be6c020c2",
+    "https://deno.land/std@v0.219.0/dotenv/mod.ts": "0180eaeedaaf88647318811cdaa418cc64dc51fb08354f91f5f480d0a1309f7d",
+    "https://deno.land/std@v0.219.0/dotenv/parse.ts": "09977ff88dfd1f24f9973a338f0f91bbdb9307eb5ff6085446e7c423e4c7ba0c",
+    "https://deno.land/std@v0.219.0/dotenv/stringify.ts": "0047ad7068289735d08964046aea267a750c141b494ca0e38831b89be6c020c2",
     "https://deno.land/x/fluent@0.0.1/bundle/ast.ts": "5b6c57e6115ca4497fc15be9a854053c0700cbadb680956b8719d6e40eacc759",
     "https://deno.land/x/fluent@0.0.1/bundle/builtins.ts": "cdcb96c0b4d39bff48acf842c99e5df7262bd2a7dc8488cd6c73af3ecd3f783f",
     "https://deno.land/x/fluent@0.0.1/bundle/bundle.ts": "fd5822c4fb8b094896620c5f825280b3bb1acc8cf757c0c33666564771e319f4",
@@ -269,7 +269,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:mongodb@6.3.0"
+      "npm:mongodb@6.4.0"
     ]
   }
 }
