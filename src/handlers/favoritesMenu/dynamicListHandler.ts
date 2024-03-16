@@ -10,7 +10,6 @@ import type { BotContext, MenuBotContext } from "@/src/types/bot.ts";
 
 export function dynamicListHandler(
     ctx: BotContext,
-    // @ts-expect-error I wish this types won't conflict ever again
     range: MenuRange<BotContext>,
 ) {
     const { currentFavoritesOffset, currentFavorites } = ctx.session;

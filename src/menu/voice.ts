@@ -13,7 +13,6 @@ import { updateVoiceLabelHandler } from "@/src/handlers/voicesSubmenu/voiceDataL
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-// @ts-expect-error
 export const voiceMenu = new Menu<BotContext>("voice-menu", {
     autoAnswer: false,
     onMenuOutdated: outdatedHandler,

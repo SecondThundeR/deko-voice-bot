@@ -7,7 +7,6 @@ type GenericListHandlerData<T> = {
     currentOffset: number;
     elementsPerPage: number;
     forEachCallback: (
-        // @ts-expect-error I wish this types won't conflict ever again
         range: MenuRange<BotContext>,
         element: T,
     ) => void;
@@ -15,7 +14,6 @@ type GenericListHandlerData<T> = {
 
 export function genericListHandler<T>(
     _ctx: BotContext,
-    // @ts-expect-error I wish this types won't conflict ever again
     range: MenuRange<BotContext>,
     data: GenericListHandlerData<T>,
 ) {

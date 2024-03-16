@@ -35,5 +35,4 @@ export type BotContext =
     & I18nFlavor
     & ConversationFlavor;
 export type MenuBotContext = BotContext & MenuFlavor;
-// @ts-expect-error
 export type ConversationContext = Conversation<BotContext>;

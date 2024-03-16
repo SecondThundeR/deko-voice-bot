@@ -5,11 +5,11 @@
     "grammy_menu/": "https://deno.land/x/grammy_menu@v1.2.1/",
     "grammy_i18n/": "https://deno.land/x/grammy_i18n@v1.0.2/",
     "grammy_conversation/": "https://deno.land/x/grammy_conversations@v1.2.0/",
-    "dotenv/": "https://deno.land/std@v0.219.0/dotenv/",
-    "mongo": "npm:mongodb@6.4.0",
-    "grammy_auto-retry": "https://esm.sh/@grammyjs/auto-retry@1.1.1/",
-    "dayjs": "https://esm.sh/dayjs@1.11.10/",
-    "ttlcache": "https://esm.sh/@isaacs/ttlcache@1.4.1/",
+    "dotenv/": "https://deno.land/std@v0.220.1/dotenv/",
+    "mongo": "npm:mongodb@6.5.0",
+    "grammy_auto-retry": "https://esm.sh/@grammyjs/auto-retry/",
+    "dayjs": "https://esm.sh/dayjs/",
+    "ttlcache": "https://esm.sh/@isaacs/ttlcache/",
     "@/": "./"
   },
   "tasks": {

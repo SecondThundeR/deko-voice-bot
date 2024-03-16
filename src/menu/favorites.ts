@@ -9,7 +9,6 @@ import { prevPageHandler } from "@/src/handlers/favoritesMenu/prevPageHandler.ts
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-// @ts-expect-error
 export const favoritesMenu = new Menu<BotContext>("fav-menu", {
     autoAnswer: false,
     onMenuOutdated: outdatedHandler,

@@ -62,7 +62,6 @@ if (!token || !mongoURL) {
 
 export const client = new MongoClient(mongoURL);
 const bot = new Bot<BotContext>(token);
-// @ts-expect-error
 const i18n = new I18n<BotContext>({
     globalTranslationContext: (ctx) => ({
         botUsername: `@${ctx.me.username}`,
@@ -79,12 +78,10 @@ bot
     .use(botConfig)
     .use(maintenanceGatekeep)
     .use(inlineQueryHandler)
-    // @ts-expect-error Types, bruh
     .use(conversations())
     .use(cancelCommand);
 
 CONVERSATIONS.forEach(([id, conversation]) => {
-    // @ts-expect-error Types, bruh
     bot.use(createConversation(conversation, id));
 });
 

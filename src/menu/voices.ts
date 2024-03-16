@@ -19,7 +19,6 @@ import { updateVoiceLabelHandler } from "@/src/handlers/voicesSubmenu/voiceDataL
 
 import type { BotContext } from "@/src/types/bot.ts";
 
-// @ts-expect-error
 export const voicesMenu = new Menu<BotContext>("voices-menu", {
     autoAnswer: false,
     onMenuOutdated: outdatedHandler,
@@ -30,7 +29,6 @@ export const voicesMenu = new Menu<BotContext>("voices-menu", {
     .text((ctx) => ctx.t("menu.close"), closeMenuHandler)
     .text((ctx) => ctx.t("menu.next"), nextPageHandler);
 
-// @ts-expect-error
 const voicesSubmenu = new Menu<BotContext>("voice-submenu", {
     autoAnswer: false,
     onMenuOutdated: outdatedSubmenuHandler,
