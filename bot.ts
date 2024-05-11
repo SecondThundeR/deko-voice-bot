@@ -57,7 +57,7 @@ const creatorID = Deno.env.get("CREATOR_ID");
 
 if (!token || !mongoURL) {
     console.error(ENVS_CHECK_FAIL);
-    Deno.exit();
+    Deno.exit(1);
 }
 
 export const client = new MongoClient(mongoURL);
@@ -114,8 +114,9 @@ bot.catch(catchHandler);
 
 const runner = run(bot);
 
-const stopRunner = () => {
-    runner.isRunning() && runner.stop();
+const stopRunner = async () => {
+    runner.isRunning() && await runner.stop();
+    await client.close();
     Deno.exit();
 };
 
@@ -149,4 +150,5 @@ try {
     );
 } catch (e) {
     console.log(e);
+    await client.close();
 }
