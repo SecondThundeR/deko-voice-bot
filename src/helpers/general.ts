@@ -107,3 +107,13 @@ export async function convertMP3ToOGGOpus(
             error: new TextDecoder().decode(stderr),
         }) as ConvertReturn;
 }
+
+/**
+ * Checks if value is empty
+ *
+ * @param val Value to check for emptiness
+ * @returns Boolean result of check
+ */
+export function isEmpty(val: unknown) {
+    return val == null || !(Object.keys(val) || val).length;
+}
