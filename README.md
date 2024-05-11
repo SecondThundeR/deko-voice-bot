@@ -14,7 +14,6 @@
 - Бот и база данных работают на хостинге [Railway](https://railway.app/)
 - Данные ~~хранятся в [MongoDB Atlas](https://www.mongodb.com/atlas/database/) и~~ управляются с помощью [официального драйвера](https://www.npmjs.com/package/mongodb)
   > Базу данных пришлось перенести с кластера Atlas ввиду многочисленных ошибок, связанных с обрывом соединения с БД, из-за чего бот падал в самое неподходящее время суток. База данных теперь находится в том же месте, что и бот
-  > Ссылка на "боевого" бота: <https://t.me/dekoquotes_bot>
 - Строки сообщений и другого текста бота находятся в [Fluent](https://projectfluent.org/) формате и обрабатываются с помощью плагина [grammy-i18n](https://grammy.dev/plugins/i18n/)
 - Менюшки работают через плагин [grammy_menu](https://deno.land/x/grammy_menu) и интерактивные диалоги через плагин [grammy_conversations](https://deno.land/x/grammy_conversations)
 
