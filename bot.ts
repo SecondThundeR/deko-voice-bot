@@ -69,7 +69,7 @@ const i18n = new I18n<BotContext>({
 });
 const botConfig = configSetup(creatorID);
 
-// @ts-expect-error Uses old grammy types (1.22.4 instead of 1.23.0)
+// @ts-expect-error Uses old grammy types (1.22.4 instead of 1.24.0)
 bot.api.config.use(autoRetry());
 
 bot
