@@ -4,7 +4,7 @@ import { getVoicesStats } from "@/src/database/general/voices/getVoicesStats.ts"
 import { extractUserDetails } from "@/src/helpers/api.ts";
 import { convertLastUsedAtTimestamp } from "@/src/helpers/time.ts";
 import {
-    usersStatsInctiveFilter,
+    usersStatsInactiveFilter,
     usersStatsLastActiveSort,
     usersStatsMap,
     usersStatsMAUFilter,
@@ -33,16 +33,14 @@ type OptOutUserData = Omit<UsersDataSchema, "_id">;
  * @returns Formatted locale text for sending in messages
  */
 export async function getStatsMessageText(ctx: BotContext) {
-    const currentDate = new Date();
-
     const usersStats = await getUsersDataStats();
     const voicesStats = await getVoicesStats();
 
     const allUsedUsers = usersStats?.length ?? 0;
     const allMAUUsers = usersStats
-        ?.filter(usersStatsMAUFilter(currentDate)).length ?? 0;
+        ?.filter(usersStatsMAUFilter()).length ?? 0;
     const allInactiveUsers = usersStats
-        ?.filter(usersStatsInctiveFilter(currentDate)).length ?? 0;
+        ?.filter(usersStatsInactiveFilter()).length ?? 0;
     const allUsedVoices = voicesStats
         .reduce(voicesStatsUsesAmountReduce, 0);
 
@@ -62,16 +60,14 @@ export async function getStatsMessageText(ctx: BotContext) {
  * @returns Formatted locale text for sending in messages
  */
 export async function getFullStatsMessageText(ctx: BotContext) {
-    const currentDate = new Date();
-
     const usersStats = await getUsersDataStats();
     const voicesStats = await getVoicesStats();
 
     const allUsedUsers = usersStats?.length ?? 0;
     const allMAUUsers = usersStats
-        ?.filter(usersStatsMAUFilter(currentDate)).length ?? 0;
+        ?.filter(usersStatsMAUFilter()).length ?? 0;
     const allInactiveUsers = usersStats
-        ?.filter(usersStatsInctiveFilter(currentDate)).length ?? 0;
+        ?.filter(usersStatsInactiveFilter()).length ?? 0;
     const mostUsedUsers = usersStats
         .sort(usersStatsMostUsedSort)
         .slice(0, 5)

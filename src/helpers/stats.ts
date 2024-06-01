@@ -6,15 +6,14 @@ import type { VoiceSchema } from "@/src/schemas/voice.ts";
 /**
  * Returns a closure with date for using in filter to get all MAU users
  *
- * @param currentDate Current date object
  * @returns Function for using in MAU users filter
  */
-export function usersStatsMAUFilter(currentDate: Date) {
+export function usersStatsMAUFilter() {
     return ({ lastUsedAt }: Pick<UsersDataSchema, "lastUsedAt">) => {
         if (!lastUsedAt) return false;
 
         const userLastUsedDate = dayjs(lastUsedAt);
-        const oneMonthAgo = dayjs(currentDate).subtract(1, "month");
+        const oneMonthAgo = dayjs().subtract(1, "month");
 
         return userLastUsedDate.isAfter(oneMonthAgo);
     };
@@ -23,15 +22,14 @@ export function usersStatsMAUFilter(currentDate: Date) {
 /**
  * Returns a closure with date for using in filter to get all inactive users
  *
- * @param currentDate Current date object
  * @returns Function for using in inactive users filter
  */
-export function usersStatsInctiveFilter(currentDate: Date) {
+export function usersStatsInactiveFilter() {
     return ({ lastUsedAt }: Pick<UsersDataSchema, "lastUsedAt">) => {
         if (!lastUsedAt) return true;
 
         const userLastUsedDate = dayjs(lastUsedAt);
-        const threeMonthsAgo = dayjs(currentDate).subtract(3, "month");
+        const threeMonthsAgo = dayjs().subtract(3, "month");
 
         return userLastUsedDate.isBefore(threeMonthsAgo);
     };
