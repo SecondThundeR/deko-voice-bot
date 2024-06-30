@@ -1,12 +1,12 @@
 {
   "imports": {
-    "grammy/": "https://deno.land/x/grammy@v1.24.0/",
+    "grammy/": "https://deno.land/x/grammy@v1.25.2/",
     "grammy_runner/": "https://deno.land/x/grammy_runner@v2.0.3/",
     "grammy_menu/": "https://deno.land/x/grammy_menu@v1.2.1/",
     "grammy_i18n/": "https://deno.land/x/grammy_i18n@v1.0.2/",
     "grammy_conversation/": "https://deno.land/x/grammy_conversations@v1.2.0/",
     "dotenv/": "https://deno.land/std@v0.224.0/dotenv/",
-    "mongo": "npm:mongodb@6.7.0",
+    "mongo": "npm:mongodb@6.8.0",
     "grammy_auto-retry": "https://esm.sh/@grammyjs/auto-retry@2.0.1/",
     "dayjs": "npm:dayjs@1.11.11/",
     "ttlcache": "npm:@isaacs/ttlcache@1.4.1/",
