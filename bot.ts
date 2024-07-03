@@ -25,6 +25,7 @@ import { favoritesCommand } from "@/src/commands/pm/favorites.ts";
 import { myDataCommand } from "@/src/commands/pm/myData.ts";
 import { optInCommand } from "@/src/commands/pm/optIn.ts";
 import { optOutCommand } from "@/src/commands/pm/optOut.ts";
+import { privacyCommand } from "@/src/commands/pm/privacy.ts";
 import { startCommand } from "@/src/commands/pm/start.ts";
 import { cancelCommand } from "@/src/commands/cancel.ts";
 
@@ -95,6 +96,7 @@ pm
     .use(myDataCommand)
     .use(optInCommand)
     .use(optOutCommand)
+    .use(privacyCommand)
     .use(favoritesCommand);
 
 pmCreator

@@ -14,6 +14,10 @@ export const userCommands: BotCommand[] = [
         description: "Удалить свои данные из статистики",
     },
     {
+        command: "/privacy",
+        description: "Получить информацию о политике приватности",
+    },
+    {
         command: "/mydata",
         description: "Получить мои данные по использованию",
     },
