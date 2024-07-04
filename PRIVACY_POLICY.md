@@ -10,7 +10,7 @@ By default, the Bot works on opt-out basis and collects information when you use
 *   The total amount of inline send actions via the Bot
 *   The time of last interaction with the Bot inline send action
 
-The Service Provider collects information for private analytics in order to obtain information about the number of all history and monthly active Users of the bot, as well as the level of engagement by counting the number of total uses of inline send action
+The Service Provider collects information for private analytics in order to obtain information about the number of all history and monthly active Users of the Bot, as well as the level of engagement by counting the number of total uses of inline send action
 
 User can access personal collected data via `/mydata` command in personal chat with the Bot.
 
@@ -18,11 +18,11 @@ User can access personal collected data via `/mydata` command in personal chat w
 
 You can stop all collection of information by the Bot easily by sending `/optout` command in personal chat with the Bot. After executing the command, all collected User data is completely deleted.
 
-If the user wants to participate in data collection after the opt out, this can be canceled by sending the command `/optin` in a personal chat with the Bot.
+If the User wants to participate in data collection after the opt out, this can be canceled by sending the command `/optin` in a personal chat with the Bot.
 
 **Data Retention Policy**
 
-The Service Provider will retain User Provided data for as long as you use the Bot and for a reasonable time thereafter. If you'd like them to delete User Provided Data that you have provided via the Bot, please use opt out feature or contact Service Provider at me@otaquiz.ru and they will respond in a reasonable time.
+The Service Provider will retain User Provided data for as long as you use the Bot and for a reasonable time thereafter. If you'd like them to delete User Provided data that you have provided via the Bot, please use opt out feature or contact Service Provider at me@otaquiz.ru and they will respond in a reasonable time.
 
 **Security**
 
@@ -32,7 +32,7 @@ The Service Provider is concerned about safeguarding the confidentiality of your
 
 This Privacy Policy may be updated from time to time for any reason. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
 
-This privacy policy is effective as of 2024-07-03
+This privacy policy is effective as of 2024-07-04
 
 **Your Consent**
 
