@@ -1,10 +1,10 @@
-import { client } from "@/bot.ts";
+import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
-import { deleteCachedFeatureFlag } from "@/src/helpers/cache.ts";
+import { deleteCachedFeatureFlag } from "@/src/helpers/cache";
 
-import type { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
+import type { FeatureFlagSchema } from "@/src/schemas/featureFlag";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;

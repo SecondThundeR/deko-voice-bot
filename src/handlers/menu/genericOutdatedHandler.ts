@@ -1,9 +1,9 @@
-import { GrammyError } from "@/deps.ts";
+import { GrammyError } from "grammy";
 
-import { isBotBlockedByUser } from "@/src/helpers/api.ts";
-import { outdatedExceptionHandler } from "@/src/helpers/menu.ts";
+import { isBotBlockedByUser } from "@/src/helpers/api";
+import { outdatedExceptionHandler } from "@/src/helpers/menu";
 
-import type { MenuBotContext } from "@/src/types/bot.ts";
+import type { MenuBotContext } from "@/src/types/bot";
 
 type OutdatedHandlerData<T> = {
     menuElement: T | T[] | null | undefined;

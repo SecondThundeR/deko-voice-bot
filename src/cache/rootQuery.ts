@@ -1,8 +1,8 @@
-import { TTLCache } from "@/deps.ts";
+import TTLCache from "@isaacs/ttlcache";
 
-import { rootCacheKey, rootCacheTime } from "@/src/constants/cache.ts";
+import { rootCacheKey, rootCacheTime } from "@/src/constants/cache";
 
-import { InlineResultVoice } from "@/src/types/inline.ts";
+import type { InlineResultVoice } from "@/src/types/inline";
 
 type RootQueryCacheKey = typeof rootCacheKey;
 

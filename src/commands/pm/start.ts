@@ -1,10 +1,10 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
+import { sendInlineRequestKeyboard } from "@/src/constants/keyboards";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
-const STICKER_FOR_DEEPLINK = Deno.env.get("STICKER_FILE_ID_FOR_DEEPLINK");
+const STICKER_FOR_DEEPLINK = process.env.STICKER_FILE_ID_FOR_DEEPLINK;
 
 export const startCommand = new Composer<BotContext>();
 

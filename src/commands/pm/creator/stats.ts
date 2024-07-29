@@ -1,8 +1,8 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { getStatsMessageText } from "@/src/helpers/locale.ts";
+import { getStatsMessageText } from "@/src/helpers/locale";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const statsCommand = new Composer<BotContext>();
 

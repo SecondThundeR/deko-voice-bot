@@ -1,8 +1,8 @@
-import { getUsersDataStats } from "@/src/database/general/usersData/getUsersDataStats.ts";
-import { getVoicesStats } from "@/src/database/general/voices/getVoicesStats.ts";
+import { getUsersDataStats } from "@/src/database/general/usersData/getUsersDataStats";
+import { getVoicesStats } from "@/src/database/general/voices/getVoicesStats";
 
-import { extractUserDetails } from "@/src/helpers/api.ts";
-import { convertLastUsedAtTimestamp } from "@/src/helpers/time.ts";
+import { extractUserDetails } from "@/src/helpers/api";
+import { convertLastUsedAtTimestamp } from "@/src/helpers/time";
 import {
     usersStatsInactiveFilter,
     usersStatsLastActiveSort,
@@ -13,15 +13,16 @@ import {
     voicesStatsMap,
     voicesStatsMostUsedSort,
     voicesStatsUsesAmountReduce,
-} from "@/src/helpers/stats.ts";
+} from "@/src/helpers/stats";
 
-import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
-type UserDataMessageDetails =
-    & NonNullable<ReturnType<typeof extractUserDetails>>
-    & Pick<UsersDataSchema, "usesAmount" | "lastUsedAt">;
+type UserDataMessageDetails = NonNullable<
+    ReturnType<typeof extractUserDetails>
+> &
+    Pick<UsersDataSchema, "usesAmount" | "lastUsedAt">;
 
 type OptOutUserData = Omit<UsersDataSchema, "_id">;
 
@@ -37,12 +38,10 @@ export async function getStatsMessageText(ctx: BotContext) {
     const voicesStats = await getVoicesStats();
 
     const allUsedUsers = usersStats?.length ?? 0;
-    const allMAUUsers = usersStats
-        ?.filter(usersStatsMAUFilter()).length ?? 0;
-    const allInactiveUsers = usersStats
-        ?.filter(usersStatsInactiveFilter()).length ?? 0;
-    const allUsedVoices = voicesStats
-        .reduce(voicesStatsUsesAmountReduce, 0);
+    const allMAUUsers = usersStats?.filter(usersStatsMAUFilter()).length ?? 0;
+    const allInactiveUsers =
+        usersStats?.filter(usersStatsInactiveFilter()).length ?? 0;
+    const allUsedVoices = voicesStats.reduce(voicesStatsUsesAmountReduce, 0);
 
     return ctx.t("stats.regular", {
         allUsedUsers,
@@ -64,10 +63,9 @@ export async function getFullStatsMessageText(ctx: BotContext) {
     const voicesStats = await getVoicesStats();
 
     const allUsedUsers = usersStats?.length ?? 0;
-    const allMAUUsers = usersStats
-        ?.filter(usersStatsMAUFilter()).length ?? 0;
-    const allInactiveUsers = usersStats
-        ?.filter(usersStatsInactiveFilter()).length ?? 0;
+    const allMAUUsers = usersStats?.filter(usersStatsMAUFilter()).length ?? 0;
+    const allInactiveUsers =
+        usersStats?.filter(usersStatsInactiveFilter()).length ?? 0;
     const mostUsedUsers = usersStats
         .sort(usersStatsMostUsedSort)
         .slice(0, 5)
@@ -79,8 +77,7 @@ export async function getFullStatsMessageText(ctx: BotContext) {
         .slice(0, 5)
         .map(usersStatsMap)
         .join("\n");
-    const allUsedVoices = voicesStats
-        .reduce(voicesStatsUsesAmountReduce, 0);
+    const allUsedVoices = voicesStats.reduce(voicesStatsUsesAmountReduce, 0);
     const mostUsedVoices = voicesStats
         .sort(voicesStatsMostUsedSort)
         .slice(0, 5)
@@ -91,16 +88,13 @@ export async function getFullStatsMessageText(ctx: BotContext) {
         allUsedUsers,
         allMAUUsers,
         allInactiveUsers,
-        mostUsedUsers: mostUsedUsers.length === 0
-            ? "Нет информации"
-            : mostUsedUsers,
-        lastUsedUsers: lastUsedUsers.length === 0
-            ? "Нет информации"
-            : lastUsedUsers,
+        mostUsedUsers:
+            mostUsedUsers.length === 0 ? "Нет информации" : mostUsedUsers,
+        lastUsedUsers:
+            lastUsedUsers.length === 0 ? "Нет информации" : lastUsedUsers,
         allUsedVoices,
-        mostUsedVoices: mostUsedVoices.length === 0
-            ? "Нет информации"
-            : mostUsedVoices,
+        mostUsedVoices:
+            mostUsedVoices.length === 0 ? "Нет информации" : mostUsedVoices,
     });
 }
 
@@ -122,9 +116,9 @@ export function getUserDataMessageText(
         ? `\n- Ваше имя пользователя в Telegram: @${username}`
         : "";
     const lastUsedAtText = lastUsedAt
-        ? `\n- Время последней отправки реплики (по МСК): ${
-            convertLastUsedAtTimestamp(lastUsedAt)
-        }`
+        ? `\n- Время последней отправки реплики (по МСК): ${convertLastUsedAtTimestamp(
+              lastUsedAt,
+          )}`
         : "";
 
     return ctx.t("myData.dataMessage", {
@@ -154,9 +148,9 @@ export function getOptOutMessageText(ctx: BotContext, data: OptOutUserData) {
         ? `\n- Ваше имя пользователя в Telegram: @${username}`
         : "";
     const lastUsedAtText = lastUsedAt
-        ? `\n- Время последней отправки реплики (по МСК): ${
-            convertLastUsedAtTimestamp(lastUsedAt)
-        }`
+        ? `\n- Время последней отправки реплики (по МСК): ${convertLastUsedAtTimestamp(
+              lastUsedAt,
+          )}`
         : "";
 
     return ctx.t("optout.success", {

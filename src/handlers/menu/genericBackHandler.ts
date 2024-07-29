@@ -1,4 +1,4 @@
-import type { BotContext, MenuBotContext } from "@/src/types/bot.ts";
+import type { BotContext, MenuBotContext } from "@/src/types/bot";
 
 export function genericBackHandler(
     ctx: MenuBotContext,

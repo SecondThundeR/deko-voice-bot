@@ -1,6 +1,6 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 const PRIVACY_POLICY_LINK =
     "https://github.com/SecondThundeR/deko-voice-bot/blob/main/PRIVACY_POLICY.md";

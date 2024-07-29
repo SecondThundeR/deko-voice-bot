@@ -1,8 +1,8 @@
-import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL.ts";
+import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL";
 
-import { updateRemoteVoiceURL } from "@/src/database/general/voices/updateRemoteVoiceURL.ts";
+import { updateRemoteVoiceURL } from "@/src/database/general/voices/updateRemoteVoiceURL";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function updateVoiceURL(
     conversation: ConversationContext,
@@ -17,18 +17,17 @@ export async function updateVoiceURL(
     await ctx.replyWithChatAction("typing");
 
     try {
-        const { voice: { file_unique_id } } = await ctx.replyWithVoice(
-            newRemoteVoiceURL,
-            {
-                caption: ctx.t("newremotevoices.updated", {
-                    title: title,
-                }),
-                parse_mode: "HTML",
-            },
-        );
+        const {
+            voice: { file_unique_id },
+        } = await ctx.replyWithVoice(newRemoteVoiceURL, {
+            caption: ctx.t("newremotevoices.updated", {
+                title: title,
+            }),
+            parse_mode: "HTML",
+        });
 
         await conversation.external(() =>
-            updateRemoteVoiceURL(id, newRemoteVoiceURL, file_unique_id)
+            updateRemoteVoiceURL(id, newRemoteVoiceURL, file_unique_id),
         );
     } catch (error: unknown) {
         console.error(error);

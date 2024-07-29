@@ -1,6 +1,6 @@
-import { newVoice } from "@/src/conversations/subconversations/newVoice.ts";
+import { newVoice } from "@/src/conversations/subconversations/newVoice";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function newVoices(
     conversation: ConversationContext,

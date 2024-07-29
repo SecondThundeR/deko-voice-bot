@@ -1,8 +1,8 @@
-import { TTLCache } from "@/deps.ts";
+import TTLCache from "@isaacs/ttlcache";
 
-import { textCacheTime } from "@/src/constants/cache.ts";
+import { textCacheTime } from "@/src/constants/cache";
 
-import { InlineResultVoice } from "@/src/types/inline.ts";
+import type { InlineResultVoice } from "@/src/types/inline";
 
 export const textQueryCache = new TTLCache<string, InlineResultVoice[]>({
     ttl: textCacheTime,

@@ -1,14 +1,16 @@
-import { googleExportDownloadLink } from "@/src/constants/general.ts";
-import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale.ts";
+import { googleExportDownloadLink } from "@/src/constants/general";
+import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale";
 
 const GOOGLE_DRIVE_LINK_CHECK_REGEX =
     /https:\/\/drive\.google\.com\/file\/d\/(.*?)\/.*?\?usp=[sharing|drive_link]/g;
 const GOOGLE_DRIVE_LINK_CONVERT_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
 
-type ConvertReturn = { status: true; error: undefined } | {
-    status: false;
-    error: string;
-};
+type ConvertReturn =
+    | { status: true; error: undefined }
+    | {
+          status: false;
+          error: string;
+      };
 
 /**
  * Converts regular Google Drive sharing link to direct download link
@@ -66,10 +68,16 @@ export function getFullName(firstName: string, lastName?: string) {
  * @returns Status of ffmpeg's help command execution
  */
 export async function canRunFFMPEG() {
-    const ffmpeg = new Deno.Command("ffmpeg", { args: ["-h"] });
-    const { success } = await ffmpeg.output();
+    try {
+        const { exited } = Bun.spawn(["ffmpeg", "-h"], {
+            stdout: null,
+            stderr: null,
+        });
 
-    return success;
+        return (await exited) === 0;
+    } catch {
+        return false;
+    }
 }
 
 /**
@@ -82,9 +90,10 @@ export async function canRunFFMPEG() {
 export async function convertMP3ToOGGOpus(
     inputFilename: string,
     outputFilename: string,
-) {
-    const ffmpeg = new Deno.Command("ffmpeg", {
-        args: [
+): Promise<ConvertReturn> {
+    try {
+        const { exited, stderr } = Bun.spawn([
+            "ffmpeg",
             "-hide_banner",
             "-loglevel",
             "error",
@@ -93,19 +102,31 @@ export async function convertMP3ToOGGOpus(
             "-c:a",
             "libopus",
             outputFilename,
-        ],
-    });
-    const { success, stderr } = await ffmpeg.output();
+        ]);
 
-    return (success
-        ? {
-            status: true,
-            error: undefined,
-        }
-        : {
+        if ((await exited) === 0)
+            return {
+                status: true,
+                error: undefined,
+            };
+
+        return {
             status: false,
-            error: new TextDecoder().decode(stderr),
-        }) as ConvertReturn;
+            error: await new Response(stderr).text(),
+        };
+    } catch (error: unknown) {
+        if (!(error instanceof Error)) {
+            return {
+                status: false,
+                error: "Unknown error occurred",
+            };
+        }
+
+        return {
+            status: false,
+            error: error.message,
+        };
+    }
 }
 
 /**

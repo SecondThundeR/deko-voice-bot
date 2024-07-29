@@ -1,8 +1,8 @@
-import { deleteVoice } from "@/src/database/general/voices/deleteVoice.ts";
+import { deleteVoice } from "@/src/database/general/voices/deleteVoice";
 
-import { closeMenuHandler } from "@/src/handlers/voiceMenu/closeMenuHandler.ts";
+import { closeMenuHandler } from "@/src/handlers/voiceMenu/closeMenuHandler";
 
-import type { MenuBotContext } from "@/src/types/bot.ts";
+import type { MenuBotContext } from "@/src/types/bot";
 
 export async function deleteVoiceHandler(ctx: MenuBotContext) {
     if (!ctx.session.currentVoice) return;

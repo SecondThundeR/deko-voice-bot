@@ -1,13 +1,13 @@
-import { client } from "@/bot.ts";
+import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
 import {
     getCachedUsersStatsData,
     setCachedUsersStatsData,
-} from "@/src/helpers/cache.ts";
+} from "@/src/helpers/cache";
 
-import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData";
 
 const dbName = databaseNames.general;
 const usersColName = collectionNames[dbName].usersData;

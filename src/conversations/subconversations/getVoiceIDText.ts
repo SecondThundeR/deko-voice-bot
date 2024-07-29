@@ -1,6 +1,6 @@
-import { isNotUniqueVoiceID } from "@/src/helpers/cache.ts";
+import { isNotUniqueVoiceID } from "@/src/helpers/cache";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 type LocaleStrings = {
     hint: string;

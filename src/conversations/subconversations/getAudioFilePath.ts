@@ -1,4 +1,4 @@
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function getAudioFilePath(
     conversation: ConversationContext,

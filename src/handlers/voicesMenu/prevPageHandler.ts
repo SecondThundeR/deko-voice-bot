@@ -1,8 +1,8 @@
-import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
+import { maxMenuElementsPerPage } from "@/src/constants/inline";
 
-import { genericPrevHandler } from "@/src/handlers/menu/genericPrevHandler.ts";
+import { genericPrevHandler } from "@/src/handlers/menu/genericPrevHandler";
 
-import type { MenuBotContext } from "@/src/types/bot.ts";
+import type { MenuBotContext } from "@/src/types/bot";
 
 export async function prevPageHandler(ctx: MenuBotContext) {
     const { currentVoicesOffset } = ctx.session;
@@ -11,6 +11,6 @@ export async function prevPageHandler(ctx: MenuBotContext) {
         currentOffset: currentVoicesOffset,
         elementsPerPage: maxMenuElementsPerPage,
         offsetUpdate: (newOffset) =>
-            ctx.session.currentVoicesOffset = newOffset,
+            (ctx.session.currentVoicesOffset = newOffset),
     });
 }

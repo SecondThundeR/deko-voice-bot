@@ -1,0 +1,30 @@
+{
+  "name": "deko-voice-bot",
+  "version": "3.0.0",
+  "type": "module",
+  "module": "bot.ts",
+  "scripts": {
+    "start": "NODE_ENV=production bun run bot.ts",
+    "dev": "DEBUG=grammy* NODE_ENV=development bun --watch run bot.ts",
+    "format:check": "prettier . --check",
+    "format:fix": "prettier . --write"
+  },
+  "dependencies": {
+    "@grammyjs/auto-retry": "^2.0.1",
+    "@grammyjs/conversations": "^1.2.0",
+    "@grammyjs/i18n": "^1.0.2",
+    "@grammyjs/menu": "^1.2.2",
+    "@grammyjs/runner": "^2.0.3",
+    "@isaacs/ttlcache": "^1.4.1",
+    "dayjs": "^1.11.12",
+    "grammy": "^1.27.0",
+    "mongodb": "^6.8.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.6",
+    "prettier": "^3.3.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

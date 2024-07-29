@@ -1,10 +1,10 @@
-import { client } from "@/bot.ts";
+import { client } from "@/bot";
 
-import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
+import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
-import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData";
 
 const dbName = databaseNames.general;
 const usersColName = collectionNames[dbName].usersData;
