@@ -9,7 +9,7 @@
 
 ## Используемые технологии
 
-- Бот построен на [Deno](https://deno.com/) с использованием [TypeScript](https://www.typescriptlang.org/)
+- Бот построен на [Bun](https://bun.sh/) с использованием [TypeScript](https://www.typescriptlang.org/)
 - В качестве библиотеки для взаимодействия с Telegram Bot API используется [grammY](https://github.com/grammyjs/grammY/)
 - Бот и база данных работают на хостинге [Railway](https://railway.app/)
 - Данные ~~хранятся в [MongoDB Atlas](https://www.mongodb.com/atlas/database/) и~~ управляются с помощью [официального драйвера](https://www.npmjs.com/package/mongodb)

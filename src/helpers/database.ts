@@ -1,5 +1,5 @@
-import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
-import { updateFeatureFlag } from "@/src/database/general/featureFlags/updateFeatureFlag.ts";
+import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag";
+import { updateFeatureFlag } from "@/src/database/general/featureFlags/updateFeatureFlag";
 
 /**
  * Toggles feature flag status in database and in cache

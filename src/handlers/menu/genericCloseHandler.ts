@@ -1,6 +1,6 @@
-import { closeMenuExceptionHandler } from "@/src/helpers/menu.ts";
+import { closeMenuExceptionHandler } from "@/src/helpers/menu";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export async function genericCloseHandler(
     ctx: BotContext,

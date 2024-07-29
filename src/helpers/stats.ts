@@ -1,7 +1,7 @@
-import { dayjs } from "@/deps.ts";
+import dayjs from "dayjs";
 
-import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
-import type { VoiceSchema } from "@/src/schemas/voice.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData";
+import type { VoiceSchema } from "@/src/schemas/voice";
 
 /**
  * Returns a closure with date for using in filter to get all MAU users
@@ -41,9 +41,9 @@ export function usersStatsInactiveFilter() {
  * @param user User data object
  * @returns Status of uses amount present
  */
-export function usersStatsNonUsedFilter(
-    { usesAmount }: Pick<UsersDataSchema, "usesAmount">,
-) {
+export function usersStatsNonUsedFilter({
+    usesAmount,
+}: Pick<UsersDataSchema, "usesAmount">) {
     return !!usesAmount;
 }
 
@@ -55,22 +55,21 @@ export function usersStatsNonUsedFilter(
  *
  * Format: `link to user: times (last used date)`
  */
-export function usersStatsMap(
-    { userID, username, fullName, usesAmount, lastUsedAt }: Omit<
-        UsersDataSchema,
-        "favoritesIds"
-    >,
-) {
+export function usersStatsMap({
+    userID,
+    username,
+    fullName,
+    usesAmount,
+    lastUsedAt,
+}: Omit<UsersDataSchema, "favoritesIds">) {
     const userLink = `<a href="tg://user?id=${userID}">${
         username ? `@${username}` : fullName
     }</a>`;
     const dateString = !lastUsedAt
         ? ""
-        : ` (${
-            new Date(lastUsedAt).toLocaleString("ru-RU", {
-                timeZone: "Europe/Moscow",
-            })
-        })`;
+        : ` (${new Date(lastUsedAt).toLocaleString("ru-RU", {
+              timeZone: "Europe/Moscow",
+          })})`;
 
     return `- ${userLink}: ${usesAmount} раз${dateString}`;
 }
@@ -83,9 +82,10 @@ export function usersStatsMap(
  *
  * Format: `title: times`
  */
-export function voicesStatsMap(
-    { title, usesAmount }: Pick<VoiceSchema, "title" | "usesAmount">,
-) {
+export function voicesStatsMap({
+    title,
+    usesAmount,
+}: Pick<VoiceSchema, "title" | "usesAmount">) {
     return `- ${title}: ${usesAmount} раз`;
 }
 
@@ -97,10 +97,7 @@ export function voicesStatsMap(
  * @param b Second user data object
  * @returns Difference of users uses amount
  */
-export function usersStatsMostUsedSort(
-    a: UsersDataSchema,
-    b: UsersDataSchema,
-) {
+export function usersStatsMostUsedSort(a: UsersDataSchema, b: UsersDataSchema) {
     return b.usesAmount - a.usesAmount;
 }
 
@@ -127,10 +124,7 @@ export function usersStatsLastActiveSort(
  * @param b Second voice data object
  * @returns Difference of voices uses amount
  */
-export function voicesStatsMostUsedSort(
-    a: VoiceSchema,
-    b: VoiceSchema,
-) {
+export function voicesStatsMostUsedSort(a: VoiceSchema, b: VoiceSchema) {
     return b.usesAmount - a.usesAmount;
 }
 
@@ -142,5 +136,6 @@ export function voicesStatsMostUsedSort(
  * @returns Sum of uses amount and accumulator
  */
 export function voicesStatsUsesAmountReduce(acc: number, curr: VoiceSchema) {
-    return acc += curr.usesAmount;
+    acc += curr.usesAmount;
+    return acc;
 }

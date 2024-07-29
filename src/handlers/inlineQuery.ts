@@ -1,16 +1,16 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { maxQueryElementsPerPage } from "@/src/constants/inline.ts";
+import { maxQueryElementsPerPage } from "@/src/constants/inline";
 
-import { updateStats } from "@/src/database/general/usersData/updateStats.ts";
+import { updateStats } from "@/src/database/general/usersData/updateStats";
 
-import { offsetArray } from "@/src/helpers/array.ts";
-import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache.ts";
-import { getCurrentButtonText } from "@/src/helpers/inlineQuery.ts";
-import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
+import { offsetArray } from "@/src/helpers/array";
+import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache";
+import { getCurrentButtonText } from "@/src/helpers/inlineQuery";
+import { getCurrentVoiceQueriesData } from "@/src/helpers/voices";
 
-import type { BotContext } from "@/src/types/bot.ts";
-import type { InlineQueriesArray } from "@/src/types/inline.ts";
+import type { BotContext } from "@/src/types/bot";
+import type { InlineQueriesArray } from "@/src/types/inline";
 
 export const inlineQueryHandler = new Composer<BotContext>();
 
@@ -24,10 +24,10 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const currentOffset = Number(ctx.update.inline_query.offset) || 0;
     const data = ctx.update.inline_query.query;
     const favoritesIds = await getFavoriteVoiceStatusArray(userID);
-    const currentQueriesArray = await getCurrentVoiceQueriesData(
+    const currentQueriesArray = (await getCurrentVoiceQueriesData(
         data,
         favoritesIds,
-    ) as InlineQueriesArray;
+    )) as InlineQueriesArray;
     const { array: paginatedQueries, nextOffset } = offsetArray({
         array: currentQueriesArray,
         currentOffset,

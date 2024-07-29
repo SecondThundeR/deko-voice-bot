@@ -1,6 +1,6 @@
-import { checkQueriesCache } from "@/src/helpers/cache.ts";
+import { checkQueriesCache } from "@/src/helpers/cache";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 /**
  * Gets current text for inline query button

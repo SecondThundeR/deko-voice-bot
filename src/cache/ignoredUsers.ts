@@ -1,9 +1,9 @@
-import { TTLCache } from "@/deps.ts";
+import TTLCache from "@isaacs/ttlcache";
 
 import {
     ignoredUsersCacheKey,
     ignoredUsersCacheTime,
-} from "@/src/constants/cache.ts";
+} from "@/src/constants/cache";
 
 type IgnoredUsersCacheKey = typeof ignoredUsersCacheKey;
 

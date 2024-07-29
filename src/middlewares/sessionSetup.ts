@@ -1,6 +1,6 @@
-import { session } from "@/deps.ts";
+import { session } from "grammy";
 
-import { getSessionKey } from "@/src/helpers/api.ts";
+import { getSessionKey } from "@/src/helpers/api";
 
 export function sessionSetup() {
     return session({

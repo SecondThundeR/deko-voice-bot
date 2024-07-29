@@ -1,8 +1,8 @@
-import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText.ts";
+import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText";
 
-import { updateTitle } from "@/src/database/general/voices/updateTitle.ts";
+import { updateTitle } from "@/src/database/general/voices/updateTitle";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function updateVoiceTitle(
     conversation: ConversationContext,
@@ -20,7 +20,7 @@ export async function updateVoiceTitle(
     await ctx.replyWithChatAction("typing");
 
     const status = await conversation.external(() =>
-        updateTitle(voiceData.id, newVoiceTitle)
+        updateTitle(voiceData.id, newVoiceTitle),
     );
     if (!status) {
         ctx.session.currentVoice = null;

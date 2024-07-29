@@ -1,4 +1,4 @@
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function getAudioRemoteURL(
     conversation: ConversationContext,
@@ -7,7 +7,7 @@ export async function getAudioRemoteURL(
     await ctx.reply(ctx.t("newremotevoices.URLHint"), { parse_mode: "HTML" });
 
     const url = await conversation.form.url((ctx) =>
-        ctx.reply(ctx.t("newremotevoices.URLInvalid"))
+        ctx.reply(ctx.t("newremotevoices.URLInvalid")),
     );
 
     return url.toString();

@@ -1,8 +1,8 @@
-import { client } from "@/bot.ts";
+import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
-import type { VoiceSchema } from "@/src/schemas/voice.ts";
+import type { VoiceSchema } from "@/src/schemas/voice";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
@@ -14,6 +14,6 @@ export async function getVoices(queryString?: string) {
 
     return await voices
         .find({ title: { $regex: voiceToFind } })
-        .sort({ "title": 1 })
+        .sort({ title: 1 })
         .toArray();
 }

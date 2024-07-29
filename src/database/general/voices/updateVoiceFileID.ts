@@ -1,10 +1,10 @@
-import { client } from "@/bot.ts";
+import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
-import { updateVoiceInCache } from "@/src/helpers/cache.ts";
+import { updateVoiceInCache } from "@/src/helpers/cache";
 
-import type { VoiceSchema } from "@/src/schemas/voice.ts";
+import type { VoiceSchema } from "@/src/schemas/voice";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].voices;
@@ -16,12 +16,15 @@ export async function updateVoiceFileID(
 ) {
     const db = client.db(dbName);
     const voices = db.collection<VoiceSchema>(colName);
-    const voiceData = await voices.findOneAndUpdate({ id }, {
-        $set: {
-            fileId: newFileID,
-            voiceUniqueId: newUniqueId,
+    const voiceData = await voices.findOneAndUpdate(
+        { id },
+        {
+            $set: {
+                fileId: newFileID,
+                voiceUniqueId: newUniqueId,
+            },
         },
-    });
+    );
 
     if (!voiceData) return false;
     const { title, url: voice_url } = voiceData;

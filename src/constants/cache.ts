@@ -1,4 +1,4 @@
-import { oneHour, oneMinute } from "@/src/constants/milliseconds.ts";
+import { oneHour, oneMinute } from "@/src/constants/milliseconds";
 
 export const rootCacheKey = "root";
 export const ignoredUsersCacheKey = "ignored";

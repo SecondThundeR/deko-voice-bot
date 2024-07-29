@@ -1,8 +1,8 @@
-import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText.ts";
+import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText";
 
-import { updateID } from "@/src/database/general/voices/updateID.ts";
+import { updateID } from "@/src/database/general/voices/updateID";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function updateVoiceID(
     conversation: ConversationContext,
@@ -20,7 +20,7 @@ export async function updateVoiceID(
     await ctx.replyWithChatAction("typing");
 
     const status = await conversation.external(() =>
-        updateID(voiceData.id, newVoiceID)
+        updateID(voiceData.id, newVoiceID),
     );
     if (!status) {
         ctx.session.currentVoice = null;

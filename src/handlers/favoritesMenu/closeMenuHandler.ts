@@ -1,6 +1,6 @@
-import { genericCloseHandler } from "@/src/handlers/menu/genericCloseHandler.ts";
+import { genericCloseHandler } from "@/src/handlers/menu/genericCloseHandler";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export async function closeMenuHandler(ctx: BotContext) {
     await genericCloseHandler(ctx, (ctx) => {

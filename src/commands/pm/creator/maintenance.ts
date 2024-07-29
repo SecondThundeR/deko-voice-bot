@@ -1,17 +1,15 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { featureFlags } from "@/src/constants/database.ts";
+import { featureFlags } from "@/src/constants/database";
 
-import { toggleFeatureFlag } from "@/src/helpers/database.ts";
+import { toggleFeatureFlag } from "@/src/helpers/database";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const maintenanceCommand = new Composer<BotContext>();
 
 maintenanceCommand.command("maintenance", async (ctx) => {
-    const maintenanceStatus = await toggleFeatureFlag(
-        featureFlags.maintenance,
-    );
+    const maintenanceStatus = await toggleFeatureFlag(featureFlags.maintenance);
     const translationPath = maintenanceStatus ? "enabled" : "disabled";
 
     await ctx.reply(ctx.t(`maintenance.${translationPath}`));

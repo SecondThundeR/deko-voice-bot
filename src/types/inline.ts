@@ -1,7 +1,7 @@
 import type {
     InlineQueryResultCachedVoice,
     InlineQueryResultVoice,
-} from "@/deps.ts";
+} from "grammy/types";
 
 export type InlineResultVoice = {
     type: "voice";
@@ -11,5 +11,7 @@ export type InlineResultVoice = {
     voice_file_id?: string;
 };
 
-export type InlineQueriesArray =
-    (InlineQueryResultVoice | InlineQueryResultCachedVoice)[];
+export type InlineQueriesArray = (
+    | InlineQueryResultVoice
+    | InlineQueryResultCachedVoice
+)[];

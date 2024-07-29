@@ -1,6 +1,6 @@
-import { newRemoteVoice } from "@/src/conversations/subconversations/newRemoteVoice.ts";
+import { newRemoteVoice } from "@/src/conversations/subconversations/newRemoteVoice";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function newRemoteVoices(
     conversation: ConversationContext,

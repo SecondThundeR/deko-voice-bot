@@ -1,15 +1,12 @@
-import type { MenuRange } from "@/deps.ts";
+import type { MenuRange } from "@grammyjs/menu";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 type GenericListHandlerData<T> = {
     menuElements: T[] | null | undefined;
     currentOffset: number;
     elementsPerPage: number;
-    forEachCallback: (
-        range: MenuRange<BotContext>,
-        element: T,
-    ) => void;
+    forEachCallback: (range: MenuRange<BotContext>, element: T) => void;
 };
 
 export function genericListHandler<T>(
@@ -22,11 +19,10 @@ export function genericListHandler<T>(
     if (!menuElements) return;
 
     const newOffset = currentOffset + elementsPerPage;
-    const indexLimit = newOffset > menuElements.length
-        ? menuElements.length
-        : newOffset;
+    const indexLimit =
+        newOffset > menuElements.length ? menuElements.length : newOffset;
 
-    menuElements.slice(currentOffset, indexLimit).forEach(
-        (favoriteItem) => forEachCallback(range, favoriteItem),
-    );
+    menuElements
+        .slice(currentOffset, indexLimit)
+        .forEach((favoriteItem) => forEachCallback(range, favoriteItem));
 }

@@ -1,20 +1,20 @@
-import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
+import { FAVORITE_EMOJI } from "@/src/constants/locale";
 
-import { getVoices } from "@/src/database/general/voices/getVoices.ts";
+import { getVoices } from "@/src/database/general/voices/getVoices";
 
 import {
     checkQueriesCache,
     updateRootQueryCache,
     updateTextQueryCache,
-} from "@/src/helpers/cache.ts";
+} from "@/src/helpers/cache";
 import {
     convertGoogleDriveLink,
     isGoogleDriveLink,
-} from "@/src/helpers/general.ts";
+} from "@/src/helpers/general";
 
-import type { VoiceSchema } from "@/src/schemas/voice.ts";
+import type { VoiceSchema } from "@/src/schemas/voice";
 
-import type { InlineResultVoice } from "@/src/types/inline.ts";
+import type { InlineResultVoice } from "@/src/types/inline";
 
 /**
  * Gets current voice queries data
@@ -125,8 +125,8 @@ export function filterFavoriteVoices(
             ...voice,
             title: `${FAVORITE_EMOJI} ${voice.title}`,
         }));
-    const regularVoices = data.filter((voice) =>
-        !favoritesIds.includes(voice.id)
+    const regularVoices = data.filter(
+        (voice) => !favoritesIds.includes(voice.id),
     );
 
     return [...favoriteVoices, ...regularVoices];

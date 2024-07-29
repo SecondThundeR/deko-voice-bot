@@ -1,16 +1,17 @@
-import { client } from "@/bot.ts";
-import type { User } from "@/deps.ts";
+import type { User } from "grammy/types";
 
-import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
-import { userUsageCache } from "@/src/cache/userUsage.ts";
+import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { lastUsedAtCache } from "@/src/cache/lastUsedAt";
+import { userUsageCache } from "@/src/cache/userUsage";
 
-import { extractUserDetails } from "@/src/helpers/api.ts";
-import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
-import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
-import type { VoiceSchema } from "@/src/schemas/voice.ts";
+import { extractUserDetails } from "@/src/helpers/api";
+import { getUserIgnoreStatus } from "@/src/helpers/cache";
+
+import type { UsersDataSchema } from "@/src/schemas/usersData";
+import type { VoiceSchema } from "@/src/schemas/voice";
 
 const dbName = databaseNames.general;
 const voicesColName = collectionNames[dbName].voices;

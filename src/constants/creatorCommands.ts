@@ -1,6 +1,6 @@
-import type { BotCommand } from "@/deps.ts";
+import type { BotCommand } from "grammy/types";
 
-import { userCommands } from "@/src/constants/userCommands.ts";
+import { userCommands } from "@/src/constants/userCommands";
 
 export const creatorCommands: BotCommand[] = [
     ...userCommands,
