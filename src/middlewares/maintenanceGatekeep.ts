@@ -1,8 +1,8 @@
-import { featureFlags } from "@/src/constants/database.ts";
+import { featureFlags } from "@/src/constants/database";
 
-import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag.ts";
+import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export async function maintenanceGatekeep(
     ctx: BotContext,

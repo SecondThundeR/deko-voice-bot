@@ -1,9 +1,10 @@
-import type { Api, Context, User } from "@/deps.ts";
+import type { Api, Context } from "grammy";
+import type { User } from "grammy/types";
 
-import { creatorCommands } from "@/src/constants/creatorCommands.ts";
-import { userCommands } from "@/src/constants/userCommands.ts";
+import { creatorCommands } from "@/src/constants/creatorCommands";
+import { userCommands } from "@/src/constants/userCommands";
 
-import { getFullName } from "@/src/helpers/general.ts";
+import { getFullName } from "@/src/helpers/general";
 
 /**
  * Registers commands for regular user
@@ -82,7 +83,7 @@ export function getSessionKey(ctx: Context) {
  * @returns Blob of fetched file
  */
 export async function fetchMediaFileBlob(filePath: string) {
-    const token = Deno.env.get("BOT_TOKEN");
+    const token = process.env.BOT_TOKEN;
     if (!token) return null;
 
     const file = await fetch(

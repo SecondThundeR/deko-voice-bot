@@ -1,8 +1,8 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { invalidateVoiceCaches } from "@/src/helpers/cache.ts";
+import { invalidateVoiceCaches } from "@/src/helpers/cache";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const invalidateCommand = new Composer<BotContext>();
 

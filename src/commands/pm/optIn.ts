@@ -1,11 +1,11 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
+import { sendInlineRequestKeyboard } from "@/src/constants/keyboards";
 
-import { removeIgnoredUser } from "@/src/database/general/ignoredUsers/removeIgnoredUser.ts";
-import { isUserUsageExists } from "@/src/database/general/usersData/isUserUsageExists.ts";
+import { removeIgnoredUser } from "@/src/database/general/ignoredUsers/removeIgnoredUser";
+import { isUserUsageExists } from "@/src/database/general/usersData/isUserUsageExists";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const optInCommand = new Composer<BotContext>();
 

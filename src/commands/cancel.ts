@@ -1,9 +1,9 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { invalidateVoiceCaches } from "@/src/helpers/cache.ts";
+import { invalidateVoiceCaches } from "@/src/helpers/cache";
+import { isEmpty } from "@/src/helpers/general";
 
-import type { BotContext } from "@/src/types/bot.ts";
-import { isEmpty } from "@/src/helpers/general.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const cancelCommand = new Composer<BotContext>();
 
@@ -12,15 +12,17 @@ cancelCommand.command("cancel", async (ctx) => {
 
     if (isEmpty(activeConversations)) return;
 
-    const conversationMode = (activeConversations["new-voices"] ||
-            activeConversations["new-remote-voices"])
-        ? "add"
-        : "update";
+    const conversationMode =
+        activeConversations["new-voices"] ||
+        activeConversations["new-remote-voices"]
+            ? "add"
+            : "update";
 
     await ctx.conversation.exit();
 
     if (conversationMode === "update") {
-        return void await ctx.reply(ctx.t("conversation.updateCancel"));
+        await ctx.reply(ctx.t("conversation.updateCancel"));
+        return;
     }
 
     const { addedVoices } = ctx.session;
@@ -30,9 +32,11 @@ cancelCommand.command("cancel", async (ctx) => {
         const voices = addedVoices.join("\n");
 
         invalidateVoiceCaches();
-        await ctx.reply(ctx.t("conversation.addResults", {
-            voices,
-        }));
+        await ctx.reply(
+            ctx.t("conversation.addResults", {
+                voices,
+            }),
+        );
     }
 
     ctx.session.addedVoices = null;

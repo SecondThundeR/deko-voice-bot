@@ -1,18 +1,16 @@
-import { InputFile } from "@/deps.ts";
+import { InputFile } from "grammy";
+import { unlink } from "node:fs/promises";
 
-import {
-    INPUT_EXTENSION,
-    OUTPUT_EXTENSION,
-} from "@/src/constants/extensions.ts";
+import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "@/src/constants/extensions";
 
-import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath.ts";
+import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath";
 
-import { updateVoiceFileID } from "@/src/database/general/voices/updateVoiceFileID.ts";
+import { updateVoiceFileID } from "@/src/database/general/voices/updateVoiceFileID";
 
-import { fetchMediaFileBlob } from "@/src/helpers/api.ts";
-import { convertMP3ToOGGOpus } from "@/src/helpers/general.ts";
+import { fetchMediaFileBlob } from "@/src/helpers/api";
+import { convertMP3ToOGGOpus } from "@/src/helpers/general";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function updateVoiceFile(
     conversation: ConversationContext,
@@ -42,36 +40,32 @@ export async function updateVoiceFile(
 
     const arrayBuffer = await fileBlob.arrayBuffer();
     await conversation.external(() =>
-        Deno.writeFile(input, new Uint8Array(arrayBuffer))
+        Bun.write(input, new Uint8Array(arrayBuffer)),
     );
 
     const { status, error } = await conversation.external(() =>
-        convertMP3ToOGGOpus(
-            input,
-            output,
-        )
+        convertMP3ToOGGOpus(input, output),
     );
     if (!status) {
         ctx.session.currentVoice = null;
-        await conversation.external(() => Deno.remove(input));
+        await conversation.external(() => unlink(input));
         await ctx.reply(ctx.t("newvoices.convertFailed", { errorMsg: error }));
     }
 
-    const { voice: { file_id, file_unique_id } } = await ctx.replyWithVoice(
-        new InputFile(output),
-        {
-            caption: ctx.t("newvoices.updated", {
-                title: title,
-            }),
-        },
-    );
+    const {
+        voice: { file_id, file_unique_id },
+    } = await ctx.replyWithVoice(new InputFile(output), {
+        caption: ctx.t("newvoices.updated", {
+            title: title,
+        }),
+    });
 
     await conversation.external(() =>
         Promise.all([
             updateVoiceFileID(id, file_id, file_unique_id),
-            Deno.remove(input),
-            Deno.remove(output),
-        ])
+            unlink(input),
+            unlink(output),
+        ]),
     );
 
     ctx.session.currentVoice = null;

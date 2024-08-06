@@ -1,7 +1,7 @@
-import { getFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
-import { getCurrentVoiceQueriesData } from "@/src/helpers/voices.ts";
+import { getFavoriteVoiceStatus } from "@/src/helpers/cache";
+import { getCurrentVoiceQueriesData } from "@/src/helpers/voices";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 /**
  * Prepares context session for favorites menu launch
@@ -44,10 +44,12 @@ export async function prepareFavoritesSessionMenu(
  * @returns Current menu identificator
  */
 export function getFavoritesMenuIdentificator(ctx: BotContext) {
-    return ctx.session.currentFavorites
-        ?.map(({ id, isFavored }) => `${id}-${isFavored}`)
-        .join("|")
-        .concat(String(ctx.session.currentFavoritesOffset)) ?? "";
+    return (
+        ctx.session.currentFavorites
+            ?.map(({ id, isFavored }) => `${id}-${isFavored}`)
+            .join("|")
+            .concat(String(ctx.session.currentFavoritesOffset)) ?? ""
+    );
 }
 
 /**
@@ -81,10 +83,12 @@ export async function prepareVoicesSessionMenu(ctx: BotContext) {
  * @returns Current menu identificator
  */
 export function getVoicesMenuIdentificator(ctx: BotContext) {
-    return ctx.session.currentVoices
-        ?.map(({ id, title }) => `${id}-${title}`)
-        .join("|")
-        .concat(String(ctx.session.currentVoicesOffset)) ?? "";
+    return (
+        ctx.session.currentVoices
+            ?.map(({ id, title }) => `${id}-${title}`)
+            .join("|")
+            .concat(String(ctx.session.currentVoicesOffset)) ?? ""
+    );
 }
 
 /**
@@ -114,7 +118,8 @@ export async function closeMenuExceptionHandler(ctx: BotContext) {
     const messageId = ctx.msg?.message_id;
     const replyText = ctx.t("menu.failedToDelete");
     if (!messageId) {
-        return void await ctx.reply(replyText);
+        await ctx.reply(replyText);
+        return;
     }
 
     await ctx.reply(replyText, {
@@ -133,7 +138,8 @@ export async function outdatedExceptionHandler(ctx: BotContext) {
     const messageId = ctx.msg?.message_id;
     const replyText = ctx.t("menu.failedToUpdate");
     if (!messageId) {
-        return void await ctx.reply(replyText);
+        await ctx.reply(replyText);
+        return;
     }
 
     await ctx.reply(replyText, {

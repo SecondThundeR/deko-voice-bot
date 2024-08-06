@@ -1,8 +1,8 @@
-import { TTLCache } from "@/deps.ts";
+import TTLCache from "@isaacs/ttlcache";
 
-import { statsCacheTime, usersStatsCacheKey } from "@/src/constants/cache.ts";
+import { statsCacheTime, usersStatsCacheKey } from "@/src/constants/cache";
 
-import { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData";
 
 type UsersStatsCacheKey = typeof usersStatsCacheKey;
 

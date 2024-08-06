@@ -1,4 +1,4 @@
-import { BotContext } from "@/src/types/bot.ts";
+import { BotContext } from "@/src/types/bot";
 
 export function infoButtonHandler(ctx: BotContext) {
     if (!ctx.session.currentVoice) return ctx.t("voices.unknown");

@@ -1,12 +1,12 @@
-import type { MenuRange } from "@/deps.ts";
+import type { MenuRange } from "@grammyjs/menu";
 
-import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
-import { FAVORITE_EMOJI } from "@/src/constants/locale.ts";
+import { maxMenuElementsPerPage } from "@/src/constants/inline";
+import { FAVORITE_EMOJI } from "@/src/constants/locale";
 
-import { favoriteItemHandler } from "@/src/handlers/favoritesMenu/favoriteItemHandler.ts";
-import { genericListHandler } from "@/src/handlers/menu/genericListHandler.ts";
+import { favoriteItemHandler } from "@/src/handlers/favoritesMenu/favoriteItemHandler";
+import { genericListHandler } from "@/src/handlers/menu/genericListHandler";
 
-import type { BotContext, MenuBotContext } from "@/src/types/bot.ts";
+import type { BotContext, MenuBotContext } from "@/src/types/bot";
 
 export function dynamicListHandler(
     ctx: BotContext,

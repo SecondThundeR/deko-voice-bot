@@ -1,29 +1,29 @@
-import { usersStatsCache } from "@/src/cache/stats/users.ts";
-import { voicesStatsCache } from "@/src/cache/stats/voices.ts";
-import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices.ts";
-import { featureFlagsCache } from "@/src/cache/featureFlags.ts";
-import { ignoredUsersCache } from "@/src/cache/ignoredUsers.ts";
-import { lastUsedAtCache } from "@/src/cache/lastUsedAt.ts";
-import { rootQueryCache } from "@/src/cache/rootQuery.ts";
-import { textQueryCache } from "@/src/cache/textQuery.ts";
-import { userUsageCache } from "@/src/cache/userUsage.ts";
+import { usersStatsCache } from "@/src/cache/stats/users";
+import { voicesStatsCache } from "@/src/cache/stats/voices";
+import { favoriteVoicesIdsCache } from "@/src/cache/favoriteVoices";
+import { featureFlagsCache } from "@/src/cache/featureFlags";
+import { ignoredUsersCache } from "@/src/cache/ignoredUsers";
+import { lastUsedAtCache } from "@/src/cache/lastUsedAt";
+import { rootQueryCache } from "@/src/cache/rootQuery";
+import { textQueryCache } from "@/src/cache/textQuery";
+import { userUsageCache } from "@/src/cache/userUsage";
 
 import {
     ignoredUsersCacheKey,
     rootCacheKey,
     usersStatsCacheKey,
     voicesStatsCacheKey,
-} from "@/src/constants/cache.ts";
+} from "@/src/constants/cache";
 
-import { getIgnoredUsersArray } from "@/src/database/general/ignoredUsers/getIgnoredUsersArray.ts";
-import { getFavoritesData } from "@/src/database/general/usersData/getFavoritesData.ts";
-import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime.ts";
-import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount.ts";
+import { getIgnoredUsersArray } from "@/src/database/general/ignoredUsers/getIgnoredUsersArray";
+import { getFavoritesData } from "@/src/database/general/usersData/getFavoritesData";
+import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime";
+import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount";
 
-import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
-import type { VoiceSchema } from "@/src/schemas/voice.ts";
+import type { UsersDataSchema } from "@/src/schemas/usersData";
+import type { VoiceSchema } from "@/src/schemas/voice";
 
-import type { InlineResultVoice } from "@/src/types/inline.ts";
+import type { InlineResultVoice } from "@/src/types/inline";
 
 type FavoriteStatusUpdateData = {
     userID: number;
@@ -62,9 +62,9 @@ export function checkQueriesCache(queryString = "") {
 
     if (rootQueryCache.has(rootCacheKey)) {
         const filterCallback = rootQueryCacheFilterCallback(queryString);
-        const filteredQueries = rootQueryCache.get(rootCacheKey)!.filter(
-            filterCallback,
-        );
+        const filteredQueries = rootQueryCache
+            .get(rootCacheKey)!
+            .filter(filterCallback);
 
         textQueryCache.set(queryString, filteredQueries);
 
@@ -79,8 +79,8 @@ export function checkQueriesCache(queryString = "") {
  * @returns Check for uniqueness of voice ID
  */
 export function isNotUniqueVoiceID(voiceID: string) {
-    return (rootQueryCache.get(rootCacheKey) ?? []).some(({ id }) =>
-        id === voiceID
+    return (rootQueryCache.get(rootCacheKey) ?? []).some(
+        ({ id }) => id === voiceID,
     );
 }
 
@@ -141,8 +141,9 @@ export function addNewIgnoredUserInCache(userID: number) {
  */
 export function removeIgnoredUserFromCache(userID: number) {
     const currentCacheStatus = getCachedIgnoredUsersArray();
-    const filteredIgnoredUsers = currentCacheStatus
-        .filter((uid) => uid !== userID);
+    const filteredIgnoredUsers = currentCacheStatus.filter(
+        (uid) => uid !== userID,
+    );
 
     ignoredUsersCache.set(ignoredUsersCacheKey, filteredIgnoredUsers);
 }
@@ -187,9 +188,11 @@ export async function getFavoriteVoiceStatusArray(userID: number) {
  * @param data Data, needed for updating favorite voice status
  * @returns Updated favorites array
  */
-export async function updateFavoriteVoiceStatus(
-    { userID, voiceID, newStatus }: FavoriteStatusUpdateData,
-) {
+export async function updateFavoriteVoiceStatus({
+    userID,
+    voiceID,
+    newStatus,
+}: FavoriteStatusUpdateData) {
     const currentFavorites = getCachedFavoritesArray(userID);
     const currentStatus = await getFavoriteVoiceStatus(userID, voiceID);
     const isAddingFavorite = newStatus && !currentStatus;
@@ -297,11 +300,9 @@ export function updateVoiceInCache(
 ) {
     if (!rootQueryCache.has(rootCacheKey)) return;
 
-    const cacheCopy = rootQueryCache
-        .get(rootCacheKey)!
-        .slice();
-    const elementIndex = cacheCopy.findIndex((item) =>
-        item.id === (prevVoiceId ?? voice.id)
+    const cacheCopy = rootQueryCache.get(rootCacheKey)!.slice();
+    const elementIndex = cacheCopy.findIndex(
+        (item) => item.id === (prevVoiceId ?? voice.id),
     );
     if (elementIndex === -1) return;
 

@@ -1,4 +1,4 @@
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export function configSetup(creatorID?: string) {
     return async (ctx: BotContext, next: () => Promise<void>) => {

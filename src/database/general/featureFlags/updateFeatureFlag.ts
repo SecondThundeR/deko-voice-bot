@@ -1,18 +1,15 @@
-import { client } from "@/bot.ts";
+import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
-import { updateCachedFeatureFlag } from "@/src/helpers/cache.ts";
+import { updateCachedFeatureFlag } from "@/src/helpers/cache";
 
-import type { FeatureFlagSchema } from "@/src/schemas/featureFlag.ts";
+import type { FeatureFlagSchema } from "@/src/schemas/featureFlag";
 
 const dbName = databaseNames.general;
 const colName = collectionNames[dbName].featureFlags;
 
-export async function updateFeatureFlag(
-    id: string,
-    newStatus: boolean,
-) {
+export async function updateFeatureFlag(id: string, newStatus: boolean) {
     const db = client.db(dbName);
     const featureFlagsCollection = db.collection<FeatureFlagSchema>(colName);
 

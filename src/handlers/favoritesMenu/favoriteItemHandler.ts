@@ -1,9 +1,9 @@
-import { updateFavoritesData } from "@/src/database/general/usersData/updateFavoritesData.ts";
+import { updateFavoritesData } from "@/src/database/general/usersData/updateFavoritesData";
 
-import { updateFavoriteVoiceStatus } from "@/src/helpers/cache.ts";
+import { updateFavoriteVoiceStatus } from "@/src/helpers/cache";
 
-import type { MenuBotContext } from "@/src/types/bot.ts";
-import type { FavoriteItem } from "@/src/types/favoriteItem.ts";
+import type { MenuBotContext } from "@/src/types/bot";
+import type { FavoriteItem } from "@/src/types/favoriteItem";
 
 export async function favoriteItemHandler(
     ctx: MenuBotContext,
@@ -11,9 +11,10 @@ export async function favoriteItemHandler(
 ) {
     const userID = ctx.from?.id;
     if (!userID) {
-        return void await ctx.answerCallbackQuery({
+        await ctx.answerCallbackQuery({
             text: ctx.t("favorites.inlineAnswerFail"),
         });
+        return;
     }
 
     const { currentFavorites } = ctx.session;
@@ -27,9 +28,10 @@ export async function favoriteItemHandler(
     });
     await updateFavoritesData(userID, newFavorites);
 
-    const updatedFavorites = currentFavorites
-        ?.map((item) => item.id !== favorite.id ? item : updatedFavorite) ??
-        null;
+    const updatedFavorites =
+        currentFavorites?.map((item) =>
+            item.id !== favorite.id ? item : updatedFavorite,
+        ) ?? null;
     ctx.session.currentFavorites = updatedFavorites;
 
     await ctx.menu.update({

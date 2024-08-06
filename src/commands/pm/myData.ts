@@ -1,13 +1,10 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { extractUserDetails } from "@/src/helpers/api.ts";
-import {
-    extractOtherUserData,
-    getUserIgnoreStatus,
-} from "@/src/helpers/cache.ts";
-import { getUserDataMessageText } from "@/src/helpers/locale.ts";
+import { extractUserDetails } from "@/src/helpers/api";
+import { extractOtherUserData, getUserIgnoreStatus } from "@/src/helpers/cache";
+import { getUserDataMessageText } from "@/src/helpers/locale";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 /**
  * To save cache size and reduce queries to DB,

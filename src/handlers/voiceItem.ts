@@ -1,12 +1,12 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { getByUniqueID } from "@/src/database/general/voices/getByUniqueID.ts";
+import { getByUniqueID } from "@/src/database/general/voices/getByUniqueID";
 
-import { convertVoiceDataToQueriesArray } from "@/src/helpers/voices.ts";
+import { convertVoiceDataToQueriesArray } from "@/src/helpers/voices";
 
-import { voiceMenu } from "@/src/menu/voice.ts";
+import { voiceMenu } from "@/src/menu/voice";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const voiceItemHandler = new Composer<BotContext>();
 

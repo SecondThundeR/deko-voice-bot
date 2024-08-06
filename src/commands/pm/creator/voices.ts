@@ -1,10 +1,10 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { prepareVoicesSessionMenu } from "@/src/helpers/menu.ts";
+import { prepareVoicesSessionMenu } from "@/src/helpers/menu";
 
-import { voicesMenu } from "@/src/menu/voices.ts";
+import { voicesMenu } from "@/src/menu/voices";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const voicesCommand = new Composer<BotContext>();
 

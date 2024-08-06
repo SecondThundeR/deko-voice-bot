@@ -1,4 +1,4 @@
-import type { MenuBotContext } from "@/src/types/bot.ts";
+import type { MenuBotContext } from "@/src/types/bot";
 
 type NextHandlerData<T> = {
     menuElements: T[] | null | undefined;

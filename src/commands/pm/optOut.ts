@@ -1,12 +1,12 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { sendInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
+import { sendInlineRequestKeyboard } from "@/src/constants/keyboards";
 
-import { addIgnoredUser } from "@/src/database/general/ignoredUsers/addIgnoredUser.ts";
+import { addIgnoredUser } from "@/src/database/general/ignoredUsers/addIgnoredUser";
 
-import { getOptOutMessageText } from "@/src/helpers/locale.ts";
+import { getOptOutMessageText } from "@/src/helpers/locale";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const optOutCommand = new Composer<BotContext>();
 

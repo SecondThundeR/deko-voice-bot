@@ -1,6 +1,6 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const newRemoteVoicesCommand = new Composer<BotContext>();
 

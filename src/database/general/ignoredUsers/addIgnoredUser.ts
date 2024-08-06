@@ -1,14 +1,14 @@
-import { client } from "@/bot.ts";
+import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database.ts";
+import { collectionNames, databaseNames } from "@/src/constants/database";
 
 import {
     addNewIgnoredUserInCache,
     getUserIgnoreStatus,
-} from "@/src/helpers/cache.ts";
+} from "@/src/helpers/cache";
 
-import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers.ts";
-import type { UsersDataSchema } from "@/src/schemas/usersData.ts";
+import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers";
+import type { UsersDataSchema } from "@/src/schemas/usersData";
 
 const dbName = databaseNames.general;
 const ignoredColName = collectionNames[dbName].ignoredUsers;
@@ -20,12 +20,9 @@ export async function addIgnoredUser(userID: number) {
     }
 
     const db = client.db(dbName);
-    const usersDataCollection = db.collection<UsersDataSchema>(
-        usersColName,
-    );
-    const ignoredUsersCollection = db.collection<IgnoredUsersSchema>(
-        ignoredColName,
-    );
+    const usersDataCollection = db.collection<UsersDataSchema>(usersColName);
+    const ignoredUsersCollection =
+        db.collection<IgnoredUsersSchema>(ignoredColName);
     const userData = await usersDataCollection.findOneAndDelete({ userID });
     if (!userData) {
         throw new Error(

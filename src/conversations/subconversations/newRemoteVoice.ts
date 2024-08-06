@@ -1,10 +1,10 @@
-import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL.ts";
-import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText.ts";
-import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText.ts";
+import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL";
+import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText";
+import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText";
 
-import { addNewRemoteVoice } from "@/src/database/general/voices/addNewRemoteVoice.ts";
+import { addNewRemoteVoice } from "@/src/database/general/voices/addNewRemoteVoice";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot.ts";
+import type { BotContext, ConversationContext } from "@/src/types/bot";
 
 export async function newRemoteVoice(
     conversation: ConversationContext,
@@ -17,15 +17,14 @@ export async function newRemoteVoice(
     await ctx.replyWithChatAction("upload_voice");
 
     try {
-        const { voice: { file_unique_id } } = await ctx.replyWithVoice(
-            audioRemoteURL,
-            {
-                caption: ctx.t("newremotevoices.success", {
-                    title: voiceTitle,
-                }),
-                parse_mode: "HTML",
-            },
-        );
+        const {
+            voice: { file_unique_id },
+        } = await ctx.replyWithVoice(audioRemoteURL, {
+            caption: ctx.t("newremotevoices.success", {
+                title: voiceTitle,
+            }),
+            parse_mode: "HTML",
+        });
 
         await conversation.external(() =>
             addNewRemoteVoice(
@@ -33,7 +32,7 @@ export async function newRemoteVoice(
                 voiceTitle,
                 audioRemoteURL,
                 file_unique_id,
-            )
+            ),
         );
 
         if (conversation.session.addedVoices) {

@@ -1,11 +1,11 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { getUserIgnoreStatus } from "@/src/helpers/cache.ts";
-import { prepareFavoritesSessionMenu } from "@/src/helpers/menu.ts";
+import { getUserIgnoreStatus } from "@/src/helpers/cache";
+import { prepareFavoritesSessionMenu } from "@/src/helpers/menu";
 
-import { favoritesMenu } from "@/src/menu/favorites.ts";
+import { favoritesMenu } from "@/src/menu/favorites";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const favoritesCommand = new Composer<BotContext>();
 

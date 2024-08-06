@@ -1,10 +1,10 @@
-import type { MenuRange } from "@/deps.ts";
+import type { MenuRange } from "@grammyjs/menu";
 
-import { maxMenuElementsPerPage } from "@/src/constants/inline.ts";
+import { maxMenuElementsPerPage } from "@/src/constants/inline";
 
-import { genericListHandler } from "@/src/handlers/menu/genericListHandler.ts";
+import { genericListHandler } from "@/src/handlers/menu/genericListHandler";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export function dynamicListHandler(
     ctx: BotContext,
@@ -23,7 +23,7 @@ export function dynamicListHandler(
                 .submenu(
                     title,
                     "voice-submenu",
-                    (ctx) => ctx.session.currentVoice = voiceItem,
+                    (ctx) => (ctx.session.currentVoice = voiceItem),
                 )
                 .row();
         },

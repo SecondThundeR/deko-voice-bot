@@ -1,16 +1,16 @@
-import { Composer } from "@/deps.ts";
+import { Composer } from "grammy";
 
-import { sendCurrentInlineRequestKeyboard } from "@/src/constants/keyboards.ts";
+import { sendCurrentInlineRequestKeyboard } from "@/src/constants/keyboards";
 
-import { checkQueriesCache } from "@/src/helpers/cache.ts";
+import { getCurrentVoiceQueriesData } from "@/src/helpers/voices";
 
-import type { BotContext } from "@/src/types/bot.ts";
+import type { BotContext } from "@/src/types/bot";
 
 export const voiceCommand = new Composer<BotContext>();
 
 voiceCommand.command("voice", async (ctx) => {
-    const queries = checkQueriesCache();
-    if (!queries || queries.length === 0) {
+    const voicesData = await getCurrentVoiceQueriesData();
+    if (!voicesData || voicesData.length === 0) {
         return await ctx.reply(ctx.t("voices.noData"));
     }
 
