@@ -38,5 +38,4 @@ COPY --from=prerelease /usr/app/package.json .
 COPY --from=prerelease /usr/app/*.env .
 COPY --from=prerelease /usr/app/tsconfig.json .
 
-USER bun
 ENTRYPOINT ["bun", "start"]
