@@ -1,13 +1,8 @@
-FROM oven/bun:debian AS base
+FROM oven/bun:alpine AS base
 WORKDIR /usr/app
 
 # Adding ffmpeg binary for conversion from bot
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-    --mount=target=/var/cache/apt,type=cache,sharing=locked \
-    rm -f /etc/apt/apt.conf.d/docker-clean \
-    && apt-get update \
-    && apt-get -y --no-install-recommends install \
-        ffmpeg
+RUN apk add --no-cache wget ffmpeg
 
 # Install dependencies into temp directory
 # This will cache them and speed up future builds
