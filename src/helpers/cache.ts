@@ -36,6 +36,20 @@ type FavoritesCacheUpdateData = Omit<FavoriteStatusUpdateData, "newStatus"> & {
 };
 
 /**
+ * Checks if `DISABLE_CACHE` env variable is set to 1
+ *
+ * @description If something other than number was passed to variable which is
+ * not undefined, returns false by default
+ *
+ * @returns Status of disabled caching feature
+ */
+export function isCachingDisabled() {
+    const cacheDisableStatus = +(process.env.DISABLE_CACHE ?? 0);
+
+    return cacheDisableStatus === 1;
+}
+
+/**
  * Invalidates root and text caches by clearing them
  */
 export function invalidateVoiceCaches() {
