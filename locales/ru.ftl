@@ -1,7 +1,3 @@
-internal =
-    .googleExportLinkFail = Failed to extract ID from provided link
-    .envsCheckFail = Failed to get some of required environment variables. Make sure you have entered them!
-
 general =
     .failedToFindUserData = Не удалось выполнить команду! Похоже, вы вызвали ее таким образом, что я не могу получить ваш ID
 
