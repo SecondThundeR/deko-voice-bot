@@ -4,5 +4,6 @@ declare module "bun" {
         BOT_TOKEN: string;
         MONGO_URL: string;
         STICKER_FILE_ID_FOR_DEEPLINK?: string;
+        DISABLE_CACHE?: number;
     }
 }
