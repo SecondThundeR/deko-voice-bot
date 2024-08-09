@@ -35,6 +35,24 @@ type FavoritesCacheUpdateData = Omit<FavoriteStatusUpdateData, "newStatus"> & {
     currentFavorites: string[];
 };
 
+const DISABLE_CACHE_STATUS_CODE = 1;
+
+/**
+ * Checks if `DISABLE_CACHE` env variable is set to 1
+ *
+ * @description If something other than number was passed to variable which is
+ * not undefined, returns false by default
+ *
+ * @returns Status of disabled caching feature
+ */
+export function isCachingDisabled() {
+    const cacheDisableStatus = process.env.DISABLE_CACHE ?? 0;
+
+    if (typeof cacheDisableStatus === "number")
+        return cacheDisableStatus === DISABLE_CACHE_STATUS_CODE;
+    return false;
+}
+
 /**
  * Invalidates root and text caches by clearing them
  */
