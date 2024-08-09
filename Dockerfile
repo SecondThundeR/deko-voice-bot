@@ -2,7 +2,7 @@ FROM oven/bun:alpine AS base
 WORKDIR /usr/app
 
 # Adding ffmpeg binary for conversion from bot
-RUN apk add --no-cache wget ffmpeg
+RUN apk add --no-cache ffmpeg
 
 # Install dependencies into temp directory
 # This will cache them and speed up future builds
