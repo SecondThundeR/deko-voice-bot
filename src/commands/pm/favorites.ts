@@ -11,7 +11,7 @@ export const favoritesCommand = new Composer<BotContext>();
 
 favoritesCommand.command("favorites", async (ctx) => {
     const userID = ctx.from?.id;
-    if (!userID) return await ctx.reply(ctx.t("general.failedToFindUserData"));
+    if (!userID) return await ctx.reply(ctx.t("general.failedToGetUserData"));
 
     const userIgnoreStatus = await getUserIgnoreStatus(userID);
     if (userIgnoreStatus) return await ctx.reply(ctx.t("favorites.optout"));

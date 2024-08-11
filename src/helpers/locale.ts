@@ -120,13 +120,14 @@ export function getUserDataMessageText(
 ) {
     const { userID, fullName, username, usesAmount, lastUsedAt } = data;
     const userIDString = String(userID);
+    const lastUsedAtString = lastUsedAt
+        ? convertLastUsedAtTimestamp(lastUsedAt)
+        : "";
     const usernameText = username
         ? `\n- Ваше имя пользователя в Telegram: @${username}`
         : "";
     const lastUsedAtText = lastUsedAt
-        ? `\n- Время последней отправки реплики (по МСК): ${convertLastUsedAtTimestamp(
-              lastUsedAt,
-          )}`
+        ? `\n- Время последней отправки реплики (по МСК): ${lastUsedAtString}`
         : "";
 
     return ctx.t("myData.dataMessage", {
@@ -149,6 +150,9 @@ export function getUserDataMessageText(
 export function getOptOutMessageText(ctx: BotContext, data: OptOutUserData) {
     const { userID, fullName, username, usesAmount, lastUsedAt } = data;
     const userIDString = String(userID);
+    const lastUsedAtString = lastUsedAt
+        ? convertLastUsedAtTimestamp(lastUsedAt)
+        : "";
     const fullNameText = fullName
         ? `\n- Ваше полное имя в Telegram: ${fullName}`
         : "";
@@ -156,9 +160,7 @@ export function getOptOutMessageText(ctx: BotContext, data: OptOutUserData) {
         ? `\n- Ваше имя пользователя в Telegram: @${username}`
         : "";
     const lastUsedAtText = lastUsedAt
-        ? `\n- Время последней отправки реплики (по МСК): ${convertLastUsedAtTimestamp(
-              lastUsedAt,
-          )}`
+        ? `\n- Время последней отправки реплики (по МСК): ${lastUsedAtString}`
         : "";
 
     return ctx.t("optout.success", {

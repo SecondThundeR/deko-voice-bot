@@ -16,7 +16,7 @@ export const myDataCommand = new Composer<BotContext>();
 myDataCommand.command("mydata", async (ctx) => {
     const userDetails = extractUserDetails(ctx.from);
     if (!userDetails) {
-        return await ctx.reply(ctx.t("general.failedToFindUserData"));
+        return await ctx.reply(ctx.t("general.failedToGetUserData"));
     }
 
     const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
