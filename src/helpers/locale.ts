@@ -34,6 +34,10 @@ type OptOutUserData = Omit<UsersDataSchema, "_id">;
  * @returns Formatted locale text for sending in messages
  */
 export async function getStatsMessageText(ctx: BotContext) {
+    const { isCachingDisabled } = ctx.config;
+    const cacheQuoteText = isCachingDisabled
+        ? ""
+        : `\n${ctx.t("stats.cacheQuote")}`;
     const usersStats = await getUsersDataStats();
     const voicesStats = await getVoicesStats();
 
@@ -43,12 +47,12 @@ export async function getStatsMessageText(ctx: BotContext) {
         usersStats?.filter(usersStatsInactiveFilter()).length ?? 0;
     const allUsedVoices = voicesStats.reduce(voicesStatsUsesAmountReduce, 0);
 
-    return ctx.t("stats.regular", {
+    return `${ctx.t("stats.regular", {
         allUsedUsers,
         allMAUUsers,
         allInactiveUsers,
         allUsedVoices,
-    });
+    })}${cacheQuoteText}`;
 }
 
 /**
@@ -59,6 +63,10 @@ export async function getStatsMessageText(ctx: BotContext) {
  * @returns Formatted locale text for sending in messages
  */
 export async function getFullStatsMessageText(ctx: BotContext) {
+    const { isCachingDisabled } = ctx.config;
+    const cacheQuoteText = isCachingDisabled
+        ? ""
+        : `\n${ctx.t("stats.cacheQuote")}`;
     const usersStats = await getUsersDataStats();
     const voicesStats = await getVoicesStats();
 
@@ -84,7 +92,7 @@ export async function getFullStatsMessageText(ctx: BotContext) {
         .map(voicesStatsMap)
         .join("\n");
 
-    return ctx.t("stats.full", {
+    return `${ctx.t("stats.full", {
         allUsedUsers,
         allMAUUsers,
         allInactiveUsers,
@@ -95,7 +103,7 @@ export async function getFullStatsMessageText(ctx: BotContext) {
         allUsedVoices,
         mostUsedVoices:
             mostUsedVoices.length === 0 ? "Нет информации" : mostUsedVoices,
-    });
+    })}${cacheQuoteText}`;
 }
 
 /**
