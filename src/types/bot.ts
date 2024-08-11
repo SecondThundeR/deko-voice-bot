@@ -16,9 +16,10 @@ interface SessionData {
 }
 
 interface ConfigContext {
-    config?: {
+    config: {
         creatorID?: number;
         isCreator: boolean;
+        isCachingDisabled: boolean;
     };
 }
 

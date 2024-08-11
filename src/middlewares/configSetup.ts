@@ -1,17 +1,27 @@
+import { isCachingDisabled } from "@/src/helpers/cache";
+
 import type { BotContext } from "@/src/types/bot";
+
+const BASE_CONFIG = {
+    isCachingDisabled: isCachingDisabled(),
+};
 
 export function configSetup(creatorID?: string) {
     return async (ctx: BotContext, next: () => Promise<void>) => {
-        if (!creatorID) {
-            await next();
-            return;
-        }
-
         const convertedID = Number(creatorID);
-        ctx.config = {
-            creatorID: convertedID,
-            isCreator: ctx.from?.id === convertedID,
-        };
+
+        if (isNaN(convertedID)) {
+            ctx.config = {
+                ...BASE_CONFIG,
+                isCreator: false,
+            };
+        } else {
+            ctx.config = {
+                ...BASE_CONFIG,
+                creatorID: convertedID,
+                isCreator: ctx.from?.id === convertedID,
+            };
+        }
 
         await next();
     };
