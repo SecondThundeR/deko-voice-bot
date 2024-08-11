@@ -5,7 +5,7 @@ import { client } from "@/bot";
 import { lastUsedAtCache } from "@/src/cache/lastUsedAt";
 import { userUsageCache } from "@/src/cache/userUsage";
 
-import { collectionNames, databaseNames } from "@/src/constants/database";
+import { COLLECTION_NAMES, DATABASE_NAMES } from "@/src/constants/database";
 
 import { extractUserDetails } from "@/src/helpers/api";
 import { getUserIgnoreStatus } from "@/src/helpers/cache";
@@ -13,9 +13,9 @@ import { getUserIgnoreStatus } from "@/src/helpers/cache";
 import type { UsersDataSchema } from "@/src/schemas/usersData";
 import type { VoiceSchema } from "@/src/schemas/voice";
 
-const dbName = databaseNames.general;
-const voicesColName = collectionNames[dbName].voices;
-const usersColName = collectionNames[dbName].usersData;
+const dbName = DATABASE_NAMES.general;
+const voicesColName = COLLECTION_NAMES[dbName].voices;
+const usersColName = COLLECTION_NAMES[dbName].usersData;
 
 export async function updateStats(voiceID: string, from: User) {
     const db = client.db(dbName);

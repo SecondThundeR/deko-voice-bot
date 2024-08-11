@@ -1,6 +1,6 @@
 import type { BotCommand } from "grammy/types";
 
-export const userCommands: BotCommand[] = [
+export const USER_COMMANDS: BotCommand[] = [
     {
         command: "/start",
         description: "Получить информацию о боте",

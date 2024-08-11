@@ -9,10 +9,10 @@ import { textQueryCache } from "@/src/cache/textQuery";
 import { userUsageCache } from "@/src/cache/userUsage";
 
 import {
-    ignoredUsersCacheKey,
-    rootCacheKey,
-    usersStatsCacheKey,
-    voicesStatsCacheKey,
+    IGNORED_USERS_CACHE_KEY,
+    ROOT_CACHE_KEY,
+    USERS_STATS_CACHE_KEY,
+    VOICES_STATS_CACHE_KEY,
 } from "@/src/constants/cache";
 
 import { getIgnoredUsersArray } from "@/src/database/general/ignoredUsers/getIgnoredUsersArray";
@@ -66,18 +66,18 @@ export function invalidateVoiceCaches() {
  * @returns Array of voice queries or undefined, if cache doesn't have related data
  */
 export function checkQueriesCache(queryString = "") {
-    if (queryString.length === 0 && rootQueryCache.has(rootCacheKey)) {
-        return rootQueryCache.get(rootCacheKey)!;
+    if (queryString.length === 0 && rootQueryCache.has(ROOT_CACHE_KEY)) {
+        return rootQueryCache.get(ROOT_CACHE_KEY)!;
     }
 
     if (textQueryCache.has(queryString)) {
         return textQueryCache.get(queryString)!;
     }
 
-    if (rootQueryCache.has(rootCacheKey)) {
+    if (rootQueryCache.has(ROOT_CACHE_KEY)) {
         const filterCallback = rootQueryCacheFilterCallback(queryString);
         const filteredQueries = rootQueryCache
-            .get(rootCacheKey)!
+            .get(ROOT_CACHE_KEY)!
             .filter(filterCallback);
 
         textQueryCache.set(queryString, filteredQueries);
@@ -93,7 +93,7 @@ export function checkQueriesCache(queryString = "") {
  * @returns Check for uniqueness of voice ID
  */
 export function isNotUniqueVoiceID(voiceID: string) {
-    return (rootQueryCache.get(rootCacheKey) ?? []).some(
+    return (rootQueryCache.get(ROOT_CACHE_KEY) ?? []).some(
         ({ id }) => id === voiceID,
     );
 }
@@ -117,7 +117,7 @@ export function updateTextQueryCache(
  * @param voicesQueries Array of queries with voice results
  */
 export function updateRootQueryCache(voicesQueries: InlineResultVoice[]) {
-    return rootQueryCache.set(rootCacheKey, voicesQueries);
+    return rootQueryCache.set(ROOT_CACHE_KEY, voicesQueries);
 }
 
 /**
@@ -143,7 +143,7 @@ export function addNewIgnoredUserInCache(userID: number) {
     const currentCacheStatus = getCachedIgnoredUsersArray();
     const updatedIgnoredUsers = currentCacheStatus.concat(userID);
 
-    ignoredUsersCache.set(ignoredUsersCacheKey, updatedIgnoredUsers);
+    ignoredUsersCache.set(IGNORED_USERS_CACHE_KEY, updatedIgnoredUsers);
 }
 
 /**
@@ -159,7 +159,7 @@ export function removeIgnoredUserFromCache(userID: number) {
         (uid) => uid !== userID,
     );
 
-    ignoredUsersCache.set(ignoredUsersCacheKey, filteredIgnoredUsers);
+    ignoredUsersCache.set(IGNORED_USERS_CACHE_KEY, filteredIgnoredUsers);
 }
 
 /**
@@ -271,14 +271,14 @@ export function deleteCachedFeatureFlag(id: string) {
  * Returns cached users stats data
  */
 export function getCachedUsersStatsData() {
-    return usersStatsCache.get(usersStatsCacheKey);
+    return usersStatsCache.get(USERS_STATS_CACHE_KEY);
 }
 
 /**
  * Returns cached voices stats data
  */
 export function getCachedVoicesStatsData() {
-    return voicesStatsCache.get(voicesStatsCacheKey);
+    return voicesStatsCache.get(VOICES_STATS_CACHE_KEY);
 }
 
 /**
@@ -287,7 +287,7 @@ export function getCachedVoicesStatsData() {
  * @param usersStats New users stats to cache
  */
 export function setCachedUsersStatsData(usersStats: UsersDataSchema[]) {
-    usersStatsCache.set(usersStatsCacheKey, usersStats);
+    usersStatsCache.set(USERS_STATS_CACHE_KEY, usersStats);
 }
 
 /**
@@ -296,7 +296,7 @@ export function setCachedUsersStatsData(usersStats: UsersDataSchema[]) {
  * @param voicesStats New voices stats to cache
  */
 export function setCachedVoicesStatsData(voicesStats: VoiceSchema[]) {
-    voicesStatsCache.set(voicesStatsCacheKey, voicesStats);
+    voicesStatsCache.set(VOICES_STATS_CACHE_KEY, voicesStats);
 }
 
 /**
@@ -312,9 +312,9 @@ export function updateVoiceInCache(
     voice: InlineResultVoice,
     prevVoiceId?: string,
 ) {
-    if (!rootQueryCache.has(rootCacheKey)) return;
+    if (!rootQueryCache.has(ROOT_CACHE_KEY)) return;
 
-    const cacheCopy = rootQueryCache.get(rootCacheKey)!.slice();
+    const cacheCopy = rootQueryCache.get(ROOT_CACHE_KEY)!.slice();
     const elementIndex = cacheCopy.findIndex(
         (item) => item.id === (prevVoiceId ?? voice.id),
     );
@@ -323,7 +323,7 @@ export function updateVoiceInCache(
     cacheCopy[elementIndex] = voice;
     cacheCopy.sort((a, b) => a.title.localeCompare(b.title));
 
-    rootQueryCache.set(rootCacheKey, cacheCopy);
+    rootQueryCache.set(ROOT_CACHE_KEY, cacheCopy);
     textQueryCache.clear();
 }
 
@@ -336,13 +336,13 @@ export function updateVoiceInCache(
  * @param voiceID Voice ID to remove
  */
 export function removeVoiceFromCache(voiceID: string) {
-    if (!rootQueryCache.has(rootCacheKey)) return;
+    if (!rootQueryCache.has(ROOT_CACHE_KEY)) return;
 
     const updatedCache = rootQueryCache
-        .get(rootCacheKey)!
+        .get(ROOT_CACHE_KEY)!
         .filter((item) => item.id !== voiceID);
 
-    rootQueryCache.set(rootCacheKey, updatedCache);
+    rootQueryCache.set(ROOT_CACHE_KEY, updatedCache);
     textQueryCache.clear();
 }
 
@@ -479,5 +479,5 @@ function getCachedFavoritesArray(userID: number) {
  * @returns Current cached array ignored users or empty, if cache is `undefined`
  */
 function getCachedIgnoredUsersArray() {
-    return ignoredUsersCache.get(ignoredUsersCacheKey) ?? [];
+    return ignoredUsersCache.get(IGNORED_USERS_CACHE_KEY) ?? [];
 }

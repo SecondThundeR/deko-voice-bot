@@ -1,6 +1,6 @@
 import type { MenuRange } from "@grammyjs/menu";
 
-import { maxMenuElementsPerPage } from "@/src/constants/inline";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
 import { FAVORITE_EMOJI } from "@/src/constants/locale";
 
 import { favoriteItemHandler } from "@/src/handlers/favoritesMenu/favoriteItemHandler";
@@ -17,7 +17,7 @@ export function dynamicListHandler(
     genericListHandler(ctx, range, {
         menuElements: currentFavorites,
         currentOffset: currentFavoritesOffset,
-        elementsPerPage: maxMenuElementsPerPage,
+        elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
         forEachCallback: (range, favoriteItem) => {
             const { isFavored, title } = favoriteItem;
             const isFavoredText = isFavored ? `${FAVORITE_EMOJI} ` : "";

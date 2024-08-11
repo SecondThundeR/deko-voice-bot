@@ -1,4 +1,4 @@
-import { maxMenuElementsPerPage } from "@/src/constants/inline";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
 
 import { genericPrevHandler } from "@/src/handlers/menu/genericPrevHandler";
 
@@ -9,7 +9,7 @@ export async function prevPageHandler(ctx: MenuBotContext) {
 
     await genericPrevHandler(ctx, {
         currentOffset: currentFavoritesOffset,
-        elementsPerPage: maxMenuElementsPerPage,
+        elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
         offsetUpdate: (newOffset) =>
             (ctx.session.currentFavoritesOffset = newOffset),
     });

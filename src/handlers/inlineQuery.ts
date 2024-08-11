@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 
-import { maxQueryElementsPerPage } from "@/src/constants/inline";
+import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
 
 import { updateStats } from "@/src/database/general/usersData/updateStats";
 
@@ -31,7 +31,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const { array: paginatedQueries, nextOffset } = offsetArray({
         array: currentQueriesArray,
         currentOffset,
-        offsetSize: maxQueryElementsPerPage,
+        offsetSize: MAX_QUERY_ELEMENTS_PER_PAGE,
     });
 
     await ctx.answerInlineQuery(paginatedQueries, {

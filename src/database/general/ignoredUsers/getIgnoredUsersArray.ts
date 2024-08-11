@@ -2,17 +2,17 @@ import { client } from "@/bot";
 
 import { ignoredUsersCache } from "@/src/cache/ignoredUsers";
 
-import { ignoredUsersCacheKey } from "@/src/constants/cache";
-import { collectionNames, databaseNames } from "@/src/constants/database";
+import { IGNORED_USERS_CACHE_KEY } from "@/src/constants/cache";
+import { COLLECTION_NAMES, DATABASE_NAMES } from "@/src/constants/database";
 
 import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers";
 
-const dbName = databaseNames.general;
-const usersColName = collectionNames[dbName].ignoredUsers;
+const dbName = DATABASE_NAMES.general;
+const usersColName = COLLECTION_NAMES[dbName].ignoredUsers;
 
 export async function getIgnoredUsersArray() {
-    if (ignoredUsersCache.has(ignoredUsersCacheKey)) {
-        return ignoredUsersCache.get(ignoredUsersCacheKey)!;
+    if (ignoredUsersCache.has(IGNORED_USERS_CACHE_KEY)) {
+        return ignoredUsersCache.get(IGNORED_USERS_CACHE_KEY)!;
     }
 
     const db = client.db(dbName);
@@ -21,7 +21,7 @@ export async function getIgnoredUsersArray() {
     const ignoredUsersData = await ignoredUsersCollection.find().toArray();
     const extractedIdsArray = ignoredUsersData.map((data) => data.userID);
 
-    ignoredUsersCache.set(ignoredUsersCacheKey, extractedIdsArray);
+    ignoredUsersCache.set(IGNORED_USERS_CACHE_KEY, extractedIdsArray);
 
     return extractedIdsArray;
 }

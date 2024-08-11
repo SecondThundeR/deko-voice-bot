@@ -1,4 +1,4 @@
-import { googleExportDownloadLink } from "@/src/constants/general";
+import { GOOGLE_DRIVE_DOWNLOAD_LINK } from "@/src/constants/general";
 import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale";
 
 const GOOGLE_DRIVE_LINK_CHECK_REGEX =
@@ -31,7 +31,7 @@ export function convertGoogleDriveLink(link: string) {
     const fileId = link.match(GOOGLE_DRIVE_LINK_CONVERT_REGEX)?.[0];
     if (!fileId) throw new Error(GOOGLE_EXPORT_LINK_FAIL);
 
-    return `${googleExportDownloadLink}${fileId}`;
+    return `${GOOGLE_DRIVE_DOWNLOAD_LINK}${fileId}`;
 }
 
 /**
