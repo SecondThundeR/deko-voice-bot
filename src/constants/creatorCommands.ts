@@ -1,9 +1,9 @@
 import type { BotCommand } from "grammy/types";
 
-import { userCommands } from "@/src/constants/userCommands";
+import { USER_COMMANDS } from "@/src/constants/userCommands";
 
-export const creatorCommands: BotCommand[] = [
-    ...userCommands,
+export const CREATOR_COMMANDS: BotCommand[] = [
+    ...USER_COMMANDS,
     {
         command: "/invalidate",
         description: "Инвалидировать текущий кеш для обычного запроса",

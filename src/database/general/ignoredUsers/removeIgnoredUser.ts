@@ -2,7 +2,7 @@ import type { User } from "grammy/types";
 
 import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database";
+import { COLLECTION_NAMES, DATABASE_NAMES } from "@/src/constants/database";
 
 import {
     getUserIgnoreStatus,
@@ -13,9 +13,9 @@ import { extractUserDetails } from "@/src/helpers/api";
 import type { IgnoredUsersSchema } from "@/src/schemas/ignoredUsers";
 import type { UsersDataSchema } from "@/src/schemas/usersData";
 
-const dbName = databaseNames.general;
-const ignoredColName = collectionNames[dbName].ignoredUsers;
-const usersColName = collectionNames[dbName].usersData;
+const dbName = DATABASE_NAMES.general;
+const ignoredColName = COLLECTION_NAMES[dbName].ignoredUsers;
+const usersColName = COLLECTION_NAMES[dbName].usersData;
 
 export async function removeIgnoredUser(from: User) {
     const { userID, fullName, username } = extractUserDetails(from)!;

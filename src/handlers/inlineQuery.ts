@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 
-import { maxQueryElementsPerPage } from "@/src/constants/inline";
+import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
 
 import { updateStats } from "@/src/database/general/usersData/updateStats";
 
@@ -16,6 +16,7 @@ export const inlineQueryHandler = new Composer<BotContext>();
 
 inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
     const { from, result_id: voiceID } = ctx.chosenInlineResult;
+
     await updateStats(voiceID, from);
 });
 
@@ -23,6 +24,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const userID = ctx.from.id;
     const currentOffset = Number(ctx.update.inline_query.offset) || 0;
     const data = ctx.update.inline_query.query;
+
     const favoritesIds = await getFavoriteVoiceStatusArray(userID);
     const currentQueriesArray = (await getCurrentVoiceQueriesData(
         data,
@@ -31,7 +33,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const { array: paginatedQueries, nextOffset } = offsetArray({
         array: currentQueriesArray,
         currentOffset,
-        offsetSize: maxQueryElementsPerPage,
+        offsetSize: MAX_QUERY_ELEMENTS_PER_PAGE,
     });
 
     await ctx.answerInlineQuery(paginatedQueries, {

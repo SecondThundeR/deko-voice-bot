@@ -1,6 +1,6 @@
 import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database";
+import { COLLECTION_NAMES, DATABASE_NAMES } from "@/src/constants/database";
 
 import {
     getCachedFeatureFlag,
@@ -9,8 +9,8 @@ import {
 
 import type { FeatureFlagSchema } from "@/src/schemas/featureFlag";
 
-const dbName = databaseNames.general;
-const colName = collectionNames[dbName].featureFlags;
+const dbName = DATABASE_NAMES.general;
+const colName = COLLECTION_NAMES[dbName].featureFlags;
 
 export async function getFeatureFlag(id: string) {
     const cachedFeatureFlagStatus = getCachedFeatureFlag(id);

@@ -9,14 +9,12 @@ export const cancelCommand = new Composer<BotContext>();
 
 cancelCommand.command("cancel", async (ctx) => {
     const activeConversations = await ctx.conversation.active();
-
     if (isEmpty(activeConversations)) return;
 
-    const conversationMode =
+    const voicesActiveConversations =
         activeConversations["new-voices"] ||
-        activeConversations["new-remote-voices"]
-            ? "add"
-            : "update";
+        activeConversations["new-remote-voices"];
+    const conversationMode = voicesActiveConversations ? "add" : "update";
 
     await ctx.conversation.exit();
 
@@ -29,12 +27,10 @@ cancelCommand.command("cancel", async (ctx) => {
     if (!addedVoices || addedVoices.length === 0) {
         await ctx.reply(ctx.t("conversation.addCancel"));
     } else {
-        const voices = addedVoices.join("\n");
-
         invalidateVoiceCaches();
         await ctx.reply(
             ctx.t("conversation.addResults", {
-                voices,
+                voices: addedVoices.join("\n"),
             }),
         );
     }

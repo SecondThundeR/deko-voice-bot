@@ -5,7 +5,8 @@ import type { BotContext } from "@/src/types/bot";
 /**
  * Gets current text for inline query button
  *
- * If query string is not present, shows placeholder header, else current query string
+ * @description If query string is not present, shows placeholder header,
+ * else current query string
  *
  * @param queryString String for filtering voice queries
  * @returns Button text

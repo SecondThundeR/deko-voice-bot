@@ -1,7 +1,5 @@
-import TTLCache from "@isaacs/ttlcache";
-
-import { userUsageCacheTime } from "@/src/constants/cache";
+import { TTLCache, USER_USAGE_CACHE_TIME } from "@/src/constants/cache";
 
 export const userUsageCache = new TTLCache<number, number>({
-    ttl: userUsageCacheTime,
+    ttl: USER_USAGE_CACHE_TIME,
 });

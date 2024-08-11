@@ -11,20 +11,18 @@ export const optInCommand = new Composer<BotContext>();
 
 optInCommand.command("optin", async (ctx) => {
     if (!ctx.from) {
-        return await ctx.reply(ctx.t("general.failedToFindUserData"));
+        return await ctx.reply(ctx.t("general.failedToGetUserData"));
     }
 
-    const currentUserID = ctx.from.id;
-    const isUserDataExists = await isUserUsageExists(currentUserID);
+    const isUserDataExists = await isUserUsageExists(ctx.from.id);
     const removeIgnoreStatus = await removeIgnoredUser(ctx.from);
-    const isExceptionTriggered = !isUserDataExists && !removeIgnoreStatus;
-    const translationPath = removeIgnoreStatus ? "success" : "failed";
 
-    if (isExceptionTriggered) {
-        return await ctx.reply(ctx.t("optin.exception"), {
+    if (!isUserDataExists && !removeIgnoreStatus) {
+        return await ctx.reply(ctx.t("optin.error"), {
             reply_markup: sendInlineRequestKeyboard,
         });
     }
 
+    const translationPath = removeIgnoreStatus ? "success" : "failed";
     await ctx.reply(ctx.t(`optin.${translationPath}`));
 });

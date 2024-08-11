@@ -1,7 +1,5 @@
-import TTLCache from "@isaacs/ttlcache";
-
-import { featureFlagsCacheTime } from "@/src/constants/cache";
+import { TTLCache, FEATURE_FLAGS_CACHE_TIME } from "@/src/constants/cache";
 
 export const featureFlagsCache = new TTLCache<string, boolean>({
-    ttl: featureFlagsCacheTime,
+    ttl: FEATURE_FLAGS_CACHE_TIME,
 });

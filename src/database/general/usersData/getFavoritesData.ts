@@ -1,11 +1,11 @@
 import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database";
+import { COLLECTION_NAMES, DATABASE_NAMES } from "@/src/constants/database";
 
 import type { UsersDataSchema } from "@/src/schemas/usersData";
 
-const dbName = databaseNames.general;
-const usersColName = collectionNames[dbName].usersData;
+const dbName = DATABASE_NAMES.general;
+const usersColName = COLLECTION_NAMES[dbName].usersData;
 
 export async function getFavoritesData(userID: number) {
     const db = client.db(dbName);

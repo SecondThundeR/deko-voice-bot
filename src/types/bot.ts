@@ -16,9 +16,11 @@ interface SessionData {
 }
 
 interface ConfigContext {
-    config?: {
+    config: {
         creatorID?: number;
+        stickerFileID?: string;
         isCreator: boolean;
+        isCachingDisabled: boolean;
     };
 }
 

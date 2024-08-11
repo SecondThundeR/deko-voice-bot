@@ -28,11 +28,10 @@ export async function favoriteItemHandler(
     });
     await updateFavoritesData(userID, newFavorites);
 
-    const updatedFavorites =
+    ctx.session.currentFavorites =
         currentFavorites?.map((item) =>
             item.id !== favorite.id ? item : updatedFavorite,
         ) ?? null;
-    ctx.session.currentFavorites = updatedFavorites;
 
     await ctx.menu.update({
         immediate: true,

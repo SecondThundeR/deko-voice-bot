@@ -1,8 +1,8 @@
 import type { Api, Context } from "grammy";
 import type { User } from "grammy/types";
 
-import { creatorCommands } from "@/src/constants/creatorCommands";
-import { userCommands } from "@/src/constants/userCommands";
+import { CREATOR_COMMANDS } from "@/src/constants/creatorCommands";
+import { USER_COMMANDS } from "@/src/constants/userCommands";
 
 import { getFullName } from "@/src/helpers/general";
 
@@ -12,7 +12,7 @@ import { getFullName } from "@/src/helpers/general";
  * @param api Api object to register commands
  */
 export async function registerUserCommands(api: Api) {
-    await api.setMyCommands(userCommands);
+    await api.setMyCommands(USER_COMMANDS);
 }
 
 /**
@@ -26,7 +26,7 @@ export async function registerUserCommands(api: Api) {
 export async function registerCreatorCommands(api: Api, creatorID?: string) {
     if (!creatorID) return;
 
-    await api.setMyCommands(creatorCommands, {
+    await api.setMyCommands(CREATOR_COMMANDS, {
         scope: {
             type: "chat",
             chat_id: Number(creatorID),

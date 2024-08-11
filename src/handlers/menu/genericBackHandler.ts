@@ -1,14 +1,14 @@
 import type { BotContext, MenuBotContext } from "@/src/types/bot";
 
-export function genericBackHandler(
+export async function genericBackHandler(
     ctx: MenuBotContext,
     onBack?: (ctx: BotContext) => void,
     deleteMessage?: boolean,
 ) {
-    if (!deleteMessage) {
-        ctx.menu.back();
+    if (deleteMessage) {
+        await ctx.deleteMessage();
     } else {
-        ctx.deleteMessage();
+        ctx.menu.back();
     }
 
     onBack?.(ctx);

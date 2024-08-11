@@ -31,7 +31,6 @@ export async function genericNextHandler<T>(
     }
 
     offsetUpdate(newOffset);
-
     await ctx.menu.update({
         immediate: true,
     });

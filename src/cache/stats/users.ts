@@ -1,15 +1,17 @@
-import TTLCache from "@isaacs/ttlcache";
-
-import { statsCacheTime, usersStatsCacheKey } from "@/src/constants/cache";
+import {
+    TTLCache,
+    STATS_CACHE_TIME,
+    USERS_STATS_CACHE_KEY,
+} from "@/src/constants/cache";
 
 import type { UsersDataSchema } from "@/src/schemas/usersData";
 
-type UsersStatsCacheKey = typeof usersStatsCacheKey;
+type UsersStatsCacheKey = typeof USERS_STATS_CACHE_KEY;
 
 export const usersStatsCache = new TTLCache<
     UsersStatsCacheKey,
     UsersDataSchema[]
 >({
     max: 1,
-    ttl: statsCacheTime,
+    ttl: STATS_CACHE_TIME,
 });

@@ -11,15 +11,18 @@ export const catchHandler = (err: BotError<BotContext>) => {
     );
 
     if (error instanceof GrammyError) {
-        return console.error("Error in request:", error.description);
+        console.error("Error in request:", error.description);
+        return;
     }
 
     if (error instanceof HttpError) {
-        return console.error("Could not contact Telegram:", error);
+        console.error("Could not contact Telegram:", error);
+        return;
     }
 
     if (error instanceof MongoError) {
-        return console.error("Something broken with Mongo:", error.errmsg);
+        console.error("Something broken with Mongo:", error.errmsg);
+        return;
     }
 
     console.error("Unknown error occurred:", error);

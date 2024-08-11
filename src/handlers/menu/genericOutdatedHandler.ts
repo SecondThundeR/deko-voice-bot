@@ -33,15 +33,19 @@ export async function genericOutdatedHandler<T>(
             return;
         }
 
-        console.error(
-            "Something prevented from updating menu:",
-            (error as Error).message,
-        );
-
         if (!(error instanceof GrammyError)) {
             await outdatedExceptionHandler(ctx);
         }
 
+        let errorMessage = "Something prevented from updating menu. Details: ";
+
+        if (error instanceof Error) {
+            errorMessage += error.message;
+        } else {
+            errorMessage += JSON.stringify(error, null, 4);
+        }
+
+        console.error(errorMessage);
         await ctx.answerCallbackQuery();
     }
 }

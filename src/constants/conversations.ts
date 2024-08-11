@@ -5,12 +5,7 @@ import { updateVoiceID } from "@/src/conversations/updateVoiceID";
 import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle";
 import { updateVoiceURL } from "@/src/conversations/updateVoiceURL";
 
-import type { BotContext, ConversationContext } from "@/src/types/bot";
-
-type ConversationsData = [
-    string,
-    (conversation: ConversationContext, ctx: BotContext) => Promise<void>,
-];
+import type { ConversationsData } from "@/src/types/conversations";
 
 export const CONVERSATIONS: ConversationsData[] = [
     ["new-remote-voices", newRemoteVoices],
@@ -20,3 +15,5 @@ export const CONVERSATIONS: ConversationsData[] = [
     ["voice-title-update", updateVoiceTitle],
     ["voice-url-update", updateVoiceURL],
 ];
+
+export const VOICE_ID_LENGTH = 64;

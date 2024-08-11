@@ -1,7 +1,10 @@
 import { Composer } from "grammy";
 
+import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime";
+import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount";
+
 import { extractUserDetails } from "@/src/helpers/api";
-import { extractOtherUserData, getUserIgnoreStatus } from "@/src/helpers/cache";
+import { getUserIgnoreStatus } from "@/src/helpers/cache";
 import { getUserDataMessageText } from "@/src/helpers/locale";
 
 import type { BotContext } from "@/src/types/bot";
@@ -10,25 +13,29 @@ import type { BotContext } from "@/src/types/bot";
  * To save cache size and reduce queries to DB,
  * this command will extract user's ID, fullName and username from
  * message object and only will deal with getting usage amount
+ *
+ * If caching is disabled, command will trigger DB query on each execution
  */
 export const myDataCommand = new Composer<BotContext>();
 
 myDataCommand.command("mydata", async (ctx) => {
     const userDetails = extractUserDetails(ctx.from);
     if (!userDetails) {
-        return await ctx.reply(ctx.t("general.failedToFindUserData"));
+        return await ctx.reply(ctx.t("general.failedToGetUserData"));
     }
 
-    const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
+    const { userID } = userDetails;
+    const userIgnoreStatus = await getUserIgnoreStatus(userID);
     if (userIgnoreStatus) {
         return await ctx.reply(ctx.t("myData.ignoredUser"));
     }
 
-    const { userID } = userDetails;
-    const otherData = await extractOtherUserData(userID);
+    const usesAmount = await getUserUsageAmount(userID);
+    const lastUsedAt = await getLastUsedAtTime(userID);
     const replyText = getUserDataMessageText(ctx, {
         ...userDetails,
-        ...otherData,
+        usesAmount,
+        lastUsedAt,
     });
 
     await ctx.reply(replyText, {

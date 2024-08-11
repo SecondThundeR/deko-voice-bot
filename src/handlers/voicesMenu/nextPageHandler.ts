@@ -1,4 +1,4 @@
-import { maxMenuElementsPerPage } from "@/src/constants/inline";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
 
 import { genericNextHandler } from "@/src/handlers/menu/genericNextHandler";
 
@@ -10,7 +10,7 @@ export async function nextPageHandler(ctx: MenuBotContext) {
     await genericNextHandler(ctx, {
         menuElements: currentVoices,
         currentOffset: currentVoicesOffset,
-        elementsPerPage: maxMenuElementsPerPage,
+        elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
         offsetUpdate: (newOffset) =>
             (ctx.session.currentVoicesOffset = newOffset),
     });

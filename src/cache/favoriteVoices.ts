@@ -1,7 +1,5 @@
-import TTLCache from "@isaacs/ttlcache";
-
-import { favoriteVoicesCacheTime } from "@/src/constants/cache";
+import { TTLCache, FAVORITE_VOICES_CACHE_TIME } from "@/src/constants/cache";
 
 export const favoriteVoicesIdsCache = new TTLCache<number, string[]>({
-    ttl: favoriteVoicesCacheTime,
+    ttl: FAVORITE_VOICES_CACHE_TIME,
 });

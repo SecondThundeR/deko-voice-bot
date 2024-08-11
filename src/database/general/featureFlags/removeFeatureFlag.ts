@@ -1,13 +1,13 @@
 import { client } from "@/bot";
 
-import { collectionNames, databaseNames } from "@/src/constants/database";
+import { COLLECTION_NAMES, DATABASE_NAMES } from "@/src/constants/database";
 
 import { deleteCachedFeatureFlag } from "@/src/helpers/cache";
 
 import type { FeatureFlagSchema } from "@/src/schemas/featureFlag";
 
-const dbName = databaseNames.general;
-const colName = collectionNames[dbName].featureFlags;
+const dbName = DATABASE_NAMES.general;
+const colName = COLLECTION_NAMES[dbName].featureFlags;
 
 export async function removeFeatureFlag(id: string) {
     const db = client.db(dbName);
