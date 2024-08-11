@@ -3,6 +3,7 @@ import { isCachingDisabled } from "@/src/helpers/cache";
 import type { BotContext } from "@/src/types/bot";
 
 const BASE_CONFIG = {
+    stickerFileID: process.env.STICKER_FILE_ID_FOR_DEEPLINK,
     isCachingDisabled: isCachingDisabled(),
 };
 
