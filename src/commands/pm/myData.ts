@@ -10,6 +10,8 @@ import type { BotContext } from "@/src/types/bot";
  * To save cache size and reduce queries to DB,
  * this command will extract user's ID, fullName and username from
  * message object and only will deal with getting usage amount
+ *
+ * If caching is disabled, command will trigger DB query on each execution
  */
 export const myDataCommand = new Composer<BotContext>();
 
@@ -19,16 +21,16 @@ myDataCommand.command("mydata", async (ctx) => {
         return await ctx.reply(ctx.t("general.failedToGetUserData"));
     }
 
-    const userIgnoreStatus = await getUserIgnoreStatus(userDetails.userID);
+    const { userID } = userDetails;
+    const userIgnoreStatus = await getUserIgnoreStatus(userID);
     if (userIgnoreStatus) {
         return await ctx.reply(ctx.t("myData.ignoredUser"));
     }
 
-    const { userID } = userDetails;
-    const otherData = await extractOtherUserData(userID);
+    const otherUserData = await extractOtherUserData(userID);
     const replyText = getUserDataMessageText(ctx, {
         ...userDetails,
-        ...otherData,
+        ...otherUserData,
     });
 
     await ctx.reply(replyText, {

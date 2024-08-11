@@ -11,7 +11,7 @@ invalidateCommand.command("invalidate", async (ctx) => {
         await ctx.reply(ctx.t("invalidate.disabled"));
         return;
     }
-    invalidateVoiceCaches();
 
+    invalidateVoiceCaches();
     await ctx.reply(ctx.t("invalidate.success"));
 });
