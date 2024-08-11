@@ -9,8 +9,8 @@ export async function maintenanceGatekeep(
     next: () => Promise<void>,
 ) {
     const isInMaintenance = await getFeatureFlag(featureFlags.maintenance);
-    const isCalledByCreator = !!ctx.config?.isCreator;
-    const isTriggeredByInlineQuery = !!ctx.inlineQuery;
+    const isCalledByCreator = ctx.config.isCreator;
+    const isTriggeredByInlineQuery = ctx.inlineQuery !== undefined;
     const isGatekeepSkipped = isCalledByCreator || !isInMaintenance;
 
     if (isGatekeepSkipped) {
