@@ -8,14 +8,17 @@ export async function genericCloseHandler(
 ) {
     try {
         await ctx.deleteMessage();
-
         onClose?.(ctx);
     } catch (error: unknown) {
-        console.error(
-            "Something prevented from closing menu:",
-            (error as Error).message,
-        );
+        let errorMessage = "Something prevented from closing menu. Details: ";
 
+        if (error instanceof Error) {
+            errorMessage += error.message;
+        } else {
+            errorMessage += JSON.stringify(error, null, 4);
+        }
+
+        console.error(errorMessage);
         await closeMenuExceptionHandler(ctx);
     } finally {
         await ctx.answerCallbackQuery();

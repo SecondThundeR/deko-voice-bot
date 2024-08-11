@@ -2,8 +2,8 @@ import { genericBackHandler } from "@/src/handlers/menu/genericBackHandler";
 
 import type { MenuBotContext } from "@/src/types/bot";
 
-export function backMenuHandler(ctx: MenuBotContext) {
-    genericBackHandler(ctx, (ctx) => {
+export async function backMenuHandler(ctx: MenuBotContext) {
+    await genericBackHandler(ctx, (ctx) => {
         ctx.session.currentVoice = null;
     });
 }

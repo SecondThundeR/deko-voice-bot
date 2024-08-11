@@ -16,6 +16,7 @@ export const inlineQueryHandler = new Composer<BotContext>();
 
 inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
     const { from, result_id: voiceID } = ctx.chosenInlineResult;
+
     await updateStats(voiceID, from);
 });
 
@@ -23,6 +24,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const userID = ctx.from.id;
     const currentOffset = Number(ctx.update.inline_query.offset) || 0;
     const data = ctx.update.inline_query.query;
+
     const favoritesIds = await getFavoriteVoiceStatusArray(userID);
     const currentQueriesArray = (await getCurrentVoiceQueriesData(
         data,

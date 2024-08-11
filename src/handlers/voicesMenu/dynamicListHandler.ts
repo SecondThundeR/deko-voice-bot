@@ -12,7 +12,7 @@ export function dynamicListHandler(
 ) {
     const { currentVoicesOffset, currentVoices } = ctx.session;
 
-    genericListHandler(ctx, range, {
+    genericListHandler(range, {
         menuElements: currentVoices,
         currentOffset: currentVoicesOffset,
         elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,

@@ -8,14 +8,14 @@ export async function deleteVoiceHandler(ctx: MenuBotContext) {
     if (!ctx.session.currentVoice) return;
 
     const voiceID = ctx.session.currentVoice.id;
-    const filteredVoices = (ctx.session.currentVoices ?? []).filter(
+    const currentVoices = ctx.session.currentVoices ?? [];
+    const filteredVoices = currentVoices.filter(
         (voice) => voice.id !== voiceID,
     );
     const shouldDeleteMessage = filteredVoices.length === 0;
 
     await deleteVoice(voiceID);
-
-    genericBackHandler(
+    await genericBackHandler(
         ctx,
         (ctx) => {
             ctx.session.currentVoice = null;

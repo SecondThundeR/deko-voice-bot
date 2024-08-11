@@ -14,7 +14,7 @@ export function dynamicListHandler(
 ) {
     const { currentFavoritesOffset, currentFavorites } = ctx.session;
 
-    genericListHandler(ctx, range, {
+    genericListHandler(range, {
         menuElements: currentFavorites,
         currentOffset: currentFavoritesOffset,
         elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,

@@ -10,7 +10,6 @@ type GenericListHandlerData<T> = {
 };
 
 export function genericListHandler<T>(
-    _ctx: BotContext,
     range: MenuRange<BotContext>,
     data: GenericListHandlerData<T>,
 ) {
