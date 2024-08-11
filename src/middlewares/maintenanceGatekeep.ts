@@ -29,10 +29,9 @@ export async function maintenanceGatekeep(
         return;
     }
 
-    if (ctx.hasCommand("start") && ctx.match === FEATURE_FLAGS.maintenance) {
-        await ctx.reply(ctx.t("maintenance.description-inline"));
-        return;
-    }
-
-    await ctx.reply(ctx.t("maintenance.description-chat"));
+    const translationPath =
+        ctx.hasCommand("start") && ctx.match === FEATURE_FLAGS.maintenance
+            ? "Inline"
+            : "Chat";
+    await ctx.reply(ctx.t(`maintenance.description${translationPath}`));
 }
