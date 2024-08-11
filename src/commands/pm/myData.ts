@@ -1,7 +1,10 @@
 import { Composer } from "grammy";
 
+import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime";
+import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount";
+
 import { extractUserDetails } from "@/src/helpers/api";
-import { extractOtherUserData, getUserIgnoreStatus } from "@/src/helpers/cache";
+import { getUserIgnoreStatus } from "@/src/helpers/cache";
 import { getUserDataMessageText } from "@/src/helpers/locale";
 
 import type { BotContext } from "@/src/types/bot";
@@ -27,10 +30,12 @@ myDataCommand.command("mydata", async (ctx) => {
         return await ctx.reply(ctx.t("myData.ignoredUser"));
     }
 
-    const otherUserData = await extractOtherUserData(userID);
+    const usesAmount = await getUserUsageAmount(userID);
+    const lastUsedAt = await getLastUsedAtTime(userID);
     const replyText = getUserDataMessageText(ctx, {
         ...userDetails,
-        ...otherUserData,
+        usesAmount,
+        lastUsedAt,
     });
 
     await ctx.reply(replyText, {

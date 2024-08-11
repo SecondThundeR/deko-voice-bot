@@ -12,19 +12,19 @@ class TTLCacheStub<K, V> implements CacheStub<K, V> {
         return;
     }
 
-    get(key: K, options?: GetOptions) {
+    get(_key: K, _options?: GetOptions) {
         return undefined;
     }
 
-    has(key: K) {
+    has(_key: K) {
         return false;
     }
 
-    set(key: K, value: V, options?: SetOptions): CacheStub<K, V> {
+    set(_key: K, _value: V, _options?: SetOptions): CacheStub<K, V> {
         return this;
     }
 
-    delete(key: K): boolean {
+    delete(_key: K): boolean {
         return false;
     }
 }
