@@ -81,7 +81,7 @@ CONVERSATIONS.forEach(([id, conversation]) => {
 });
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
-const pmCreator = pm.filter((ctx) => !!ctx.config?.isCreator);
+const pmCreator = pm.filter((ctx) => ctx.config.isCreator);
 
 pm.use(favoritesMenu)
     .use(startCommand)
