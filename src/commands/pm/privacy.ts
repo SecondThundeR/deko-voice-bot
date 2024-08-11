@@ -1,18 +1,13 @@
 import { Composer } from "grammy";
 
-import type { BotContext } from "@/src/types/bot";
+import { PRIVACY_MESSAGE_TEXT } from "@/src/constants/general";
 
-const PRIVACY_POLICY_LINK =
-    "https://github.com/SecondThundeR/deko-voice-bot/blob/main/PRIVACY_POLICY.md";
-const PRIVACY_POLICY_CHANGES_LINK = "https://t.me/tginfo/4053";
+import type { BotContext } from "@/src/types/bot";
 
 export const privacyCommand = new Composer<BotContext>();
 
 privacyCommand.command("privacy", async (ctx) => {
-    await ctx.reply(
-        `В связи с [последними событиями](${PRIVACY_POLICY_CHANGES_LINK}), бот теперь предоставляет политику приватности по [ссылке](${PRIVACY_POLICY_LINK})`,
-        {
-            parse_mode: "MarkdownV2",
-        },
-    );
+    await ctx.reply(PRIVACY_MESSAGE_TEXT, {
+        parse_mode: "MarkdownV2",
+    });
 });
