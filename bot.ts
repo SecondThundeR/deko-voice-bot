@@ -150,6 +150,6 @@ try {
         `Started as ${botInfo.first_name} (@${botInfo.username})\nRunning on Bun ${Bun.version}`,
     );
 } catch (e) {
-    console.log(e);
+    console.error(e);
     await client.close();
 }
