@@ -1,5 +1,5 @@
 import { InputFile } from "grammy";
-import { unlink } from "node:fs/promises";
+import { unlink } from "fs/promises";
 
 import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "@/src/constants/extensions";
 

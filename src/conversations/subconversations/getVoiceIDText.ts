@@ -1,19 +1,17 @@
+import { VOICE_ID_LENGTH } from "@/src/constants/conversations";
+
 import { isNotUniqueVoiceID } from "@/src/helpers/cache";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
 
-type LocaleStrings = {
-    hint: string;
-    notUnique: string;
-    long: string;
-};
-
-const VOICE_ID_LENGTH = 64;
-
 export async function getVoiceIDText(
     conversation: ConversationContext,
     ctx: BotContext,
-    otherLocale?: LocaleStrings,
+    otherLocale?: {
+        hint: string;
+        notUnique: string;
+        long: string;
+    },
 ) {
     let text: string | undefined;
     const {

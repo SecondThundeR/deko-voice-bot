@@ -4,7 +4,7 @@ import { I18n } from "@grammyjs/i18n";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { MongoClient, MongoError } from "mongodb";
-import { emitKeypressEvents } from "node:readline";
+import { emitKeypressEvents } from "readline";
 
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats";
 import { invalidateCommand } from "@/src/commands/pm/creator/invalidate";
