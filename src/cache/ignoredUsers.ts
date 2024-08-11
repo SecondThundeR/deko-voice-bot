@@ -1,6 +1,5 @@
-import TTLCache from "@isaacs/ttlcache";
-
 import {
+    TTLCache,
     ignoredUsersCacheKey,
     ignoredUsersCacheTime,
 } from "@/src/constants/cache";

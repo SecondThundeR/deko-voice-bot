@@ -1,6 +1,8 @@
-import TTLCache from "@isaacs/ttlcache";
-
-import { statsCacheTime, voicesStatsCacheKey } from "@/src/constants/cache";
+import {
+    TTLCache,
+    statsCacheTime,
+    voicesStatsCacheKey,
+} from "@/src/constants/cache";
 
 import type { VoiceSchema } from "@/src/schemas/voice";
 

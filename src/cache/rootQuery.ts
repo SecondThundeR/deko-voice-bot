@@ -1,6 +1,4 @@
-import TTLCache from "@isaacs/ttlcache";
-
-import { rootCacheKey, rootCacheTime } from "@/src/constants/cache";
+import { TTLCache, rootCacheKey, rootCacheTime } from "@/src/constants/cache";
 
 import type { InlineResultVoice } from "@/src/types/inline";
 

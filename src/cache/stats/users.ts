@@ -1,6 +1,8 @@
-import TTLCache from "@isaacs/ttlcache";
-
-import { statsCacheTime, usersStatsCacheKey } from "@/src/constants/cache";
+import {
+    TTLCache,
+    statsCacheTime,
+    usersStatsCacheKey,
+} from "@/src/constants/cache";
 
 import type { UsersDataSchema } from "@/src/schemas/usersData";
 
