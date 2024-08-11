@@ -1,9 +1,3 @@
-type OffsetArrayData<T> = {
-    array: T[];
-    currentOffset: number;
-    offsetSize: number;
-};
-
 /**
  * Return array with applied offset
  *
@@ -16,14 +10,15 @@ export function offsetArray<T>({
     array,
     currentOffset,
     offsetSize,
-}: OffsetArrayData<T>) {
+}: {
+    array: T[];
+    currentOffset: number;
+    offsetSize: number;
+}) {
     const nextOffset = currentOffset + offsetSize;
-    const slicedArray = array.slice(currentOffset, nextOffset);
-    const newOffset =
-        array.length > nextOffset ? String(nextOffset) : undefined;
 
     return {
-        array: slicedArray,
-        nextOffset: newOffset,
+        array: array.slice(currentOffset, nextOffset),
+        nextOffset: array.length > nextOffset ? String(nextOffset) : undefined,
     };
 }

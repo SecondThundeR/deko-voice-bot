@@ -1,16 +1,9 @@
-import { GOOGLE_DRIVE_DOWNLOAD_LINK } from "@/src/constants/general";
+import {
+    GOOGLE_DRIVE_DOWNLOAD_LINK,
+    GOOGLE_DRIVE_LINK_CHECK_REGEX,
+    GOOGLE_DRIVE_LINK_CONVERT_REGEX,
+} from "@/src/constants/general";
 import { GOOGLE_EXPORT_LINK_FAIL } from "@/src/constants/locale";
-
-const GOOGLE_DRIVE_LINK_CHECK_REGEX =
-    /https:\/\/drive\.google\.com\/file\/d\/(.*?)\/.*?\?usp=[sharing|drive_link]/g;
-const GOOGLE_DRIVE_LINK_CONVERT_REGEX = /(?<=\/d\/)(.*?)(?=\/view)/;
-
-type ConvertReturn =
-    | { status: true; error: undefined }
-    | {
-          status: false;
-          error: string;
-      };
 
 /**
  * Converts regular Google Drive sharing link to direct download link
@@ -63,13 +56,13 @@ export function getFullName(firstName: string, lastName?: string) {
 
 /**
  * Checks if ffmpeg can be called on the system to ensure that it's exists
- * by running `ffmpeg -h`
+ * by running `ffmpeg -version`
  *
- * @returns Status of ffmpeg's help command execution
+ * @returns Status of ffmpeg's version command execution
  */
 export async function canRunFFMPEG() {
     try {
-        const { exited } = Bun.spawn(["ffmpeg", "-h"], {
+        const { exited } = Bun.spawn(["ffmpeg", "-version"], {
             stdout: null,
             stderr: null,
         });
@@ -90,7 +83,13 @@ export async function canRunFFMPEG() {
 export async function convertMP3ToOGGOpus(
     inputFilename: string,
     outputFilename: string,
-): Promise<ConvertReturn> {
+): Promise<
+    | { status: true; error: undefined }
+    | {
+          status: false;
+          error: string;
+      }
+> {
     try {
         const { exited, stderr } = Bun.spawn([
             "ffmpeg",

@@ -65,11 +65,11 @@ export function usersStatsMap({
     const userLink = `<a href="tg://user?id=${userID}">${
         username ? `@${username}` : fullName
     }</a>`;
-    const dateString = !lastUsedAt
-        ? ""
-        : ` (${new Date(lastUsedAt).toLocaleString("ru-RU", {
+    const dateString = lastUsedAt
+        ? ` (${new Date(lastUsedAt).toLocaleString("ru-RU", {
               timeZone: "Europe/Moscow",
-          })})`;
+          })})`
+        : "";
 
     return `- ${userLink}: ${usesAmount} раз${dateString}`;
 }

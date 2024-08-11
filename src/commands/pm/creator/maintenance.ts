@@ -2,7 +2,7 @@ import { Composer } from "grammy";
 
 import { FEATURE_FLAGS } from "@/src/constants/database";
 
-import { toggleFeatureFlag } from "@/src/helpers/database";
+import { toggleFeatureFlag } from "@/src/database/general/featureFlags/toggleFeatureFlag";
 
 import type { BotContext } from "@/src/types/bot";
 
