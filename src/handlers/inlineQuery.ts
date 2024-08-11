@@ -39,7 +39,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     await ctx.answerInlineQuery(paginatedQueries, {
         next_offset: nextOffset,
         button: {
-            text: getCurrentButtonText(ctx, data),
+            text: await getCurrentButtonText(ctx, data),
             start_parameter: "_",
         },
         cache_time: 0,

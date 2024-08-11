@@ -11,8 +11,11 @@ import type { BotContext } from "@/src/types/bot";
  * @param queryString String for filtering voice queries
  * @returns Button text
  */
-export function getCurrentButtonText(ctx: BotContext, queryString: string) {
-    const queries = checkQueriesCache();
+export async function getCurrentButtonText(
+    ctx: BotContext,
+    queryString: string,
+) {
+    const queries = await checkQueriesCache(queryString);
 
     if (!queries || queries.length === 0) return ctx.t("inline.noData");
     if (queryString.length === 0) return ctx.t("inline.searchPlaceholder");

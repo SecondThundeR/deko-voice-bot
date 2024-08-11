@@ -19,11 +19,14 @@ import { getIgnoredUsersArray } from "@/src/database/general/ignoredUsers/getIgn
 import { getFavoritesData } from "@/src/database/general/usersData/getFavoritesData";
 import { getLastUsedAtTime } from "@/src/database/general/usersData/getLastUsedAtTime";
 import { getUserUsageAmount } from "@/src/database/general/usersData/getUserUsageAmount";
+import { getVoices } from "@/src/database/general/voices/getVoices";
 
 import type { UsersDataSchema } from "@/src/schemas/usersData";
 import type { VoiceSchema } from "@/src/schemas/voice";
 
 import type { InlineResultVoice } from "@/src/types/inline";
+
+import { convertVoiceDataToQueriesArray } from "./voices";
 
 type FavoriteStatusUpdateData = {
     userID: number;
@@ -65,7 +68,11 @@ export function invalidateVoiceCaches() {
  * @param queryString Query string from inline request
  * @returns Array of voice queries or undefined, if cache doesn't have related data
  */
-export function checkQueriesCache(queryString = "") {
+export async function checkQueriesCache(queryString = "") {
+    if (isCachingDisabled()) {
+        return convertVoiceDataToQueriesArray(await getVoices(queryString));
+    }
+
     if (queryString.length === 0 && rootQueryCache.has(ROOT_CACHE_KEY)) {
         return rootQueryCache.get(ROOT_CACHE_KEY)!;
     }
