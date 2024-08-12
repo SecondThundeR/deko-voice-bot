@@ -53,14 +53,6 @@ export function isCachingDisabled() {
 }
 
 /**
- * Invalidates root and text caches by clearing them
- */
-export function invalidateVoiceCaches() {
-    rootQueryCache.clear();
-    textQueryCache.clear();
-}
-
-/**
  * Checks if root cache or text query cache has data and returns it
  *
  * If cache doesn't have data, returns `undefined`

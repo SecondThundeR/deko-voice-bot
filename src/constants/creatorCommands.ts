@@ -5,10 +5,6 @@ import { USER_COMMANDS } from "@/src/constants/userCommands";
 export const CREATOR_COMMANDS: BotCommand[] = [
     ...USER_COMMANDS,
     {
-        command: "/invalidate",
-        description: "Инвалидировать текущий кеш для обычного запроса",
-    },
-    {
         command: "/maintenance",
         description: "Перевести бота в статус тех. работ",
     },

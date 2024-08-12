@@ -7,7 +7,6 @@ import { MongoClient, MongoError } from "mongodb";
 import { emitKeypressEvents } from "readline";
 
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats";
-import { invalidateCommand } from "@/src/commands/pm/creator/invalidate";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance";
 import { newRemoteVoicesCommand } from "@/src/commands/pm/creator/newRemoteVoices";
 import { newVoicesCommand } from "@/src/commands/pm/creator/newVoices";
@@ -95,7 +94,6 @@ pmCreator
     .use(voicesMenu)
     .use(voiceMenu)
     .use(voiceItemHandler)
-    .use(invalidateCommand)
     .use(maintenanceCommand)
     .use(fullStatsCommand)
     .use(statsCommand)
