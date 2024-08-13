@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS "feature_flags_table" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users_favorites_table" (
 	"user_id" bigint NOT NULL,
-	"voice_id" varchar(64) NOT NULL
+	"voice_id" varchar(64) NOT NULL,
+	CONSTRAINT "users_favorites_table_user_id_voice_id_pk" PRIMARY KEY("user_id","voice_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users_table" (
@@ -27,13 +28,13 @@ CREATE TABLE IF NOT EXISTS "voices_table" (
 );
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "users_favorites_table" ADD CONSTRAINT "users_favorites_table_user_id_users_table_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users_table"("user_id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "users_favorites_table" ADD CONSTRAINT "users_favorites_table_user_id_users_table_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users_table"("user_id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "users_favorites_table" ADD CONSTRAINT "users_favorites_table_voice_id_voices_table_voice_id_fk" FOREIGN KEY ("voice_id") REFERENCES "public"."voices_table"("voice_id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "users_favorites_table" ADD CONSTRAINT "users_favorites_table_voice_id_voices_table_voice_id_fk" FOREIGN KEY ("voice_id") REFERENCES "public"."voices_table"("voice_id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

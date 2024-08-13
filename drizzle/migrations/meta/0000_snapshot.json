@@ -1,5 +1,5 @@
 {
-  "id": "482bb489-36c3-4891-9b9c-b8eddcc8bc80",
+  "id": "b15ed250-4198-43ce-a385-4657df7f557b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -57,7 +57,7 @@
             "user_id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "cascade"
         },
         "users_favorites_table_voice_id_voices_table_voice_id_fk": {
           "name": "users_favorites_table_voice_id_voices_table_voice_id_fk",
@@ -70,10 +70,18 @@
             "voice_id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "cascade"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "users_favorites_table_user_id_voice_id_pk": {
+          "name": "users_favorites_table_user_id_voice_id_pk",
+          "columns": [
+            "user_id",
+            "voice_id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "public.users_table": {
