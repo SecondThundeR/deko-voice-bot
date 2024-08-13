@@ -12,7 +12,7 @@ import {
     FULLNAME_LENGTH,
     USERNAME_LENGTH,
     VOICE_ID_LENGTH,
-    VOICE_ID_UNIQUE_LENGTH,
+    FILE_UNIQUE_ID_LENGTH,
     VOICE_TITLE_LENGTH,
 } from "./constraints";
 import { relations } from "drizzle-orm";
@@ -32,8 +32,8 @@ export const voicesTable = pgTable("voices_table", {
     }).notNull(),
     url: varchar("url"),
     fileId: varchar("file_id", { length: FILE_ID_LENGTH }),
-    voiceUniqueId: varchar("voice_inique_id", {
-        length: VOICE_ID_UNIQUE_LENGTH,
+    fileUniqueId: varchar("file_inique_id", {
+        length: FILE_UNIQUE_ID_LENGTH,
     }).notNull(),
     usesAmount: integer("uses_amount").notNull().default(0),
 });
