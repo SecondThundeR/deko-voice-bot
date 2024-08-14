@@ -1,6 +1,6 @@
-import { FEATURE_FLAGS } from "@/src/constants/database";
+import { getFeatureFlag } from "@/drizzle/queries/select";
 
-import { getFeatureFlag } from "@/src/database/general/featureFlags/getFeatureFlag";
+import { MAINTENANCE_FEATURE_FLAG } from "@/src/constants/featureFlags";
 
 import type { BotContext } from "@/src/types/bot";
 
@@ -8,10 +8,15 @@ export async function maintenanceGatekeep(
     ctx: BotContext,
     next: () => Promise<void>,
 ) {
-    const isInMaintenance = await getFeatureFlag(FEATURE_FLAGS.maintenance);
+    const flagStatus = await getFeatureFlag(MAINTENANCE_FEATURE_FLAG);
+    if (!flagStatus) {
+        await next();
+        return;
+    }
+
     const isCalledByCreator = ctx.config.isCreator;
     const isTriggeredByInlineQuery = ctx.inlineQuery !== undefined;
-    const isGatekeepSkipped = isCalledByCreator || !isInMaintenance;
+    const isGatekeepSkipped = isCalledByCreator || !flagStatus;
 
     if (isGatekeepSkipped) {
         await next();
@@ -22,7 +27,7 @@ export async function maintenanceGatekeep(
         await ctx.answerInlineQuery([], {
             button: {
                 text: ctx.t("maintenance.inline-button"),
-                start_parameter: FEATURE_FLAGS.maintenance,
+                start_parameter: MAINTENANCE_FEATURE_FLAG,
             },
             cache_time: 0,
         });
@@ -30,7 +35,7 @@ export async function maintenanceGatekeep(
     }
 
     const translationPath =
-        ctx.hasCommand("start") && ctx.match === FEATURE_FLAGS.maintenance
+        ctx.hasCommand("start") && ctx.match === MAINTENANCE_FEATURE_FLAG
             ? "Inline"
             : "Chat";
     await ctx.reply(ctx.t(`maintenance.description${translationPath}`));

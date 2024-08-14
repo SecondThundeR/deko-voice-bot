@@ -1,26 +1,51 @@
-import { checkQueriesCache } from "@/src/helpers/cache";
+import { getVoicesCount } from "@/drizzle/queries/select";
+import type { SelectVoice } from "@/drizzle/schema";
 
 import type { BotContext } from "@/src/types/bot";
+import type { InlineResultVoice } from "@/src/types/inline";
 
-/**
- * Gets current text for inline query button
- *
- * @description If query string is not present, shows placeholder header,
- * else current query string
- *
- * @param queryString String for filtering voice queries
- * @returns Button text
- */
+import { convertVoiceUrl } from "./general";
+
 export async function getCurrentButtonText(
     ctx: BotContext,
     queryString: string,
 ) {
-    const queries = await checkQueriesCache(queryString);
+    const queriesCount = await getVoicesCount(queryString);
 
-    if (!queries || queries.length === 0) return ctx.t("inline.noData");
+    if (queriesCount === 0) return ctx.t("inline.noData");
     if (queryString.length === 0) return ctx.t("inline.searchPlaceholder");
 
     return ctx.t("inline.searchHeader", {
         query: queryString,
     });
+}
+
+export function convertVoiceDataToQueriesArray(voicesData: SelectVoice[]) {
+    return voicesData
+        .map(({ voiceId: id, voiceTitle: title, url, fileId }) => {
+            if (!url) {
+                return {
+                    type: "voice",
+                    id,
+                    title,
+                    voice_file_id: fileId,
+                };
+            }
+
+            try {
+                const voice_url = convertVoiceUrl(url);
+
+                return {
+                    type: "voice",
+                    id,
+                    title,
+                    voice_url,
+                };
+            } catch (error: unknown) {
+                console.error(`Failed to process "${title}" (${id})\n${error}`);
+
+                return null;
+            }
+        })
+        .filter((item) => item !== null) as InlineResultVoice[];
 }

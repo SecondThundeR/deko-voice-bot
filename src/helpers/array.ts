@@ -1,20 +1,14 @@
-/**
- * Return array with applied offset
- *
- * @param array Array to apply offset
- * @param currentOffset Current offset value
- * @param offsetSize Size for incrementing current offset
- * @returns Object with applied offset for array and new offset value (or undefined, if hit end of array)
- */
+type OffsetArrayOptions<T> = {
+    array: T[];
+    currentOffset: number;
+    offsetSize: number;
+};
+
 export function offsetArray<T>({
     array,
     currentOffset,
     offsetSize,
-}: {
-    array: T[];
-    currentOffset: number;
-    offsetSize: number;
-}) {
+}: OffsetArrayOptions<T>) {
     const nextOffset = currentOffset + offsetSize;
 
     return {

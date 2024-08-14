@@ -15,12 +15,10 @@
     "@grammyjs/i18n": "^1.0.2",
     "@grammyjs/menu": "^1.2.2",
     "@grammyjs/runner": "^2.0.3",
-    "@isaacs/ttlcache": "^1.4.1",
     "@neondatabase/serverless": "^0.9.4",
     "dayjs": "^1.11.12",
     "drizzle-orm": "^0.33.0",
-    "grammy": "^1.28.0",
-    "mongodb": "^6.8.0"
+    "grammy": "^1.29.0"
   },
   "devDependencies": {
     "@types/bun": "^1.1.6",

@@ -11,7 +11,6 @@ export const getUsersBasicStatsQuery = db
 
 export const usersFullStatsQuery = db
     .select({
-        userId: usersTable.userId,
         fullname: usersTable.fullname,
         username: usersTable.username,
         lastUsedAt: usersTable.lastUsedAt,

@@ -1,13 +1,13 @@
 import { InputFile } from "grammy";
 import { unlink } from "fs/promises";
 
+import { addRegularVoice } from "@/drizzle/queries/insert";
+
 import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "@/src/constants/extensions";
 
 import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath";
 import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText";
 import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText";
-
-import { addNewVoice } from "@/src/database/general/voices/addNewVoice";
 
 import { fetchMediaFileBlob } from "@/src/helpers/api";
 import { convertMP3ToOGGOpus } from "@/src/helpers/general";
@@ -26,13 +26,13 @@ export async function newVoice(
 
     await ctx.replyWithChatAction("typing");
 
-    const fileBlob = await fetchMediaFileBlob(audioFilePath);
+    const fileBlob = await fetchMediaFileBlob(audioFilePath, ctx.api.token);
     if (!fileBlob) {
         await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
         return;
     }
 
-    const voiceID = await getVoiceIDText(conversation, ctx);
+    const voiceId = await getVoiceIDText(conversation, ctx);
     const voiceTitle = await getVoiceTitleText(conversation, ctx);
 
     await ctx.replyWithChatAction("upload_voice");
@@ -62,7 +62,12 @@ export async function newVoice(
     });
 
     await conversation.external(() =>
-        addNewVoice(voiceID, voiceTitle, file_id, file_unique_id),
+        addRegularVoice({
+            voiceId,
+            voiceTitle,
+            fileId: file_id,
+            fileUniqueId: file_unique_id,
+        }),
     );
     await conversation.external(() => unlink(input));
     await conversation.external(() => unlink(output));

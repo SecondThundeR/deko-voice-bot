@@ -20,7 +20,6 @@ interface ConfigContext {
         creatorID?: number;
         stickerFileID?: string;
         isCreator: boolean;
-        isCachingDisabled: boolean;
     };
 }
 

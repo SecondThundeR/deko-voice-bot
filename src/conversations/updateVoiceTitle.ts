@@ -1,6 +1,6 @@
-import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText";
+import { updateVoiceTitle as updateTitle } from "@/drizzle/queries/update";
 
-import { updateTitle } from "@/src/database/general/voices/updateTitle";
+import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
 

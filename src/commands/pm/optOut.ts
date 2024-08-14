@@ -1,10 +1,9 @@
 import { Composer } from "grammy";
 
-import { sendInlineRequestKeyboard } from "@/src/constants/keyboards";
+import { deleteAllUserFavoritesQuery } from "@/drizzle/prepared/usersFavorites";
+import { markUserAsIgnored } from "@/drizzle/queries/update";
 
-import { addIgnoredUser } from "@/src/database/general/ignoredUsers/addIgnoredUser";
-
-import { getOptOutMessageText } from "@/src/helpers/locale";
+import { getFormattedUserData } from "@/src/helpers/user";
 
 import type { BotContext } from "@/src/types/bot";
 
@@ -15,27 +14,15 @@ optOutCommand.command("optout", async (ctx) => {
         return await ctx.reply(ctx.t("general.failedToGetUserData"));
     }
 
-    const currentUserID = ctx.from.id;
+    const userId = ctx.from.id;
+    const lastUserData = await markUserAsIgnored(userId);
+    if (lastUserData === null) return await ctx.reply(ctx.t("optout.failed"));
 
-    try {
-        const lastUserData = await addIgnoredUser(currentUserID);
-        if (!lastUserData) return await ctx.reply(ctx.t("optout.failed"));
-
-        await ctx.reply(getOptOutMessageText(ctx, lastUserData), {
+    await deleteAllUserFavoritesQuery.execute({ userId });
+    await ctx.reply(
+        ctx.t("optout.success", getFormattedUserData(lastUserData)),
+        {
             parse_mode: "HTML",
-        });
-    } catch (error: unknown) {
-        let errorMessage = `User "${currentUserID}" failed to opt out. Details: `;
-
-        if (error instanceof Error) {
-            errorMessage += error.message;
-        } else {
-            errorMessage += JSON.stringify(error, null, 4);
-        }
-
-        console.error(errorMessage);
-        await ctx.reply(ctx.t("optout.exception"), {
-            reply_markup: sendInlineRequestKeyboard,
-        });
-    }
+        },
+    );
 });

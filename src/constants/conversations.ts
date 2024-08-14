@@ -15,5 +15,3 @@ export const CONVERSATIONS: ConversationsData[] = [
     ["voice-title-update", updateVoiceTitle],
     ["voice-url-update", updateVoiceURL],
 ];
-
-export const VOICE_ID_LENGTH = 64;
