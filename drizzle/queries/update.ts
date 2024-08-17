@@ -2,16 +2,16 @@ import { and, eq, getTableColumns } from "drizzle-orm";
 
 import { db } from "../db";
 import {
-    type SelectFeatureFlag,
     usersTable,
-    type SelectUser,
-    type SelectVoice,
     voicesTable,
+    type InsertVoice,
+    type InsertFeatureFlag,
+    type InsertUser,
 } from "../schema";
 import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
 
 // Feature Flags
-export async function toggleFeatureFlag(name: SelectFeatureFlag["name"]) {
+export async function toggleFeatureFlag(name: InsertFeatureFlag["name"]) {
     const [updatedFeatureFlag] = await toggleFeatureFlagQuery.execute({ name });
 
     if (!updatedFeatureFlag) return null;
@@ -21,8 +21,8 @@ export async function toggleFeatureFlag(name: SelectFeatureFlag["name"]) {
 
 // Voices
 export async function updateVoiceId(
-    voiceId: SelectVoice["voiceId"],
-    newVoiceId: SelectVoice["voiceId"],
+    voiceId: InsertVoice["voiceId"],
+    newVoiceId: InsertVoice["voiceId"],
 ) {
     const [updatedVoice] = await db
         .update(voicesTable)
@@ -34,8 +34,8 @@ export async function updateVoiceId(
 }
 
 export async function updateVoiceTitle(
-    voiceId: SelectVoice["voiceId"],
-    newVoiceTitle: SelectVoice["voiceTitle"],
+    voiceId: InsertVoice["voiceId"],
+    newVoiceTitle: InsertVoice["voiceTitle"],
 ) {
     const [updatedVoice] = await db
         .update(voicesTable)
@@ -47,8 +47,8 @@ export async function updateVoiceTitle(
 }
 
 export async function updateVoiceFile(
-    voiceId: SelectVoice["voiceId"],
-    { fileId, fileUniqueId }: Pick<SelectVoice, "fileId" | "fileUniqueId">,
+    voiceId: InsertVoice["voiceId"],
+    { fileId, fileUniqueId }: Pick<InsertVoice, "fileId" | "fileUniqueId">,
 ) {
     const [updatedVoice] = await db
         .update(voicesTable)
@@ -60,8 +60,8 @@ export async function updateVoiceFile(
 }
 
 export async function updateVoiceURL(
-    voiceId: SelectVoice["voiceId"],
-    { url, fileUniqueId }: Pick<SelectVoice, "url" | "fileUniqueId">,
+    voiceId: InsertVoice["voiceId"],
+    { url, fileUniqueId }: Pick<InsertVoice, "url" | "fileUniqueId">,
 ) {
     const [updatedVoice] = await db
         .update(voicesTable)
@@ -73,7 +73,7 @@ export async function updateVoiceURL(
 }
 
 // Users
-export async function markUserAsIgnored(userId: SelectUser["userId"]) {
+export async function markUserAsIgnored(userId: InsertUser["userId"]) {
     const { isIgnored, ...returningCols } = getTableColumns(usersTable);
     const [ignoredUser] = await db
         .update(usersTable)
@@ -98,7 +98,7 @@ export async function markUserAsNotIgnored({
     userId,
     fullname,
     username,
-}: Omit<SelectUser, "id" | "isIgnored" | "usesAmount" | "lastUsedAt">) {
+}: Omit<InsertUser, "id" | "isIgnored" | "usesAmount" | "lastUsedAt">) {
     const [userRestoreStatus] = await db
         .update(usersTable)
         .set({

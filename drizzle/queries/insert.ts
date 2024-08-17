@@ -14,23 +14,25 @@ import {
 export async function addRegularVoice(
     data: Omit<InsertVoice, "url" | "usesAmount">,
 ) {
-    const { rowCount } = await db
+    const insertedData = await db
         .insert(voicesTable)
         .values(data)
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
 
-    return rowCount > 0;
+    return insertedData.length > 0;
 }
 
 export async function addRemoteVoice(
     data: Omit<InsertVoice, "fileId" | "usesAmount">,
 ) {
-    const { rowCount } = await db
+    const insertedData = await db
         .insert(voicesTable)
         .values(data)
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
 
-    return rowCount > 0;
+    return insertedData.length > 0;
 }
 
 // Users
@@ -39,7 +41,7 @@ export async function updateUserData({
     fullname,
     username,
 }: Omit<InsertUser, "isIgnored" | "usesAmount" | "lastUsedAt">) {
-    const { rowCount } = await db
+    const insertedData = await db
         .insert(usersTable)
         .values({
             userId,
@@ -54,9 +56,10 @@ export async function updateUserData({
                 username,
                 usesAmount: sql`${usersTable.usesAmount} + 1`,
             },
-        });
+        })
+        .returning();
 
-    return rowCount > 0;
+    return insertedData.length > 0;
 }
 
 // Users Favorites
@@ -64,10 +67,11 @@ export async function addUserFavorite({
     userId,
     voiceId,
 }: InsertUserFavorites) {
-    const { rowCount } = await db
+    const insertedData = await db
         .insert(usersFavoritesTable)
         .values({ userId, voiceId })
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
 
-    return rowCount > 0;
+    return insertedData.length > 0;
 }
