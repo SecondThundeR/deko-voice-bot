@@ -13,7 +13,6 @@ import { getUserIgnoreStatusQuery } from "../prepared/users";
 import { getUserFavoritesQuery } from "../prepared/usersFavorites";
 import { getFeatureFlagQuery } from "../prepared/featureFlags";
 
-// Feature Flags
 export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {
     const [featureFlag] = await getFeatureFlagQuery.execute({ name });
 
@@ -22,7 +21,6 @@ export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {
     return featureFlag.status;
 }
 
-// Voices
 export async function getVoicesCount(query?: SelectVoice["voiceTitle"]) {
     const [voicesCount] = await db
         .select({ count: count() })
@@ -39,7 +37,6 @@ export async function getVoices(query?: SelectVoice["voiceTitle"]) {
         .where(query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined);
 }
 
-// Users
 export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
     const [userIgnoreStatus] = await getUserIgnoreStatusQuery.execute({
         userId,
@@ -50,7 +47,6 @@ export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
     return userIgnoreStatus.isIgnored;
 }
 
-// Users Favorites
 export async function getUserFavorites(userId: SelectUserFavorites["userId"]) {
     const favoritesData = await getUserFavoritesQuery.execute({ userId });
 

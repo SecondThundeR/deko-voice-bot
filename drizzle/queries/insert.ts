@@ -10,7 +10,6 @@ import {
     type InsertVoice,
 } from "../schema";
 
-// Voices
 export async function addRegularVoice(
     data: Omit<InsertVoice, "url" | "usesAmount">,
 ) {
@@ -35,7 +34,6 @@ export async function addRemoteVoice(
     return insertedData.length > 0;
 }
 
-// Users
 export async function updateUserData({
     userId,
     fullname,
@@ -62,7 +60,6 @@ export async function updateUserData({
     return insertedData.length > 0;
 }
 
-// Users Favorites
 export async function addUserFavorite({
     userId,
     voiceId,

@@ -10,7 +10,6 @@ import {
 } from "../schema";
 import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
 
-// Feature Flags
 export async function toggleFeatureFlag(name: InsertFeatureFlag["name"]) {
     const [updatedFeatureFlag] = await toggleFeatureFlagQuery.execute({ name });
 
@@ -19,7 +18,6 @@ export async function toggleFeatureFlag(name: InsertFeatureFlag["name"]) {
     return updatedFeatureFlag.status;
 }
 
-// Voices
 export async function updateVoiceId(
     voiceId: InsertVoice["voiceId"],
     newVoiceId: InsertVoice["voiceId"],
@@ -72,7 +70,6 @@ export async function updateVoiceURL(
     return !!updatedVoice;
 }
 
-// Users
 export async function markUserAsIgnored(userId: InsertUser["userId"]) {
     await db
         .update(usersTable)
