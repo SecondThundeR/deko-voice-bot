@@ -5,5 +5,5 @@ export const VOICE_TITLE_LENGTH = 128;
 export const FILE_ID_LENGTH = 128;
 export const FILE_UNIQUE_ID_LENGTH = 32;
 
-export const FULLNAME_LENGTH = 128;
+export const FULLNAME_LENGTH = 160;
 export const USERNAME_LENGTH = 32;

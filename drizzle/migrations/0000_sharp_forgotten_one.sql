@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "users_favorites_table" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users_table" (
 	"user_id" bigint PRIMARY KEY NOT NULL,
-	"fullname" varchar(128),
+	"fullname" varchar(160),
 	"username" varchar(32),
 	"uses_amount" integer DEFAULT 0,
 	"last_used_at" bigint,

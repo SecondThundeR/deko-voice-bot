@@ -96,7 +96,7 @@
         },
         "fullname": {
           "name": "fullname",
-          "type": "varchar(128)",
+          "type": "varchar(160)",
           "primaryKey": false,
           "notNull": false
         },
