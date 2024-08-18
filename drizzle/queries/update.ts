@@ -72,7 +72,7 @@ export async function updateVoiceURL(
 }
 
 export async function markUserAsIgnored(userId: InsertUser["userId"]) {
-    await db
+    const [userIgnoreStatus] = await db
         .update(usersTable)
         .set({
             fullname: null,
@@ -83,7 +83,12 @@ export async function markUserAsIgnored(userId: InsertUser["userId"]) {
         })
         .where(
             and(eq(usersTable.userId, userId), eq(usersTable.isIgnored, false)),
-        );
+        )
+        .returning({ isIgnored: usersTable.isIgnored });
+
+    if (!userIgnoreStatus) return null;
+
+    return true;
 }
 
 export async function markUserAsNotIgnored({
