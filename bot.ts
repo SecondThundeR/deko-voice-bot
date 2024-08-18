@@ -46,7 +46,7 @@ import type { BotContext } from "@/src/types/bot";
 const token = process.env.BOT_TOKEN;
 const creatorID = process.env.CREATOR_ID;
 
-if (!token) {
+if (!token || !process.env.DATABASE_URL) {
     console.error(ENVS_CHECK_FAIL);
     process.exit(1);
 }
