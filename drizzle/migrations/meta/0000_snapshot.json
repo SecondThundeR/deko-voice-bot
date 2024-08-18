@@ -1,5 +1,5 @@
 {
-  "id": "b15ed250-4198-43ce-a385-4657df7f557b",
+  "id": "79353391-2818-4613-9a84-8f35389581cd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -160,8 +160,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "voice_inique_id": {
-          "name": "voice_inique_id",
+        "file_inique_id": {
+          "name": "file_inique_id",
           "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true
