@@ -66,7 +66,12 @@ try {
 
     process.stdout.write("Migrating Ignored Users...");
     const mongoIgnoredUsers = (await mongoIgnoredUsersCol.find().toArray()).map(
-        ({ userID }) => ({ userId: userID, usesAmount: null, isIgnored: true }),
+        ({ userID }) => ({
+            userId: userID,
+            usesAmount: null,
+            lastUsedAt: null,
+            isIgnored: true,
+        }),
     );
     if (mongoIgnoredUsers.length > 0) {
         await db
