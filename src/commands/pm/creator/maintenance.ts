@@ -10,7 +10,6 @@ export const maintenanceCommand = new Composer<BotContext>();
 
 maintenanceCommand.command("maintenance", async (ctx) => {
     const maintenanceStatus = await toggleFeatureFlag(MAINTENANCE_FEATURE_FLAG);
-
     if (maintenanceStatus === null) {
         await ctx.reply(ctx.t("featureFlag.missing"));
         return;
