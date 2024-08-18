@@ -47,7 +47,7 @@ export async function updateUserData({
             userId,
             fullname,
             username,
-            usesAmount: sql`${usersTable.usesAmount} + 1`,
+            usesAmount: 1,
         })
         .onConflictDoUpdate({
             target: usersTable.userId,
