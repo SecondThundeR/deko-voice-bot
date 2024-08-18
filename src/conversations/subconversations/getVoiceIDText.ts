@@ -1,6 +1,5 @@
-import { VOICE_ID_LENGTH } from "@/src/constants/conversations";
-
-import { isNotUniqueVoiceID } from "@/src/helpers/cache";
+import { getVoicesCountByIdQuery } from "@/drizzle/prepared/voices";
+import { VOICE_ID_LENGTH } from "@/drizzle/constraints";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
 
@@ -25,7 +24,11 @@ export async function getVoiceIDText(
     do {
         text = await conversation.form.text();
 
-        if (isNotUniqueVoiceID(text)) {
+        const [{ count }] = await getVoicesCountByIdQuery.execute({
+            voiceId: text,
+        });
+
+        if (count > 0) {
             await ctx.reply(notUnique);
             continue;
         }

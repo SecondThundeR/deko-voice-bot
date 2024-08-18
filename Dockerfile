@@ -25,6 +25,7 @@ COPY . .
 # copy production dependencies and source code into final image
 FROM base AS release
 COPY --from=install /temp/prod/node_modules node_modules
+COPY --from=prerelease /usr/app/drizzle drizzle
 COPY --from=prerelease /usr/app/src src
 COPY --from=prerelease /usr/app/locales locales
 COPY --from=prerelease /usr/app/bot.ts .

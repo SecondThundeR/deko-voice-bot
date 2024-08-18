@@ -1,6 +1,7 @@
 import { Composer } from "grammy";
 
-import { getUserIgnoreStatus } from "@/src/helpers/cache";
+import { getUserIsIgnoredStatus } from "@/drizzle/queries/select";
+
 import { prepareFavoritesSessionMenu } from "@/src/helpers/menu";
 
 import { favoritesMenu } from "@/src/menu/favorites";
@@ -13,7 +14,7 @@ favoritesCommand.command("favorites", async (ctx) => {
     const userID = ctx.from?.id;
     if (!userID) return await ctx.reply(ctx.t("general.failedToGetUserData"));
 
-    const userIgnoreStatus = await getUserIgnoreStatus(userID);
+    const userIgnoreStatus = await getUserIsIgnoredStatus(userID);
     if (userIgnoreStatus) return await ctx.reply(ctx.t("favorites.optout"));
 
     const prepareStatus = await prepareFavoritesSessionMenu(ctx, userID);

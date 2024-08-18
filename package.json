@@ -7,7 +7,9 @@
     "start": "NODE_ENV=production bun run bot.ts",
     "dev": "DEBUG=grammy* NODE_ENV=development bun --watch run bot.ts",
     "format:check": "prettier . --check",
-    "format:fix": "prettier . --write"
+    "format:fix": "prettier . --write",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun run drizzle/migrate.ts"
   },
   "dependencies": {
     "@grammyjs/auto-retry": "^2.0.2",
@@ -15,13 +17,15 @@
     "@grammyjs/i18n": "^1.0.2",
     "@grammyjs/menu": "^1.2.2",
     "@grammyjs/runner": "^2.0.3",
-    "@isaacs/ttlcache": "^1.4.1",
     "dayjs": "^1.11.12",
-    "grammy": "^1.28.0",
-    "mongodb": "^6.8.0"
+    "drizzle-orm": "^0.33.0",
+    "grammy": "^1.29.0",
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
     "@types/bun": "^1.1.6",
+    "drizzle-kit": "^0.24.0",
+    "mongodb": "^6.8.0",
     "prettier": "^3.3.3"
   },
   "peerDependencies": {

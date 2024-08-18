@@ -1,6 +1,6 @@
-import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL";
+import { updateVoiceURL as replaceVoiceURL } from "@/drizzle/queries/update";
 
-import { updateRemoteVoiceURL } from "@/src/database/general/voices/updateRemoteVoiceURL";
+import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
 
@@ -27,7 +27,10 @@ export async function updateVoiceURL(
         });
 
         await conversation.external(() =>
-            updateRemoteVoiceURL(id, newRemoteVoiceURL, file_unique_id),
+            replaceVoiceURL(id, {
+                url: newRemoteVoiceURL,
+                fileUniqueId: file_unique_id,
+            }),
         );
     } catch (error: unknown) {
         console.error(error);

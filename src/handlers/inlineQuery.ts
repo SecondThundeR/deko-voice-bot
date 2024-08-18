@@ -1,13 +1,15 @@
 import { Composer } from "grammy";
 
+import { incrementVoiceUsesAmountQuery } from "@/drizzle/prepared/voices";
+import { updateUserData } from "@/drizzle/queries/insert";
+import { getUserFavorites } from "@/drizzle/queries/select";
+
 import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
 
-import { updateStats } from "@/src/database/general/usersData/updateStats";
-
 import { offsetArray } from "@/src/helpers/array";
-import { getFavoriteVoiceStatusArray } from "@/src/helpers/cache";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery";
-import { getCurrentVoiceQueriesData } from "@/src/helpers/voices";
+import { getVoiceQueries } from "@/src/helpers/voices";
+import { extractUserDetails } from "@/src/helpers/user";
 
 import type { BotContext } from "@/src/types/bot";
 import type { InlineQueriesArray } from "@/src/types/inline";
@@ -15,9 +17,13 @@ import type { InlineQueriesArray } from "@/src/types/inline";
 export const inlineQueryHandler = new Composer<BotContext>();
 
 inlineQueryHandler.on("chosen_inline_result", async (ctx) => {
-    const { from, result_id: voiceID } = ctx.chosenInlineResult;
+    const { from, result_id: voiceId } = ctx.chosenInlineResult;
+    const userDetails = extractUserDetails(from);
 
-    await updateStats(voiceID, from);
+    await incrementVoiceUsesAmountQuery.execute({ voiceId });
+    if (userDetails) {
+        await updateUserData(userDetails);
+    }
 });
 
 inlineQueryHandler.on("inline_query", async (ctx) => {
@@ -25,8 +31,8 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const currentOffset = Number(ctx.update.inline_query.offset) || 0;
     const data = ctx.update.inline_query.query;
 
-    const favoritesIds = await getFavoriteVoiceStatusArray(userID);
-    const currentQueriesArray = (await getCurrentVoiceQueriesData(
+    const favoritesIds = await getUserFavorites(userID);
+    const currentQueriesArray = (await getVoiceQueries(
         data,
         favoritesIds,
     )) as InlineQueriesArray;

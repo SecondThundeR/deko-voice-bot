@@ -1,6 +1,6 @@
-import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText";
+import { updateVoiceId } from "@/drizzle/queries/update";
 
-import { updateID } from "@/src/database/general/voices/updateID";
+import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
 
@@ -20,7 +20,7 @@ export async function updateVoiceID(
     await ctx.replyWithChatAction("typing");
 
     const status = await conversation.external(() =>
-        updateID(voiceData.id, newVoiceID),
+        updateVoiceId(voiceData.id, newVoiceID),
     );
     if (!status) {
         ctx.session.currentVoice = null;

@@ -1,6 +1,5 @@
-import { updateFavoritesData } from "@/src/database/general/usersData/updateFavoritesData";
-
-import { updateFavoriteVoiceStatus } from "@/src/helpers/cache";
+import { deleteUserFavoriteQuery } from "@/drizzle/prepared/usersFavorites";
+import { addUserFavorite } from "@/drizzle/queries/insert";
 
 import type { MenuBotContext } from "@/src/types/bot";
 import type { FavoriteItem } from "@/src/types/favoriteItem";
@@ -9,8 +8,8 @@ export async function favoriteItemHandler(
     ctx: MenuBotContext,
     favorite: FavoriteItem,
 ) {
-    const userID = ctx.from?.id;
-    if (!userID) {
+    const userId = ctx.from?.id;
+    if (!userId) {
         await ctx.answerCallbackQuery({
             text: ctx.t("favorites.inlineAnswerFail"),
         });
@@ -21,12 +20,11 @@ export async function favoriteItemHandler(
     const newFavoriteStatus = !favorite.isFavored;
     const updatedFavorite = { ...favorite, isFavored: newFavoriteStatus };
 
-    const newFavorites = await updateFavoriteVoiceStatus({
-        userID,
-        voiceID: favorite.id,
-        newStatus: newFavoriteStatus,
-    });
-    await updateFavoritesData(userID, newFavorites);
+    if (newFavoriteStatus) {
+        await addUserFavorite({ userId, voiceId: favorite.id });
+    } else {
+        await deleteUserFavoriteQuery.execute({ userId, voiceId: favorite.id });
+    }
 
     ctx.session.currentFavorites =
         currentFavorites?.map((item) =>

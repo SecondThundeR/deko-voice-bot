@@ -1,11 +1,11 @@
 import { InputFile } from "grammy";
 import { unlink } from "fs/promises";
 
+import { updateVoiceFile as replaceVoiceFile } from "@/drizzle/queries/update";
+
 import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "@/src/constants/extensions";
 
 import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath";
-
-import { updateVoiceFileID } from "@/src/database/general/voices/updateVoiceFileID";
 
 import { fetchMediaFileBlob } from "@/src/helpers/api";
 import { convertMP3ToOGGOpus } from "@/src/helpers/general";
@@ -31,7 +31,7 @@ export async function updateVoiceFile(
 
     await ctx.replyWithChatAction("typing");
 
-    const fileBlob = await fetchMediaFileBlob(audioFilePath);
+    const fileBlob = await fetchMediaFileBlob(audioFilePath, ctx.api.token);
     if (!fileBlob) {
         ctx.session.currentVoice = null;
         await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
@@ -62,7 +62,10 @@ export async function updateVoiceFile(
 
     await conversation.external(() =>
         Promise.all([
-            updateVoiceFileID(id, file_id, file_unique_id),
+            replaceVoiceFile(id, {
+                fileId: file_id,
+                fileUniqueId: file_unique_id,
+            }),
             unlink(input),
             unlink(output),
         ]),

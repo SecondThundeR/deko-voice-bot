@@ -1,5 +1,4 @@
 import { GrammyError, HttpError, type BotError } from "grammy";
-import { MongoError } from "mongodb";
 
 import type { BotContext } from "@/src/types/bot";
 
@@ -17,11 +16,6 @@ export const catchHandler = (err: BotError<BotContext>) => {
 
     if (error instanceof HttpError) {
         console.error("Could not contact Telegram:", error);
-        return;
-    }
-
-    if (error instanceof MongoError) {
-        console.error("Something broken with Mongo:", error.errmsg);
         return;
     }
 

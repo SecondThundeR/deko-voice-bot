@@ -3,11 +3,10 @@ import { run, sequentialize } from "@grammyjs/runner";
 import { I18n } from "@grammyjs/i18n";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
-import { MongoClient, MongoError } from "mongodb";
-import { emitKeypressEvents } from "readline";
+
+import { sql } from "@/drizzle/db";
 
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats";
-import { invalidateCommand } from "@/src/commands/pm/creator/invalidate";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance";
 import { newRemoteVoicesCommand } from "@/src/commands/pm/creator/newRemoteVoices";
 import { newVoicesCommand } from "@/src/commands/pm/creator/newVoices";
@@ -34,6 +33,7 @@ import {
     registerCreatorCommands,
     registerUserCommands,
 } from "@/src/helpers/api";
+import { correctProcessExit } from "@/src/helpers/general";
 
 import { catchHandler } from "@/src/handlers/catch";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery";
@@ -46,15 +46,13 @@ import { sessionSetup } from "@/src/middlewares/sessionSetup";
 import type { BotContext } from "@/src/types/bot";
 
 const token = process.env.BOT_TOKEN;
-const mongoURL = process.env.MONGO_URL;
 const creatorID = process.env.CREATOR_ID;
 
-if (!token || !mongoURL) {
+if (!token || !process.env.DATABASE_URL) {
     console.error(ENVS_CHECK_FAIL);
     process.exit(1);
 }
 
-export const client = new MongoClient(mongoURL);
 const bot = new Bot<BotContext>(token);
 const i18n = new I18n<BotContext>({
     defaultLocale: "ru",
@@ -95,7 +93,6 @@ pmCreator
     .use(voicesMenu)
     .use(voiceMenu)
     .use(voiceItemHandler)
-    .use(invalidateCommand)
     .use(maintenanceCommand)
     .use(fullStatsCommand)
     .use(statsCommand)
@@ -109,47 +106,31 @@ bot.catch(catchHandler);
 const runner = run(bot);
 
 const stopRunner = async () => {
-    await client.close();
     if (runner.isRunning()) {
         await runner.stop();
     }
+    await sql.end();
     process.exit();
 };
 
 process.on("SIGINT", stopRunner);
 process.on("SIGTERM", stopRunner);
 process.on("uncaughtException", (error) => {
-    if (error instanceof MongoError) {
-        console.error("Something broken with Mongo:", error.message);
-        process.exit(1);
-    }
-
     console.error("Caught unhandled exception", { error });
 });
 
 try {
-    // TODO: Remove after fix on Bun's side
-    if (process.stdin.isTTY) {
-        emitKeypressEvents(process.stdin);
-        process.stdin.setRawMode(true);
-
-        process.stdin.on("keypress", (_, key) => {
-            if (key.ctrl && key.name === "c") process.exit();
-        });
-    }
-
-    await client.connect();
+    correctProcessExit();
     await Promise.all([
         registerUserCommands(bot.api),
         registerCreatorCommands(bot.api, creatorID),
     ]);
 
-    const botInfo = await bot.api.getMe();
-
+    const { first_name, username } = await bot.api.getMe();
     console.log(
-        `Started as ${botInfo.first_name} (@${botInfo.username})\nRunning on Bun ${Bun.version}`,
+        `Started as ${first_name} (@${username})\nRunning on Bun ${Bun.version}`,
     );
 } catch (e) {
     console.error(e);
-    await client.close();
+    await sql.end();
 }
