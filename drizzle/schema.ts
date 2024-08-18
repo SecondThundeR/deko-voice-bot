@@ -32,7 +32,7 @@ export const voicesTable = pgTable("voices_table", {
     }).notNull(),
     url: varchar("url"),
     fileId: varchar("file_id", { length: FILE_ID_LENGTH }),
-    fileUniqueId: varchar("file_inique_id", {
+    fileUniqueId: varchar("file_unique_id", {
         length: FILE_UNIQUE_ID_LENGTH,
     }).notNull(),
     usesAmount: integer("uses_amount").notNull().default(0),

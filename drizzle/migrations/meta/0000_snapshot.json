@@ -160,8 +160,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "file_inique_id": {
-          "name": "file_inique_id",
+        "file_unique_id": {
+          "name": "file_unique_id",
           "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true

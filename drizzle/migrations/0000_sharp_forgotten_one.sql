@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "voices_table" (
 	"voice_title" varchar(128) NOT NULL,
 	"url" varchar,
 	"file_id" varchar(128),
-	"file_inique_id" varchar(32) NOT NULL,
+	"file_unique_id" varchar(32) NOT NULL,
 	"uses_amount" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
