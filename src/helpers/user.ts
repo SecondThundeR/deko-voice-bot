@@ -8,7 +8,7 @@ export function getFormattedUserData(data: Omit<SelectUser, "isIgnored">) {
     const { userId, fullname, username, lastUsedAt, usesAmount } = data;
 
     return {
-        usesAmount: usesAmount ?? 0,
+        usesAmount: String(usesAmount ?? 0),
         userId: String(userId),
         fullname: fullname ? `\n- Ваше полное имя в Telegram: ${fullname}` : "",
         username: username
