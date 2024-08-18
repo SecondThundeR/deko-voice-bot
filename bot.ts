@@ -4,6 +4,8 @@ import { I18n } from "@grammyjs/i18n";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 
+import { sql } from "@/drizzle/db";
+
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance";
 import { newRemoteVoicesCommand } from "@/src/commands/pm/creator/newRemoteVoices";
@@ -107,6 +109,7 @@ const stopRunner = async () => {
     if (runner.isRunning()) {
         await runner.stop();
     }
+    await sql.end();
     process.exit();
 };
 
@@ -129,4 +132,5 @@ try {
     );
 } catch (e) {
     console.error(e);
+    await sql.end();
 }
