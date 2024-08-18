@@ -9,7 +9,7 @@ export const getUserFavoritesQuery = db
     })
     .from(usersFavoritesTable)
     .where(eq(usersFavoritesTable.userId, sql.placeholder("userId")))
-    .prepare("user_favorites");
+    .prepare("get_user_favorites");
 
 export const deleteUserFavoriteQuery = db
     .delete(usersFavoritesTable)
@@ -18,9 +18,10 @@ export const deleteUserFavoriteQuery = db
             eq(usersFavoritesTable.userId, sql.placeholder("userId")),
             eq(usersFavoritesTable.voiceId, sql.placeholder("voiceId")),
         ),
-    );
+    )
+    .prepare("delete_user_favorite");
 
 export const deleteAllUserFavoritesQuery = db
     .delete(usersFavoritesTable)
     .where(eq(usersFavoritesTable.userId, sql.placeholder("userId")))
-    .prepare("delete_user_favorites");
+    .prepare("delete_all_user_favorites");

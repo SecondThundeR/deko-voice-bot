@@ -9,7 +9,7 @@ export const getFeatureFlagQuery = db
     })
     .from(featureFlagsTable)
     .where(eq(featureFlagsTable.name, sql.placeholder("name")))
-    .prepare("feature_flag");
+    .prepare("get_feature_flag");
 
 export const toggleFeatureFlagQuery = db
     .update(featureFlagsTable)

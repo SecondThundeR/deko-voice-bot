@@ -7,9 +7,9 @@ export const getUsersBasicStatsQuery = db
     .select({ lastUsedAt: usersTable.lastUsedAt })
     .from(usersTable)
     .where(eq(usersTable.isIgnored, false))
-    .prepare("users_basic_stats");
+    .prepare("get_users_basic_stats");
 
-export const usersFullStatsQuery = db
+export const getUsersFullStatsQuery = db
     .select({
         fullname: usersTable.fullname,
         username: usersTable.username,
@@ -18,7 +18,7 @@ export const usersFullStatsQuery = db
     })
     .from(usersTable)
     .where(eq(usersTable.isIgnored, false))
-    .prepare("users_full_stats");
+    .prepare("get_users_full_stats");
 
 export const getUserDataQuery = db
     .select({
@@ -35,10 +35,10 @@ export const getUserDataQuery = db
             eq(usersTable.isIgnored, false),
         ),
     )
-    .prepare("user_data");
+    .prepare("get_user_data");
 
 export const getUserIgnoreStatusQuery = db
     .select({ isIgnored: usersTable.isIgnored })
     .from(usersTable)
     .where(eq(usersTable.userId, sql.placeholder("userId")))
-    .prepare("user_ignore_status");
+    .prepare("get_user_ignore_status");
