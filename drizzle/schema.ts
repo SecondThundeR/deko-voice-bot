@@ -6,6 +6,8 @@ import {
     varchar,
     primaryKey,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+
 import {
     FEATURE_FLAG_NAME_LENGTH,
     FILE_ID_LENGTH,
@@ -15,7 +17,6 @@ import {
     FILE_UNIQUE_ID_LENGTH,
     VOICE_TITLE_LENGTH,
 } from "./constraints";
-import { relations } from "drizzle-orm";
 
 export const featureFlagsTable = pgTable("feature_flags_table", {
     name: varchar("name", { length: FEATURE_FLAG_NAME_LENGTH }).primaryKey(),

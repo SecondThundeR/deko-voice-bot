@@ -1,5 +1,7 @@
 import { and, eq } from "drizzle-orm";
 
+import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
+
 import { db } from "../db";
 import {
     usersTable,
@@ -8,7 +10,6 @@ import {
     type InsertFeatureFlag,
     type InsertUser,
 } from "../schema";
-import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
 
 export async function toggleFeatureFlag(name: InsertFeatureFlag["name"]) {
     const [updatedFeatureFlag] = await toggleFeatureFlagQuery.execute({ name });
