@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "../db";
 import {
@@ -74,8 +74,7 @@ export async function updateVoiceURL(
 
 // Users
 export async function markUserAsIgnored(userId: InsertUser["userId"]) {
-    const { isIgnored, ...returningCols } = getTableColumns(usersTable);
-    const [ignoredUser] = await db
+    await db
         .update(usersTable)
         .set({
             fullname: null,
@@ -86,12 +85,7 @@ export async function markUserAsIgnored(userId: InsertUser["userId"]) {
         })
         .where(
             and(eq(usersTable.userId, userId), eq(usersTable.isIgnored, false)),
-        )
-        .returning(returningCols);
-
-    if (!ignoredUser) return null;
-
-    return ignoredUser;
+        );
 }
 
 export async function markUserAsNotIgnored({
@@ -105,6 +99,7 @@ export async function markUserAsNotIgnored({
             fullname,
             username,
             usesAmount: 0,
+            lastUsedAt: null,
             isIgnored: false,
         })
         .where(
