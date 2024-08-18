@@ -1,0 +1,1 @@
+ALTER TABLE "users_table" ALTER COLUMN "fullname" SET DATA TYPE varchar(256);
