@@ -1,8 +1,8 @@
 import { Composer } from "grammy";
 
+import { getUsersCountByIdQuery } from "@/drizzle/prepared/users";
+import { insertUserData } from "@/drizzle/queries/insert";
 import { markUserAsNotIgnored } from "@/drizzle/queries/update";
-
-import { sendInlineRequestKeyboard } from "@/src/constants/keyboards";
 
 import { extractUserDetails } from "@/src/helpers/user";
 
@@ -16,12 +16,15 @@ optInCommand.command("optin", async (ctx) => {
         return await ctx.reply(ctx.t("general.failedToGetUserData"));
     }
 
-    const optInStatus = await markUserAsNotIgnored(userDetails);
-    if (!optInStatus) {
-        return await ctx.reply(ctx.t("optin.failed"), {
-            reply_markup: sendInlineRequestKeyboard,
-        });
+    const [isUserExists] = await getUsersCountByIdQuery.execute({
+        userId: userDetails.userId,
+    });
+    if (!isUserExists.count) {
+        await insertUserData({ ...userDetails });
+        return await ctx.reply(ctx.t(`optin.newUser`));
     }
 
-    await ctx.reply(ctx.t("optin.success"));
+    const optInStatus = await markUserAsNotIgnored(userDetails);
+    if (optInStatus) return await ctx.reply(ctx.t("optin.success"));
+    return await ctx.reply(ctx.t("optin.alreadyOptedIn"));
 });
