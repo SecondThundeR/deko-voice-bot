@@ -15,6 +15,8 @@ favoritesCommand.command("favorites", async (ctx) => {
     if (!userID) return await ctx.reply(ctx.t("general.failedToGetUserData"));
 
     const userIgnoreStatus = await getUserIsIgnoredStatus(userID);
+    if (userIgnoreStatus === null)
+        return await ctx.reply(ctx.t("favorites.newUser"));
     if (userIgnoreStatus) return await ctx.reply(ctx.t("favorites.optout"));
 
     const prepareStatus = await prepareFavoritesSessionMenu(ctx, userID);
