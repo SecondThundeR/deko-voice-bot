@@ -34,7 +34,8 @@ export async function getVoices(query?: SelectVoice["voiceTitle"]) {
     return await db
         .select()
         .from(voicesTable)
-        .where(query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined);
+        .where(query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined)
+        .orderBy(voicesTable.voiceTitle);
 }
 
 export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
