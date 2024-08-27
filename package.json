@@ -23,8 +23,8 @@
     "postgres": "^3.4.4"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.7",
-    "drizzle-kit": "^0.24.1",
+    "@types/bun": "^1.1.8",
+    "drizzle-kit": "^0.24.2",
     "mongodb": "^6.8.0",
     "prettier": "^3.3.3"
   },
