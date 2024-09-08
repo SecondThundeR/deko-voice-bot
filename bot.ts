@@ -33,7 +33,6 @@ import {
     registerCreatorCommands,
     registerUserCommands,
 } from "@/src/helpers/api";
-import { correctProcessExit } from "@/src/helpers/general";
 
 import { catchHandler } from "@/src/handlers/catch";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery";
@@ -120,7 +119,6 @@ process.on("uncaughtException", (error) => {
 });
 
 try {
-    correctProcessExit();
     await Promise.all([
         registerUserCommands(bot.api),
         registerCreatorCommands(bot.api, creatorID),

@@ -1,5 +1,3 @@
-import { emitKeypressEvents } from "readline";
-
 import {
     GOOGLE_DRIVE_DOWNLOAD_LINK,
     GOOGLE_DRIVE_LINK_CHECK_REGEX,
@@ -80,18 +78,6 @@ export async function convertMP3ToOGGOpus(
             status: false,
             error: error.message,
         };
-    }
-}
-
-// TODO: Remove after fix on Bun's side
-export function correctProcessExit() {
-    if (process.stdin.isTTY) {
-        emitKeypressEvents(process.stdin);
-        process.stdin.setRawMode(true);
-
-        process.stdin.on("keypress", (_, key) => {
-            if (key.ctrl && key.name === "c") process.exit();
-        });
     }
 }
 
