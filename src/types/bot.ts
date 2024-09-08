@@ -23,11 +23,9 @@ interface ConfigContext {
     };
 }
 
-type Session = SessionFlavor<SessionData>;
-
 export type BotContext = Context &
     ConfigContext &
-    Session &
+    SessionFlavor<SessionData> &
     I18nFlavor &
     ConversationFlavor;
 export type MenuBotContext = BotContext & MenuFlavor;
