@@ -23,12 +23,12 @@
     "postgres": "^3.4.4"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.8",
+    "@types/bun": "^1.1.9",
     "drizzle-kit": "^0.24.2",
-    "mongodb": "^6.8.1",
+    "mongodb": "^6.9.0",
     "prettier": "^3.3.3"
   },
   "peerDependencies": {
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.2"
   }
 }
