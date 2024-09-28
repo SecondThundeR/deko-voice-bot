@@ -36,6 +36,7 @@ import {
 } from "@/src/helpers/api";
 
 import { catchHandler } from "@/src/handlers/catch";
+import { importDataHandler } from "@/src/handlers/importData";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery";
 import { voiceItemHandler } from "@/src/handlers/voiceItem";
 
@@ -90,6 +91,7 @@ pm.use(favoritesMenu)
     .use(favoritesCommand);
 
 pmCreator
+    .use(importDataHandler)
     .use(voicesMenu)
     .use(voiceMenu)
     .use(voiceItemHandler)

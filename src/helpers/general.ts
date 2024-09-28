@@ -84,3 +84,7 @@ export async function convertMP3ToOGGOpus(
 export function isEmpty(val: unknown) {
     return val == null || !(Object.keys(val) || val).length;
 }
+
+export function isMimeTypeJson(mimeType: string | undefined) {
+    return mimeType === "application/json";
+}
