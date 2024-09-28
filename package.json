@@ -14,7 +14,7 @@
   "dependencies": {
     "@grammyjs/auto-retry": "^2.0.2",
     "@grammyjs/conversations": "^1.2.0",
-    "@grammyjs/i18n": "^1.0.2",
+    "@grammyjs/i18n": "^1.1.2",
     "@grammyjs/menu": "^1.2.2",
     "@grammyjs/runner": "^2.0.3",
     "dayjs": "^1.11.13",
@@ -23,7 +23,7 @@
     "postgres": "^3.4.4"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.9",
+    "@types/bun": "^1.1.10",
     "drizzle-kit": "^0.24.2",
     "mongodb": "^6.9.0",
     "prettier": "^3.3.3"
