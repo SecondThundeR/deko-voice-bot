@@ -56,7 +56,9 @@ try {
             .onConflictDoUpdate({
                 target: featureFlagsTable.name,
                 set: {
-                    status: sql`excluded.status`,
+                    status: sql.raw(
+                        `excluded.${featureFlagsTable.status.name}`,
+                    ),
                 },
             });
     }
@@ -109,10 +111,14 @@ try {
             .onConflictDoUpdate({
                 target: usersTable.userId,
                 set: {
-                    fullname: sql`excluded.fullname`,
-                    username: sql`excluded.username`,
-                    usesAmount: sql`excluded.uses_amount`,
-                    lastUsedAt: sql`excluded.last_used_at`,
+                    fullname: sql.raw(`excluded.${usersTable.fullname.name}`),
+                    username: sql.raw(`excluded.${usersTable.username.name}`),
+                    usesAmount: sql.raw(
+                        `excluded.${usersTable.usesAmount.name}`,
+                    ),
+                    lastUsedAt: sql.raw(
+                        `excluded.${usersTable.lastUsedAt.name}`,
+                    ),
                     isIgnored: false,
                 },
             });
@@ -137,11 +143,17 @@ try {
             .onConflictDoUpdate({
                 target: voicesTable.voiceId,
                 set: {
-                    voiceTitle: sql`excluded.voice_title`,
-                    url: sql`excluded.url`,
-                    fileId: sql`excluded.file_id`,
-                    fileUniqueId: sql`excluded.file_unique_id`,
-                    usesAmount: sql`excluded.uses_amount`,
+                    voiceTitle: sql.raw(
+                        `excluded.${voicesTable.voiceTitle.name}`,
+                    ),
+                    url: sql.raw(`excluded.${voicesTable.url.name}`),
+                    fileId: sql.raw(`excluded.${voicesTable.fileId.name}`),
+                    fileUniqueId: sql.raw(
+                        `excluded.${voicesTable.fileUniqueId.name}`,
+                    ),
+                    usesAmount: sql.raw(
+                        `excluded.${voicesTable.usesAmount.name}`,
+                    ),
                 },
             });
     }
