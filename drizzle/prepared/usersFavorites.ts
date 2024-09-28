@@ -3,6 +3,11 @@ import { eq, and, sql } from "drizzle-orm";
 import { db } from "../db";
 import { usersFavoritesTable } from "../schema";
 
+export const getAllUserFavoritesQuery = db
+    .select()
+    .from(usersFavoritesTable)
+    .prepare("get_all_user_favorites");
+
 export const getUserFavoritesQuery = db
     .select({
         voiceId: usersFavoritesTable.voiceId,
