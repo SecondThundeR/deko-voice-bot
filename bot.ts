@@ -6,6 +6,7 @@ import { conversations, createConversation } from "@grammyjs/conversations";
 
 import { sql } from "@/drizzle/db";
 
+import { exportDataCommand } from "@/src/commands/pm/creator/exportData";
 import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats";
 import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance";
 import { newRemoteVoicesCommand } from "@/src/commands/pm/creator/newRemoteVoices";
@@ -35,6 +36,7 @@ import {
 } from "@/src/helpers/api";
 
 import { catchHandler } from "@/src/handlers/catch";
+import { importDataHandler } from "@/src/handlers/importData";
 import { inlineQueryHandler } from "@/src/handlers/inlineQuery";
 import { voiceItemHandler } from "@/src/handlers/voiceItem";
 
@@ -89,6 +91,7 @@ pm.use(favoritesMenu)
     .use(favoritesCommand);
 
 pmCreator
+    .use(importDataHandler)
     .use(voicesMenu)
     .use(voiceMenu)
     .use(voiceItemHandler)
@@ -98,7 +101,8 @@ pmCreator
     .use(newVoicesCommand)
     .use(newRemoteVoicesCommand)
     .use(voiceCommand)
-    .use(voicesCommand);
+    .use(voicesCommand)
+    .use(exportDataCommand);
 
 bot.catch(catchHandler);
 

@@ -32,4 +32,8 @@ export const CREATOR_COMMANDS: BotCommand[] = [
         command: "/newremotevoices",
         description: "Добавить новые реплики через ссылки",
     },
+    {
+        command: "/export",
+        description: "Экспортировать данные из базы данных в JSON файл",
+    },
 ];

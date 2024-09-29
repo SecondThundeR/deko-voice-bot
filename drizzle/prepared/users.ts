@@ -3,6 +3,11 @@ import { eq, and, sql, count } from "drizzle-orm";
 import { db } from "../db";
 import { usersTable } from "../schema";
 
+export const getAllUsersQuery = db
+    .select()
+    .from(usersTable)
+    .prepare("get_all_users");
+
 export const getUsersCountByIdQuery = db
     .select({ count: count() })
     .from(usersTable)
