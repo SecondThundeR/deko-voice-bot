@@ -1,7 +1,7 @@
 import { newRemoteVoices } from "@/src/conversations/newRemoteVoices";
 import { newVoices } from "@/src/conversations/newVoices";
 import { replaceVoiceFile } from "@/src/conversations/replaceVoiceFile";
-import { replaceVoiceURL } from "@/src/conversations/replaceVoiceUrl";
+import { replaceVoiceURL } from "@/src/conversations/replaceVoiceURL";
 import { updateVoiceFile } from "@/src/conversations/updateVoiceFile";
 import { updateVoiceID } from "@/src/conversations/updateVoiceID";
 import { updateVoiceTitle } from "@/src/conversations/updateVoiceTitle";
