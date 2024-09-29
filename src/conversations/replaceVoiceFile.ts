@@ -1,11 +1,11 @@
-import { updateVoiceURL as replaceVoiceURL } from "@/drizzle/queries/update";
+import { replaceVoiceFile as replaceVoice } from "@/drizzle/queries/update";
 
 import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
 import { convertVoiceUrl } from "../helpers/general";
 
-export async function updateVoiceURL(
+export async function replaceVoiceFile(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
@@ -15,6 +15,8 @@ export async function updateVoiceURL(
     const { id, title } = voiceData;
     const audioRemoteURL = await getAudioRemoteURL(conversation, ctx);
     const convertedRemoteURL = convertVoiceUrl(audioRemoteURL);
+
+    await ctx.replyWithChatAction("upload_voice");
 
     try {
         const {
@@ -27,7 +29,7 @@ export async function updateVoiceURL(
         });
 
         await conversation.external(() =>
-            replaceVoiceURL(id, {
+            replaceVoice(id, {
                 url: convertedRemoteURL,
                 fileUniqueId: file_unique_id,
             }),

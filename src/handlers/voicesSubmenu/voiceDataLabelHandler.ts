@@ -6,3 +6,10 @@ export function updateVoiceLabelHandler(ctx: BotContext) {
 
     return ctx.t(`voices.update${translationPath}`);
 }
+
+export function replaceVoiceLabelHandler(ctx: BotContext) {
+    const translationPath =
+        ctx.session.currentVoice?.voice_file_id !== undefined ? "File" : "URL";
+
+    return ctx.t(`voices.replace${translationPath}`);
+}
