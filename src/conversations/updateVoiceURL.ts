@@ -2,8 +2,9 @@ import { updateVoiceURL as replaceVoiceURL } from "@/drizzle/queries/update";
 
 import { getAudioRemoteURL } from "@/src/conversations/subconversations/getAudioRemoteURL";
 
+import { convertVoiceUrl } from "@/src/helpers/general";
+
 import type { BotContext, ConversationContext } from "@/src/types/bot";
-import { convertVoiceUrl } from "../helpers/general";
 
 export async function updateVoiceURL(
     conversation: ConversationContext,
