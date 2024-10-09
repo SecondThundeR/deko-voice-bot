@@ -1,4 +1,4 @@
-import { eq, and, sql, count } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 
 import { db } from "../db";
 import { usersTable } from "../schema";
@@ -7,12 +7,6 @@ export const getAllUsersQuery = db
     .select()
     .from(usersTable)
     .prepare("get_all_users");
-
-export const getUsersCountByIdQuery = db
-    .select({ count: count() })
-    .from(usersTable)
-    .where(eq(usersTable.userId, sql.placeholder("userId")))
-    .prepare("get_users_count_by_id");
 
 export const getUsersBasicStatsQuery = db
     .select({ lastUsedAt: usersTable.lastUsedAt })

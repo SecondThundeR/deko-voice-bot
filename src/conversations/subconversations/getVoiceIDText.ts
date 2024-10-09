@@ -1,4 +1,4 @@
-import { getVoicesCountByIdQuery } from "@/drizzle/prepared/voices";
+import { isVoiceIdUnique } from "@/drizzle/queries/select";
 import { VOICE_ID_LENGTH } from "@/drizzle/constraints";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
@@ -24,11 +24,8 @@ export async function getVoiceIDText(
     do {
         text = await conversation.form.text();
 
-        const [{ count }] = await getVoicesCountByIdQuery.execute({
-            voiceId: text,
-        });
-
-        if (count > 0) {
+        const isIdUnique = await isVoiceIdUnique(text);
+        if (!isIdUnique) {
             await ctx.reply(notUnique);
             continue;
         }

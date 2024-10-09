@@ -1,4 +1,4 @@
-import { count, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { db } from "../db";
 import { voicesTable } from "../schema";
@@ -28,12 +28,6 @@ export const getVoiceByUniqueIdQuery = db
     .from(voicesTable)
     .where(eq(voicesTable.fileUniqueId, sql.placeholder("fileUniqueId")))
     .prepare("get_voice_by_unique_id");
-
-export const getVoicesCountByIdQuery = db
-    .select({ count: count() })
-    .from(voicesTable)
-    .where(eq(voicesTable.voiceId, sql.placeholder("voiceId")))
-    .prepare("get_voices_count_by_id");
 
 export const incrementVoiceUsesAmountQuery = db
     .update(voicesTable)

@@ -1,7 +1,7 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/connect";
 
-export const sql = postgres(process.env.DATABASE_URL!);
-export const db = drizzle(sql, {
+export const db = await drizzle("postgres-js", {
+    connection: process.env.DATABASE_URL!,
+    casing: "snake_case",
     logger: process.env.NODE_ENV === "development",
 });

@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
 
-import { getUsersCountByIdQuery } from "@/drizzle/prepared/users";
 import { insertUserData } from "@/drizzle/queries/insert";
+import { isUserExists } from "@/drizzle/queries/select";
 import { markUserAsNotIgnored } from "@/drizzle/queries/update";
 
 import { extractUserDetails } from "@/src/helpers/user";
@@ -16,10 +16,8 @@ optInCommand.command("optin", async (ctx) => {
         return await ctx.reply(ctx.t("general.failedToGetUserData"));
     }
 
-    const [isUserExists] = await getUsersCountByIdQuery.execute({
-        userId: userDetails.userId,
-    });
-    if (!isUserExists.count) {
+    const isExists = await isUserExists(userDetails.userId);
+    if (!isExists) {
         await insertUserData({ ...userDetails });
         return await ctx.reply(ctx.t(`optin.newUser`));
     }
