@@ -18,7 +18,7 @@ User can access personal collected data via `/mydata` command in personal chat w
 
 You can stop all collection of information by the Bot easily by sending `/optout` command in personal chat with the Bot. After executing the command, all collected User data is completely deleted.
 
-If the User wants to participate in data collection after the opt out, this can be canceled by sending the command `/optin` in a personal chat with the Bot.
+If the User wants to participate in data collection after the opt out, this can be done by sending the command `/optin` in a personal chat with the Bot.
 
 **Data Retention Policy**
 
