@@ -29,8 +29,7 @@ export async function genericOutdatedHandler<T>(
     } catch (error: unknown) {
         const isBannedByUser = await isBotBlockedByUser(ctx);
         if (isBannedByUser) {
-            await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
-            return;
+            return await ctx.answerCallbackQuery(ctx.t("inline.blocked"));
         }
 
         if (!(error instanceof GrammyError)) {

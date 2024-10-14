@@ -13,11 +13,10 @@ export async function genericPrevHandler(
     const { currentOffset, elementsPerPage, offsetUpdate } = data;
 
     if (currentOffset === 0) {
-        await ctx.answerCallbackQuery({
+        return await ctx.answerCallbackQuery({
             text: ctx.t("menu.alreadyPrev"),
             show_alert: true,
         });
-        return;
     }
 
     const newOffset = currentOffset - elementsPerPage;

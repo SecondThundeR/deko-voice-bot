@@ -1,5 +1,5 @@
 import { InputFile } from "grammy";
-import { unlink } from "fs/promises";
+import { unlink } from "node:fs/promises";
 
 import { addRegularVoice } from "@/drizzle/queries/insert";
 
@@ -20,8 +20,7 @@ export async function newVoice(
 ) {
     const audioFilePath = await getAudioFilePath(conversation, ctx);
     if (!audioFilePath) {
-        await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
-        return;
+        return await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
     }
 
     await ctx.replyWithChatAction("typing");
@@ -32,8 +31,7 @@ export async function newVoice(
         returnType: "blob",
     });
     if (!fileBlob) {
-        await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
-        return;
+        return await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
     }
 
     const voiceId = await getVoiceIDText(conversation, ctx);
@@ -53,8 +51,9 @@ export async function newVoice(
         convertMP3ToOGGOpus(input, output),
     );
     if (!status) {
-        await ctx.reply(ctx.t("newvoices.convertFailed", { errorMsg: error }));
-        return;
+        return await ctx.reply(
+            ctx.t("newvoices.convertFailed", { errorMsg: error }),
+        );
     }
 
     const {
@@ -76,7 +75,5 @@ export async function newVoice(
     await conversation.external(() => unlink(input));
     await conversation.external(() => unlink(output));
 
-    if (conversation.session.addedVoices) {
-        conversation.session.addedVoices.push(voiceTitle);
-    }
+    conversation.session.addedVoices?.push(voiceTitle);
 }

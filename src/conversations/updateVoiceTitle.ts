@@ -24,8 +24,7 @@ export async function updateVoiceTitle(
     );
     if (!status) {
         ctx.session.currentVoice = null;
-        await ctx.reply(ctx.t("voicetitle.failed"));
-        return;
+        return await ctx.reply(ctx.t("voicetitle.failed"));
     }
 
     await ctx.reply(

@@ -10,10 +10,9 @@ export async function favoriteItemHandler(
 ) {
     const userId = ctx.from?.id;
     if (!userId) {
-        await ctx.answerCallbackQuery({
+        return await ctx.answerCallbackQuery({
             text: ctx.t("favorites.inlineAnswerFail"),
         });
-        return;
     }
 
     const { currentFavorites } = ctx.session;

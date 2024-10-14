@@ -18,8 +18,7 @@ cancelCommand.command("cancel", async (ctx) => {
     await ctx.conversation.exit();
 
     if (conversationMode === "update") {
-        await ctx.reply(ctx.t("conversation.updateCancel"));
-        return;
+        return await ctx.reply(ctx.t("conversation.updateCancel"));
     }
 
     const { addedVoices } = ctx.session;

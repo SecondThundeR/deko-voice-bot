@@ -14,20 +14,18 @@ export async function genericNextHandler<T>(
     const { menuElements, currentOffset, elementsPerPage, offsetUpdate } = data;
 
     if (!menuElements) {
-        await ctx.answerCallbackQuery({
+        return await ctx.answerCallbackQuery({
             text: ctx.t("menu.failedToGetSessionData"),
             show_alert: true,
         });
-        return;
     }
 
     const newOffset = currentOffset + elementsPerPage;
     if (newOffset >= menuElements.length) {
-        await ctx.answerCallbackQuery({
+        return await ctx.answerCallbackQuery({
             text: ctx.t("menu.alreadyNext"),
             show_alert: true,
         });
-        return;
     }
 
     offsetUpdate(newOffset);

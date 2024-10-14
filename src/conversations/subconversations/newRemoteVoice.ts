@@ -38,9 +38,7 @@ export async function newRemoteVoice(
             }),
         );
 
-        if (conversation.session.addedVoices) {
-            conversation.session.addedVoices.push(voiceTitle);
-        }
+        conversation.session.addedVoices?.push(voiceTitle);
     } catch (error: unknown) {
         conversation.error(error);
 

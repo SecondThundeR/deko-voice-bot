@@ -1,5 +1,5 @@
 import { InputFile } from "grammy";
-import { unlink } from "fs/promises";
+import { unlink } from "node:fs/promises";
 
 import { updateVoiceFile as replaceVoiceFile } from "@/drizzle/queries/update";
 
@@ -25,8 +25,7 @@ export async function updateVoiceFile(
     const audioFilePath = await getAudioFilePath(conversation, ctx);
     if (!audioFilePath) {
         ctx.session.currentVoice = null;
-        await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
-        return;
+        return await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
     }
 
     await ctx.replyWithChatAction("typing");
@@ -38,8 +37,7 @@ export async function updateVoiceFile(
     });
     if (!fileBlob) {
         ctx.session.currentVoice = null;
-        await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
-        return;
+        return await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
     }
 
     const arrayBuffer = await fileBlob.arrayBuffer();

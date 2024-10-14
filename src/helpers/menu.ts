@@ -68,8 +68,7 @@ export async function closeMenuExceptionHandler(ctx: BotContext) {
     const messageId = ctx.msg?.message_id;
     const replyText = ctx.t("menu.failedToDelete");
     if (!messageId) {
-        await ctx.reply(replyText);
-        return;
+        return await ctx.reply(replyText);
     }
 
     await ctx.reply(replyText, {
@@ -83,8 +82,7 @@ export async function outdatedExceptionHandler(ctx: BotContext) {
     const messageId = ctx.msg?.message_id;
     const replyText = ctx.t("menu.failedToUpdate");
     if (!messageId) {
-        await ctx.reply(replyText);
-        return;
+        return await ctx.reply(replyText);
     }
 
     await ctx.reply(replyText, {

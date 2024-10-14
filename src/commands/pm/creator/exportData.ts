@@ -11,15 +11,16 @@ import type { BotContext } from "@/src/types/bot";
 export const exportDataCommand = new Composer<BotContext>();
 
 exportDataCommand.command("export", async (ctx) => {
-    const fileName = `db-export-${Date.now()}.json`;
-
     await ctx.replyWithChatAction("upload_document");
+
+    const fileName = `db-export-${Date.now()}.json`;
     const [featureFlags, voices, users, usersFavorites] = await Promise.all([
         getAllFeatureFlagsQuery.execute(),
         getAllVoicesQuery.execute(),
         getAllUsersQuery.execute(),
         getAllUserFavoritesQuery.execute(),
     ]);
+
     await Bun.write(
         fileName,
         JSON.stringify(
