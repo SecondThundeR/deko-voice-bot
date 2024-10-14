@@ -24,6 +24,8 @@ interface ConfigContext {
     };
 }
 
+export type CallbackWithContext = (ctx: BotContext) => void;
+
 export type SessionType = SessionFlavor<SessionData>;
 
 export type BotContext = Context &

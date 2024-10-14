@@ -1,10 +1,10 @@
 import { closeMenuExceptionHandler } from "@/src/helpers/menu";
 
-import type { BotContext } from "@/src/types/bot";
+import type { BotContext, CallbackWithContext } from "@/src/types/bot";
 
 export async function genericCloseHandler(
     ctx: BotContext,
-    onClose?: (ctx: BotContext) => void,
+    onClose?: CallbackWithContext,
 ) {
     try {
         await ctx.deleteMessage();

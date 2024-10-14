@@ -1,8 +1,8 @@
-import type { BotContext, MenuBotContext } from "@/src/types/bot";
+import type { CallbackWithContext, MenuBotContext } from "@/src/types/bot";
 
 export async function genericBackHandler(
     ctx: MenuBotContext,
-    onBack?: (ctx: BotContext) => void,
+    onBack?: CallbackWithContext,
     deleteMessage?: boolean,
 ) {
     if (deleteMessage) {
