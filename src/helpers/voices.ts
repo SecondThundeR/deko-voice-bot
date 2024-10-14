@@ -3,7 +3,7 @@ import type { FavoriteVoicesIds } from "@/drizzle/types";
 
 import { FAVORITE_EMOJI } from "@/src/constants/locale";
 
-import type { InlineResultVoice } from "@/src/types/inline";
+import type { InlineQueriesArray, InlineResultVoice } from "@/src/types/inline";
 
 import { convertVoiceDataToQueriesArray } from "./inlineQuery";
 
@@ -33,5 +33,8 @@ export async function getVoiceQueries(
     const latestVoices = await getVoices(queryString);
     const convertedVoiceQueries = convertVoiceDataToQueriesArray(latestVoices);
 
-    return filterFavoriteVoices(convertedVoiceQueries, favoritesIds);
+    return filterFavoriteVoices(
+        convertedVoiceQueries,
+        favoritesIds,
+    ) as InlineQueriesArray;
 }

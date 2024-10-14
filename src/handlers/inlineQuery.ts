@@ -10,7 +10,6 @@ import { getVoiceQueries } from "@/src/helpers/voices";
 import { extractUserDetails } from "@/src/helpers/user";
 
 import type { BotContext } from "@/src/types/bot";
-import type { InlineQueriesArray } from "@/src/types/inline";
 
 export const inlineQueryHandler = new Composer<BotContext>();
 
@@ -30,10 +29,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const data = ctx.update.inline_query.query;
 
     const favoritesIds = await getUserFavorites(userID);
-    const currentQueriesArray = (await getVoiceQueries(
-        data,
-        favoritesIds,
-    )) as InlineQueriesArray;
+    const currentQueriesArray = await getVoiceQueries(data, favoritesIds);
     const { array: paginatedQueries, nextOffset } = getArrayWithOffset(
         currentQueriesArray,
         currentOffset,
