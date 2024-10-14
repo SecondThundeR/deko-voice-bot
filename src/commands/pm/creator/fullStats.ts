@@ -10,8 +10,10 @@ import type { BotContext } from "@/src/types/bot";
 export const fullStatsCommand = new Composer<BotContext>();
 
 fullStatsCommand.command("fullstats", async (ctx) => {
-    const usersData = await getUsersFullStatsQuery.execute();
-    const voicesData = await getVoicesFullStatsQuery.execute();
+    const [usersData, voicesData] = await Promise.all([
+        getUsersFullStatsQuery.execute(),
+        getVoicesFullStatsQuery.execute(),
+    ]);
     const statsMessageData = getFullStatsData(usersData, voicesData);
 
     await ctx.reply(ctx.t("stats.full", statsMessageData), {
