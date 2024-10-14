@@ -13,6 +13,7 @@ interface SessionData {
     currentVoicesOffset: number;
     currentVoice?: InlineResultVoice | null;
     addedVoices?: string[] | null;
+    canRunFFMPEG?: boolean;
 }
 
 interface ConfigContext {
@@ -23,9 +24,11 @@ interface ConfigContext {
     };
 }
 
+export type SessionType = SessionFlavor<SessionData>;
+
 export type BotContext = Context &
     ConfigContext &
-    SessionFlavor<SessionData> &
+    SessionType &
     I18nFlavor &
     ConversationFlavor;
 export type MenuBotContext = BotContext & MenuFlavor;

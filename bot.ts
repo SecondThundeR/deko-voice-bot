@@ -60,17 +60,16 @@ const i18n = new I18n<BotContext>({
         botUsername: `@${ctx.me.username}`,
     }),
 });
-const botConfig = configSetup(creatorID);
 
 bot.api.config.use(autoRetry());
 
 bot.use(sequentialize(getSessionKey))
-    .use(sessionSetup())
     .use(i18n)
-    .use(botConfig)
+    .use(configSetup(creatorID))
+    .use(await sessionSetup())
+    .use(conversations())
     .use(maintenanceGatekeep)
     .use(inlineQueryHandler)
-    .use(conversations())
     .use(cancelCommand);
 
 CONVERSATIONS.forEach(([id, conversation]) => {
