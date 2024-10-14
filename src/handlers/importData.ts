@@ -1,8 +1,8 @@
 import { Composer } from "grammy";
 import { DrizzleError } from "drizzle-orm";
 
-import { fetchMediaFileJSON, getMessageEditCallback } from "@/src/helpers/api";
-import { importDBTransactionHelper } from "@/src/helpers/database";
+import { fetchMediaFileData, getMessageEditCallback } from "@/src/helpers/api";
+import { importDatabaseWithTransaction } from "@/src/helpers/database";
 import { isMimeTypeJson } from "@/src/helpers/general";
 
 import { importFileSchema } from "@/src/schema/importFile";
@@ -21,10 +21,10 @@ importDataHandler.on("msg:document", async (ctx) => {
     const editMessage = getMessageEditCallback(ctx, message);
 
     const fileData = await ctx.getFile();
-    const fileJSON = await fetchMediaFileJSON(
-        fileData.file_path!,
-        ctx.api.token,
-    );
+    const fileJSON = await fetchMediaFileData({
+        filePath: fileData.file_path!,
+        token: ctx.api.token,
+    });
 
     const { data, success } = await importFileSchema.safeParseAsync(fileJSON);
     if (!success) {
@@ -32,7 +32,7 @@ importDataHandler.on("msg:document", async (ctx) => {
     }
 
     try {
-        await importDBTransactionHelper(ctx, editMessage, data);
+        await importDatabaseWithTransaction(ctx, editMessage, data);
     } catch (error) {
         if (error instanceof DrizzleError) {
             console.log("Import failed. Rollback has been completed");

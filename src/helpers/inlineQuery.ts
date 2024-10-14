@@ -22,30 +22,37 @@ export async function getCurrentButtonText(
 
 export function convertVoiceDataToQueriesArray(voicesData: SelectVoice[]) {
     return voicesData
-        .map(({ voiceId: id, voiceTitle: title, url, fileId }) => {
-            if (!url) {
-                return {
-                    type: "voice",
-                    id,
-                    title,
-                    voice_file_id: fileId,
-                };
-            }
+        .map(
+            ({
+                voiceId: id,
+                voiceTitle: title,
+                url,
+                fileId: voice_file_id,
+            }) => {
+                if (!url) {
+                    return {
+                        type: "voice",
+                        id,
+                        title,
+                        voice_file_id,
+                    };
+                }
 
-            try {
-                const voice_url = convertVoiceUrl(url);
+                try {
+                    return {
+                        type: "voice",
+                        id,
+                        title,
+                        voice_url: convertVoiceUrl(url),
+                    };
+                } catch (error: unknown) {
+                    console.error(
+                        `Failed to process "${title}" (${id})\n${error}`,
+                    );
 
-                return {
-                    type: "voice",
-                    id,
-                    title,
-                    voice_url,
-                };
-            } catch (error: unknown) {
-                console.error(`Failed to process "${title}" (${id})\n${error}`);
-
-                return null;
-            }
-        })
+                    return null;
+                }
+            },
+        )
         .filter((item) => item !== null) as InlineResultVoice[];
 }

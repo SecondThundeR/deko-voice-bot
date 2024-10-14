@@ -17,7 +17,7 @@ export async function registerCreatorCommands(api: Api, creatorID?: string) {
     await api.setMyCommands(CREATOR_COMMANDS, {
         scope: {
             type: "chat",
-            chat_id: Number(creatorID),
+            chat_id: creatorID,
         },
     });
 }
@@ -35,23 +35,30 @@ export function getSessionKey(ctx: Context) {
     return ctx.chat?.id.toString();
 }
 
-export async function fetchMediaFileBlob(filePath: string, token: string) {
+export async function fetchMediaFileData({
+    filePath,
+    token,
+    returnType = "json",
+}: {
+    filePath: string;
+    token: string;
+    /**
+     * By default, `json` will be used
+     */
+    returnType?: "blob" | "json";
+}) {
     const file = await fetch(`${BASE_LINK_URL}${token}/${filePath}`);
-    const blob = await file.blob();
 
-    return blob;
-}
+    if (returnType === "json") {
+        return await file.json();
+    }
 
-export async function fetchMediaFileJSON(filePath: string, token: string) {
-    const file = await fetch(`${BASE_LINK_URL}${token}/${filePath}`);
-    const json = await file.json();
-
-    return json;
+    return await file.blob();
 }
 
 export function getMessageEditCallback(ctx: BotContext, message: Message) {
     return async (
-        text: Parameters<Api["editMessageText"]>[2],
+        text: string,
         other?: Parameters<Api["editMessageText"]>[3],
     ) =>
         await ctx.api.editMessageText(

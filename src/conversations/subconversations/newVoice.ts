@@ -9,7 +9,7 @@ import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioF
 import { getVoiceIDText } from "@/src/conversations/subconversations/getVoiceIDText";
 import { getVoiceTitleText } from "@/src/conversations/subconversations/getVoiceTitleText";
 
-import { fetchMediaFileBlob } from "@/src/helpers/api";
+import { fetchMediaFileData } from "@/src/helpers/api";
 import { convertMP3ToOGGOpus } from "@/src/helpers/general";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
@@ -26,7 +26,11 @@ export async function newVoice(
 
     await ctx.replyWithChatAction("typing");
 
-    const fileBlob = await fetchMediaFileBlob(audioFilePath, ctx.api.token);
+    const fileBlob = await fetchMediaFileData({
+        filePath: audioFilePath,
+        token: ctx.api.token,
+        returnType: "blob",
+    });
     if (!fileBlob) {
         await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
         return;

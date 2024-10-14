@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import type { infer as Infer } from "zod";
 
 import { db } from "@/drizzle/db";
 import {
@@ -14,7 +14,7 @@ import type { BotContext } from "@/src/types/bot";
 
 import type { getMessageEditCallback } from "./api";
 
-export async function importDBTransactionHelper(
+export async function importDatabaseWithTransaction(
     ctx: BotContext,
     editMessage: ReturnType<typeof getMessageEditCallback>,
     {
@@ -22,7 +22,7 @@ export async function importDBTransactionHelper(
         voices,
         usersFavorites,
         featureFlags,
-    }: z.infer<typeof importFileSchema>,
+    }: Infer<typeof importFileSchema>,
 ) {
     await db.transaction(async (tx) => {
         try {

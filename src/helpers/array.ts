@@ -1,18 +1,14 @@
-type OffsetArrayOptions<T> = {
-    array: T[];
-    currentOffset: number;
-    offsetSize: number;
-};
+import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
 
-export function offsetArray<T>({
-    array,
-    currentOffset,
-    offsetSize,
-}: OffsetArrayOptions<T>) {
+export function getArrayWithOffset<T>(
+    array: T[],
+    currentOffset: number,
+    offsetSize = MAX_QUERY_ELEMENTS_PER_PAGE,
+) {
     const nextOffset = currentOffset + offsetSize;
 
     return {
         array: array.slice(currentOffset, nextOffset),
-        nextOffset: array.length > nextOffset ? String(nextOffset) : undefined,
+        nextOffset: array.length > nextOffset ? nextOffset : undefined,
     };
 }

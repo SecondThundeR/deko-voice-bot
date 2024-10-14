@@ -12,13 +12,9 @@ type FFMPEGConvertResult =
           error: string;
       };
 
-function isGoogleDriveLink(link: string) {
-    return link.match(GOOGLE_DRIVE_LINK_CHECK_REGEX) !== null;
-}
-
 export function convertVoiceUrl(link: string) {
     if (!link) throw new Error(`Empty link passed: "${link}"`);
-    if (!isGoogleDriveLink(link)) return link;
+    if (!link.match(GOOGLE_DRIVE_LINK_CHECK_REGEX)) return link;
 
     const fileId = link.match(GOOGLE_DRIVE_LINK_CONVERT_REGEX)?.[0];
     if (!fileId) throw new Error(GOOGLE_EXPORT_LINK_FAIL);
@@ -85,6 +81,8 @@ export function isEmpty(val: unknown) {
     return val == null || !(Object.keys(val) || val).length;
 }
 
-export function isMimeTypeJson(mimeType: string | undefined) {
+export function isMimeTypeJson(
+    mimeType: unknown,
+): mimeType is "application/json" {
     return mimeType === "application/json";
 }

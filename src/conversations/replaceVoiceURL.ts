@@ -7,7 +7,7 @@ import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "@/src/constants/extensions";
 
 import { getAudioFilePath } from "@/src/conversations/subconversations/getAudioFilePath";
 
-import { fetchMediaFileBlob } from "@/src/helpers/api";
+import { fetchMediaFileData } from "@/src/helpers/api";
 import { convertMP3ToOGGOpus } from "@/src/helpers/general";
 
 import type { BotContext, ConversationContext } from "@/src/types/bot";
@@ -31,7 +31,11 @@ export async function replaceVoiceURL(
 
     await ctx.replyWithChatAction("typing");
 
-    const fileBlob = await fetchMediaFileBlob(audioFilePath, ctx.api.token);
+    const fileBlob = await fetchMediaFileData({
+        filePath: audioFilePath,
+        token: ctx.api.token,
+        returnType: "blob",
+    });
     if (!fileBlob) {
         ctx.session.currentVoice = null;
         await ctx.reply(ctx.t("newvoices.audioFetchFailed"));

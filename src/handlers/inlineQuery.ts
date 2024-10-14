@@ -4,9 +4,7 @@ import { incrementVoiceUsesAmountQuery } from "@/drizzle/prepared/voices";
 import { updateUserData } from "@/drizzle/queries/insert";
 import { getUserFavorites } from "@/drizzle/queries/select";
 
-import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/src/constants/inline";
-
-import { offsetArray } from "@/src/helpers/array";
+import { getArrayWithOffset } from "@/src/helpers/array";
 import { getCurrentButtonText } from "@/src/helpers/inlineQuery";
 import { getVoiceQueries } from "@/src/helpers/voices";
 import { extractUserDetails } from "@/src/helpers/user";
@@ -36,14 +34,13 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
         data,
         favoritesIds,
     )) as InlineQueriesArray;
-    const { array: paginatedQueries, nextOffset } = offsetArray({
-        array: currentQueriesArray,
+    const { array: paginatedQueries, nextOffset } = getArrayWithOffset(
+        currentQueriesArray,
         currentOffset,
-        offsetSize: MAX_QUERY_ELEMENTS_PER_PAGE,
-    });
+    );
 
     await ctx.answerInlineQuery(paginatedQueries, {
-        next_offset: nextOffset,
+        next_offset: String(nextOffset),
         button: {
             text: await getCurrentButtonText(ctx, data),
             start_parameter: "_",
