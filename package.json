@@ -18,14 +18,14 @@
     "@grammyjs/menu": "^1.2.2",
     "@grammyjs/runner": "^2.0.3",
     "dayjs": "^1.11.13",
-    "drizzle-orm": "^0.34.1",
+    "drizzle-orm": "^0.35.2",
     "grammy": "^1.30.0",
     "postgres": "^3.4.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bun": "^1.1.11",
-    "drizzle-kit": "^0.25.0",
+    "drizzle-kit": "^0.26.2",
     "mongodb": "^6.9.0",
     "prettier": "^3.3.3"
   },
