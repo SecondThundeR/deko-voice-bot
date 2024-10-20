@@ -1,25 +1,36 @@
 import type { Api, Context } from "grammy";
 import type { Message } from "grammy/types";
 
-import { CREATOR_COMMANDS } from "@/src/constants/creatorCommands";
+import { ADMIN_COMMANDS } from "@/src/constants/adminCommands";
 import { BASE_LINK_URL } from "@/src/constants/general";
 import { USER_COMMANDS } from "@/src/constants/userCommands";
 
 import type { BotContext } from "@/src/types/bot";
 
 export async function registerUserCommands(api: Api) {
-    await api.setMyCommands(USER_COMMANDS);
-}
-
-export async function registerCreatorCommands(api: Api, creatorID?: string) {
-    if (!creatorID) return;
-
-    await api.setMyCommands(CREATOR_COMMANDS, {
+    await api.setMyCommands(USER_COMMANDS, {
         scope: {
-            type: "chat",
-            chat_id: creatorID,
+            type: "all_private_chats",
         },
     });
+}
+
+export async function registerAdminCommands(api: Api, adminIds: string) {
+    if (!adminIds) return;
+
+    adminIds
+        .split(" ")
+        .map(Number)
+        // Since there are won't be a lot of admins
+        // this implementation should work fine (i guess :p)
+        .forEach(async (adminId) => {
+            await api.setMyCommands(ADMIN_COMMANDS, {
+                scope: {
+                    type: "chat",
+                    chat_id: adminId,
+                },
+            });
+        });
 }
 
 export async function isBotBlockedByUser(ctx: Context) {

@@ -7,8 +7,8 @@ import { MAINTENANCE_FEATURE_FLAG } from "@/src/constants/featureFlags";
 import type { BotContext } from "@/src/types/bot";
 
 export async function maintenanceGatekeep(ctx: BotContext, next: NextFunction) {
-    const { isCreator } = ctx.config;
-    if (isCreator) return await next();
+    const { isAdmin } = ctx.config;
+    if (isAdmin) return await next();
 
     const isInMaintenance = await getFeatureFlag(MAINTENANCE_FEATURE_FLAG);
     if (!isInMaintenance) return await next();

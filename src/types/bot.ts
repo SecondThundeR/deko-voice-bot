@@ -18,9 +18,9 @@ interface SessionData {
 
 interface ConfigContext {
     config: {
-        creatorID?: number;
+        adminIDs: number[];
+        isAdmin: boolean;
         stickerFileID?: string;
-        isCreator: boolean;
     };
 }
 
