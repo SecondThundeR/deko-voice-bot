@@ -2,7 +2,7 @@ import type { BotCommand } from "grammy/types";
 
 import { USER_COMMANDS } from "@/src/constants/userCommands";
 
-export const CREATOR_COMMANDS: BotCommand[] = [
+export const ADMIN_COMMANDS: BotCommand[] = [
     ...USER_COMMANDS,
     {
         command: "/maintenance",

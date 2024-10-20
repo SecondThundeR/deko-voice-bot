@@ -4,14 +4,14 @@ import { I18n } from "@grammyjs/i18n";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 
-import { exportDataCommand } from "@/src/commands/pm/creator/exportData";
-import { fullStatsCommand } from "@/src/commands/pm/creator/fullStats";
-import { maintenanceCommand } from "@/src/commands/pm/creator/maintenance";
-import { newRemoteVoicesCommand } from "@/src/commands/pm/creator/newRemoteVoices";
-import { newVoicesCommand } from "@/src/commands/pm/creator/newVoices";
-import { statsCommand } from "@/src/commands/pm/creator/stats";
-import { voiceCommand } from "@/src/commands/pm/creator/voice";
-import { voicesCommand } from "@/src/commands/pm/creator/voices";
+import { exportDataCommand } from "@/src/commands/pm/admin/exportData";
+import { fullStatsCommand } from "@/src/commands/pm/admin/fullStats";
+import { maintenanceCommand } from "@/src/commands/pm/admin/maintenance";
+import { newRemoteVoicesCommand } from "@/src/commands/pm/admin/newRemoteVoices";
+import { newVoicesCommand } from "@/src/commands/pm/admin/newVoices";
+import { statsCommand } from "@/src/commands/pm/admin/stats";
+import { voiceCommand } from "@/src/commands/pm/admin/voice";
+import { voicesCommand } from "@/src/commands/pm/admin/voices";
 import { favoritesCommand } from "@/src/commands/pm/favorites";
 import { myDataCommand } from "@/src/commands/pm/myData";
 import { optInCommand } from "@/src/commands/pm/optIn";
@@ -21,7 +21,7 @@ import { startCommand } from "@/src/commands/pm/start";
 import { cancelCommand } from "@/src/commands/cancel";
 
 import { CONVERSATIONS } from "@/src/constants/conversations";
-import { ENVS_CHECK_FAIL } from "@/src/constants/locale";
+import { ADMIN_IDS_CHECK_FAIL, ENVS_CHECK_FAIL } from "@/src/constants/locale";
 
 import { favoritesMenu } from "@/src/menu/favorites";
 import { voiceMenu } from "@/src/menu/voice";
@@ -29,7 +29,7 @@ import { voicesMenu } from "@/src/menu/voices";
 
 import {
     getSessionKey,
-    registerCreatorCommands,
+    registerAdminCommands,
     registerUserCommands,
 } from "@/src/helpers/api";
 
@@ -45,7 +45,12 @@ import { sessionSetup } from "@/src/middlewares/sessionSetup";
 import type { BotContext } from "@/src/types/bot";
 
 const token = process.env.BOT_TOKEN;
-const creatorID = process.env.CREATOR_ID;
+const adminIds = process.env.ADMIN_IDS;
+
+if (adminIds === "") {
+    console.error(ADMIN_IDS_CHECK_FAIL);
+    process.exit(1);
+}
 
 if (!token || !process.env.DATABASE_URL) {
     console.error(ENVS_CHECK_FAIL);
@@ -65,7 +70,7 @@ bot.api.config.use(autoRetry());
 
 bot.use(sequentialize(getSessionKey))
     .use(i18n)
-    .use(configSetup(creatorID))
+    .use(configSetup(adminIds))
     .use(await sessionSetup())
     .use(conversations())
     .use(maintenanceGatekeep)
@@ -77,7 +82,7 @@ CONVERSATIONS.forEach(([id, conversation]) => {
 });
 
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
-const pmCreator = pm.filter((ctx) => ctx.config.isCreator);
+const pmAdmin = pm.filter((ctx) => ctx.config.isAdmin);
 
 pm.use(favoritesMenu)
     .use(startCommand)
@@ -87,7 +92,7 @@ pm.use(favoritesMenu)
     .use(privacyCommand)
     .use(favoritesCommand);
 
-pmCreator
+pmAdmin
     .use(importDataHandler)
     .use(voicesMenu)
     .use(voiceMenu)
@@ -121,7 +126,7 @@ process.on("uncaughtException", (error) => {
 try {
     await Promise.all([
         registerUserCommands(bot.api),
-        registerCreatorCommands(bot.api, creatorID),
+        registerAdminCommands(bot.api, adminIds),
     ]);
 
     const { first_name, username } = await bot.api.getMe();
