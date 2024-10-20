@@ -15,6 +15,13 @@
       "when": 1723996307045,
       "tag": "0001_worthless_lady_bullseye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1729419572286,
+      "tag": "0002_optimal_lord_hawal",
+      "breakpoints": true
     }
   ]
 }
