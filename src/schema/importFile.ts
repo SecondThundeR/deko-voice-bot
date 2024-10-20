@@ -32,7 +32,7 @@ export const importFileSchema = object({
             userId: number(),
             fullname: string().max(FULLNAME_LENGTH).nullable(),
             username: string().max(USERNAME_LENGTH).nullable(),
-            usesAmount: number().default(0),
+            usesAmount: number().default(0).nullable(),
             lastUsedAt: number().nullable(),
             isIgnored: boolean().default(false),
         }),
