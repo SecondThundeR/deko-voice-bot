@@ -26,8 +26,10 @@ importDataHandler.on("msg:document", async (ctx) => {
         token: ctx.api.token,
     });
 
-    const { data, success } = await importFileSchema.safeParseAsync(fileJSON);
+    const { data, success, error } =
+        await importFileSchema.safeParseAsync(fileJSON);
     if (!success) {
+        console.error("Import file validation failed. Detals:", error);
         return await editMessage(ctx.t("importData.validationFailed"));
     }
 
