@@ -47,7 +47,7 @@ import type { BotContext } from "@/src/types/bot";
 const token = process.env.BOT_TOKEN;
 const adminIds = process.env.ADMIN_IDS;
 
-if (adminIds === "") {
+if (!adminIds) {
     console.error(ADMIN_IDS_CHECK_FAIL);
     process.exit(1);
 }
