@@ -1,4 +1,5 @@
-import type { infer as Infer } from "zod";
+import type { infer as Infer } from "zod/v4";
+import chunk from "lodash.chunk";
 
 import { db } from "@/drizzle/db";
 import {
@@ -13,6 +14,8 @@ import type { importFileSchema } from "@/src/schema/importFile";
 import type { BotContext } from "@/src/types/bot";
 
 import type { getMessageEditCallback } from "./api";
+
+const CHUNK_SIZE = 300;
 
 export async function importDatabaseWithTransaction(
     ctx: BotContext,
@@ -32,16 +35,34 @@ export async function importDatabaseWithTransaction(
             await tx.delete(featureFlagsTable);
 
             if (users.length > 0) {
-                await tx.insert(usersTable).values(users);
+                for (const usersChunk of chunk(users, CHUNK_SIZE)) {
+                    await tx.insert(usersTable).values(usersChunk);
+                }
             }
             if (voices.length > 0) {
-                await tx.insert(voicesTable).values(voices);
+                for (const voicesChunk of chunk(voices, CHUNK_SIZE)) {
+                    await tx.insert(voicesTable).values(voicesChunk);
+                }
             }
             if (usersFavorites.length > 0) {
-                await tx.insert(usersFavoritesTable).values(usersFavorites);
+                for (const usersFavoritesChunk of chunk(
+                    usersFavorites,
+                    CHUNK_SIZE,
+                )) {
+                    await tx
+                        .insert(usersFavoritesTable)
+                        .values(usersFavoritesChunk);
+                }
             }
             if (featureFlags.length > 0) {
-                await tx.insert(featureFlagsTable).values(featureFlags);
+                for (const featureFlagsChunk of chunk(
+                    featureFlags,
+                    CHUNK_SIZE,
+                )) {
+                    await tx
+                        .insert(featureFlagsTable)
+                        .values(featureFlagsChunk);
+                }
             }
 
             await editMessage(ctx.t("importData.done"));

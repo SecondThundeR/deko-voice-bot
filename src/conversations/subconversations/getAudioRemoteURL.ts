@@ -6,9 +6,7 @@ export async function getAudioRemoteURL(
 ) {
     await ctx.reply(ctx.t("newremotevoices.URLHint"), { parse_mode: "HTML" });
 
-    const url = await conversation.form.url((ctx) =>
-        ctx.reply(ctx.t("newremotevoices.URLInvalid")),
-    );
+    const url = await conversation.form.entity("url");
 
     return url.toString();
 }

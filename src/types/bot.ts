@@ -32,6 +32,10 @@ export type BotContext = Context &
     ConfigContext &
     SessionType &
     I18nFlavor &
-    ConversationFlavor;
+    ConversationFlavor<Context>;
+
 export type MenuBotContext = BotContext & MenuFlavor;
-export type ConversationContext = Conversation<BotContext>;
+export type ConversationContext = Conversation<
+    Context & SessionType,
+    BotContext
+>;
