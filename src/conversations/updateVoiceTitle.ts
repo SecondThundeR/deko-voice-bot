@@ -24,14 +24,13 @@ export async function updateVoiceTitle(
     );
     if (!status) {
         ctx.session.currentVoice = null;
-        return await ctx.reply(ctx.t("voicetitle.failed"));
+        await ctx.reply(ctx.t("voicetitle.failed"));
+        return;
     }
 
     await ctx.reply(
         ctx.t("voicetitle.success", { voiceTitle: newVoiceTitle }),
-        {
-            parse_mode: "HTML",
-        },
+        { parse_mode: "HTML" },
     );
 
     ctx.session.currentVoice = null;

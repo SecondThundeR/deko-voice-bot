@@ -25,7 +25,8 @@ export async function replaceVoiceURL(
     const audioFilePath = await getAudioFilePath(conversation, ctx);
     if (!audioFilePath) {
         ctx.session.currentVoice = null;
-        return await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
+        await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
+        return;
     }
 
     await ctx.replyWithChatAction("typing");
@@ -37,7 +38,8 @@ export async function replaceVoiceURL(
     });
     if (!fileBlob) {
         ctx.session.currentVoice = null;
-        return await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
+        await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
+        return;
     }
 
     const arrayBuffer = await fileBlob.arrayBuffer();
@@ -59,17 +61,12 @@ export async function replaceVoiceURL(
     const {
         voice: { file_id, file_unique_id },
     } = await ctx.replyWithVoice(new InputFile(output), {
-        caption: ctx.t("newvoices.updated", {
-            title: title,
-        }),
+        caption: ctx.t("newvoices.updated", { title: title }),
     });
 
     await conversation.external(() =>
         Promise.all([
-            replaceVoice(id, {
-                fileId: file_id,
-                fileUniqueId: file_unique_id,
-            }),
+            replaceVoice(id, { fileId: file_id, fileUniqueId: file_unique_id }),
             unlink(input),
             unlink(output),
         ]),
