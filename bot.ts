@@ -72,7 +72,11 @@ bot.use(sequentialize(getSessionKey))
     .use(i18n)
     .use(configSetup(adminIds))
     .use(await sessionSetup())
-    .use(conversations())
+    .use(
+        conversations({
+            plugins: [i18n],
+        }),
+    )
     .use(maintenanceGatekeep)
     .use(inlineQueryHandler)
     .use(cancelCommand);

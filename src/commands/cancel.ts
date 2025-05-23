@@ -7,15 +7,21 @@ import type { BotContext } from "@/src/types/bot";
 export const cancelCommand = new Composer<BotContext>();
 
 cancelCommand.command("cancel", async (ctx) => {
-    const activeConversations = await ctx.conversation.active();
+    const activeConversations = ctx.conversation.active();
     if (isEmpty(activeConversations)) return;
 
-    const voicesActiveConversations =
-        activeConversations["new-voices"] ||
-        activeConversations["new-remote-voices"];
-    const conversationMode = voicesActiveConversations ? "add" : "update";
+    const isNewVoicesConversationActive = activeConversations["new-voices"] > 0;
+    const isNewRemoteVoicesConversationActive =
+        activeConversations["new-remote-voices"] > 0;
 
-    await ctx.conversation.exit();
+    const voicesActiveConversations =
+        isNewVoicesConversationActive || isNewRemoteVoicesConversationActive;
+    const conversationMode = voicesActiveConversations ? "add" : "update";
+    const conversationToExit = isNewVoicesConversationActive
+        ? "new-voices"
+        : "new-remote-voices";
+
+    await ctx.conversation.exit(conversationToExit);
 
     if (conversationMode === "update") {
         return await ctx.reply(ctx.t("conversation.updateCancel"));

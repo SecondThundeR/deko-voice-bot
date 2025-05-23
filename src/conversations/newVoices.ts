@@ -6,7 +6,9 @@ export async function newVoices(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    conversation.session.addedVoices = [];
+    await conversation.external((ctx) => {
+        ctx.session.addedVoices = [];
+    });
 
     do {
         await newVoice(conversation, ctx);

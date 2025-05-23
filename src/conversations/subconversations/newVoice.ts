@@ -75,5 +75,7 @@ export async function newVoice(
     await conversation.external(() => unlink(input));
     await conversation.external(() => unlink(output));
 
-    conversation.session.addedVoices?.push(voiceTitle);
+    await conversation.external((ctx) => {
+        ctx.session.addedVoices?.push(voiceTitle);
+    });
 }
