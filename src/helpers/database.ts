@@ -1,4 +1,4 @@
-import type { infer as Infer } from "zod";
+import type { infer as Infer } from "zod/v4";
 import chunk from "lodash.chunk";
 
 import { db } from "@/drizzle/db";
