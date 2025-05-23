@@ -1,4 +1,4 @@
-import { object, array, string, boolean, number } from "zod";
+import { object, array, string, boolean, number } from "zod/v4";
 
 import {
     FEATURE_FLAG_NAME_LENGTH,

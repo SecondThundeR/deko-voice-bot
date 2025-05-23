@@ -38,7 +38,9 @@ export async function newRemoteVoice(
             }),
         );
 
-        conversation.session.addedVoices?.push(voiceTitle);
+        await conversation.external((ctx) => {
+            ctx.session.addedVoices?.push(voiceTitle);
+        });
     } catch (error: unknown) {
         conversation.error(error);
 

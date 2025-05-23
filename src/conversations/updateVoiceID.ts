@@ -24,7 +24,8 @@ export async function updateVoiceID(
     );
     if (!status) {
         ctx.session.currentVoice = null;
-        return await ctx.reply(ctx.t("voiceid.failed"));
+        await ctx.reply(ctx.t("voiceid.failed"));
+        return;
     }
 
     await ctx.reply(ctx.t("voiceid.success", { voiceID: newVoiceID }), {
