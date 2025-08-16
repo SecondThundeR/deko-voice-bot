@@ -11,7 +11,7 @@
         "@grammyjs/runner": "^2.0.3",
         "dayjs": "^1.11.13",
         "drizzle-orm": "^0.44.4",
-        "grammy": "^1.38.0",
+        "grammy": "^1.38.1",
         "lodash": "^4.17.21",
         "postgres": "^3.4.7",
         "zod": "^4.0.17",
@@ -145,7 +145,7 @@
 
     "get-tsconfig": ["get-tsconfig@4.10.1", "", { "dependencies": { "resolve-pkg-maps": "^1.0.0" } }, "sha512-auHyJ4AgMz7vgS8Hp3N6HXSmlMdUyhSUrfBF16w153rxtLIEOE+HGqaBppczZvnHLqQJfiHotCYpNhl0lUROFQ=="],
 
-    "grammy": ["grammy@1.38.0", "", { "dependencies": { "@grammyjs/types": "3.22.1", "abort-controller": "^3.0.0", "debug": "^4.3.4", "node-fetch": "^2.7.0" } }, "sha512-wEiOwKcXGevXIzwGKQYJGDedkOEA19DOxcdLQKblFyr/9SI8TakFBrYVHCZ6tct4cc6r4aUGbHdtg9rXhFdU6g=="],
+    "grammy": ["grammy@1.38.1", "", { "dependencies": { "@grammyjs/types": "3.22.1", "abort-controller": "^3.0.0", "debug": "^4.3.4", "node-fetch": "^2.7.0" } }, "sha512-aVBMeyYUjZ+rUEI+aV0T4himboXGs8Uf57c+vhtmHplPfgaRT04dyT9pG8R/GAmKeTUPh84GKO0u9IvaEGN6RA=="],
 
     "isexe": ["isexe@3.1.1", "", {}, "sha512-LpB/54B+/2J5hqQ7imZHfdU31OlgQqx7ZicVlkm9kzg9/w8GKLEcFfJl/t7DCEDueOyBAD6zCCwTO6Fzs0NoEQ=="],
 
