@@ -1,6 +1,6 @@
 {
   "name": "deko-voice-bot",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "type": "module",
   "module": "bot.ts",
   "scripts": {
@@ -22,13 +22,13 @@
     "grammy": "^1.38.2",
     "lodash": "^4.17.21",
     "postgres": "^3.4.7",
-    "zod": "^4.1.5"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/bun": "^1.2.21",
     "@types/lodash": "^4.17.20",
-    "drizzle-kit": "^0.31.4",
-    "mongodb": "^6.19.0",
+    "drizzle-kit": "^0.31.5",
+    "mongodb": "^6.20.0",
     "prettier": "^3.6.2"
   },
   "peerDependencies": {
