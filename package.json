@@ -1,6 +1,6 @@
 {
   "name": "deko-voice-bot",
-  "version": "3.3.4",
+  "version": "3.3.5",
   "type": "module",
   "module": "bot.ts",
   "scripts": {
