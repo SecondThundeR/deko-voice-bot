@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
 import { Composer } from "grammy";
 
-import { db } from "@/drizzle/db";
-import { paymentsTable } from "@/drizzle/schema";
+import {
+    getPaymentByChargeIdQuery,
+    markPaymentAsRefundedQuery,
+} from "@/drizzle/prepared/payments";
 
 import type { BotContext } from "@/src/types/bot";
 
@@ -15,10 +16,7 @@ refundCommand.command("refund", async (ctx) => {
     }
 
     try {
-        const payments = await db
-            .select()
-            .from(paymentsTable)
-            .where(eq(paymentsTable.telegramPaymentChargeId, chargeId));
+        const payments = await getPaymentByChargeIdQuery.execute({ chargeId });
 
         if (payments.length === 0) {
             return ctx.reply(ctx.t("refund.notFound"));
@@ -35,10 +33,7 @@ refundCommand.command("refund", async (ctx) => {
             payment.telegramPaymentChargeId,
         );
 
-        await db
-            .update(paymentsTable)
-            .set({ status: "refunded" })
-            .where(eq(paymentsTable.telegramPaymentChargeId, chargeId));
+        await markPaymentAsRefundedQuery.execute({ chargeId });
 
         await ctx.reply(
             ctx.t("refund.success", {

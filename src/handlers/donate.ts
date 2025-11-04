@@ -1,7 +1,6 @@
 import { Composer } from "grammy";
 
-import { db } from "@/drizzle/db";
-import { paymentsTable } from "@/drizzle/schema";
+import { insertPaymentQuery } from "@/drizzle/prepared/payments";
 
 import { sendDonationInvoice } from "@/src/helpers/api";
 
@@ -31,8 +30,8 @@ donateQueryHandler.on("message:successful_payment", async (ctx) => {
     await ctx.reply(ctx.t("donate.success", { amount: String(amount) }));
 
     try {
-        await db.insert(paymentsTable).values({
-            telegramPaymentChargeId: payment.telegram_payment_charge_id,
+        await insertPaymentQuery.execute({
+            chargeId: payment.telegram_payment_charge_id,
             invoicePayload: payment.invoice_payload,
             userId: ctx.from.id,
             amount: payment.total_amount,
