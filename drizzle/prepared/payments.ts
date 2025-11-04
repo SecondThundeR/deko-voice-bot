@@ -3,6 +3,11 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { paymentsTable } from "../schema";
 
+export const getAllPaymentsQuery = db
+    .select()
+    .from(paymentsTable)
+    .prepare("get_all_payments");
+
 export const getPaymentByChargeIdQuery = db
     .select()
     .from(paymentsTable)

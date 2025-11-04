@@ -2,6 +2,7 @@ import { unlink } from "node:fs/promises";
 import { Composer, InputFile } from "grammy";
 
 import { getAllFeatureFlagsQuery } from "@/drizzle/prepared/featureFlags";
+import { getAllPaymentsQuery } from "@/drizzle/prepared/payments";
 import { getAllUsersQuery } from "@/drizzle/prepared/users";
 import { getAllUserFavoritesQuery } from "@/drizzle/prepared/usersFavorites";
 import { getAllVoicesQuery } from "@/drizzle/prepared/voices";
@@ -14,12 +15,14 @@ exportDataCommand.command("export", async (ctx) => {
     await ctx.replyWithChatAction("upload_document");
 
     const fileName = `db-export-${Date.now()}.json`;
-    const [featureFlags, voices, users, usersFavorites] = await Promise.all([
-        getAllFeatureFlagsQuery.execute(),
-        getAllVoicesQuery.execute(),
-        getAllUsersQuery.execute(),
-        getAllUserFavoritesQuery.execute(),
-    ]);
+    const [featureFlags, voices, users, usersFavorites, payments] =
+        await Promise.all([
+            getAllFeatureFlagsQuery.execute(),
+            getAllVoicesQuery.execute(),
+            getAllUsersQuery.execute(),
+            getAllUserFavoritesQuery.execute(),
+            getAllPaymentsQuery.execute(),
+        ]);
 
     await Bun.write(
         fileName,
@@ -29,6 +32,7 @@ exportDataCommand.command("export", async (ctx) => {
                 voices,
                 users,
                 usersFavorites,
+                payments,
             },
             null,
             4,
