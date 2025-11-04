@@ -14,6 +14,7 @@ export const sessionSetup = async () => {
             currentFavoritesOffset: 0,
             currentVoicesOffset: 0,
             canRunFFMPEG: ffmpegStatus,
+            isDatabaseMaintenanceActive: false,
         }),
     });
 };

@@ -12,6 +12,10 @@ import type { BotContext } from "@/src/types/bot";
 export const exportDataCommand = new Composer<BotContext>();
 
 exportDataCommand.command("export", async (ctx) => {
+    if (ctx.session.isDatabaseMaintenanceActive) {
+        return ctx.reply(ctx.t("exportData.maintenancePending"));
+    }
+    ctx.session.isDatabaseMaintenanceActive = true;
     await ctx.replyWithChatAction("upload_document");
 
     const fileName = `db-export-${Date.now()}.json`;
@@ -40,4 +44,5 @@ exportDataCommand.command("export", async (ctx) => {
     );
     await ctx.replyWithDocument(new InputFile(fileName));
     await unlink(fileName);
+    ctx.session.isDatabaseMaintenanceActive = false;
 });

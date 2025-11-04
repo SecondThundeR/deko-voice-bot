@@ -10,7 +10,9 @@ export async function maintenanceGatekeep(ctx: BotContext, next: NextFunction) {
     const { isAdmin } = ctx.config;
     if (isAdmin) return await next();
 
-    const isInMaintenance = await getFeatureFlag(MAINTENANCE_FEATURE_FLAG);
+    const isInMaintenance =
+        (await getFeatureFlag(MAINTENANCE_FEATURE_FLAG)) ||
+        ctx.session.isDatabaseMaintenanceActive;
     if (!isInMaintenance) return await next();
 
     if (!!ctx.inlineQuery) {

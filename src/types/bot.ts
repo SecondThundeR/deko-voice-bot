@@ -14,6 +14,7 @@ interface SessionData {
     currentVoice?: InlineResultVoice | null;
     addedVoices?: string[] | null;
     canRunFFMPEG?: boolean;
+    isDatabaseMaintenanceActive: boolean;
 }
 
 interface ConfigContext {

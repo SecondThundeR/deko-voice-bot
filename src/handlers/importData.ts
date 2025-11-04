@@ -12,9 +12,14 @@ import type { BotContext } from "@/src/types/bot";
 export const importDataHandler = new Composer<BotContext>();
 
 importDataHandler.on("msg:document", async (ctx) => {
+    if (ctx.session.isDatabaseMaintenanceActive) {
+        return ctx.reply(ctx.t("importData.maintenancePending"));
+    }
+
     const document = ctx.msg.document;
     if (!isMimeTypeJson(document?.mime_type)) return;
 
+    ctx.session.isDatabaseMaintenanceActive = true;
     await ctx.replyWithChatAction("typing");
 
     const message = await ctx.reply(ctx.t("importData.inProgress"));
@@ -29,15 +34,21 @@ importDataHandler.on("msg:document", async (ctx) => {
     const { data, success, error } =
         await importFileSchema.safeParseAsync(fileJSON);
     if (!success) {
+        ctx.session.isDatabaseMaintenanceActive = false;
         console.error("Import file validation failed. Detals:", error);
         return await editMessage(ctx.t("importData.validationFailed"));
     }
 
     try {
         await importDatabaseWithTransaction(ctx, editMessage, data);
-    } catch (error) {
+    } catch (error: unknown) {
         if (error instanceof DrizzleError) {
-            console.log("Import failed. Rollback has been completed");
+            console.error(
+                "Import failed. Rollback has been completed. Details:",
+                error,
+            );
         }
+    } finally {
+        ctx.session.isDatabaseMaintenanceActive = false;
     }
 });
