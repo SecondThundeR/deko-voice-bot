@@ -5,7 +5,6 @@ import { updateUserData } from "@/drizzle/queries/insert";
 import { getUserFavorites } from "@/drizzle/queries/select";
 
 import { getArrayWithOffset } from "@/src/helpers/array";
-import { getCurrentButtonText } from "@/src/helpers/inlineQuery";
 import { getVoiceQueries } from "@/src/helpers/voices";
 import { extractUserDetails } from "@/src/helpers/user";
 
@@ -38,8 +37,8 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     await ctx.answerInlineQuery(paginatedQueries, {
         next_offset: String(nextOffset),
         button: {
-            text: await getCurrentButtonText(ctx, data),
-            start_parameter: "_",
+            text: ctx.t("donate.queryText"),
+            start_parameter: "donate",
         },
         cache_time: 0,
     });

@@ -25,4 +25,8 @@ export const USER_COMMANDS: BotCommand[] = [
         command: "/favorites",
         description: "Управлять списком избранных реплик",
     },
+    {
+        command: "/donate",
+        description: "Поддержите бота путем отправки звезд",
+    },
 ];

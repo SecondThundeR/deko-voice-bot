@@ -36,4 +36,8 @@ export const ADMIN_COMMANDS: BotCommand[] = [
         command: "/export",
         description: "Экспортировать данные из базы данных в JSON файл",
     },
+    {
+        command: "/refund",
+        description: "Отмена пожертвования по его идентификатору",
+    },
 ];

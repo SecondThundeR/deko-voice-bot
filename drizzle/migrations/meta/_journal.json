@@ -22,6 +22,13 @@
       "when": 1729419572286,
       "tag": "0002_optimal_lord_hawal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1762291679315,
+      "tag": "0003_superb_salo",
+      "breakpoints": true
     }
   ]
 }

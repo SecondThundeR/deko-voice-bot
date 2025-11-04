@@ -1,24 +1,8 @@
-import { getVoicesCount } from "@/drizzle/queries/select";
 import type { SelectVoice } from "@/drizzle/schema";
 
-import type { BotContext } from "@/src/types/bot";
 import type { InlineResultVoice } from "@/src/types/inline";
 
 import { convertVoiceUrl } from "./general";
-
-export async function getCurrentButtonText(
-    ctx: BotContext,
-    queryString: string,
-) {
-    const queriesCount = await getVoicesCount(queryString);
-
-    if (queriesCount === 0) return ctx.t("inline.noData");
-    if (queryString.length === 0) return ctx.t("inline.searchPlaceholder");
-
-    return ctx.t("inline.searchHeader", {
-        query: queryString,
-    });
-}
 
 export function convertVoiceDataToQueriesArray(voicesData: SelectVoice[]) {
     return voicesData

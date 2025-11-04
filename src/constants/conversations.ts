@@ -1,3 +1,4 @@
+import { donateConversation } from "@/src/conversations/donate";
 import { newRemoteVoices } from "@/src/conversations/newRemoteVoices";
 import { newVoices } from "@/src/conversations/newVoices";
 import { replaceVoiceFile } from "@/src/conversations/replaceVoiceFile";
@@ -18,4 +19,5 @@ export const CONVERSATIONS: ConversationsData[] = [
     ["voice-url-update", updateVoiceURL],
     ["voice-file-replace", replaceVoiceFile],
     ["voice-url-replace", replaceVoiceURL],
+    ["donate", donateConversation],
 ];

@@ -79,3 +79,18 @@ export function getMessageEditCallback(ctx: BotContext, message: Message) {
             other,
         );
 }
+
+export async function sendDonationInvoice(ctx: BotContext, amount: number) {
+    if (amount < 1) {
+        await ctx.reply(ctx.t("donate.negative"));
+        return;
+    }
+
+    await ctx.replyWithInvoice(
+        ctx.t("donate.title"),
+        ctx.t("donate.message", { amount: String(amount) }),
+        `donation-${ctx.from?.id}-${Date.now()}`,
+        "XTR",
+        [{ label: ctx.t("donate.label"), amount }],
+    );
+}

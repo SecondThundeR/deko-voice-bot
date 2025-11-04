@@ -20,7 +20,6 @@ interface ConfigContext {
     config: {
         adminIDs: number[];
         isAdmin: boolean;
-        stickerFileID?: string;
     };
 }
 

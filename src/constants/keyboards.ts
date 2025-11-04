@@ -11,3 +11,12 @@ export const sendInlineRequestKeyboard = new InlineKeyboard().switchInline(
 
 export const sendCurrentInlineRequestKeyboard =
     new InlineKeyboard().switchInlineCurrent(KEYBOARD_CURRENT_BUTTON);
+
+export const donateInlineKeyboard = new InlineKeyboard()
+    .text("25 ⭐", "donate_25")
+    .text("50 ⭐", "donate_50")
+    .row()
+    .text("100 ⭐", "donate_100")
+    .text("200 ⭐", "donate_200")
+    .row()
+    .text("Другая сумма", "donate_custom");

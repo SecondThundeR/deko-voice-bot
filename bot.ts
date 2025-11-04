@@ -9,9 +9,11 @@ import { fullStatsCommand } from "@/src/commands/pm/admin/fullStats";
 import { maintenanceCommand } from "@/src/commands/pm/admin/maintenance";
 import { newRemoteVoicesCommand } from "@/src/commands/pm/admin/newRemoteVoices";
 import { newVoicesCommand } from "@/src/commands/pm/admin/newVoices";
+import { refundCommand } from "@/src/commands/pm/admin/refund";
 import { statsCommand } from "@/src/commands/pm/admin/stats";
 import { voiceCommand } from "@/src/commands/pm/admin/voice";
 import { voicesCommand } from "@/src/commands/pm/admin/voices";
+import { donateCommand } from "@/src/commands/pm/donate";
 import { favoritesCommand } from "@/src/commands/pm/favorites";
 import { myDataCommand } from "@/src/commands/pm/myData";
 import { optInCommand } from "@/src/commands/pm/optIn";
@@ -23,9 +25,11 @@ import { cancelCommand } from "@/src/commands/cancel";
 import { CONVERSATIONS } from "@/src/constants/conversations";
 import { ADMIN_IDS_CHECK_FAIL, ENVS_CHECK_FAIL } from "@/src/constants/locale";
 
-import { favoritesMenu } from "@/src/menu/favorites";
-import { voiceMenu } from "@/src/menu/voice";
-import { voicesMenu } from "@/src/menu/voices";
+import { catchHandler } from "@/src/handlers/catch";
+import { donateQueryHandler } from "@/src/handlers/donate";
+import { importDataHandler } from "@/src/handlers/importData";
+import { inlineQueryHandler } from "@/src/handlers/inlineQuery";
+import { voiceItemHandler } from "@/src/handlers/voiceItem";
 
 import {
     getSessionKey,
@@ -33,10 +37,9 @@ import {
     registerUserCommands,
 } from "@/src/helpers/api";
 
-import { catchHandler } from "@/src/handlers/catch";
-import { importDataHandler } from "@/src/handlers/importData";
-import { inlineQueryHandler } from "@/src/handlers/inlineQuery";
-import { voiceItemHandler } from "@/src/handlers/voiceItem";
+import { favoritesMenu } from "@/src/menu/favorites";
+import { voiceMenu } from "@/src/menu/voice";
+import { voicesMenu } from "@/src/menu/voices";
 
 import { configSetup } from "@/src/middlewares/configSetup";
 import { maintenanceGatekeep } from "@/src/middlewares/maintenanceGatekeep";
@@ -85,6 +88,8 @@ CONVERSATIONS.forEach(([id, conversation]) => {
     bot.use(createConversation(conversation, id));
 });
 
+bot.use(donateQueryHandler);
+
 const pm = bot.filter((ctx) => ctx.chat?.type === "private");
 const pmAdmin = pm.filter((ctx) => ctx.config.isAdmin);
 
@@ -94,6 +99,7 @@ pm.use(favoritesMenu)
     .use(optInCommand)
     .use(optOutCommand)
     .use(privacyCommand)
+    .use(donateCommand)
     .use(favoritesCommand);
 
 pmAdmin
@@ -108,7 +114,8 @@ pmAdmin
     .use(newRemoteVoicesCommand)
     .use(voiceCommand)
     .use(voicesCommand)
-    .use(exportDataCommand);
+    .use(exportDataCommand)
+    .use(refundCommand);
 
 bot.catch(catchHandler);
 

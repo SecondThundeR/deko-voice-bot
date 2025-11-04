@@ -1,16 +1,19 @@
 import { Composer } from "grammy";
 
-import { sendInlineRequestKeyboard } from "@/src/constants/keyboards";
+import {
+    donateInlineKeyboard,
+    sendInlineRequestKeyboard,
+} from "@/src/constants/keyboards";
 
 import type { BotContext } from "@/src/types/bot";
 
 export const startCommand = new Composer<BotContext>();
 
 startCommand.command("start", async (ctx) => {
-    const { stickerFileID } = ctx.config;
-
-    if (ctx.match === "_" && stickerFileID) {
-        return await ctx.replyWithSticker(stickerFileID);
+    if (ctx.match === "donate") {
+        return await ctx.reply(ctx.t("donate.commandText"), {
+            reply_markup: donateInlineKeyboard,
+        });
     }
 
     await ctx.reply(ctx.t("start"), {

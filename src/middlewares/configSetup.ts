@@ -7,7 +7,6 @@ export function configSetup(adminIds: string) {
         const adminIdsSplit = adminIds.split(" ").map(Number);
 
         ctx.config = {
-            stickerFileID: process.env.STICKER_FILE_ID_FOR_DEEPLINK,
             adminIDs: adminIdsSplit,
             isAdmin: ctx.from?.id ? adminIdsSplit.includes(ctx.from.id) : false,
         };
