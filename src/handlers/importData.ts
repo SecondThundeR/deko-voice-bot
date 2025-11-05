@@ -45,6 +45,7 @@ importDataHandler.on("msg:document", async (ctx) => {
                 "--single-transaction",
                 "--clean",
                 "--if-exists",
+                "--no-owner",
                 restoreFileName,
             ],
         });
