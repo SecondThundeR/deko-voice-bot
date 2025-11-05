@@ -1,8 +1,26 @@
 FROM oven/bun:debian AS base
 WORKDIR /usr/app
 
-# Adding ffmpeg binary for conversion from bot and postgresql-client for pg_dump/pg_restore
-RUN apt-get update && apt-get install -y postgresql-client ffmpeg && rm -rf /var/lib/apt/lists/*
+# Adding ffmpeg binary for conversion from bot
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
+# Install necessary tools for adding new repositories
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl gnupg2 lsb-release apt-transport-https ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add the PostgreSQL PGDG apt repository
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+# Import the PostgreSQL team\'s GPG key
+RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+
+# Update the apt package list again to include the new repository
+RUN apt-get update
+
+# Install the PostgreSQL 16 client packages specifically
+RUN apt-get install -y postgresql-client-16 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies into temp directory
 # This will cache them and speed up future builds
