@@ -43,7 +43,7 @@ export async function isBotBlockedByUser(ctx: Context) {
 }
 
 export function getSessionKey(ctx: Context) {
-    return ctx.chat?.id.toString();
+    return ctx.from?.id.toString() || ctx.chat?.id.toString();
 }
 
 export async function fetchMediaFileData({
