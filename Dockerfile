@@ -1,8 +1,8 @@
-FROM oven/bun:alpine AS base
+FROM oven/bun:debian AS base
 WORKDIR /usr/app
 
-# Adding ffmpeg binary for conversion from bot
-RUN apk add --no-cache ffmpeg
+# Adding ffmpeg binary for conversion from bot and postgresql-client for pg_dump/pg_restore
+RUN apt-get update && apt-get install -y postgresql-client ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies into temp directory
 # This will cache them and speed up future builds

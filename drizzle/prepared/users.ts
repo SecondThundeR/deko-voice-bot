@@ -3,11 +3,6 @@ import { eq, and, sql } from "drizzle-orm";
 import { db } from "../db";
 import { usersTable } from "../schema";
 
-export const getAllUsersQuery = db
-    .select()
-    .from(usersTable)
-    .prepare("get_all_users");
-
 export const getUsersBasicStatsQuery = db
     .select({ lastUsedAt: usersTable.lastUsedAt })
     .from(usersTable)

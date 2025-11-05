@@ -3,11 +3,6 @@ import { eq, not, sql } from "drizzle-orm";
 import { db } from "../db";
 import { featureFlagsTable } from "../schema";
 
-export const getAllFeatureFlagsQuery = db
-    .select()
-    .from(featureFlagsTable)
-    .prepare("get_all_feature_flags");
-
 export const getFeatureFlagQuery = db
     .select({
         status: featureFlagsTable.status,

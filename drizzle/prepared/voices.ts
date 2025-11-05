@@ -3,11 +3,6 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { voicesTable } from "../schema";
 
-export const getAllVoicesQuery = db
-    .select()
-    .from(voicesTable)
-    .prepare("get_all_voices");
-
 export const getVoicesBasicStatsQuery = db
     .select({
         usesAmount: voicesTable.usesAmount,

@@ -1,12 +1,6 @@
 import { unlink } from "node:fs/promises";
 import { Composer, InputFile } from "grammy";
 
-import { getAllFeatureFlagsQuery } from "@/drizzle/prepared/featureFlags";
-import { getAllPaymentsQuery } from "@/drizzle/prepared/payments";
-import { getAllUsersQuery } from "@/drizzle/prepared/users";
-import { getAllUserFavoritesQuery } from "@/drizzle/prepared/usersFavorites";
-import { getAllVoicesQuery } from "@/drizzle/prepared/voices";
-
 import type { BotContext } from "@/src/types/bot";
 
 export const exportDataCommand = new Composer<BotContext>();
@@ -18,31 +12,41 @@ exportDataCommand.command("export", async (ctx) => {
     ctx.session.isDatabaseMaintenanceActive = true;
     await ctx.replyWithChatAction("upload_document");
 
-    const fileName = `db-export-${Date.now()}.json`;
-    const [featureFlags, voices, users, usersFavorites, payments] =
-        await Promise.all([
-            getAllFeatureFlagsQuery.execute(),
-            getAllVoicesQuery.execute(),
-            getAllUsersQuery.execute(),
-            getAllUserFavoritesQuery.execute(),
-            getAllPaymentsQuery.execute(),
-        ]);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const backupFileName = `backup-${timestamp}.dump`;
 
-    await Bun.write(
-        fileName,
-        JSON.stringify(
-            {
-                featureFlags,
-                voices,
-                users,
-                usersFavorites,
-                payments,
-            },
-            null,
-            4,
-        ),
-    );
-    await ctx.replyWithDocument(new InputFile(fileName));
-    await unlink(fileName);
-    ctx.session.isDatabaseMaintenanceActive = false;
+    try {
+        const dumpProcess = Bun.spawn({
+            cmd: [
+                "pg_dump",
+                process.env.DATABASE_URL,
+                "-F",
+                "c",
+                "-f",
+                backupFileName,
+            ],
+        });
+
+        const exitCode = await dumpProcess.exited;
+
+        if (exitCode !== 0) {
+            const stderr = await new Response(dumpProcess.stderr).text();
+            await ctx.reply(
+                ctx.t("exportData.dumpError", { exitCode, stderr }),
+            );
+            return;
+        }
+
+        await ctx.replyWithDocument(new InputFile(backupFileName));
+    } catch (error: unknown) {
+        console.error("Failed to export data from DB. Details:", error);
+        await ctx.reply(ctx.t("exportData.unknownError"));
+    } finally {
+        ctx.session.isDatabaseMaintenanceActive = false;
+
+        const file = Bun.file(backupFileName);
+        if (await file.exists()) {
+            await unlink(backupFileName);
+        }
+    }
 });
