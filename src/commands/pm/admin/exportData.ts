@@ -1,15 +1,21 @@
 import { unlink } from "node:fs/promises";
 import { Composer, InputFile } from "grammy";
 
+import {
+    isDatabaseMaintenanceActive,
+    setDatabaseMaintenanceStatus,
+} from "@/src/store/databaseMaintenance";
+
 import type { BotContext } from "@/src/types/bot";
 
 export const exportDataCommand = new Composer<BotContext>();
 
 exportDataCommand.command("export", async (ctx) => {
-    if (ctx.session.isDatabaseMaintenanceActive) {
+    if (isDatabaseMaintenanceActive()) {
         return ctx.reply(ctx.t("exportData.maintenancePending"));
     }
-    ctx.session.isDatabaseMaintenanceActive = true;
+
+    setDatabaseMaintenanceStatus(true);
     await ctx.replyWithChatAction("upload_document");
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -42,7 +48,7 @@ exportDataCommand.command("export", async (ctx) => {
         console.error("Failed to export data from DB. Details:", error);
         await ctx.reply(ctx.t("exportData.unknownError"));
     } finally {
-        ctx.session.isDatabaseMaintenanceActive = false;
+        setDatabaseMaintenanceStatus(false);
 
         const file = Bun.file(backupFileName);
         if (await file.exists()) {

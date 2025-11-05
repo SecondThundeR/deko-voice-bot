@@ -4,6 +4,8 @@ import { getFeatureFlag } from "@/drizzle/queries/select";
 
 import { MAINTENANCE_FEATURE_FLAG } from "@/src/constants/featureFlags";
 
+import { isDatabaseMaintenanceActive } from "@/src/store/databaseMaintenance";
+
 import type { BotContext } from "@/src/types/bot";
 
 export async function maintenanceGatekeep(ctx: BotContext, next: NextFunction) {
@@ -12,7 +14,7 @@ export async function maintenanceGatekeep(ctx: BotContext, next: NextFunction) {
 
     const isInMaintenance =
         (await getFeatureFlag(MAINTENANCE_FEATURE_FLAG)) ||
-        ctx.session.isDatabaseMaintenanceActive;
+        isDatabaseMaintenanceActive();
     if (!isInMaintenance) return await next();
 
     if (!!ctx.inlineQuery) {

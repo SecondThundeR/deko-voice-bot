@@ -3,12 +3,17 @@ import { unlink } from "node:fs/promises";
 
 import { fetchMediaFileData, getMessageEditCallback } from "@/src/helpers/api";
 
+import {
+    isDatabaseMaintenanceActive,
+    setDatabaseMaintenanceStatus,
+} from "@/src/store/databaseMaintenance";
+
 import type { BotContext } from "@/src/types/bot";
 
 export const importDataHandler = new Composer<BotContext>();
 
 importDataHandler.on("msg:document", async (ctx) => {
-    if (ctx.session.isDatabaseMaintenanceActive) {
+    if (isDatabaseMaintenanceActive()) {
         return ctx.reply(ctx.t("importData.maintenancePending"));
     }
 
@@ -20,7 +25,7 @@ importDataHandler.on("msg:document", async (ctx) => {
         return;
     }
 
-    ctx.session.isDatabaseMaintenanceActive = true;
+    setDatabaseMaintenanceStatus(true);
     await ctx.replyWithChatAction("typing");
 
     const message = await ctx.reply(ctx.t("importData.inProgress"));
@@ -80,7 +85,7 @@ importDataHandler.on("msg:document", async (ctx) => {
             await editMessage(ctx.t("importData.unknownError"));
         }
     } finally {
-        ctx.session.isDatabaseMaintenanceActive = false;
+        setDatabaseMaintenanceStatus(false);
 
         const file = Bun.file(restoreFileName);
         if (await file.exists()) {

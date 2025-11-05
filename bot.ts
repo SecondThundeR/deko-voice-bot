@@ -36,6 +36,7 @@ import {
     registerAdminCommands,
     registerUserCommands,
 } from "@/src/helpers/api";
+import { canRunFFMPEG } from "@/src/helpers/general";
 
 import { favoritesMenu } from "@/src/menu/favorites";
 import { voiceMenu } from "@/src/menu/voice";
@@ -46,6 +47,8 @@ import { maintenanceGatekeep } from "@/src/middlewares/maintenanceGatekeep";
 import { sessionSetup } from "@/src/middlewares/sessionSetup";
 
 import type { BotContext } from "@/src/types/bot";
+
+export const isFFMPEGReady = await canRunFFMPEG();
 
 const token = process.env.BOT_TOKEN;
 const adminIds = process.env.ADMIN_IDS;

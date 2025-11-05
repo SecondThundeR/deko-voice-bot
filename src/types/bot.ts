@@ -13,8 +13,6 @@ interface SessionData {
     currentVoicesOffset: number;
     currentVoice?: InlineResultVoice | null;
     addedVoices?: string[] | null;
-    canRunFFMPEG?: boolean;
-    isDatabaseMaintenanceActive: boolean;
 }
 
 interface ConfigContext {
