@@ -1,11 +1,4 @@
-import {
-    integer,
-    pgEnum,
-    pgTable,
-    primaryKey,
-    text,
-    timestamp,
-} from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, primaryKey } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 import {
@@ -86,9 +79,7 @@ export const usersFavoritesTable = pgTable(
                 onUpdate: "cascade",
             }),
     }),
-    ({ userId, voiceId }) => ({
-        pk: primaryKey({ columns: [userId, voiceId] }),
-    }),
+    ({ userId, voiceId }) => [primaryKey({ columns: [userId, voiceId] })],
 );
 
 export type InsertUserFavorites = typeof usersFavoritesTable.$inferInsert;
@@ -111,10 +102,10 @@ export const usersFavoritesTableRelations = relations(
 export const paymentStatusEnum = pgEnum("payment_status", ["paid", "refunded"]);
 
 export const paymentsTable = pgTable("payments", (t) => ({
-    telegramPaymentChargeId: text("telegram_payment_charge_id").primaryKey(),
-    invoicePayload: text("invoice_payload").notNull(),
+    telegramPaymentChargeId: t.text().primaryKey(),
+    invoicePayload: t.text().notNull(),
     userId: t.bigint({ mode: "number" }).notNull(),
-    amount: integer("amount").notNull(),
-    paidAt: timestamp("paid_at").defaultNow().notNull(),
-    status: paymentStatusEnum("status").default("paid").notNull(),
+    amount: t.integer().notNull(),
+    paidAt: t.timestamp().defaultNow().notNull(),
+    status: paymentStatusEnum().default("paid").notNull(),
 }));
