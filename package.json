@@ -19,7 +19,7 @@
     "@grammyjs/runner": "^2.0.3",
     "dayjs": "^1.11.19",
     "drizzle-orm": "^0.45.1",
-    "grammy": "^1.38.4",
+    "grammy": "^1.39.2",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
