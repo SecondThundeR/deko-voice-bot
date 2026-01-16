@@ -40,6 +40,7 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
             text: ctx.t("donate.queryText"),
             start_parameter: "donate",
         },
-        cache_time: 0,
+        cache_time: 10,
+        is_personal: true,
     });
 });

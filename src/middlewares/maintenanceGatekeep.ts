@@ -23,7 +23,8 @@ export async function maintenanceGatekeep(ctx: BotContext, next: NextFunction) {
                 text: ctx.t("maintenance.inline-button"),
                 start_parameter: MAINTENANCE_FEATURE_FLAG,
             },
-            cache_time: 0,
+            cache_time: 30,
+            is_personal: true,
         });
     }
 
