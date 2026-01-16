@@ -8,5 +8,5 @@ export async function getAudioRemoteURL(
 
     const url = await conversation.form.entity("url");
 
-    return url.toString();
+    return url.text;
 }
