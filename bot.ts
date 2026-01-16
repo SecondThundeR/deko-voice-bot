@@ -77,7 +77,7 @@ bot.api.config.use(autoRetry());
 bot.use(sequentialize(getSessionKey))
     .use(i18n)
     .use(configSetup(adminIds))
-    .use(await sessionSetup())
+    .use(sessionSetup())
     .use(
         conversations({
             plugins: [i18n],

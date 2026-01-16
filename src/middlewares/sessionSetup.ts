@@ -4,7 +4,7 @@ import { getSessionKey } from "@/src/helpers/api";
 
 import type { BotContext, SessionType } from "@/src/types/bot";
 
-export const sessionSetup = async () => {
+export const sessionSetup = () => {
     return session<SessionType["session"], BotContext>({
         getSessionKey,
         initial: () => ({
