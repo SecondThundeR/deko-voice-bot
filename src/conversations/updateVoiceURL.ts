@@ -10,7 +10,9 @@ export async function updateVoiceURL(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    const voiceData = ctx.session.currentVoice;
+    const voiceData = await conversation.external(
+        (ctx) => ctx.session.currentVoice,
+    );
     if (!voiceData) return;
 
     const { id, title } = voiceData;
@@ -38,6 +40,8 @@ export async function updateVoiceURL(
 
         await ctx.reply(ctx.t("newremotevoices.failed"));
     } finally {
-        ctx.session.currentVoice = null;
+        await conversation.external((ctx) => {
+            ctx.session.currentVoice = null;
+        });
     }
 }

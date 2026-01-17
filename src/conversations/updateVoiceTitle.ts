@@ -8,7 +8,9 @@ export async function updateVoiceTitle(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    const voiceData = ctx.session.currentVoice;
+    const voiceData = await conversation.external(
+        (ctx) => ctx.session.currentVoice,
+    );
     if (!voiceData) return;
 
     const newVoiceTitle = await getVoiceTitleText(
@@ -23,7 +25,9 @@ export async function updateVoiceTitle(
         updateTitle(voiceData.id, newVoiceTitle),
     );
     if (!status) {
-        ctx.session.currentVoice = null;
+        await conversation.external((ctx) => {
+            ctx.session.currentVoice = null;
+        });
         await ctx.reply(ctx.t("voicetitle.failed"));
         return;
     }
@@ -33,5 +37,7 @@ export async function updateVoiceTitle(
         { parse_mode: "HTML" },
     );
 
-    ctx.session.currentVoice = null;
+    await conversation.external((ctx) => {
+        ctx.session.currentVoice = null;
+    });
 }

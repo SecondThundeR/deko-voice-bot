@@ -8,7 +8,9 @@ export async function updateVoiceID(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    const voiceData = ctx.session.currentVoice;
+    const voiceData = await conversation.external(
+        (ctx) => ctx.session.currentVoice,
+    );
     if (!voiceData) return;
 
     const newVoiceID = await getVoiceIDText(conversation, ctx, {
@@ -23,7 +25,9 @@ export async function updateVoiceID(
         updateVoiceId(voiceData.id, newVoiceID),
     );
     if (!status) {
-        ctx.session.currentVoice = null;
+        await conversation.external((ctx) => {
+            ctx.session.currentVoice = null;
+        });
         await ctx.reply(ctx.t("voiceid.failed"));
         return;
     }
@@ -32,5 +36,7 @@ export async function updateVoiceID(
         parse_mode: "HTML",
     });
 
-    ctx.session.currentVoice = null;
+    await conversation.external((ctx) => {
+        ctx.session.currentVoice = null;
+    });
 }

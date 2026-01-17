@@ -16,7 +16,9 @@ export async function updateVoiceFile(
     conversation: ConversationContext,
     ctx: BotContext,
 ) {
-    const voiceData = ctx.session.currentVoice;
+    const voiceData = await conversation.external(
+        (ctx) => ctx.session.currentVoice,
+    );
     if (!voiceData) return;
 
     const { id, title } = voiceData;
@@ -24,7 +26,9 @@ export async function updateVoiceFile(
     const output = title + OUTPUT_EXTENSION;
     const audioFilePath = await getAudioFilePath(conversation, ctx);
     if (!audioFilePath) {
-        ctx.session.currentVoice = null;
+        await conversation.external((ctx) => {
+            ctx.session.currentVoice = null;
+        });
         await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
         return;
     }
@@ -37,7 +41,9 @@ export async function updateVoiceFile(
         returnType: "blob",
     });
     if (!fileBlob) {
-        ctx.session.currentVoice = null;
+        await conversation.external((ctx) => {
+            ctx.session.currentVoice = null;
+        });
         await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
         return;
     }
@@ -51,7 +57,9 @@ export async function updateVoiceFile(
         convertMP3ToOGGOpus(input, output),
     );
     if (!status) {
-        ctx.session.currentVoice = null;
+        await conversation.external((ctx) => {
+            ctx.session.currentVoice = null;
+        });
         await conversation.external(() => unlink(input));
         await ctx.reply(ctx.t("newvoices.convertFailed", { errorMsg: error }));
     }
@@ -73,5 +81,7 @@ export async function updateVoiceFile(
         ]),
     );
 
-    ctx.session.currentVoice = null;
+    await conversation.external((ctx) => {
+        ctx.session.currentVoice = null;
+    });
 }
