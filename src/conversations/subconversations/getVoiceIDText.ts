@@ -12,7 +12,6 @@ export async function getVoiceIDText(
         long: string;
     },
 ) {
-    let text: string | undefined;
     const {
         hint = ctx.t("newvoices.idHint"),
         notUnique = ctx.t("newvoices.idNotUnique"),
@@ -22,9 +21,11 @@ export async function getVoiceIDText(
     await ctx.reply(hint, { parse_mode: "HTML" });
 
     do {
-        text = await conversation.form.text();
+        const text = await conversation.form.text();
 
-        const isIdUnique = await isVoiceIdUnique(text);
+        const isIdUnique = await conversation.external(() =>
+            isVoiceIdUnique(text),
+        );
         if (!isIdUnique) {
             await ctx.reply(notUnique);
             continue;
