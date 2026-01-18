@@ -32,6 +32,8 @@ inlineQueryHandler.on("inline_query", async (ctx) => {
     const { array: paginatedQueries, nextOffset } = getArrayWithOffset(
         currentQueriesArray,
         currentOffset,
+        // Showing 5 items per page to save bandwidth if search query is less than 3 chars
+        data.length > 0 && data.length < 3 ? 5 : undefined,
     );
 
     await ctx.answerInlineQuery(paginatedQueries, {
