@@ -1,2 +1,2 @@
-export const MAX_QUERY_ELEMENTS_PER_PAGE = 50;
+export const MAX_QUERY_ELEMENTS_PER_PAGE = 15;
 export const MAX_MENU_ELEMENTS_PER_PAGE = 9;
