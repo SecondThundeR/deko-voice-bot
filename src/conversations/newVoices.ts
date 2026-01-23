@@ -10,6 +10,9 @@ export async function newVoices(
         ctx.session.addedVoices = [];
     });
 
+    // Intentionally infinite; This is done to be able to add voices without
+    // typing /newvoice after each addition. This is cancellable via /cancel command
+    // noinspection InfiniteLoopJS
     do {
         await newVoice(conversation, ctx);
     } while (true);

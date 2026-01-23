@@ -26,7 +26,6 @@ export const voicesTable = pgTable("voices_table", (t) => ({
             length: VOICE_TITLE_LENGTH,
         })
         .notNull(),
-    url: t.varchar(),
     fileId: t.varchar({ length: FILE_ID_LENGTH }),
     fileUniqueId: t
         .varchar({

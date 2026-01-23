@@ -58,45 +58,6 @@ export async function updateVoiceFile(
     return !!updatedVoice;
 }
 
-export async function replaceVoiceFile(
-    voiceId: InsertVoice["voiceId"],
-    { url, fileUniqueId }: Pick<InsertVoice, "url" | "fileUniqueId">,
-) {
-    const [updatedVoice] = await db
-        .update(voicesTable)
-        .set({ url, fileId: null, fileUniqueId })
-        .where(eq(voicesTable.voiceId, voiceId))
-        .returning({ voiceId: voicesTable.voiceId });
-
-    return !!updatedVoice;
-}
-
-export async function updateVoiceURL(
-    voiceId: InsertVoice["voiceId"],
-    { url, fileUniqueId }: Pick<InsertVoice, "url" | "fileUniqueId">,
-) {
-    const [updatedVoice] = await db
-        .update(voicesTable)
-        .set({ url, fileUniqueId })
-        .where(eq(voicesTable.voiceId, voiceId))
-        .returning({ voiceId: voicesTable.voiceId });
-
-    return !!updatedVoice;
-}
-
-export async function replaceVoiceURL(
-    voiceId: InsertVoice["voiceId"],
-    { fileId, fileUniqueId }: Pick<InsertVoice, "fileId" | "fileUniqueId">,
-) {
-    const [updatedVoice] = await db
-        .update(voicesTable)
-        .set({ url: null, fileId, fileUniqueId })
-        .where(eq(voicesTable.voiceId, voiceId))
-        .returning({ voiceId: voicesTable.voiceId });
-
-    return !!updatedVoice;
-}
-
 export async function markUserAsIgnored(userId: InsertUser["userId"]) {
     const [userIgnoreStatus] = await db
         .update(usersTable)

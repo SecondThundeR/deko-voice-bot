@@ -8,7 +8,7 @@ export type InlineResultVoice = {
     id: string;
     title: string;
     voice_url?: string;
-    voice_file_id?: string;
+    voice_file_id?: string | null;
 };
 
 export type InlineQueriesArray = (

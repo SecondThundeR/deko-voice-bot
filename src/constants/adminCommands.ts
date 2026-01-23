@@ -29,10 +29,6 @@ export const ADMIN_COMMANDS: BotCommand[] = [
         description: "Добавить новые реплики через файлы",
     },
     {
-        command: "/newremotevoices",
-        description: "Добавить новые реплики через ссылки",
-    },
-    {
         command: "/export",
         description: "Экспортировать данные из базы данных в JSON файл",
     },

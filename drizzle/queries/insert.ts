@@ -10,21 +10,7 @@ import {
     type InsertVoice,
 } from "../schema";
 
-export async function addRegularVoice(
-    data: Omit<InsertVoice, "url" | "usesAmount">,
-) {
-    const insertedData = await db
-        .insert(voicesTable)
-        .values(data)
-        .onConflictDoNothing()
-        .returning();
-
-    return insertedData.length > 0;
-}
-
-export async function addRemoteVoice(
-    data: Omit<InsertVoice, "fileId" | "usesAmount">,
-) {
+export async function addRegularVoice(data: Omit<InsertVoice, "usesAmount">) {
     const insertedData = await db
         .insert(voicesTable)
         .values(data)

@@ -1,0 +1,1 @@
+ALTER TABLE "voices_table" DROP COLUMN "url";

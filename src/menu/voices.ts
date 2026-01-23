@@ -12,14 +12,9 @@ import { deleteVoiceHandler } from "@/src/handlers/voicesSubmenu/deleteVoiceHand
 import { fingerprintHandler as fingerprintSubmenuHandler } from "@/src/handlers/voicesSubmenu/fingerprintHandler";
 import { infoButtonHandler } from "@/src/handlers/voicesSubmenu/infoButtonHandler";
 import { outdatedHandler as outdatedSubmenuHandler } from "@/src/handlers/voicesSubmenu/outdatedHandler";
-import { replaceVoiceDataHandler } from "@/src/handlers/voicesSubmenu/replaceVoiceDataHandler";
 import { updateIDHandler } from "@/src/handlers/voicesSubmenu/updateIDHandler";
 import { updateTitleHandler } from "@/src/handlers/voicesSubmenu/updateTitleHandler";
 import { updateVoiceDataHandler } from "@/src/handlers/voicesSubmenu/updateVoiceDataHandler";
-import {
-    updateVoiceLabelHandler,
-    replaceVoiceLabelHandler,
-} from "@/src/handlers/voicesSubmenu/voiceDataLabelHandler";
 
 import type { BotContext } from "@/src/types/bot";
 
@@ -45,8 +40,7 @@ const voicesSubmenu = new Menu<BotContext>("voice-submenu", {
     .text((ctx) => ctx.t("voices.updateTitle"), updateTitleHandler)
     .text((ctx) => ctx.t("voices.delete"), deleteVoiceHandler)
     .row()
-    .text(updateVoiceLabelHandler, updateVoiceDataHandler)
-    .text(replaceVoiceLabelHandler, replaceVoiceDataHandler)
+    .text((ctx) => ctx.t("voices.updateFile"), updateVoiceDataHandler)
     .row()
     .text((ctx) => ctx.t("menu.back"), backMenuHandler);
 

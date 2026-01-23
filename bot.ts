@@ -7,7 +7,6 @@ import { conversations, createConversation } from "@grammyjs/conversations";
 import { exportDataCommand } from "@/src/commands/pm/admin/exportData";
 import { fullStatsCommand } from "@/src/commands/pm/admin/fullStats";
 import { maintenanceCommand } from "@/src/commands/pm/admin/maintenance";
-import { newRemoteVoicesCommand } from "@/src/commands/pm/admin/newRemoteVoices";
 import { newVoicesCommand } from "@/src/commands/pm/admin/newVoices";
 import { refundCommand } from "@/src/commands/pm/admin/refund";
 import { statsCommand } from "@/src/commands/pm/admin/stats";
@@ -114,7 +113,6 @@ pmAdmin
     .use(fullStatsCommand)
     .use(statsCommand)
     .use(newVoicesCommand)
-    .use(newRemoteVoicesCommand)
     .use(voiceCommand)
     .use(voicesCommand)
     .use(exportDataCommand)

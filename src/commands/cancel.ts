@@ -10,18 +10,10 @@ cancelCommand.command("cancel", async (ctx) => {
     const activeConversations = ctx.conversation.active();
     if (isEmpty(activeConversations)) return;
 
-    const isNewVoicesConversationActive = activeConversations["new-voices"] > 0;
-    const isNewRemoteVoicesConversationActive =
-        activeConversations["new-remote-voices"] > 0;
+    const conversationMode =
+        activeConversations["new-voices"] > 0 ? "add" : "update";
 
-    const voicesActiveConversations =
-        isNewVoicesConversationActive || isNewRemoteVoicesConversationActive;
-    const conversationMode = voicesActiveConversations ? "add" : "update";
-    const conversationToExit = isNewVoicesConversationActive
-        ? "new-voices"
-        : "new-remote-voices";
-
-    await ctx.conversation.exit(conversationToExit);
+    await ctx.conversation.exit("new-voices");
 
     if (conversationMode === "update") {
         return await ctx.reply(ctx.t("conversation.updateCancel"));

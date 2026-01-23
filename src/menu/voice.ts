@@ -9,7 +9,6 @@ import { outdatedHandler } from "@/src/handlers/voicesSubmenu/outdatedHandler";
 import { updateIDHandler } from "@/src/handlers/voicesSubmenu/updateIDHandler";
 import { updateTitleHandler } from "@/src/handlers/voicesSubmenu/updateTitleHandler";
 import { updateVoiceDataHandler } from "@/src/handlers/voicesSubmenu/updateVoiceDataHandler";
-import { updateVoiceLabelHandler } from "@/src/handlers/voicesSubmenu/voiceDataLabelHandler";
 
 import type { BotContext } from "@/src/types/bot";
 
@@ -24,6 +23,6 @@ export const voiceMenu = new Menu<BotContext>("voice-menu", {
     .text((ctx) => ctx.t("voices.updateTitle"), updateTitleHandler)
     .text((ctx) => ctx.t("voices.delete"), deleteVoiceHandler)
     .row()
-    .text(updateVoiceLabelHandler, updateVoiceDataHandler)
+    .text((ctx) => ctx.t("voices.updateFile"), updateVoiceDataHandler)
     .row()
     .text((ctx) => ctx.t("menu.close"), closeMenuHandler);
