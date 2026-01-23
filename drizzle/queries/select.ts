@@ -23,14 +23,14 @@ export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {
 }
 
 export async function getVoicesCount(query?: SelectVoice["voiceTitle"]) {
-    return await db.$count(
+    return db.$count(
         voicesTable,
         query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined,
     );
 }
 
 export async function getVoices(query?: SelectVoice["voiceTitle"]) {
-    return await db
+    return db
         .select()
         .from(voicesTable)
         .where(query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined)

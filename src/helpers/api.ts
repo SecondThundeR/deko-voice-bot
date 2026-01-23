@@ -18,19 +18,18 @@ export async function registerUserCommands(api: Api) {
 export async function registerAdminCommands(api: Api, adminIds: string) {
     if (!adminIds) return;
 
-    adminIds
-        .split(" ")
-        .map(Number)
-        // Since there are won't be a lot of admins
-        // this implementation should work fine (i guess :p)
-        .forEach(async (adminId) => {
-            await api.setMyCommands(ADMIN_COMMANDS, {
-                scope: {
-                    type: "chat",
-                    chat_id: adminId,
-                },
-            });
+    const parsedIds = adminIds.split(" ").map(Number)
+
+    // Since there are won't be a lot of admins
+    // this implementation should work fine (i guess :p)
+    for (const adminId of parsedIds) {
+        await api.setMyCommands(ADMIN_COMMANDS, {
+            scope: {
+                type: "chat",
+                chat_id: adminId,
+            },
         });
+    }
 }
 
 export async function isBotBlockedByUser(ctx: Context) {

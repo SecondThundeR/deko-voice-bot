@@ -60,6 +60,7 @@ importDataHandler.on("msg:document", async (ctx) => {
         if (exitCode !== 0) {
             await unlink(restoreFileName);
             const stderr = await new Response(restoreProcess.stderr).text();
+            // noinspection ExceptionCaughtLocallyJS
             throw new Error(
                 `pg_restore failed with exit code ${exitCode}:\n${stderr}`,
             );

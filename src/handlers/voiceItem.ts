@@ -17,8 +17,7 @@ voiceItemHandler.on(":voice", async (ctx) => {
     const voiceData = await getVoiceByUniqueIdQuery.execute({ fileUniqueId });
     if (voiceData.length === 0) return;
 
-    const queryData = convertVoiceDataToQueriesArray(voiceData)[0];
-    ctx.session.currentVoice = queryData;
+    ctx.session.currentVoice = convertVoiceDataToQueriesArray(voiceData)[0];
 
     await ctx.reply(ctx.t("voices.menuItemHeader"), {
         reply_markup: voiceMenu,
