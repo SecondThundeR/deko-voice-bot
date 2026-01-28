@@ -13,7 +13,7 @@
 - В качестве библиотеки для взаимодействия с Telegram Bot API используется [grammY](https://github.com/grammyjs/grammY/)
 - Бот и база данных работают на хостинге [Railway](https://railway.app/). Данные управляются с помощью [Drizzle ORM](https://orm.drizzle.team/)
 - Строки сообщений и другого текста бота находятся в [Fluent](https://projectfluent.org/) формате и обрабатываются с помощью плагина [@grammyjs/i18n](https://grammy.dev/plugins/i18n/)
-- Менюшки работают через плагин [@grammyjs/auto-retry](https://grammy.dev/plugins/auto-retry) и интерактивные диалоги через плагин [@grammyjs/conversations](https://grammy.dev/plugins/conversations)
+- Менюшки работают через плагин [@grammyjs/menu](https://grammy.dev/plugins/menu) и интерактивные диалоги через плагин [@grammyjs/conversations](https://grammy.dev/plugins/conversations)
 
 ## Как работает бот
 
