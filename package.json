@@ -17,17 +17,15 @@
     "@grammyjs/i18n": "^1.1.2",
     "@grammyjs/menu": "^1.3.1",
     "@grammyjs/runner": "^2.0.3",
-    "dayjs": "^1.11.19",
+    "dayjs": "^1.11.20",
     "drizzle-orm": "^0.45.1",
-    "grammy": "^1.41.0",
+    "grammy": "^1.41.1",
     "postgres": "^3.4.8"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.9",
-    "drizzle-kit": "^0.31.9",
-    "prettier": "^3.8.1"
-  },
-  "peerDependencies": {
-    "typescript": "^5.9.3"
+    "@types/bun": "^1.3.11",
+    "drizzle-kit": "^0.31.10",
+    "prettier": "^3.8.1",
+    "typescript": "^6.0.2"
   }
 }
