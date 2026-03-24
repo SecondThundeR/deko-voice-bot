@@ -18,8 +18,8 @@ RUN curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmo
 # Update the apt package list again to include the new repository
 RUN apt-get update
 
-# Install the PostgreSQL 16 client packages specifically
-RUN apt-get install -y postgresql-client-16 \
+# Install the PostgreSQL 18 client packages specifically
+RUN apt-get install -y postgresql-client-18 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies into temp directory
