@@ -40,4 +40,4 @@ By using the Bot, you are consenting to the processing of your information as se
 
 **Contact Us**
 
-If you have any questions regarding privacy while using the Bot, or have questions about the practices, please contact the Service Provider via email at me@otaquiz.ru.
+If you have any questions regarding privacy while using the Bot, or have questions about the practices, please contact the Service Provider via email at awayfromgalaxy@gmail.com.
