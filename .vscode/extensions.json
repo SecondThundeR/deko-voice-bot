@@ -1,3 +1,8 @@
 {
-    "recommendations": ["oven.bun-vscode", "macabeus.vscode-fluent", "mikestead.dotenv"]
+    "recommendations": [
+        "oven.bun-vscode",
+        "macabeus.vscode-fluent",
+        "mikestead.dotenv",
+        "biomejs.biome"
+    ]
 }

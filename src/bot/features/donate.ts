@@ -1,0 +1,76 @@
+import { Composer } from "grammy";
+import { insertPaymentQuery } from "@/drizzle/prepared/payments";
+import { donateData } from "../callback-data/donate";
+import type { Context } from "../context";
+import { DONATE_CONVERSATION } from "../conversations/donate";
+import { sendDonationInvoice } from "../helpers/api";
+import { getUpdateInfo, logHandle } from "../helpers/logging";
+import { createDonateKeyboard } from "../keyboards/donate";
+
+const composer = new Composer<Context>();
+
+const feature = composer.chatType("private");
+
+feature.command("donate", logHandle("command-donate"), (ctx) =>
+    ctx.reply(ctx.t("donate.commandText"), {
+        reply_markup: createDonateKeyboard(ctx),
+    }),
+);
+
+feature.callbackQuery(
+    donateData.filter({
+        amount: "custom",
+    }),
+    logHandle("keyboard-donate-custom"),
+    async (ctx) => {
+        await ctx.callbackQuery.answer();
+        await ctx.deleteMessage();
+
+        await ctx.conversation.enter(DONATE_CONVERSATION);
+    },
+);
+
+feature.callbackQuery(
+    donateData.filter(),
+    logHandle("keyboard-donate-regular"),
+    async (ctx) => {
+        await ctx.callbackQuery.answer();
+        await ctx.deleteMessage();
+
+        const amount = parseInt(ctx.match[1], 10);
+        await sendDonationInvoice(ctx, amount);
+    },
+);
+
+composer.on(
+    "pre_checkout_query",
+    logHandle("donate-pre-checkout-query"),
+    (ctx) => ctx.preCheckoutQuery.answer(true),
+);
+
+feature.on(
+    "message:successful_payment",
+    logHandle("donate-successful-payment"),
+    async (ctx) => {
+        const payment = ctx.message.successful_payment;
+
+        const amount = payment.total_amount;
+        await ctx.reply(ctx.t("donate.success", { amount: String(amount) }));
+
+        try {
+            await insertPaymentQuery.execute({
+                chargeId: payment.telegram_payment_charge_id,
+                invoicePayload: payment.invoice_payload,
+                userId: ctx.from.id,
+                amount: payment.total_amount,
+            });
+        } catch (error: unknown) {
+            ctx.logger.error({
+                err: `Failed to store payment payload in database: ${String(error)}`,
+                update: getUpdateInfo(ctx),
+            });
+        }
+    },
+);
+
+export { composer as donateFeature };

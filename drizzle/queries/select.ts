@@ -1,17 +1,15 @@
 import { eq, ilike } from "drizzle-orm";
-
+import { db } from "../db";
 import { getFeatureFlagQuery } from "../prepared/featureFlags";
 import { getUserIgnoreStatusQuery } from "../prepared/users";
 import { getUserFavoritesQuery } from "../prepared/usersFavorites";
-
-import { db } from "../db";
 import {
-    voicesTable,
-    usersTable,
+    type SelectFeatureFlag,
     type SelectUser,
     type SelectUserFavorites,
     type SelectVoice,
-    type SelectFeatureFlag,
+    usersTable,
+    voicesTable,
 } from "../schema";
 
 export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {

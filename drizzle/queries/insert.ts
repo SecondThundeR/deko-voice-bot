@@ -2,12 +2,12 @@ import { sql } from "drizzle-orm";
 
 import { db } from "../db";
 import {
-    usersFavoritesTable,
-    usersTable,
-    voicesTable,
     type InsertUser,
     type InsertUserFavorites,
     type InsertVoice,
+    usersFavoritesTable,
+    usersTable,
+    voicesTable,
 } from "../schema";
 
 export async function addRegularVoice(data: Omit<InsertVoice, "usesAmount">) {

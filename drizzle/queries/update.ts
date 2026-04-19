@@ -1,14 +1,12 @@
 import { and, eq } from "drizzle-orm";
-
-import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
-
 import { db } from "../db";
+import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
 import {
-    usersTable,
-    voicesTable,
-    type InsertVoice,
     type InsertFeatureFlag,
     type InsertUser,
+    type InsertVoice,
+    usersTable,
+    voicesTable,
 } from "../schema";
 
 export async function toggleFeatureFlag(name: InsertFeatureFlag["name"]) {
