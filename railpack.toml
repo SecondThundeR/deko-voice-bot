@@ -1,5 +1,0 @@
-[build]
-nixpacks = ["bun"]
-
-[build.env]
-NIXPACKS_PKGS = "ffmpeg postgresql"
