@@ -46,7 +46,6 @@ COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /usr/app/drizzle drizzle
 COPY --from=prerelease /usr/app/src src
 COPY --from=prerelease /usr/app/locales locales
-COPY --from=prerelease /usr/app/bot.ts .
 COPY --from=prerelease /usr/app/package.json .
 # if .env file exists, container will use it. otherwise, user should setup variables manually
 COPY --from=prerelease /usr/app/*.env .
