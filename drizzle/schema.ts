@@ -1,13 +1,13 @@
-import { pgEnum, pgTable, primaryKey } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { pgEnum, pgTable, primaryKey } from "drizzle-orm/pg-core";
 
 import {
     FEATURE_FLAG_NAME_LENGTH,
     FILE_ID_LENGTH,
+    FILE_UNIQUE_ID_LENGTH,
     FULLNAME_LENGTH,
     USERNAME_LENGTH,
     VOICE_ID_LENGTH,
-    FILE_UNIQUE_ID_LENGTH,
     VOICE_TITLE_LENGTH,
 } from "./constraints";
 
