@@ -32,5 +32,6 @@ COPY locales ./locales
 COPY package.json .
 COPY tsconfig.json .
 
+RUN chown -R bun:bun /usr/app
 USER bun
 ENTRYPOINT ["bun", "start"]
