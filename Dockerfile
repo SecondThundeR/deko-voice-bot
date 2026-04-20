@@ -1,5 +1,5 @@
 FROM oven/bun:1.3.12-slim AS base
-WORKDIR /usr/app
+WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -17,21 +17,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 FROM base AS install
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
-RUN cp -R node_modules /tmp/node_modules_dev
-RUN rm -rf node_modules && bun install --frozen-lockfile --production
+RUN mkdir -p /temp/dev
+COPY package.json bun.lock /temp/dev/
+RUN cd /temp/dev && bun install --frozen-lockfile
+
+RUN mkdir -p /temp/prod
+COPY package.json bun.lock /temp/prod/
+RUN cd /temp/prod && bun install --frozen-lockfile --production
+
+FROM base AS prerelease
+COPY --from=install /temp/dev/node_modules node_modules
+COPY . .
 
 FROM base AS release
-ENV NODE_ENV=production
+COPY --from=install /temp/prod/node_modules node_modules
+COPY --from=prerelease /usr/src/app/drizzle drizzle
+COPY --from=prerelease /usr/src/app/locales locales
+COPY --from=prerelease /usr/src/app/src src
+COPY --from=prerelease /usr/src/app/package.json .
+COPY --from=prerelease /usr/src/app/tsconfig.json .
 
-COPY --from=install /usr/app/node_modules ./node_modules
-COPY drizzle ./drizzle
-COPY src ./src
-COPY locales ./locales
-COPY package.json .
-COPY tsconfig.json .
-
-RUN chown -R bun:bun /usr/app
+RUN chown -R bun:bun /usr/src/app
 USER bun
 ENTRYPOINT ["bun", "start"]
