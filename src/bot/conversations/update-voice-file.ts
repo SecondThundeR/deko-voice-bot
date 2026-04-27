@@ -5,7 +5,7 @@ import { InputFile } from "grammy";
 import { updateVoiceFile } from "@/drizzle/queries/update";
 import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "../constants/extensions";
 import type { Context, ConversationContext } from "../context";
-import { fetchMediaFileData } from "../helpers/api";
+import { downloadTelegramFileToPath } from "../helpers/api";
 import { convertMP3ToOGGOpus } from "../helpers/general";
 import { getAudioFilePathSubconversation } from "./subconversations/get-audio-file-path";
 
@@ -39,23 +39,20 @@ export function updateVoiceFileConversation() {
 
             await ctx.replyWithChatAction("typing");
 
-            const fileBlob = await fetchMediaFileData({
-                filePath: audioFilePath,
-                token: ctx.api.token,
-                returnType: "blob",
-            });
-            if (!fileBlob) {
+            const downloadStatus = await conversation.external(() =>
+                downloadTelegramFileToPath({
+                    filePath: audioFilePath,
+                    outputPath: input,
+                    token: ctx.api.token,
+                }),
+            );
+            if (!downloadStatus) {
                 await conversation.external((ctx) => {
                     ctx.session.currentVoice = null;
                 });
                 await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
                 return;
             }
-
-            const arrayBuffer = await fileBlob.arrayBuffer();
-            await conversation.external(() =>
-                Bun.write(input, new Uint8Array(arrayBuffer)),
-            );
 
             const { status, error } = await conversation.external(() =>
                 convertMP3ToOGGOpus(input, output),

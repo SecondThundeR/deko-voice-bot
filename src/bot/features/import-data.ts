@@ -3,7 +3,7 @@ import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer } from "grammy";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
-import { fetchMediaFileData } from "../helpers/api";
+import { downloadTelegramFileToPath } from "../helpers/api";
 import { logHandle } from "../helpers/logging";
 import {
     isMaintenanceActive,
@@ -35,15 +35,18 @@ feature.on(
 
         const message = await ctx.reply(ctx.t("importData.inProgress"));
         const fileData = await ctx.getFile();
-        const fileBlob = await fetchMediaFileData({
-            filePath: fileData.file_path ?? "",
-            token: ctx.api.token,
-            returnType: "blob",
-        });
         const restoreFileName = `${fileData.file_id}.dump`;
 
         try {
-            await Bun.write(restoreFileName, fileBlob);
+            const downloadStatus = await downloadTelegramFileToPath({
+                filePath: fileData.file_path ?? "",
+                outputPath: restoreFileName,
+                token: ctx.api.token,
+            });
+
+            if (!downloadStatus) {
+                throw new Error("Failed to download backup file");
+            }
 
             const restoreProcess = Bun.spawn({
                 cmd: [

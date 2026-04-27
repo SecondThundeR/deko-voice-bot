@@ -5,7 +5,7 @@ import { InputFile } from "grammy";
 import { addRegularVoice } from "@/drizzle/queries/insert";
 import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "../constants/extensions";
 import type { Context, ConversationContext } from "../context";
-import { fetchMediaFileData } from "../helpers/api";
+import { downloadTelegramFileToPath } from "../helpers/api";
 import { convertMP3ToOGGOpus } from "../helpers/general";
 import { getAudioFilePathSubconversation } from "./subconversations/get-audio-file-path";
 import { getVoiceIDTextSubconversation } from "./subconversations/get-voice-id-text";
@@ -36,15 +36,6 @@ export function newVoicesConversation() {
 
                 await ctx.replyWithChatAction("typing");
 
-                const fileBlob = await fetchMediaFileData({
-                    filePath: audioFilePath,
-                    token: ctx.api.token,
-                    returnType: "blob",
-                });
-                if (!fileBlob) {
-                    return await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
-                }
-
                 const voiceId = await getVoiceIDTextSubconversation(
                     conversation,
                     ctx,
@@ -58,11 +49,16 @@ export function newVoicesConversation() {
 
                 const input = voiceTitle + INPUT_EXTENSION;
                 const output = voiceTitle + OUTPUT_EXTENSION;
-                const arrayBuffer = await fileBlob.arrayBuffer();
-
-                await conversation.external(() =>
-                    Bun.write(input, new Uint8Array(arrayBuffer)),
+                const downloadStatus = await conversation.external(() =>
+                    downloadTelegramFileToPath({
+                        filePath: audioFilePath,
+                        outputPath: input,
+                        token: ctx.api.token,
+                    }),
                 );
+                if (!downloadStatus) {
+                    return await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
+                }
 
                 const { status, error } = await conversation.external(() =>
                     convertMP3ToOGGOpus(input, output),
