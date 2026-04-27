@@ -101,6 +101,7 @@ inline =
     .blocked = Разблокируйте бота, чтобы продолжить
 
 conversation =
+    .cancel = Действие отменено!
     .addCancel = Добавление отменено!
     .addResults = Добавленные реплики:
     { $voices }
