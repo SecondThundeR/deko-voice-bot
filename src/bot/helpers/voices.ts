@@ -1,4 +1,5 @@
-import { getVoices } from "@/drizzle/queries/select";
+import { getVoices, getVoicesPage } from "@/drizzle/queries/select";
+import type { SelectUser } from "@/drizzle/schema";
 import type { FavoriteVoicesIds } from "@/drizzle/types";
 
 import type { InlineQueriesArray, InlineResultVoice } from "../types/inline";
@@ -34,5 +35,34 @@ export async function getVoiceQueries(
     return filterFavoriteVoices(
         convertedVoiceQueries,
         favoritesIds,
+    ) as InlineQueriesArray;
+}
+
+export async function getVoiceQueriesPage({
+    favoritesUserId,
+    limit,
+    offset,
+    queryString = "",
+}: {
+    favoritesUserId?: SelectUser["userId"];
+    limit: number;
+    offset: number;
+    queryString?: string;
+}) {
+    const voicesPage = await getVoicesPage({
+        favoritesUserId,
+        limit,
+        offset,
+        query: queryString,
+    });
+
+    return voicesPage.map(
+        ({ isFavorite, voiceId: id, voiceTitle, fileId: voice_file_id }) =>
+            ({
+                type: "voice",
+                id,
+                title: isFavorite ? `⭐️ ${voiceTitle}` : voiceTitle,
+                voice_file_id,
+            }) as const,
     ) as InlineQueriesArray;
 }

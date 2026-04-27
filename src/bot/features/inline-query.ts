@@ -1,12 +1,11 @@
 import { Composer } from "grammy";
 import { incrementVoiceUsesAmountQuery } from "@/drizzle/prepared/voices";
 import { updateUserData } from "@/drizzle/queries/insert";
-import { getUserFavorites } from "@/drizzle/queries/select";
+import { MAX_QUERY_ELEMENTS_PER_PAGE } from "../constants/inline";
 import type { Context } from "../context";
-import { getArrayWithOffset } from "../helpers/array";
 import { logHandle } from "../helpers/logging";
 import { extractUserDetails } from "../helpers/user";
-import { getVoiceQueries } from "../helpers/voices";
+import { getVoiceQueriesPage } from "../helpers/voices";
 
 const composer = new Composer<Context>();
 
@@ -26,18 +25,24 @@ composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
     const userID = ctx.from.id;
     const currentOffset = Number(ctx.update.inline_query.offset) || 0;
     const data = ctx.update.inline_query.query;
-
-    const favoritesIds = await getUserFavorites(userID);
-    const currentQueriesArray = await getVoiceQueries(data, favoritesIds);
-    const { array: paginatedQueries, nextOffset } = getArrayWithOffset(
-        currentQueriesArray,
-        currentOffset,
+    const pageSize =
         // Showing 5 items per page to save bandwidth if search query is less than 3 chars
-        data.length > 0 && data.length < 3 ? 5 : undefined,
-    );
+        data.length > 0 && data.length < 3 ? 5 : MAX_QUERY_ELEMENTS_PER_PAGE;
+
+    const currentQueriesPage = await getVoiceQueriesPage({
+        favoritesUserId: userID,
+        limit: pageSize + 1,
+        offset: currentOffset,
+        queryString: data,
+    });
+    const paginatedQueries = currentQueriesPage.slice(0, pageSize);
+    const nextOffset =
+        currentQueriesPage.length > pageSize
+            ? currentOffset + pageSize
+            : undefined;
 
     await ctx.answerInlineQuery(paginatedQueries, {
-        next_offset: String(nextOffset),
+        next_offset: nextOffset ? String(nextOffset) : undefined,
         button: {
             text: ctx.t("donate.queryText"),
             start_parameter: "donate",
