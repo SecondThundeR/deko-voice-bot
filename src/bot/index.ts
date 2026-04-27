@@ -32,8 +32,12 @@ import { unhandledFeature } from "./features/unhandled";
 import { voiceFeature } from "./features/voice";
 import { voiceItemFeature } from "./features/voice-item";
 import { voicesFeature } from "./features/voices";
+import { isAdmin } from "./filter/is-admin";
 import { errorHandler } from "./handlers/error";
 import { i18n } from "./i18n";
+import { favoritesMenu } from "./menu/favorites";
+import { voiceMenu } from "./menu/voice";
+import { voicesMenu } from "./menu/voices";
 import { maintenanceGatekeep } from "./middlewares/maintenance-gatekeep";
 import { session } from "./middlewares/session";
 import { updateLogger } from "./middlewares/update-logger";
@@ -120,6 +124,10 @@ export function createBot(
     protectedBot.use(updateVoiceTitleConversation());
     protectedBot.use(updateVoiceIDConversation());
     protectedBot.use(donateConversation());
+
+    // Menu
+    protectedBot.use(favoritesMenu);
+    protectedBot.filter(isAdmin).use(voicesMenu).use(voiceMenu);
 
     // Handlers
     protectedBot.use(startFeature);
