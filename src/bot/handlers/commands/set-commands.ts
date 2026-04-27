@@ -69,6 +69,10 @@ export async function setCommandsHandler(ctx: CommandContext<Context>) {
         commands.add(command);
     });
 
+    ctx.logger.debug({
+        msg: "Commands data",
+        commands: commands.toString()
+    });
     await commands.setCommands(ctx);
 
     return ctx.reply(ctx.t("general.commandsUpdated"));
