@@ -143,7 +143,7 @@ donate =
 
 refund =
     .description = Отмена пожертвования по его идентификатору
-    .emptyId = Укажите ID платежа для возврата. Например: `/refund <charge_id>`
+    .emptyId = Укажите ID платежа для возврата. Например: <code>/refund &lt;charge_id&gt;</code>
     .notFound = Платеж по указанному ID не найден
     .alreadyRefunded = Платеж по указанному ID уже был возвращен
     .success = Успешный возврат { $amount } ⭐ пользователю { $userId }
