@@ -1,3 +1,7 @@
+import { createWriteStream } from "node:fs";
+import { unlink } from "node:fs/promises";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import type { I18nFlavor } from "@grammyjs/i18n";
 import type { Context } from "grammy";
 
@@ -10,49 +14,31 @@ export async function isBotBlockedByUser(ctx: Context) {
     }
 }
 
-export async function fetchMediaFileData({
+export async function downloadTelegramFileToPath({
     filePath,
+    outputPath,
     token,
 }: {
     filePath: string;
+    outputPath: string;
     token: string;
-}): Promise<unknown>;
-export async function fetchMediaFileData({
-    filePath,
-    token,
-    returnType,
-}: {
-    filePath: string;
-    token: string;
-    returnType?: "blob";
-}): Promise<Blob>;
-export async function fetchMediaFileData({
-    filePath,
-    token,
-    returnType,
-}: {
-    filePath: string;
-    token: string;
-    returnType?: "json";
-}): Promise<unknown>;
-export async function fetchMediaFileData({
-    filePath,
-    token,
-    returnType = "json",
-}: {
-    filePath: string;
-    token: string;
-    returnType?: "blob" | "json";
 }) {
     const file = await fetch(
         `https://api.telegram.org/file/bot${token}/${filePath}`,
     );
 
-    if (returnType === "json") {
-        return await file.json();
-    }
+    if (!file.ok || !file.body) return false;
 
-    return await file.blob();
+    try {
+        await pipeline(
+            Readable.fromWeb(file.body),
+            createWriteStream(outputPath),
+        );
+        return true;
+    } catch (error) {
+        await unlink(outputPath).catch(() => undefined);
+        throw error;
+    }
 }
 
 export async function sendDonationInvoice(
