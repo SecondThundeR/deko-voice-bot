@@ -1,4 +1,4 @@
-import { eq, ilike } from "drizzle-orm";
+import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import { db } from "../db";
 import { getFeatureFlagQuery } from "../prepared/featureFlags";
 import { getUserIgnoreStatusQuery } from "../prepared/users";
@@ -8,6 +8,7 @@ import {
     type SelectUser,
     type SelectUserFavorites,
     type SelectVoice,
+    usersFavoritesTable,
     usersTable,
     voicesTable,
 } from "../schema";
@@ -33,6 +34,64 @@ export async function getVoices(query?: SelectVoice["voiceTitle"]) {
         .from(voicesTable)
         .where(query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined)
         .orderBy(voicesTable.voiceTitle);
+}
+
+export async function getVoicesPage({
+    favoritesUserId,
+    limit,
+    offset,
+    query,
+}: {
+    favoritesUserId?: SelectUser["userId"];
+    limit: number;
+    offset: number;
+    query?: SelectVoice["voiceTitle"];
+}) {
+    const filters = query
+        ? ilike(voicesTable.voiceTitle, `%${query}%`)
+        : undefined;
+
+    if (!favoritesUserId) {
+        return db
+            .select({
+                voiceId: voicesTable.voiceId,
+                voiceTitle: voicesTable.voiceTitle,
+                fileId: voicesTable.fileId,
+                fileUniqueId: voicesTable.fileUniqueId,
+                usesAmount: voicesTable.usesAmount,
+                isFavorite: sql<boolean>`false`,
+            })
+            .from(voicesTable)
+            .where(filters)
+            .orderBy(voicesTable.voiceTitle)
+            .limit(limit)
+            .offset(offset);
+    }
+
+    return db
+        .select({
+            voiceId: voicesTable.voiceId,
+            voiceTitle: voicesTable.voiceTitle,
+            fileId: voicesTable.fileId,
+            fileUniqueId: voicesTable.fileUniqueId,
+            usesAmount: voicesTable.usesAmount,
+            isFavorite: sql<boolean>`${usersFavoritesTable.voiceId} is not null`,
+        })
+        .from(voicesTable)
+        .leftJoin(
+            usersFavoritesTable,
+            and(
+                eq(usersFavoritesTable.voiceId, voicesTable.voiceId),
+                eq(usersFavoritesTable.userId, favoritesUserId),
+            ),
+        )
+        .where(filters)
+        .orderBy(
+            desc(sql`${usersFavoritesTable.voiceId} is not null`),
+            voicesTable.voiceTitle,
+        )
+        .limit(limit)
+        .offset(offset);
 }
 
 export async function isVoiceIdUnique(voiceId: SelectVoice["voiceId"]) {
