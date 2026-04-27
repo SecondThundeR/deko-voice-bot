@@ -3,23 +3,6 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { usersTable } from "../schema";
 
-export const getUsersBasicStatsQuery = db
-    .select({ lastUsedAt: usersTable.lastUsedAt })
-    .from(usersTable)
-    .where(eq(usersTable.isIgnored, false))
-    .prepare("get_users_basic_stats");
-
-export const getUsersFullStatsQuery = db
-    .select({
-        fullname: usersTable.fullname,
-        username: usersTable.username,
-        lastUsedAt: usersTable.lastUsedAt,
-        usesAmount: usersTable.usesAmount,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.isIgnored, false))
-    .prepare("get_users_full_stats");
-
 export const getUserDataQuery = db
     .select({
         userId: usersTable.userId,
