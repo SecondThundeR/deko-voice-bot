@@ -7,7 +7,7 @@
     "[javascript]": {
         "editor.defaultFormatter": "biomejs.biome"
     },
-    "[typescriptreact]": {
+    "[typescript]": {
         "editor.defaultFormatter": "biomejs.biome"
     },
     "js/ts.tsdk.promptToUseWorkspaceVersion": true,
