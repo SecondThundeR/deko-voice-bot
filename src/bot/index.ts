@@ -1,12 +1,12 @@
 import { autoChatAction } from "@grammyjs/auto-chat-action";
-import { conversations } from "@grammyjs/conversations";
+import { type ConversationData, conversations } from "@grammyjs/conversations";
 import { hydrate } from "@grammyjs/hydrate";
 import { hydrateReply, parseMode } from "@grammyjs/parse-mode";
 import { sequentialize } from "@grammyjs/runner";
 import { type BotConfig, Bot as TelegramBot } from "grammy";
 import type { Config } from "../config";
 import type { Logger } from "../logger";
-import type { Context } from "./context";
+import type { Context, SessionData } from "./context";
 import { donateConversation } from "./conversations/donate";
 import { newVoicesConversation } from "./conversations/new-voices";
 import { updateVoiceFileConversation } from "./conversations/update-voice-file";
@@ -37,6 +37,13 @@ import { i18n } from "./i18n";
 import { maintenanceGatekeep } from "./middlewares/maintenance-gatekeep";
 import { session } from "./middlewares/session";
 import { updateLogger } from "./middlewares/update-logger";
+import {
+    createTtlMemoryStorage,
+    createTtlVersionedMemoryStorage,
+} from "./store/ttl-memory-storage";
+
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+const STORAGE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 
 interface Dependencies {
     config: Config;
@@ -53,6 +60,15 @@ export function createBot(
     botConfig?: BotConfig<Context>,
 ) {
     const { config, logger } = dependencies;
+    const sessionStorage = createTtlMemoryStorage<SessionData>({
+        cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
+        ttlMs: SESSION_TTL_MS,
+    });
+    const conversationStorage =
+        createTtlVersionedMemoryStorage<ConversationData>({
+            cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
+            ttlMs: SESSION_TTL_MS,
+        });
 
     const bot = new TelegramBot<Context>(token, botConfig);
 
@@ -82,12 +98,18 @@ export function createBot(
     protectedBot.use(
         session({
             getSessionKey,
+            storage: sessionStorage,
         }),
     );
     protectedBot.use(i18n);
     protectedBot.use(
         conversations({
             plugins: [i18n],
+            storage: {
+                adapter: conversationStorage,
+                getStorageKey: getSessionKey,
+                type: "key",
+            },
         }),
     );
     protectedBot.use(maintenanceGatekeep());
