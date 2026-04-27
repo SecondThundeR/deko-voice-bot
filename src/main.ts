@@ -94,7 +94,15 @@ function onShutdown(cleanUp: () => Promise<void>) {
     const handleShutdown = async () => {
         if (isShuttingDown) return;
         isShuttingDown = true;
-        await cleanUp();
+        try {
+            await cleanUp();
+            logger.flush();
+            process.exit(0);
+        } catch (error) {
+            logger.error(error);
+            logger.flush();
+            process.exit(1);
+        }
     };
     process.on("SIGINT", handleShutdown);
     process.on("SIGTERM", handleShutdown);
