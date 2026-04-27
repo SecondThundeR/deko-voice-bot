@@ -1,23 +1,17 @@
 import { Composer } from "grammy";
-import { getUsersBasicStatsQuery } from "@/drizzle/prepared/users";
-import { getVoicesBasicStatsQuery } from "@/drizzle/prepared/voices";
+import { getBasicStatsQuery } from "@/drizzle/prepared/stats";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
 import { logHandle } from "../helpers/logging";
-import { getBasicStatsData } from "../helpers/stats";
 
 const composer = new Composer<Context>();
 
 const feature = composer.chatType("private").filter(isAdmin);
 
 feature.command("stats", logHandle("command-stats"), async (ctx) => {
-    const [usersData, voicesData] = await Promise.all([
-        getUsersBasicStatsQuery.execute(),
-        getVoicesBasicStatsQuery.execute(),
-    ]);
-    const statsMessageData = getBasicStatsData(usersData, voicesData);
+    const [statsData] = await getBasicStatsQuery.execute();
 
-    await ctx.reply(ctx.t("stats.regular", statsMessageData));
+    await ctx.reply(ctx.t("stats.regular", statsData));
 });
 
 export { composer as statsFeature };

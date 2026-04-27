@@ -14,11 +14,11 @@ privacy =
 
 stats =
     .description = Получить общую статистику по использованию бота
-    .regular = Всего пользователей бота: { $allUsedUsers }
+    .regular = Всего пользователей бота: { $allUsedUsers } (без аналитики: { $allIgnoredUsers })
     Всего активных пользователей в месяц: { $allMAUUsers }
     Всего пользователей, которые не использовали бота больше 3 месяцев: { $allInactiveUsers }
     Всего отправленных реплик: { $allUsedVoices }
-    .full = Всего пользователей бота: { $allUsedUsers }
+    .full = Всего пользователей бота: { $allUsedUsers } (без аналитики: { $allIgnoredUsers })
     Всего активных пользователей в месяц: { $allMAUUsers }
     Всего пользователей, которые не использовали бота больше 3 месяцев: { $allInactiveUsers }
     Всего отправленных реплик: { $allUsedVoices }
