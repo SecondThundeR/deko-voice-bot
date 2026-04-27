@@ -4,6 +4,7 @@ import { Composer } from "grammy";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
 import { downloadTelegramFileToPath } from "../helpers/api";
+import { readTextWithLimit } from "../helpers/general";
 import { logHandle } from "../helpers/logging";
 import {
     isMaintenanceActive,
@@ -13,6 +14,7 @@ import {
 export const composer = new Composer<Context>();
 
 const feature = composer.chatType("private").filter(isAdmin);
+const MAX_RESTORE_STDERR_BYTES = 16 * 1024;
 
 feature.on(
     "msg:document",
@@ -33,13 +35,19 @@ feature.on(
 
         setMaintenanceStatus(true);
 
-        const message = await ctx.reply(ctx.t("importData.inProgress"));
-        const fileData = await ctx.getFile();
-        const restoreFileName = `${fileData.file_id}.dump`;
+        let restoreFileName: string | null = null;
+        let message: Awaited<ReturnType<typeof ctx.reply>> | null = null;
 
         try {
+            message = await ctx.reply(ctx.t("importData.inProgress"));
+            const fileData = await ctx.getFile();
+            if (!fileData.file_path) {
+                throw new Error("Backup file path is missing");
+            }
+
+            restoreFileName = `${fileData.file_id}.dump`;
             const downloadStatus = await downloadTelegramFileToPath({
-                filePath: fileData.file_path ?? "",
+                filePath: fileData.file_path,
                 outputPath: restoreFileName,
                 token: ctx.api.token,
             });
@@ -59,13 +67,18 @@ feature.on(
                     "--no-owner",
                     restoreFileName,
                 ],
+                stdout: null,
             });
 
-            const exitCode = await restoreProcess.exited;
+            const [exitCode, stderr] = await Promise.all([
+                restoreProcess.exited,
+                readTextWithLimit(
+                    restoreProcess.stderr,
+                    MAX_RESTORE_STDERR_BYTES,
+                ),
+            ]);
 
             if (exitCode !== 0) {
-                await unlink(restoreFileName);
-                const stderr = await new Response(restoreProcess.stderr).text();
                 // noinspection ExceptionCaughtLocallyJS
                 throw new Error(
                     `pg_restore failed with exit code ${exitCode}:\n${stderr}`,
@@ -80,20 +93,26 @@ feature.on(
             );
 
             if (error instanceof Error) {
-                await message.editText(
-                    ctx.t("importData.error", {
-                        errorMessage: error.message,
-                    }),
-                );
+                const errorMessage = ctx.t("importData.error", {
+                    errorMessage: error.message,
+                });
+
+                if (message) await message.editText(errorMessage);
+                else await ctx.reply(errorMessage);
             } else {
-                await message.editText(ctx.t("importData.unknownError"));
+                const errorMessage = ctx.t("importData.unknownError");
+
+                if (message) await message.editText(errorMessage);
+                else await ctx.reply(errorMessage);
             }
         } finally {
             setMaintenanceStatus(false);
 
-            const file = Bun.file(restoreFileName);
-            if (await file.exists()) {
-                await unlink(restoreFileName);
+            if (restoreFileName) {
+                const file = Bun.file(restoreFileName);
+                if (await file.exists()) {
+                    await unlink(restoreFileName);
+                }
             }
         }
     },

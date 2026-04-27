@@ -72,3 +72,42 @@ export async function convertMP3ToOGGOpus(
 export function isEmpty(val: unknown) {
     return val == null || !(Object.keys(val) || val).length;
 }
+
+export async function readTextWithLimit(
+    stream: ReadableStream<Uint8Array> | null | undefined,
+    maxBytes: number,
+) {
+    if (!stream) return "";
+
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    const chunks: string[] = [];
+    let bytesRead = 0;
+    let isTruncated = false;
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        if (bytesRead < maxBytes) {
+            const remainingBytes = maxBytes - bytesRead;
+            const chunk =
+                value.byteLength > remainingBytes
+                    ? value.slice(0, remainingBytes)
+                    : value;
+
+            chunks.push(decoder.decode(chunk, { stream: true }));
+        }
+
+        bytesRead += value.byteLength;
+        if (bytesRead > maxBytes) isTruncated = true;
+    }
+
+    chunks.push(decoder.decode());
+
+    if (isTruncated) {
+        chunks.push("\n... stderr output truncated");
+    }
+
+    return chunks.join("");
+}
