@@ -40,11 +40,13 @@ export async function getVoicesPage({
     favoritesUserId,
     limit,
     offset,
+    orderFavoritesFirst = false,
     query,
 }: {
     favoritesUserId?: SelectUser["userId"];
     limit: number;
     offset: number;
+    orderFavoritesFirst?: boolean;
     query?: SelectVoice["voiceTitle"];
 }) {
     const filters = query
@@ -68,7 +70,7 @@ export async function getVoicesPage({
             .offset(offset);
     }
 
-    return db
+    const queryBuilder = db
         .select({
             voiceId: voicesTable.voiceId,
             voiceTitle: voicesTable.voiceTitle,
@@ -86,12 +88,18 @@ export async function getVoicesPage({
             ),
         )
         .where(filters)
-        .orderBy(
+        .$dynamic();
+
+    if (orderFavoritesFirst) {
+        queryBuilder.orderBy(
             desc(sql`${usersFavoritesTable.voiceId} is not null`),
             voicesTable.voiceTitle,
-        )
-        .limit(limit)
-        .offset(offset);
+        );
+    } else {
+        queryBuilder.orderBy(voicesTable.voiceTitle);
+    }
+
+    return queryBuilder.limit(limit).offset(offset);
 }
 
 export async function isVoiceIdUnique(voiceId: SelectVoice["voiceId"]) {

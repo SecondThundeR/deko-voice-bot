@@ -53,6 +53,7 @@ export async function getVoiceQueriesPage({
         favoritesUserId,
         limit,
         offset,
+        orderFavoritesFirst: Boolean(favoritesUserId),
         query: queryString,
     });
 

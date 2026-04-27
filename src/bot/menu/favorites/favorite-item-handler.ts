@@ -14,20 +14,13 @@ export async function favoriteItemHandler(
         });
     }
 
-    const { currentFavorites } = ctx.session;
     const newFavoriteStatus = !favorite.isFavored;
-    const updatedFavorite = { ...favorite, isFavored: newFavoriteStatus };
 
     if (newFavoriteStatus) {
         await addUserFavorite({ userId, voiceId: favorite.id });
     } else {
         await deleteUserFavoriteQuery.execute({ userId, voiceId: favorite.id });
     }
-
-    ctx.session.currentFavorites =
-        currentFavorites?.map((item) =>
-            item.id !== favorite.id ? item : updatedFavorite,
-        ) ?? null;
 
     await ctx.menu.update({
         immediate: true,

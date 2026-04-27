@@ -16,7 +16,7 @@ feature.command("favorites", logHandle("command-favorites"), async (ctx) => {
         return await ctx.reply(ctx.t("favorites.newUser"));
     if (userIgnoreStatus) return await ctx.reply(ctx.t("favorites.optout"));
 
-    const prepareStatus = await prepareFavoritesSessionMenu(ctx, userID);
+    const prepareStatus = await prepareFavoritesSessionMenu(ctx);
     if (!prepareStatus) return await ctx.reply(ctx.t("favorites.noData"));
 
     await ctx.reply(ctx.t("favorites.header"), { reply_markup: favoritesMenu });

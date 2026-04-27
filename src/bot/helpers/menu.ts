@@ -1,58 +1,72 @@
-import { getUserFavorites } from "@/drizzle/queries/select";
+import { getVoicesCount, getVoicesPage } from "@/drizzle/queries/select";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "../constants/inline";
 import type { Context } from "../context";
-import { getVoiceQueries } from "./voices";
+import type { FavoriteItem } from "../types/favorite-item";
+import type { InlineResultVoice } from "../types/inline";
+import { getVoiceQueriesPage } from "./voices";
 
-export async function prepareFavoritesSessionMenu(
-    ctx: Context,
-    userID: number,
-) {
-    const voicesData = await getVoiceQueries();
-    if (voicesData.length === 0) {
-        ctx.session.currentFavorites = null;
-        return false;
-    }
-
-    const userFavorites = await getUserFavorites(userID);
-    const newFavoritesData = voicesData.map(({ id, title }) => ({
-        id,
-        title,
-        isFavored: userFavorites.includes(id),
-    }));
+export async function prepareFavoritesSessionMenu(ctx: Context) {
+    const voicesCount = await getVoicesCount();
+    if (voicesCount === 0) return false;
 
     ctx.session.currentFavoritesOffset = 0;
-    ctx.session.currentFavorites = newFavoritesData;
     return true;
 }
 
-export function getFavoritesMenuIdentificator(ctx: Context) {
-    return (
-        ctx.session.currentFavorites
-            ?.map(({ id, isFavored }) => `${id}-${isFavored}`)
-            .join("|")
-            .concat(String(ctx.session.currentFavoritesOffset)) ?? ""
-    );
+export async function getFavoritesMenuPage(
+    ctx: Context,
+    userID: number,
+): Promise<FavoriteItem[]> {
+    const voicesPage = await getVoicesPage({
+        favoritesUserId: userID,
+        limit: MAX_MENU_ELEMENTS_PER_PAGE,
+        offset: ctx.session.currentFavoritesOffset,
+    });
+
+    return voicesPage.map(({ isFavorite, voiceId: id, voiceTitle: title }) => ({
+        id,
+        title,
+        isFavored: isFavorite,
+    }));
+}
+
+export async function getFavoritesMenuIdentificator(ctx: Context) {
+    const userID = ctx.from?.id;
+    if (!userID) return "";
+
+    const favoritesPage = await getFavoritesMenuPage(ctx, userID);
+
+    return favoritesPage
+        .map(({ id, isFavored }) => `${id}-${isFavored}`)
+        .join("|")
+        .concat(String(ctx.session.currentFavoritesOffset));
 }
 
 export async function prepareVoicesSessionMenu(ctx: Context) {
-    const voicesData = await getVoiceQueries();
-    if (voicesData.length === 0) {
-        ctx.session.currentVoices = null;
-        return false;
-    }
+    const voicesCount = await getVoicesCount();
+    if (voicesCount === 0) return false;
 
     ctx.session.currentVoice = null;
-    ctx.session.currentVoices = voicesData;
     ctx.session.currentVoicesOffset = 0;
     return true;
 }
 
-export function getVoicesMenuIdentificator(ctx: Context) {
-    return (
-        ctx.session.currentVoices
-            ?.map(({ id, title }) => `${id}-${title}`)
-            .join("|")
-            .concat(String(ctx.session.currentVoicesOffset)) ?? ""
-    );
+export async function getVoicesMenuPage(
+    ctx: Context,
+): Promise<InlineResultVoice[]> {
+    return getVoiceQueriesPage({
+        limit: MAX_MENU_ELEMENTS_PER_PAGE,
+        offset: ctx.session.currentVoicesOffset,
+    });
+}
+
+export async function getVoicesMenuIdentificator(ctx: Context) {
+    const voicesPage = await getVoicesMenuPage(ctx);
+
+    return voicesPage
+        .map(({ id, title }) => `${id}-${title}`)
+        .join("|")
+        .concat(String(ctx.session.currentVoicesOffset));
 }
 
 export function getVoiceSubmenuIdentificator(ctx: Context) {

@@ -1,8 +1,11 @@
+import { getVoicesCount } from "@/drizzle/queries/select";
 import type { MenuContext } from "../../context";
 import { genericOutdatedHandler } from "../generic/generic-outdated-handler";
 
 export async function outdatedHandler(ctx: MenuContext) {
+    const hasVoices = (await getVoicesCount()) > 0;
+
     await genericOutdatedHandler(ctx, {
-        menuElement: ctx.session.currentFavorites,
+        menuElement: hasVoices,
     });
 }

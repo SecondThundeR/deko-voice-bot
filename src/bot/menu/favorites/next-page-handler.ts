@@ -1,15 +1,17 @@
+import { getVoicesCount } from "@/drizzle/queries/select";
 import { MAX_MENU_ELEMENTS_PER_PAGE } from "../../constants/inline";
 import type { MenuContext } from "../../context";
 import { genericNextHandler } from "../generic/generic-next-handler";
 
 export async function nextPageHandler(ctx: MenuContext) {
-    const { currentFavorites, currentFavoritesOffset } = ctx.session;
+    const { currentFavoritesOffset } = ctx.session;
+    const totalElements = await getVoicesCount();
 
     await genericNextHandler(ctx, {
-        menuElements: currentFavorites,
         currentOffset: currentFavoritesOffset,
         elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
         offsetUpdate: (newOffset) =>
             (ctx.session.currentFavoritesOffset = newOffset),
+        totalElements,
     });
 }

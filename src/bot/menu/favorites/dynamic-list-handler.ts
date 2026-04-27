@@ -1,16 +1,22 @@
 import type { MenuRange } from "@grammyjs/menu";
-import { MAX_MENU_ELEMENTS_PER_PAGE } from "../../constants/inline";
 import type { Context, MenuContext } from "../../context";
+import { getFavoritesMenuPage } from "../../helpers/menu";
 import { genericListHandler } from "../generic/generic-list-handler";
 import { favoriteItemHandler } from "./favorite-item-handler";
 
-export function dynamicListHandler(ctx: Context, range: MenuRange<Context>) {
-    const { currentFavoritesOffset, currentFavorites } = ctx.session;
+export async function dynamicListHandler(
+    ctx: Context,
+    range: MenuRange<Context>,
+) {
+    const userID = ctx.from?.id;
+    if (!userID) return;
+
+    const currentFavorites = await getFavoritesMenuPage(ctx, userID);
 
     genericListHandler(range, {
         menuElements: currentFavorites,
-        currentOffset: currentFavoritesOffset,
-        elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
+        currentOffset: 0,
+        elementsPerPage: currentFavorites.length,
         forEachCallback: (range, favoriteItem) => {
             const { isFavored, title } = favoriteItem;
             const isFavoredText = isFavored ? `⭐️ ` : "";
