@@ -1,15 +1,18 @@
 import type { MenuRange } from "@grammyjs/menu";
-import { MAX_MENU_ELEMENTS_PER_PAGE } from "../../constants/inline";
 import type { Context } from "../../context";
+import { getVoicesMenuPage } from "../../helpers/menu";
 import { genericListHandler } from "../generic/generic-list-handler";
 
-export function dynamicListHandler(ctx: Context, range: MenuRange<Context>) {
-    const { currentVoicesOffset, currentVoices } = ctx.session;
+export async function dynamicListHandler(
+    ctx: Context,
+    range: MenuRange<Context>,
+) {
+    const currentVoices = await getVoicesMenuPage(ctx);
 
     genericListHandler(range, {
         menuElements: currentVoices,
-        currentOffset: currentVoicesOffset,
-        elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
+        currentOffset: 0,
+        elementsPerPage: currentVoices.length,
         forEachCallback: (range, voiceItem) => {
             const { title } = voiceItem;
 

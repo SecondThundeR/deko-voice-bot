@@ -7,13 +7,10 @@ import type { ParseModeFlavor } from "@grammyjs/parse-mode";
 import type { Context as DefaultContext, SessionFlavor } from "grammy";
 import type { Config } from "../config";
 import type { Logger } from "../logger";
-import type { FavoriteItem } from "./types/favorite-item";
 import type { InlineResultVoice } from "./types/inline";
 
 export type SessionData = {
-    currentFavorites?: FavoriteItem[] | null;
     currentFavoritesOffset: number;
-    currentVoices?: InlineResultVoice[] | null;
     currentVoicesOffset: number;
     currentVoice?: InlineResultVoice | null;
     addedVoices?: string[] | null;

@@ -1,27 +1,21 @@
 import type { MenuContext } from "../../context";
 
-type NextHandlerData<T> = {
-    menuElements: T[] | null | undefined;
+type NextHandlerData = {
     currentOffset: number;
     elementsPerPage: number;
     offsetUpdate: (newOffset: number) => void;
+    totalElements: number;
 };
 
-export async function genericNextHandler<T>(
+export async function genericNextHandler(
     ctx: MenuContext,
-    data: NextHandlerData<T>,
+    data: NextHandlerData,
 ) {
-    const { menuElements, currentOffset, elementsPerPage, offsetUpdate } = data;
-
-    if (!menuElements) {
-        return await ctx.callbackQuery?.answer({
-            text: ctx.t("menu.failedToGetSessionData"),
-            show_alert: true,
-        });
-    }
+    const { currentOffset, elementsPerPage, offsetUpdate, totalElements } =
+        data;
 
     const newOffset = currentOffset + elementsPerPage;
-    if (newOffset >= menuElements.length) {
+    if (newOffset >= totalElements) {
         return await ctx.callbackQuery?.answer({
             text: ctx.t("menu.alreadyNext"),
             show_alert: true,
