@@ -8,6 +8,7 @@ import { extractUserDetails } from "../helpers/user";
 import { getVoiceQueriesPage } from "../helpers/voices";
 
 const composer = new Composer<Context>();
+const MAX_INLINE_QUERY_OFFSET = 1000;
 
 composer.on(
     "chosen_inline_result",
@@ -23,7 +24,11 @@ composer.on(
 
 composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
     const userID = ctx.from.id;
-    const currentOffset = Number(ctx.update.inline_query.offset) || 0;
+    const requestedOffset = Number(ctx.update.inline_query.offset) || 0;
+    const currentOffset =
+        Number.isInteger(requestedOffset) && requestedOffset > 0
+            ? Math.min(requestedOffset, MAX_INLINE_QUERY_OFFSET)
+            : 0;
     const data = ctx.update.inline_query.query;
     const pageSize =
         // Showing 5 items per page to save bandwidth if search query is less than 3 chars

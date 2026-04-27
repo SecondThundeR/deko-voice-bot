@@ -3,6 +3,7 @@ import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
+import { readTextWithLimit } from "../helpers/general";
 import { getUpdateInfo, logHandle } from "../helpers/logging";
 import {
     isMaintenanceActive,
@@ -12,6 +13,7 @@ import {
 const composer = new Composer<Context>();
 
 const feature = composer.chatType("private").filter(isAdmin);
+const MAX_DUMP_STDERR_BYTES = 16 * 1024;
 
 feature.command(
     "export",
@@ -37,12 +39,15 @@ feature.command(
                     "-f",
                     backupFileName,
                 ],
+                stdout: null,
             });
 
-            const exitCode = await dumpProcess.exited;
+            const [exitCode, stderr] = await Promise.all([
+                dumpProcess.exited,
+                readTextWithLimit(dumpProcess.stderr, MAX_DUMP_STDERR_BYTES),
+            ]);
 
             if (exitCode !== 0) {
-                const stderr = await new Response(dumpProcess.stderr).text();
                 await ctx.reply(
                     ctx.t("export.dumpError", { exitCode, stderr }),
                 );

@@ -1,3 +1,8 @@
+import { randomUUID } from "node:crypto";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "../constants/extensions";
+
 type FFMPEGConvertResult =
     | { status: true; error: undefined }
     | {
@@ -67,6 +72,15 @@ export async function convertMP3ToOGGOpus(
             error: error.message,
         };
     }
+}
+
+export function createVoiceTempFilePaths() {
+    const basename = join(tmpdir(), `deko-voice-${randomUUID()}`);
+
+    return {
+        input: basename + INPUT_EXTENSION,
+        output: basename + OUTPUT_EXTENSION,
+    };
 }
 
 export function isEmpty(val: unknown) {
