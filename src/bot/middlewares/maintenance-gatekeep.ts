@@ -6,6 +6,7 @@ import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
 import {
     getCachedMaintenanceFeatureFlag,
+    isMaintenanceActive,
     setCachedMaintenanceFeatureFlag,
 } from "../store/maintenance";
 
@@ -21,7 +22,9 @@ export function maintenanceGatekeep(): Middleware<Context> {
             setCachedMaintenanceFeatureFlag(maintenanceFeatureFlagStatus);
         }
 
-        if (!maintenanceFeatureFlagStatus) return await next();
+        const isInMaintenance =
+            maintenanceFeatureFlagStatus || isMaintenanceActive();
+        if (!isInMaintenance) return await next();
 
         if (ctx.inlineQuery) {
             return await ctx.answerInlineQuery([], {
