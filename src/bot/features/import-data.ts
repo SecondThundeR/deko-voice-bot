@@ -7,8 +7,8 @@ import { downloadTelegramFileToPath } from "../helpers/api";
 import { createDumpTempFilePath, readTextWithLimit } from "../helpers/general";
 import { logHandle } from "../helpers/logging";
 import {
-    getCachedMaintenanceFeatureFlag,
-    setCachedMaintenanceFeatureFlag,
+    isMaintenanceActive,
+    setMaintenanceStatus,
 } from "../store/maintenance";
 
 export const composer = new Composer<Context>();
@@ -21,7 +21,7 @@ feature.on(
     logHandle("import-data-document"),
     chatAction("typing"),
     async (ctx) => {
-        if (getCachedMaintenanceFeatureFlag()) {
+        if (isMaintenanceActive()) {
             return ctx.reply(ctx.t("importData.maintenancePending"));
         }
 
@@ -33,7 +33,7 @@ feature.on(
             return;
         }
 
-        setCachedMaintenanceFeatureFlag(true);
+        setMaintenanceStatus(true);
 
         let restoreFileName: string | null = null;
         let message: Awaited<ReturnType<typeof ctx.reply>> | null = null;
@@ -106,7 +106,7 @@ feature.on(
                 else await ctx.reply(errorMessage);
             }
         } finally {
-            setCachedMaintenanceFeatureFlag(false);
+            setMaintenanceStatus(false);
 
             if (restoreFileName) {
                 const file = Bun.file(restoreFileName);
