@@ -3,7 +3,7 @@ import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
-import { readTextWithLimit } from "../helpers/general";
+import { createDumpTempFilePath, readTextWithLimit } from "../helpers/general";
 import { getUpdateInfo, logHandle } from "../helpers/logging";
 import {
     getCachedMaintenanceFeatureFlag,
@@ -27,7 +27,7 @@ feature.command(
         setCachedMaintenanceFeatureFlag(true);
 
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const backupFileName = `backup-${timestamp}.dump`;
+        const backupFileName = createDumpTempFilePath(`backup-${timestamp}`);
 
         try {
             const dumpProcess = Bun.spawn({
