@@ -87,10 +87,10 @@ feature.on(
 
             await message.editText(ctx.t("importData.done"));
         } catch (error) {
-            console.error(
-                "Import failed. Rollback has been completed. Details:",
+            ctx.logger.error({
+                msg: "Import failed. Rollback has been completed",
                 error,
-            );
+            });
 
             if (error instanceof Error) {
                 const errorMessage = ctx.t("importData.error", {
