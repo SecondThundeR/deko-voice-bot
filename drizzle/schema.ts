@@ -1,5 +1,11 @@
 import { relations, sql } from "drizzle-orm";
-import { index, pgEnum, pgTable, primaryKey } from "drizzle-orm/pg-core";
+import {
+    index,
+    pgEnum,
+    pgTable,
+    primaryKey,
+    uniqueIndex,
+} from "drizzle-orm/pg-core";
 
 import {
     FEATURE_FLAG_NAME_LENGTH,
@@ -37,7 +43,7 @@ export const voicesTable = pgTable(
         usesAmount: t.integer().notNull().default(0),
     }),
     (table) => [
-        index("voices_table_file_unique_id_idx").on(table.fileUniqueId),
+        uniqueIndex("voices_table_file_unique_id_idx").on(table.fileUniqueId),
         index("voices_table_uses_amount_idx").on(table.usesAmount),
         index("voices_table_voice_title_idx").on(table.voiceTitle),
         index("voices_table_voice_title_trgm_idx").using(
@@ -67,8 +73,17 @@ export const usersTable = pgTable(
         isIgnored: t.boolean().notNull().default(false),
     }),
     (table) => [
-        index("users_table_last_used_at_idx").on(table.lastUsedAt),
-        index("users_table_uses_amount_idx").on(table.usesAmount),
+        index("users_table_active_last_used_at_idx")
+            .on(sql`coalesce(${table.lastUsedAt}, 0) desc`)
+            .where(
+                sql`${table.isIgnored} = false and ${table.usesAmount} <> 0`,
+            ),
+        index("users_table_active_uses_amount_idx")
+            .on(sql`coalesce(${table.usesAmount}, 0) desc`)
+            .where(sql`${table.isIgnored} = false`),
+        index("users_table_inactive_last_used_at_idx")
+            .on(table.lastUsedAt)
+            .where(sql`${table.isIgnored} = false`),
     ],
 );
 
@@ -120,7 +135,11 @@ export const usersFavoritesTableRelations = relations(
     }),
 );
 
-export const paymentStatusEnum = pgEnum("payment_status", ["paid", "refunded"]);
+export const paymentStatusEnum = pgEnum("payment_status", [
+    "paid",
+    "refund_pending",
+    "refunded",
+]);
 
 export const paymentsTable = pgTable("payments", (t) => ({
     telegramPaymentChargeId: t.text().primaryKey(),
