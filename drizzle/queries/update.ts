@@ -1,11 +1,9 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
 import {
     type InsertFeatureFlag,
-    type InsertUser,
     type InsertVoice,
-    usersTable,
     voicesTable,
 } from "../schema";
 
@@ -54,48 +52,4 @@ export async function updateVoiceFile(
         .returning({ voiceId: voicesTable.voiceId });
 
     return !!updatedVoice;
-}
-
-export async function markUserAsIgnored(userId: InsertUser["userId"]) {
-    const [userIgnoreStatus] = await db
-        .update(usersTable)
-        .set({
-            fullname: null,
-            username: null,
-            usesAmount: null,
-            lastUsedAt: null,
-            isIgnored: true,
-        })
-        .where(
-            and(eq(usersTable.userId, userId), eq(usersTable.isIgnored, false)),
-        )
-        .returning({ isIgnored: usersTable.isIgnored });
-
-    if (!userIgnoreStatus) return null;
-
-    return true;
-}
-
-export async function markUserAsNotIgnored({
-    userId,
-    fullname,
-    username,
-}: Omit<InsertUser, "id" | "isIgnored" | "usesAmount" | "lastUsedAt">) {
-    const [userRestoreStatus] = await db
-        .update(usersTable)
-        .set({
-            fullname,
-            username,
-            usesAmount: 0,
-            lastUsedAt: null,
-            isIgnored: false,
-        })
-        .where(
-            and(eq(usersTable.userId, userId), eq(usersTable.isIgnored, true)),
-        )
-        .returning({ isIgnored: usersTable.isIgnored });
-
-    if (!userRestoreStatus) return null;
-
-    return true;
 }

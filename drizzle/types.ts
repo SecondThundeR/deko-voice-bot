@@ -20,5 +20,3 @@ export type FullStats = {
     lastUsedUsersStats: FullUsersStats[];
     mostUsedVoicesStats: FullVoicesStats[];
 };
-
-export type FavoriteVoicesIds = SelectVoice["voiceId"][];

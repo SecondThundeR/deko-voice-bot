@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 
 import { db } from "../db";
-import { voicesTable } from "../schema";
+import { type SelectVoice, voicesTable } from "../schema";
 
 export const getVoiceByUniqueIdQuery = db
     .select()
@@ -22,3 +22,17 @@ export const deleteVoiceByIdQuery = db
     .where(eq(voicesTable.voiceId, sql.placeholder("voiceId")))
     .returning({ voiceId: voicesTable.voiceId })
     .prepare("delete_voice_by_id");
+
+export async function deleteVoiceAndCheckHasVoices(
+    voiceId: SelectVoice["voiceId"],
+) {
+    const [data] = await db.execute<{ hasVoices: boolean }>(sql`
+        with deleted_voice as (
+            delete from ${voicesTable}
+            where ${voicesTable.voiceId} = ${voiceId}
+        )
+        select exists(select 1 from ${voicesTable}) as "hasVoices"
+    `);
+
+    return data.hasVoices;
+}

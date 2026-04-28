@@ -9,7 +9,6 @@ import {
     type SelectUserFavorites,
     type SelectVoice,
     usersFavoritesTable,
-    usersTable,
     voicesTable,
 } from "../schema";
 
@@ -26,14 +25,6 @@ export async function getVoicesCount(query?: SelectVoice["voiceTitle"]) {
         voicesTable,
         query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined,
     );
-}
-
-export async function getVoices(query?: SelectVoice["voiceTitle"]) {
-    return db
-        .select()
-        .from(voicesTable)
-        .where(query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined)
-        .orderBy(voicesTable.voiceTitle);
 }
 
 export async function getVoicesPage({
@@ -116,10 +107,6 @@ export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
     if (!userIgnoreStatus) return null;
 
     return userIgnoreStatus.isIgnored;
-}
-
-export async function isUserExists(userId: SelectUser["userId"]) {
-    return (await db.$count(usersTable, eq(usersTable.userId, userId))) !== 0;
 }
 
 export async function getUserFavorites(userId: SelectUserFavorites["userId"]) {
