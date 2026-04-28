@@ -6,8 +6,8 @@ import { isAdmin } from "../filter/is-admin";
 import { readTextWithLimit } from "../helpers/general";
 import { getUpdateInfo, logHandle } from "../helpers/logging";
 import {
-    isMaintenanceActive,
-    setMaintenanceStatus,
+    getCachedMaintenanceFeatureFlag,
+    setCachedMaintenanceFeatureFlag,
 } from "../store/maintenance";
 
 const composer = new Composer<Context>();
@@ -20,11 +20,11 @@ feature.command(
     logHandle("command-export"),
     chatAction("upload_document"),
     async (ctx) => {
-        if (isMaintenanceActive()) {
+        if (getCachedMaintenanceFeatureFlag()) {
             return ctx.reply(ctx.t("export.maintenancePending"));
         }
 
-        setMaintenanceStatus(true);
+        setCachedMaintenanceFeatureFlag(true);
 
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
         const backupFileName = `backup-${timestamp}.dump`;
@@ -62,7 +62,7 @@ feature.command(
             });
             await ctx.reply(ctx.t("export.unknownError"));
         } finally {
-            setMaintenanceStatus(false);
+            setCachedMaintenanceFeatureFlag(false);
 
             const file = Bun.file(backupFileName);
             if (await file.exists()) {
