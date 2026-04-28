@@ -1,7 +1,9 @@
 import { Composer } from "grammy";
 import {
+    claimPaymentForRefundQuery,
     getPaymentByChargeIdQuery,
     markPaymentAsRefundedQuery,
+    releasePaymentRefundClaimQuery,
 } from "@/drizzle/prepared/payments";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
@@ -12,30 +14,57 @@ const composer = new Composer<Context>();
 const feature = composer.chatType("private").filter(isAdmin);
 
 feature.command("refund", logHandle("command-refund"), async (ctx) => {
-    const chargeId = ctx.match;
+    const chargeId = ctx.match.trim();
     if (!chargeId) {
         return ctx.reply(ctx.t("refund.emptyId"));
     }
 
     try {
-        const payments = await getPaymentByChargeIdQuery.execute({ chargeId });
+        const [payment] = await claimPaymentForRefundQuery.execute({
+            chargeId,
+        });
 
-        if (payments.length === 0) {
-            return ctx.reply(ctx.t("refund.notFound"));
-        }
+        if (!payment) {
+            const [existingPayment] = await getPaymentByChargeIdQuery.execute({
+                chargeId,
+            });
 
-        const payment = payments[0];
+            if (!existingPayment) {
+                return ctx.reply(ctx.t("refund.notFound"));
+            }
 
-        if (payment.status === "refunded") {
+            if (existingPayment.status === "refund_pending") {
+                return ctx.reply(ctx.t("refund.inProgress"));
+            }
+
             return ctx.reply(ctx.t("refund.alreadyRefunded"));
         }
 
-        await ctx.api.refundStarPayment(
-            payment.userId,
-            payment.telegramPaymentChargeId,
-        );
+        try {
+            await ctx.api.refundStarPayment(
+                payment.userId,
+                payment.telegramPaymentChargeId,
+            );
+        } catch (error) {
+            await releasePaymentRefundClaimQuery
+                .execute({ chargeId })
+                .catch((releaseError) => {
+                    ctx.logger.error({
+                        err: `Failed to release refund claim: ${String(releaseError)}`,
+                        update: getUpdateInfo(ctx),
+                    });
+                });
 
-        await markPaymentAsRefundedQuery.execute({ chargeId });
+            throw error;
+        }
+
+        const [refundedPayment] = await markPaymentAsRefundedQuery.execute({
+            chargeId,
+        });
+
+        if (!refundedPayment) {
+            throw new Error("Failed to mark payment as refunded");
+        }
 
         await ctx.reply(
             ctx.t("refund.success", {

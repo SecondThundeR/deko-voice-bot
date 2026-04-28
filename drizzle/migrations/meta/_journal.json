@@ -43,6 +43,13 @@
       "when": 1777379357703,
       "tag": "0005_shocking_revanche",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777406411853,
+      "tag": "0006_lovely_xavin",
+      "breakpoints": true
     }
   ]
 }
