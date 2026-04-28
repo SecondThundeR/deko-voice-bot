@@ -44,10 +44,17 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
             }),
         );
 
-        await ctx.api.sendMessage(
-            payment.userId,
-            ctx.t("refund.userNotice", { amount: String(payment.amount) }),
-        );
+        ctx.api
+            .sendMessage(
+                payment.userId,
+                ctx.t("refund.userNotice", { amount: String(payment.amount) }),
+            )
+            .catch((err) => {
+                ctx.logger.error({
+                    msg: `Failed to send refund notice to user ${payment.userId}`,
+                    err,
+                });
+            });
     } catch (error: unknown) {
         ctx.logger.error({
             err: `Failed to make a refund: ${String(error)}`,
