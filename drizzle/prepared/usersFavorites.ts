@@ -20,8 +20,3 @@ export const deleteUserFavoriteQuery = db
         ),
     )
     .prepare("delete_user_favorite");
-
-export const deleteAllUserFavoritesQuery = db
-    .delete(usersFavoritesTable)
-    .where(eq(usersFavoritesTable.userId, sql.placeholder("userId")))
-    .prepare("delete_all_user_favorites");
