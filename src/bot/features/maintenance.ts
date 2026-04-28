@@ -4,6 +4,7 @@ import { MAINTENANCE_FEATURE_FLAG } from "../constants/feature-flags";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
 import { logHandle } from "../helpers/logging";
+import { setCachedMaintenanceFeatureFlag } from "../store/maintenance";
 
 const composer = new Composer<Context>();
 
@@ -19,6 +20,8 @@ feature.command(
         if (maintenanceStatus === null) {
             return await ctx.reply(ctx.t("featureFlag.missing"));
         }
+
+        setCachedMaintenanceFeatureFlag(maintenanceStatus);
 
         const translationPath = maintenanceStatus ? "enabled" : "disabled";
         await ctx.reply(ctx.t(`maintenance.${translationPath}`));
