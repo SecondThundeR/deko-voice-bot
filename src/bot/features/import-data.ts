@@ -4,7 +4,7 @@ import { Composer } from "grammy";
 import type { Context } from "../context";
 import { isAdmin } from "../filter/is-admin";
 import { downloadTelegramFileToPath } from "../helpers/api";
-import { readTextWithLimit } from "../helpers/general";
+import { createDumpTempFilePath, readTextWithLimit } from "../helpers/general";
 import { logHandle } from "../helpers/logging";
 import {
     getCachedMaintenanceFeatureFlag,
@@ -45,7 +45,7 @@ feature.on(
                 throw new Error("Backup file path is missing");
             }
 
-            restoreFileName = `${fileData.file_id}.dump`;
+            restoreFileName = createDumpTempFilePath("restore");
             const downloadStatus = await downloadTelegramFileToPath({
                 filePath: fileData.file_path,
                 outputPath: restoreFileName,

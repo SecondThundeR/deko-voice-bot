@@ -83,6 +83,10 @@ export function createVoiceTempFilePaths() {
     };
 }
 
+export function createDumpTempFilePath(prefix: string) {
+    return join(tmpdir(), `${prefix}-${randomUUID()}.dump`);
+}
+
 export function isEmpty(val: unknown) {
     return val == null || !(Object.keys(val) || val).length;
 }
