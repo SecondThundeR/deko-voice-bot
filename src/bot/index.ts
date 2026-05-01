@@ -15,6 +15,7 @@ import { updateVoiceTitleConversation } from "./conversations/update-voice-title
 import { cancelFeature } from "./features/cancel";
 import { donateFeature } from "./features/donate";
 import { exportFeature } from "./features/export";
+import { favoritesFeature } from "./features/favorites";
 import { fullStatsFeature } from "./features/full-stats";
 import { importDataFeature } from "./features/import-data";
 import { inlineQueryFeature } from "./features/inline-query";
@@ -132,6 +133,7 @@ export function createBot(
     // Handlers
     protectedBot.use(startFeature);
     protectedBot.use(donateFeature);
+    protectedBot.use(favoritesFeature);
     protectedBot.use(privacyFeature);
     protectedBot.use(mydataFeature);
     protectedBot.use(optinFeature);
