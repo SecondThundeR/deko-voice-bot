@@ -1,14 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { INPUT_EXTENSION, OUTPUT_EXTENSION } from "../constants/extensions";
 
+type FFMPEGConvertResultSuccess = { status: true; error: undefined };
+type FFMPEGConvertResultFailure = { status: false; error: string };
 type FFMPEGConvertResult =
-    | { status: true; error: undefined }
-    | {
-          status: false;
-          error: string;
-      };
+    | FFMPEGConvertResultSuccess
+    | FFMPEGConvertResultFailure;
 
 let _canRunFFMPEG: boolean | null = null;
 
@@ -78,8 +76,8 @@ export function createVoiceTempFilePaths() {
     const basename = join(tmpdir(), `deko-voice-${randomUUID()}`);
 
     return {
-        input: basename + INPUT_EXTENSION,
-        output: basename + OUTPUT_EXTENSION,
+        input: `${basename}.mp3`,
+        output: `${basename}.ogg`,
     };
 }
 
