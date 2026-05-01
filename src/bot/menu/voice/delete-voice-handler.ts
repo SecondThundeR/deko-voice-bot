@@ -9,8 +9,12 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
 
     const voiceId = ctx.session.currentVoice.id;
     const [deleteData] = await deleteVoiceByIdQuery.execute({ voiceId });
-    const translationPath = deleteData.voiceId ? "Success" : "Failure";
+    const translationPath = deleteData.voiceTitle ? "Success" : "Failure";
 
     await closeMenuHandler(ctx);
-    return ctx.reply(ctx.t(`voices.deleted${translationPath}`));
+    return ctx.reply(
+        ctx.t(`voices.deleted${translationPath}`, {
+            voiceTitle: deleteData.voiceTitle,
+        }),
+    );
 }
