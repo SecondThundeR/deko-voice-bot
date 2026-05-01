@@ -10,7 +10,7 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
     const voiceId = ctx.session.currentVoice.id;
     const hasVoices = await deleteVoiceAndCheckHasVoices(voiceId);
 
-    return genericBackHandler(
+    await genericBackHandler(
         ctx,
         (ctx) => {
             ctx.session.currentVoice = null;
@@ -18,4 +18,8 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
         },
         !hasVoices,
     );
+
+    if (!hasVoices) {
+        return ctx.reply(ctx.t("voices.noData"));
+    }
 }

@@ -30,8 +30,12 @@ export async function deleteVoiceAndCheckHasVoices(
         with deleted_voice as (
             delete from ${voicesTable}
             where ${voicesTable.voiceId} = ${voiceId}
+            returning 1
         )
-        select exists(select 1 from ${voicesTable}) as "hasVoices"
+        select (
+            (select count(*) from ${voicesTable}) >
+            (select count(*) from deleted_voice)
+        ) as "hasVoices"
     `);
 
     return data.hasVoices;
