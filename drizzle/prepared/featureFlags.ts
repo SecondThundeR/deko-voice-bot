@@ -12,10 +12,16 @@ export const getFeatureFlagQuery = db
     .prepare("get_feature_flag");
 
 export const toggleFeatureFlagQuery = db
-    .update(featureFlagsTable)
-    .set({
-        status: not(featureFlagsTable.status),
+    .insert(featureFlagsTable)
+    .values({
+        name: sql.placeholder("name"),
+        status: true,
     })
-    .where(eq(featureFlagsTable.name, sql.placeholder("name")))
+    .onConflictDoUpdate({
+        target: featureFlagsTable.name,
+        set: {
+            status: not(featureFlagsTable.status),
+        },
+    })
     .returning({ status: featureFlagsTable.status })
     .prepare("toggle_feature_flag");

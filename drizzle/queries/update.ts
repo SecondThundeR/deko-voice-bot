@@ -10,8 +10,6 @@ import {
 export async function toggleFeatureFlag(name: InsertFeatureFlag["name"]) {
     const [updatedFeatureFlag] = await toggleFeatureFlagQuery.execute({ name });
 
-    if (!updatedFeatureFlag) return null;
-
     return updatedFeatureFlag.status;
 }
 
