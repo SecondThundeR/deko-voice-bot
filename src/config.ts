@@ -13,7 +13,7 @@ type KeysToCamelCase<T> = {
 };
 
 const baseConfigSchema = v.object({
-    debug: v.optional(
+    useDebug: v.optional(
         v.pipe(v.string(), v.transform(JSON.parse), v.boolean()),
         "false",
     ),
@@ -55,7 +55,7 @@ const configSchema = v.variant("botMode", [
         }),
         v.transform((input) => ({
             ...input,
-            isDebug: input.debug,
+            isDebug: input.useDebug,
             isWebhookMode: false as const,
             isPollingMode: true as const,
         })),
@@ -74,7 +74,7 @@ const configSchema = v.variant("botMode", [
         }),
         v.transform((input) => ({
             ...input,
-            isDebug: input.debug,
+            isDebug: input.useDebug,
             isWebhookMode: true as const,
             isPollingMode: false as const,
         })),
