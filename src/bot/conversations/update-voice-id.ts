@@ -41,9 +41,16 @@ export function updateVoiceIDConversation() {
                 return ctx.reply(ctx.t("voiceid.failed"));
             }
 
-            await ctx.reply(ctx.t("voiceid.success", { voiceID: newVoiceID }), {
-                parse_mode: "HTML",
-            });
+            await ctx.reply(
+                ctx.t("voiceid.success", {
+                    voiceTitle: voiceData.title,
+                    oldVoiceID: voiceData.id,
+                    voiceID: newVoiceID,
+                }),
+                {
+                    parse_mode: "HTML",
+                },
+            );
 
             return conversation.external((ctx) => {
                 ctx.session.currentVoice = null;

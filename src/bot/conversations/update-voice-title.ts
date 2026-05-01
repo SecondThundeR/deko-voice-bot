@@ -37,7 +37,10 @@ export function updateVoiceTitleConversation() {
             }
 
             await ctx.reply(
-                ctx.t("voicetitle.success", { voiceTitle: newVoiceTitle }),
+                ctx.t("voicetitle.success", {
+                    oldVoiceTitle: voiceData.title,
+                    voiceTitle: newVoiceTitle,
+                }),
                 {
                     parse_mode: "HTML",
                 },
