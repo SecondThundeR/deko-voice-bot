@@ -29,23 +29,14 @@ export const voicesTable = pgTable(
     "voices_table",
     (t) => ({
         voiceId: t.varchar({ length: VOICE_ID_LENGTH }).primaryKey(),
-        voiceTitle: t
-            .varchar({
-                length: VOICE_TITLE_LENGTH,
-            })
-            .notNull(),
+        voiceTitle: t.varchar({ length: VOICE_TITLE_LENGTH }).notNull(),
         fileId: t.varchar({ length: FILE_ID_LENGTH }),
-        fileUniqueId: t
-            .varchar({
-                length: FILE_UNIQUE_ID_LENGTH,
-            })
-            .notNull(),
+        fileUniqueId: t.varchar({ length: FILE_UNIQUE_ID_LENGTH }).notNull(),
         usesAmount: t.integer().notNull().default(0),
     }),
     (table) => [
         uniqueIndex("voices_table_file_unique_id_idx").on(table.fileUniqueId),
-        index("voices_table_uses_amount_idx").on(table.usesAmount),
-        index("voices_table_voice_title_idx").on(table.voiceTitle),
+        index("voices_table_uses_amount_idx").on(table.usesAmount.desc()),
         index("voices_table_voice_title_trgm_idx").using(
             "gin",
             sql`${table.voiceTitle} gin_trgm_ops`,
@@ -66,7 +57,7 @@ export const usersTable = pgTable(
         userId: t.bigint({ mode: "number" }).primaryKey(),
         fullname: t.varchar({ length: FULLNAME_LENGTH }),
         username: t.varchar({ length: USERNAME_LENGTH }),
-        usesAmount: t.integer().default(0),
+        usesAmount: t.integer().notNull().default(0),
         // Using `bigint` with `Date.now` timestamp here instead of `date/timestamp`
         // from drizzle-orm/pg-core for backwards compatibility after MongoDB migration
         lastUsedAt: t.bigint({ mode: "number" }).$onUpdate(() => Date.now()),
@@ -74,12 +65,10 @@ export const usersTable = pgTable(
     }),
     (table) => [
         index("users_table_active_last_used_at_idx")
-            .on(sql`coalesce(${table.lastUsedAt}, 0) desc`)
-            .where(
-                sql`${table.isIgnored} = false and ${table.usesAmount} <> 0`,
-            ),
+            .on(table.lastUsedAt.desc())
+            .where(sql`${table.isIgnored} = false and ${table.usesAmount} > 0`),
         index("users_table_active_uses_amount_idx")
-            .on(sql`coalesce(${table.usesAmount}, 0) desc`)
+            .on(table.usesAmount.desc())
             .where(sql`${table.isIgnored} = false`),
         index("users_table_inactive_last_used_at_idx")
             .on(table.lastUsedAt)
@@ -141,11 +130,15 @@ export const paymentStatusEnum = pgEnum("payment_status", [
     "refunded",
 ]);
 
-export const paymentsTable = pgTable("payments", (t) => ({
-    telegramPaymentChargeId: t.text().primaryKey(),
-    invoicePayload: t.text().notNull(),
-    userId: t.bigint({ mode: "number" }).notNull(),
-    amount: t.integer().notNull(),
-    paidAt: t.timestamp().defaultNow().notNull(),
-    status: paymentStatusEnum().default("paid").notNull(),
-}));
+export const paymentsTable = pgTable(
+    "payments",
+    (t) => ({
+        telegramPaymentChargeId: t.text().primaryKey(),
+        invoicePayload: t.text().notNull(),
+        userId: t.bigint({ mode: "number" }).notNull(),
+        amount: t.integer().notNull(),
+        paidAt: t.timestamp().defaultNow().notNull(),
+        status: paymentStatusEnum().default("paid").notNull(),
+    }),
+    (table) => [index("payments_user_id_idx").on(table.userId)],
+);
