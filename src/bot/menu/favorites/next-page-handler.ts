@@ -7,7 +7,7 @@ export async function nextPageHandler(ctx: MenuContext) {
     const { currentFavoritesOffset } = ctx.session;
     const totalElements = await getVoicesCount();
 
-    await genericNextHandler(ctx, {
+    return genericNextHandler(ctx, {
         currentOffset: currentFavoritesOffset,
         elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
         offsetUpdate: (newOffset) =>

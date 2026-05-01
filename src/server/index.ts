@@ -25,12 +25,17 @@ export function createServer(dependencies: Dependencies) {
 
     server.use(requestId());
     server.use(setLogger(logger));
-    if (config.isDebug) server.use(requestLogger());
+    if (config.isDebug) {
+        server.use(requestLogger());
+    }
 
     server.onError(async (error, c) => {
         if (error instanceof HTTPException) {
-            if (error.status < 500) c.var.logger.info(error);
-            else c.var.logger.error(error);
+            if (error.status < 500) {
+                c.var.logger.info(error);
+            } else {
+                c.var.logger.error(error);
+            }
 
             return error.getResponse();
         }

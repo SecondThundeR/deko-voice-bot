@@ -85,7 +85,7 @@ feature.on(
                 );
             }
 
-            await message.editText(ctx.t("importData.done"));
+            return message.editText(ctx.t("importData.done"));
         } catch (error) {
             ctx.logger.error({
                 msg: "Import failed. Rollback has been completed",
@@ -97,20 +97,27 @@ feature.on(
                     errorMessage: error.message,
                 });
 
-                if (message) await message.editText(errorMessage);
-                else await ctx.reply(errorMessage);
+                if (message) {
+                    return message.editText(errorMessage);
+                } else {
+                    return ctx.reply(errorMessage);
+                }
             } else {
                 const errorMessage = ctx.t("importData.unknownError");
 
-                if (message) await message.editText(errorMessage);
-                else await ctx.reply(errorMessage);
+                if (message) {
+                    return message.editText(errorMessage);
+                } else {
+                    return ctx.reply(errorMessage);
+                }
             }
         } finally {
             setMaintenanceStatus(false);
 
             if (restoreFileName) {
                 const file = Bun.file(restoreFileName);
-                if (await file.exists()) {
+                const isFileExists = await file.exists();
+                if (isFileExists) {
                     await unlink(restoreFileName);
                 }
             }

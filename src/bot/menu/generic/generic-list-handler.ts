@@ -15,7 +15,9 @@ export function genericListHandler<T>(
 ) {
     const { menuElements, currentOffset, elementsPerPage, forEachCallback } =
         data;
-    if (!menuElements) return;
+    if (!menuElements) {
+        return;
+    }
 
     const newOffset = currentOffset + elementsPerPage;
     const indexLimit =

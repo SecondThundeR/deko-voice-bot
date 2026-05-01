@@ -16,11 +16,12 @@ export function donateConversation() {
             const amount = parseInt(amountCtx.message.text, 10);
 
             if (Number.isNaN(amount) || amount <= 0) {
-                await ctx.reply(ctx.t("donate.incorrectCustomAmount"));
-                return;
+                return ctx.reply(ctx.t("donate.incorrectCustomAmount"));
             }
 
-            await conversation.external(() => sendDonationInvoice(ctx, amount));
+            return conversation.external(() =>
+                sendDonationInvoice(ctx, amount),
+            );
         },
         DONATE_CONVERSATION,
     );

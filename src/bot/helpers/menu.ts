@@ -7,7 +7,9 @@ import { getVoiceQueriesPage } from "./voices";
 
 export async function prepareFavoritesSessionMenu(ctx: Context) {
     const voicesCount = await getVoicesCount();
-    if (voicesCount === 0) return false;
+    if (voicesCount === 0) {
+        return false;
+    }
 
     ctx.session.currentFavoritesOffset = 0;
     return true;
@@ -32,7 +34,9 @@ export async function getFavoritesMenuPage(
 
 export async function getFavoritesMenuIdentificator(ctx: Context) {
     const userID = ctx.from?.id;
-    if (!userID) return "";
+    if (!userID) {
+        return "";
+    }
 
     const favoritesPage = await getFavoritesMenuPage(ctx, userID);
 
@@ -44,7 +48,9 @@ export async function getFavoritesMenuIdentificator(ctx: Context) {
 
 export async function prepareVoicesSessionMenu(ctx: Context) {
     const voicesCount = await getVoicesCount();
-    if (voicesCount === 0) return false;
+    if (voicesCount === 0) {
+        return false;
+    }
 
     ctx.session.currentVoice = null;
     ctx.session.currentVoicesOffset = 0;
@@ -70,7 +76,9 @@ export async function getVoicesMenuIdentificator(ctx: Context) {
 }
 
 export function getVoiceSubmenuIdentificator(ctx: Context) {
-    if (!ctx.session.currentVoice) return "";
+    if (!ctx.session.currentVoice) {
+        return "";
+    }
 
     const { id, title } = ctx.session.currentVoice;
     return `${id}-${title}`;
@@ -80,10 +88,10 @@ export async function closeMenuExceptionHandler(ctx: Context) {
     const messageId = ctx.msg?.message_id;
     const replyText = ctx.t("menu.failedToDelete");
     if (!messageId) {
-        return await ctx.reply(replyText);
+        return ctx.reply(replyText);
     }
 
-    await ctx.reply(replyText, {
+    return ctx.reply(replyText, {
         reply_parameters: {
             message_id: messageId,
         },
@@ -94,10 +102,10 @@ export async function outdatedExceptionHandler(ctx: Context) {
     const messageId = ctx.msg?.message_id;
     const replyText = ctx.t("menu.failedToUpdate");
     if (!messageId) {
-        return await ctx.reply(replyText);
+        return ctx.reply(replyText);
     }
 
-    await ctx.reply(replyText, {
+    return ctx.reply(replyText, {
         reply_parameters: { message_id: messageId },
     });
 }

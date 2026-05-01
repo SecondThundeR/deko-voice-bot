@@ -19,7 +19,9 @@ const feature = composer.chatType("private");
 
 feature.command("cancel", logHandle("command-cancel"), async (ctx) => {
     const activeConversations = ctx.conversation.active();
-    if (isEmpty(activeConversations)) return;
+    if (isEmpty(activeConversations)) {
+        return;
+    }
 
     const isAddingVoices = activeConversations[NEW_VOICES_CONVERSATION] > 0;
     const isUpdatingVoice = UPDATE_CONVERSATIONS.some(
@@ -31,26 +33,24 @@ feature.command("cancel", logHandle("command-cancel"), async (ctx) => {
     ctx.session.currentVoice = null;
 
     if (isUpdatingVoice) {
-        return await ctx.reply(ctx.t("conversation.updateCancel"));
+        return ctx.reply(ctx.t("conversation.updateCancel"));
     }
 
     if (isAddingVoices) {
         ctx.session.addedVoices = null;
 
         if (!addedVoices || addedVoices.length === 0) {
-            await ctx.reply(ctx.t("conversation.addCancel"));
-            return;
+            return ctx.reply(ctx.t("conversation.addCancel"));
         }
 
-        await ctx.reply(
+        return ctx.reply(
             ctx.t("conversation.addResults", {
                 voices: addedVoices.join("\n"),
             }),
         );
-        return;
     }
 
-    return await ctx.reply(ctx.t("conversation.cancel"));
+    return ctx.reply(ctx.t("conversation.cancel"));
 });
 
 export { composer as cancelFeature };

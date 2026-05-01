@@ -48,24 +48,24 @@ feature.command(
             ]);
 
             if (exitCode !== 0) {
-                await ctx.reply(
+                return ctx.reply(
                     ctx.t("export.dumpError", { exitCode, stderr }),
                 );
-                return;
             }
 
-            await ctx.replyWithDocument(new InputFile(backupFileName));
+            return ctx.replyWithDocument(new InputFile(backupFileName));
         } catch (error: unknown) {
             ctx.logger.error({
                 err: `Failed to export data from DB. Details: ${String(error)}`,
                 update: getUpdateInfo(ctx),
             });
-            await ctx.reply(ctx.t("export.unknownError"));
+            return ctx.reply(ctx.t("export.unknownError"));
         } finally {
             setMaintenanceStatus(false);
 
             const file = Bun.file(backupFileName);
-            if (await file.exists()) {
+            const isFileExists = await file.exists();
+            if (isFileExists) {
                 await unlink(backupFileName);
             }
         }

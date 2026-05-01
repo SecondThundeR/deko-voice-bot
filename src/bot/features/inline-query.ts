@@ -46,7 +46,7 @@ composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
             ? currentOffset + pageSize
             : undefined;
 
-    await ctx.answerInlineQuery(paginatedQueries, {
+    return ctx.answerInlineQuery(paginatedQueries, {
         next_offset: nextOffset ? String(nextOffset) : undefined,
         button: {
             text: ctx.t("donate.queryText"),

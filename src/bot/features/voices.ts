@@ -11,9 +11,11 @@ const feature = composer.chatType("private").filter(isAdmin);
 
 feature.command("voices", logHandle("command-voices"), async (ctx) => {
     const prepareStatus = await prepareVoicesSessionMenu(ctx);
-    if (!prepareStatus) return await ctx.reply(ctx.t("voices.noData"));
+    if (!prepareStatus) {
+        return ctx.reply(ctx.t("voices.noData"));
+    }
 
-    await ctx.reply(ctx.t("voices.menuHeader"), { reply_markup: voicesMenu });
+    return ctx.reply(ctx.t("voices.menuHeader"), { reply_markup: voicesMenu });
 });
 
 export { composer as voicesFeature };

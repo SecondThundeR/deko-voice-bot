@@ -14,7 +14,9 @@ export function updateVoiceTitleConversation() {
             const voiceData = await conversation.external(
                 (ctx) => ctx.session.currentVoice,
             );
-            if (!voiceData) return;
+            if (!voiceData) {
+                return;
+            }
 
             const newVoiceTitle = await getVoiceTitleTextSubconversation(
                 conversation,
@@ -31,8 +33,7 @@ export function updateVoiceTitleConversation() {
                 await conversation.external((ctx) => {
                     ctx.session.currentVoice = null;
                 });
-                await ctx.reply(ctx.t("voicetitle.failed"));
-                return;
+                return ctx.reply(ctx.t("voicetitle.failed"));
             }
 
             await ctx.reply(
@@ -42,7 +43,7 @@ export function updateVoiceTitleConversation() {
                 },
             );
 
-            await conversation.external((ctx) => {
+            return conversation.external((ctx) => {
                 ctx.session.currentVoice = null;
             });
         },

@@ -11,9 +11,11 @@ const feature = composer.chatType("private");
 feature.command("optout", logHandle("command-optout"), async (ctx) => {
     const userId = ctx.from.id;
     const lastUserData = await optOutUser(userId);
-    if (!lastUserData) return await ctx.reply(ctx.t("optout.failed"));
+    if (!lastUserData) {
+        return ctx.reply(ctx.t("optout.failed"));
+    }
 
-    await ctx.reply(
+    return ctx.reply(
         ctx.t("optout.success", getFormattedUserData(lastUserData)),
     );
 });

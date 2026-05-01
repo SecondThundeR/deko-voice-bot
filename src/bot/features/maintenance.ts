@@ -21,7 +21,7 @@ feature.command(
         setCachedMaintenanceFeatureFlag(maintenanceStatus);
 
         const translationPath = maintenanceStatus ? "enabled" : "disabled";
-        await ctx.reply(ctx.t(`maintenance.${translationPath}`));
+        return ctx.reply(ctx.t(`maintenance.${translationPath}`));
     },
 );
 

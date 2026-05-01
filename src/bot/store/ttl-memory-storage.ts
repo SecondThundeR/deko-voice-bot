@@ -36,7 +36,9 @@ function createBaseTtlMemoryStorage<T>({
 
     function cleanup() {
         for (const [key, entry] of storage.entries()) {
-            if (isExpired(entry)) storage.delete(key);
+            if (isExpired(entry)) {
+                storage.delete(key);
+            }
         }
     }
 
@@ -49,7 +51,9 @@ function createBaseTtlMemoryStorage<T>({
         },
         has: (key) => {
             const entry = storage.get(key);
-            if (!entry) return false;
+            if (!entry) {
+                return false;
+            }
 
             if (isExpired(entry)) {
                 storage.delete(key);
@@ -60,7 +64,9 @@ function createBaseTtlMemoryStorage<T>({
         },
         read: (key) => {
             const entry = storage.get(key);
-            if (!entry) return undefined;
+            if (!entry) {
+                return undefined;
+            }
 
             if (isExpired(entry)) {
                 storage.delete(key);

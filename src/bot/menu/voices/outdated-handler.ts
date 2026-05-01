@@ -5,7 +5,7 @@ import { genericOutdatedHandler } from "../generic/generic-outdated-handler";
 export async function outdatedHandler(ctx: MenuContext) {
     const hasVoices = (await getVoicesCount()) > 0;
 
-    await genericOutdatedHandler(ctx, {
+    return genericOutdatedHandler(ctx, {
         menuElement: hasVoices,
     });
 }

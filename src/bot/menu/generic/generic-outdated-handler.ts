@@ -18,20 +18,19 @@ export async function genericOutdatedHandler<T>(
     try {
         if (!menuElement) {
             await ctx.deleteMessage();
-            await ctx.callbackQuery?.answer();
-            return;
+            return ctx.callbackQuery?.answer();
         }
 
         await ctx.menu.update({
             immediate: true,
         });
-        await ctx.callbackQuery?.answer({
+        return ctx.callbackQuery?.answer({
             text: ctx.t("menu.outdated"),
         });
     } catch (error: unknown) {
         const isBannedByUser = await isBotBlockedByUser(ctx);
         if (isBannedByUser) {
-            return await ctx.callbackQuery?.answer({
+            return ctx.callbackQuery?.answer({
                 text: ctx.t("inline.blocked"),
             });
         }
@@ -52,6 +51,6 @@ export async function genericOutdatedHandler<T>(
             err: errorMessage,
             update: getUpdateInfo(ctx),
         });
-        await ctx.callbackQuery?.answer();
+        return ctx.callbackQuery?.answer();
     }
 }
