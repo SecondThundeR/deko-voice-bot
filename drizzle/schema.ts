@@ -57,7 +57,7 @@ export const usersTable = pgTable(
         userId: t.bigint({ mode: "number" }).primaryKey(),
         fullname: t.varchar({ length: FULLNAME_LENGTH }),
         username: t.varchar({ length: USERNAME_LENGTH }),
-        usesAmount: t.integer().notNull().default(0),
+        usesAmount: t.integer().default(0),
         // Using `bigint` with `Date.now` timestamp here instead of `date/timestamp`
         // from drizzle-orm/pg-core for backwards compatibility after MongoDB migration
         lastUsedAt: t.bigint({ mode: "number" }).$onUpdate(() => Date.now()),

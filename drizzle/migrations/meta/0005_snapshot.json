@@ -1,5 +1,5 @@
 {
-  "id": "8619531f-76fa-4bc2-a913-e88f538cd50c",
+  "id": "b2145de3-3903-45de-a93f-39604bc2bcbb",
   "prevId": "5cb928b9-c166-4092-b115-a470899ec354",
   "version": "7",
   "dialect": "postgresql",
@@ -74,7 +74,23 @@
           "default": "'paid'"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "payments_user_id_idx": {
+          "name": "payments_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -202,8 +218,40 @@
         }
       },
       "indexes": {
-        "users_table_last_used_at_idx": {
-          "name": "users_table_last_used_at_idx",
+        "users_table_active_last_used_at_idx": {
+          "name": "users_table_active_last_used_at_idx",
+          "columns": [
+            {
+              "expression": "last_used_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"users_table\".\"is_ignored\" = false and \"users_table\".\"uses_amount\" > 0",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_table_active_uses_amount_idx": {
+          "name": "users_table_active_uses_amount_idx",
+          "columns": [
+            {
+              "expression": "uses_amount",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"users_table\".\"is_ignored\" = false",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_table_inactive_last_used_at_idx": {
+          "name": "users_table_inactive_last_used_at_idx",
           "columns": [
             {
               "expression": "last_used_at",
@@ -213,21 +261,7 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "users_table_uses_amount_idx": {
-          "name": "users_table_uses_amount_idx",
-          "columns": [
-            {
-              "expression": "uses_amount",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
+          "where": "\"users_table\".\"is_ignored\" = false",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -287,7 +321,7 @@
               "nulls": "last"
             }
           ],
-          "isUnique": false,
+          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -298,22 +332,7 @@
             {
               "expression": "uses_amount",
               "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "voices_table_voice_title_idx": {
-          "name": "voices_table_voice_title_idx",
-          "columns": [
-            {
-              "expression": "voice_title",
-              "isExpression": false,
-              "asc": true,
+              "asc": false,
               "nulls": "last"
             }
           ],
@@ -352,6 +371,7 @@
       "schema": "public",
       "values": [
         "paid",
+        "refund_pending",
         "refunded"
       ]
     }
