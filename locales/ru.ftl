@@ -174,8 +174,8 @@ voices =
     .updateFile = Обновить файл
     .updateTitle = Обновить название
     .delete = Удалить
-    .deletedSuccess = Реплика была успешно удалена!
-    .deletedFailure = Что-то пошло не так и реплика не была удалена
+    .deletedSuccess = Реплика "{ $voiceTitle }" была успешно удалена!
+    .deletedFailure = Что-то пошло не так и реплика "{ $voiceTitle }" не была удалена
     .unknown = Неизвестная реплика
     .noData = У меня пока что нет никаких реплик. Добавьте новые через /newvoices
 

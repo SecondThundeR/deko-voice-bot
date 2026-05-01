@@ -20,7 +20,7 @@ export const incrementVoiceUsesAmountQuery = db
 export const deleteVoiceByIdQuery = db
     .delete(voicesTable)
     .where(eq(voicesTable.voiceId, sql.placeholder("voiceId")))
-    .returning({ voiceId: voicesTable.voiceId })
+    .returning({ voiceTitle: voicesTable.voiceTitle })
     .prepare("delete_voice_by_id");
 
 export async function deleteVoiceAndCheckHasVoices(
