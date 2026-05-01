@@ -7,14 +7,15 @@ import { UPDATE_VOICE_TITLE_CONVERSATION } from "../conversations/update-voice-t
 import { isEmpty } from "../helpers/general";
 import { logHandle } from "../helpers/logging";
 
-export const composer = new Composer<Context>();
-
-const feature = composer.chatType("private");
 const UPDATE_CONVERSATIONS = [
     UPDATE_VOICE_FILE_CONVERSATION,
     UPDATE_VOICE_ID_CONVERSATION,
     UPDATE_VOICE_TITLE_CONVERSATION,
 ];
+
+export const composer = new Composer<Context>();
+
+const feature = composer.chatType("private");
 
 feature.command("cancel", logHandle("command-cancel"), async (ctx) => {
     const activeConversations = ctx.conversation.active();
