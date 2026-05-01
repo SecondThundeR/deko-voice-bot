@@ -15,7 +15,9 @@ export function updateVoiceIDConversation() {
             const voiceData = await conversation.external(
                 (ctx) => ctx.session.currentVoice,
             );
-            if (!voiceData) return;
+            if (!voiceData) {
+                return;
+            }
 
             const newVoiceID = await getVoiceIDTextSubconversation(
                 conversation,
@@ -36,15 +38,14 @@ export function updateVoiceIDConversation() {
                 await conversation.external((ctx) => {
                     ctx.session.currentVoice = null;
                 });
-                await ctx.reply(ctx.t("voiceid.failed"));
-                return;
+                return ctx.reply(ctx.t("voiceid.failed"));
             }
 
             await ctx.reply(ctx.t("voiceid.success", { voiceID: newVoiceID }), {
                 parse_mode: "HTML",
             });
 
-            await conversation.external((ctx) => {
+            return conversation.external((ctx) => {
                 ctx.session.currentVoice = null;
             });
         },

@@ -8,5 +8,5 @@ export async function getVoiceTitleTextSubconversation(
 ) {
     await ctx.reply(otherLocaleText);
 
-    return await conversation.form.text();
+    return conversation.form.text();
 }

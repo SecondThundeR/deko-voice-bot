@@ -26,7 +26,7 @@ feature.callbackQuery(
         await ctx.callbackQuery.answer();
         await ctx.deleteMessage();
 
-        await ctx.conversation.enter(DONATE_CONVERSATION);
+        return ctx.conversation.enter(DONATE_CONVERSATION);
     },
 );
 
@@ -38,7 +38,7 @@ feature.callbackQuery(
         await ctx.deleteMessage();
 
         const amount = parseInt(ctx.match[1], 10);
-        await sendDonationInvoice(ctx, amount);
+        return sendDonationInvoice(ctx, amount);
     },
 );
 

@@ -9,7 +9,7 @@ export async function favoriteItemHandler(
 ) {
     const userId = ctx.from?.id;
     if (!userId) {
-        return await ctx.answerCallbackQuery({
+        return ctx.answerCallbackQuery({
             text: ctx.t("favorites.inlineAnswerFail"),
         });
     }
@@ -25,7 +25,7 @@ export async function favoriteItemHandler(
     await ctx.menu.update({
         immediate: true,
     });
-    await ctx.answerCallbackQuery({
+    return ctx.answerCallbackQuery({
         text: ctx.t("favorites.inlineAnswerSuccess"),
     });
 }

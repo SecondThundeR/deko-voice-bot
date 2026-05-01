@@ -9,7 +9,9 @@ export async function dynamicListHandler(
     range: MenuRange<Context>,
 ) {
     const userID = ctx.from?.id;
-    if (!userID) return;
+    if (!userID) {
+        return;
+    }
 
     const currentFavorites = await getFavoritesMenuPage(ctx, userID);
 
@@ -22,10 +24,8 @@ export async function dynamicListHandler(
             const isFavoredText = isFavored ? `⭐️ ` : "";
 
             range
-                .text(
-                    `${isFavoredText}${title}`,
-                    async (ctx: MenuContext) =>
-                        await favoriteItemHandler(ctx, favoriteItem),
+                .text(`${isFavoredText}${title}`, (ctx: MenuContext) =>
+                    favoriteItemHandler(ctx, favoriteItem),
                 )
                 .row();
         },

@@ -24,7 +24,7 @@ feature.command("fullstats", logHandle("command-fullstats"), async (ctx) => {
         mostUsedVoicesStats: statsData.mostUsedVoicesStats,
     });
 
-    await ctx.reply(ctx.t("stats.full", statsMessageData));
+    return ctx.reply(ctx.t("stats.full", statsMessageData));
 });
 
 export { composer as fullStatsFeature };

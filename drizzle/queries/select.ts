@@ -15,7 +15,9 @@ import {
 export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {
     const [featureFlag] = await getFeatureFlagQuery.execute({ name });
 
-    if (!featureFlag) return null;
+    if (!featureFlag) {
+        return null;
+    }
 
     return featureFlag.status;
 }
@@ -104,7 +106,9 @@ export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
         userId,
     });
 
-    if (!userIgnoreStatus) return null;
+    if (!userIgnoreStatus) {
+        return null;
+    }
 
     return userIgnoreStatus.isIgnored;
 }

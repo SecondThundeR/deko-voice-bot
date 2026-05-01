@@ -27,7 +27,9 @@ export async function downloadTelegramFileToPath({
         `https://api.telegram.org/file/bot${token}/${filePath}`,
     );
 
-    if (!file.ok || !file.body) return false;
+    if (!file.ok || !file.body) {
+        return false;
+    }
 
     try {
         await pipeline(
@@ -46,12 +48,11 @@ export async function sendDonationInvoice(
     amount: number,
 ) {
     if (amount < 1) {
-        await ctx.reply(ctx.t("donate.negative"));
-        return;
+        return ctx.reply(ctx.t("donate.negative"));
     }
 
     try {
-        await ctx.replyWithInvoice(
+        return ctx.replyWithInvoice(
             ctx.t("donate.title"),
             ctx.t("donate.message", { amount: String(amount) }),
             `donation-${ctx.from?.id}-${Date.now()}`,
@@ -59,7 +60,7 @@ export async function sendDonationInvoice(
             [{ label: ctx.t("donate.label"), amount }],
         );
     } catch {
-        await ctx.reply(ctx.t("donate.error"), {
+        return ctx.reply(ctx.t("donate.error"), {
             parse_mode: "HTML",
         });
     }

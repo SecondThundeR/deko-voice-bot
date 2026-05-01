@@ -16,7 +16,9 @@ export function updateVoiceFileConversation() {
             const voiceData = await conversation.external(
                 (ctx) => ctx.session.currentVoice,
             );
-            if (!voiceData) return;
+            if (!voiceData) {
+                return;
+            }
 
             const { id, title } = voiceData;
             const audioFilePath = await getAudioFilePathSubconversation(
@@ -27,8 +29,7 @@ export function updateVoiceFileConversation() {
                 await conversation.external((ctx) => {
                     ctx.session.currentVoice = null;
                 });
-                await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
-                return;
+                return ctx.reply(ctx.t("newvoices.audioPathEmpty"));
             }
 
             await ctx.replyWithChatAction("typing");
@@ -46,16 +47,14 @@ export function updateVoiceFileConversation() {
                 });
 
                 if (voiceResult.type === "download") {
-                    await ctx.reply(ctx.t("newvoices.audioFetchFailed"));
-                    return;
+                    return ctx.reply(ctx.t("newvoices.audioFetchFailed"));
                 }
 
-                await ctx.reply(
+                return ctx.reply(
                     ctx.t("newvoices.convertFailed", {
                         errorMsg: voiceResult.error,
                     }),
                 );
-                return;
             }
 
             const updateStatus = await conversation.external(() =>
@@ -65,11 +64,10 @@ export function updateVoiceFileConversation() {
                 }),
             );
             if (!updateStatus) {
-                await ctx.reply(ctx.t("newvoices.failed", { title }));
-                return;
+                return ctx.reply(ctx.t("newvoices.failed", { title }));
             }
 
-            await conversation.external((ctx) => {
+            return conversation.external((ctx) => {
                 ctx.session.currentVoice = null;
             });
         },

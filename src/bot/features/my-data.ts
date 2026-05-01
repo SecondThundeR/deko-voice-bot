@@ -11,10 +11,10 @@ const feature = composer.chatType("private");
 feature.command("mydata", logHandle("command-mydata"), async (ctx) => {
     const [userData] = await getUserDataQuery.execute({ userId: ctx.from.id });
     if (!userData) {
-        return await ctx.reply(ctx.t("mydata.noData"));
+        return ctx.reply(ctx.t("mydata.noData"));
     }
 
-    await ctx.reply(
+    return ctx.reply(
         ctx.t("mydata.dataMessage", getFormattedUserData(userData)),
     );
 });

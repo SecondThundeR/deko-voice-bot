@@ -16,7 +16,7 @@ export async function genericNextHandler(
 
     const newOffset = currentOffset + elementsPerPage;
     if (newOffset >= totalElements) {
-        return await ctx.callbackQuery?.answer({
+        return ctx.callbackQuery?.answer({
             text: ctx.t("menu.alreadyNext"),
             show_alert: true,
         });
@@ -26,5 +26,5 @@ export async function genericNextHandler(
     await ctx.menu.update({
         immediate: true,
     });
-    await ctx.callbackQuery?.answer();
+    return ctx.callbackQuery?.answer();
 }

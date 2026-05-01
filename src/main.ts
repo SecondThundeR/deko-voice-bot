@@ -80,8 +80,11 @@ async function startWebhook(config: WebhookConfig) {
 }
 
 try {
-    if (config.isWebhookMode) await startWebhook(config);
-    else if (config.isPollingMode) await startPolling(config);
+    if (config.isWebhookMode) {
+        await startWebhook(config);
+    } else if (config.isPollingMode) {
+        await startPolling(config);
+    }
 } catch (error) {
     logger.error(error);
     process.exit(1);
@@ -92,8 +95,12 @@ try {
 function onShutdown(cleanUp: () => Promise<void>) {
     let isShuttingDown = false;
     const handleShutdown = async () => {
-        if (isShuttingDown) return;
+        if (isShuttingDown) {
+            return;
+        }
+
         isShuttingDown = true;
+
         try {
             await cleanUp();
             logger.flush();

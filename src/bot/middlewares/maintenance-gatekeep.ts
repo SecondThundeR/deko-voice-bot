@@ -12,7 +12,9 @@ import {
 
 export function maintenanceGatekeep(): Middleware<Context> {
     return async (ctx, next) => {
-        if (isAdmin(ctx)) return await next();
+        if (isAdmin(ctx)) {
+            return next();
+        }
 
         let maintenanceFeatureFlagStatus = getCachedMaintenanceFeatureFlag();
 
@@ -24,10 +26,12 @@ export function maintenanceGatekeep(): Middleware<Context> {
 
         const isInMaintenance =
             maintenanceFeatureFlagStatus || isMaintenanceActive();
-        if (!isInMaintenance) return await next();
+        if (!isInMaintenance) {
+            return next();
+        }
 
         if (ctx.inlineQuery) {
-            return await ctx.answerInlineQuery([], {
+            return ctx.answerInlineQuery([], {
                 button: {
                     text: ctx.t("maintenance.inline-button"),
                     start_parameter: MAINTENANCE_FEATURE_FLAG,
@@ -39,6 +43,6 @@ export function maintenanceGatekeep(): Middleware<Context> {
 
         const translationPath =
             ctx.match === MAINTENANCE_FEATURE_FLAG ? "Inline" : "Chat";
-        await ctx.reply(ctx.t(`maintenance.description${translationPath}`));
+        return ctx.reply(ctx.t(`maintenance.description${translationPath}`));
     };
 }

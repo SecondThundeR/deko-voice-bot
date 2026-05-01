@@ -22,7 +22,7 @@ export async function genericCloseHandler(
             err: errorMessage,
             update: getUpdateInfo(ctx),
         });
-        await closeMenuExceptionHandler(ctx);
+        return closeMenuExceptionHandler(ctx);
     } finally {
         await ctx.callbackQuery?.answer();
     }

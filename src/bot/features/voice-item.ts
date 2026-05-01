@@ -14,11 +14,13 @@ feature.on(":voice", logHandle("voice-item"), async (ctx) => {
     const fileUniqueId = ctx.message.voice.file_unique_id;
 
     const voiceData = await getVoiceByUniqueIdQuery.execute({ fileUniqueId });
-    if (voiceData.length === 0) return;
+    if (voiceData.length === 0) {
+        return;
+    }
 
     ctx.session.currentVoice = convertVoiceDataToQueriesArray(voiceData)[0];
 
-    await ctx.reply(ctx.t("voices.menuItemHeader"), {
+    return ctx.reply(ctx.t("voices.menuItemHeader"), {
         reply_markup: voiceMenu,
     });
 });

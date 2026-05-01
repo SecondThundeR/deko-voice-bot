@@ -4,5 +4,5 @@ import { genericCloseHandler } from "../generic/generic-close-handler";
 
 export async function updateIDHandler(ctx: MenuContext) {
     await genericCloseHandler(ctx);
-    await ctx.conversation.enter(UPDATE_VOICE_ID_CONVERSATION);
+    return ctx.conversation.enter(UPDATE_VOICE_ID_CONVERSATION);
 }

@@ -16,8 +16,9 @@ async function canRunFFMPEG() {
             stdout: null,
             stderr: null,
         });
+        const exitedCode = await exited;
 
-        return (await exited) === 0;
+        return exitedCode === 0;
     } catch {
         return false;
     }
@@ -46,12 +47,14 @@ export async function convertMP3ToOGGOpus(
             "libopus",
             outputFilename,
         ]);
+        const exitedCode = await exited;
 
-        if ((await exited) === 0)
+        if (exitedCode === 0) {
             return {
                 status: true,
                 error: undefined,
             };
+        }
 
         return {
             status: false,
@@ -93,7 +96,9 @@ export async function readTextWithLimit(
     stream: ReadableStream<Uint8Array> | null | undefined,
     maxBytes: number,
 ) {
-    if (!stream) return "";
+    if (!stream) {
+        return "";
+    }
 
     const reader = stream.getReader();
     const decoder = new TextDecoder();
@@ -103,7 +108,9 @@ export async function readTextWithLimit(
 
     while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+            break;
+        }
 
         if (bytesRead < maxBytes) {
             const remainingBytes = maxBytes - bytesRead;
@@ -116,7 +123,9 @@ export async function readTextWithLimit(
         }
 
         bytesRead += value.byteLength;
-        if (bytesRead > maxBytes) isTruncated = true;
+        if (bytesRead > maxBytes) {
+            isTruncated = true;
+        }
     }
 
     chunks.push(decoder.decode());

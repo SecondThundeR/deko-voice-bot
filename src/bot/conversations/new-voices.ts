@@ -27,7 +27,7 @@ export function newVoicesConversation() {
                     ctx,
                 );
                 if (!audioFilePath) {
-                    return await ctx.reply(ctx.t("newvoices.audioPathEmpty"));
+                    return ctx.reply(ctx.t("newvoices.audioPathEmpty"));
                 }
 
                 await ctx.replyWithChatAction("typing");
@@ -54,12 +54,10 @@ export function newVoicesConversation() {
 
                 if (!voiceResult.status) {
                     if (voiceResult.type === "download") {
-                        return await ctx.reply(
-                            ctx.t("newvoices.audioFetchFailed"),
-                        );
+                        return ctx.reply(ctx.t("newvoices.audioFetchFailed"));
                     }
 
-                    return await ctx.reply(
+                    return ctx.reply(
                         ctx.t("newvoices.convertFailed", {
                             errorMsg: voiceResult.error,
                         }),
@@ -75,12 +73,12 @@ export function newVoicesConversation() {
                     }),
                 );
                 if (!insertStatus) {
-                    return await ctx.reply(
+                    return ctx.reply(
                         ctx.t("newvoices.failed", { title: voiceTitle }),
                     );
                 }
 
-                await conversation.external((ctx) => {
+                return conversation.external((ctx) => {
                     ctx.session.addedVoices?.push(voiceTitle);
                 });
             }

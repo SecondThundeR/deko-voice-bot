@@ -91,7 +91,7 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
         });
 
         if (!error || typeof error !== "object") {
-            return await ctx.reply(
+            return ctx.reply(
                 ctx.t("refund.error", {
                     message: ctx.t("general.unknownError"),
                 }),
@@ -107,7 +107,7 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
                 ? error.message
                 : undefined;
 
-        await ctx.reply(
+        return ctx.reply(
             ctx.t("refund.error", {
                 message:
                     description || message || ctx.t("general.unknownError"),

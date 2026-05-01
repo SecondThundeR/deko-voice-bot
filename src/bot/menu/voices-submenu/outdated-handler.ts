@@ -1,8 +1,8 @@
 import type { MenuContext } from "../../context";
 import { genericOutdatedHandler } from "../generic/generic-outdated-handler";
 
-export async function outdatedHandler(ctx: MenuContext) {
-    await genericOutdatedHandler(ctx, {
+export function outdatedHandler(ctx: MenuContext) {
+    return genericOutdatedHandler(ctx, {
         menuElement: ctx.session.currentVoice,
     });
 }
