@@ -10,7 +10,8 @@ const composer = new Composer<Context>();
 const feature = composer.chatType("private").filter(isAdmin);
 
 feature.command("newvoices", logHandle("command-new-voices"), async (ctx) => {
-    if (!getFFMPEGStatus()) return await ctx.reply(ctx.t("newvoices.noFFMPEG"));
+    const ffmpegStatus = await getFFMPEGStatus();
+    if (!ffmpegStatus) return await ctx.reply(ctx.t("newvoices.noFFMPEG"));
 
     await ctx.conversation.enter(NEW_VOICES_CONVERSATION);
 });
