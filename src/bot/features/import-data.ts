@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer } from "grammy";
@@ -56,22 +57,33 @@ feature.on(
                 throw new Error("Failed to download backup file");
             }
 
-            const restoreProcess = Bun.spawn({
-                cmd: [
-                    "pg_restore",
+            const restoreProcess = spawn(
+                "pg_restore",
+                [
                     "-d",
-                    Bun.env.DATABASE_URL,
+                    process.env.DATABASE_URL,
                     "--single-transaction",
                     "--clean",
                     "--if-exists",
                     "--no-owner",
                     restoreFileName,
                 ],
-                stdout: null,
+                {
+                    stdio: ["ignore", "ignore", "pipe"],
+                },
+            );
+
+            const exitCodePromise = new Promise<number>((resolve, reject) => {
+                restoreProcess.on("close", (code) => {
+                    resolve(code ?? 1);
+                });
+                restoreProcess.on("error", (err) => {
+                    reject(err);
+                });
             });
 
             const [exitCode, stderr] = await Promise.all([
-                restoreProcess.exited,
+                exitCodePromise,
                 readTextWithLimit(
                     restoreProcess.stderr,
                     MAX_RESTORE_STDERR_BYTES,
@@ -115,11 +127,7 @@ feature.on(
             setMaintenanceStatus(false);
 
             if (restoreFileName) {
-                const file = Bun.file(restoreFileName);
-                const isFileExists = await file.exists();
-                if (isFileExists) {
-                    await unlink(restoreFileName);
-                }
+                unlink(restoreFileName).catch(() => {});
             }
         }
     },

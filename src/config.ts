@@ -127,7 +127,7 @@ function createConfigFromEnvironment() {
 
     try {
         // @ts-expect-error create config from environment variables
-        return createConfig(convertKeysToCamelCase(Bun.env));
+        return createConfig(convertKeysToCamelCase(process.env));
     } catch (error) {
         throw new Error("Invalid config", {
             cause: error,

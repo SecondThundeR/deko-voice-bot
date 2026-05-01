@@ -5,7 +5,7 @@ import postgres from "postgres";
 if (import.meta.main) {
     console.log("Started running migrations");
 
-    const client = postgres(Bun.env.DATABASE_URL, { max: 1 });
+    const client = postgres(process.env.DATABASE_URL, { max: 1 });
     await migrate(drizzle(client), {
         migrationsFolder: "drizzle/migrations",
     });

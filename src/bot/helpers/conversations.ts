@@ -72,8 +72,8 @@ export async function sendConvertedVoice({
     } finally {
         await conversation.external(() =>
             Promise.all([
-                unlink(input).catch(() => undefined),
-                unlink(output).catch(() => undefined),
+                unlink(input).catch(() => {}),
+                unlink(output).catch(() => {}),
             ]),
         );
     }
