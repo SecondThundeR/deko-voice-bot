@@ -10,16 +10,22 @@ const composer = new Composer<Context>();
 const feature = composer.chatType("private");
 
 feature.command("favorites", logHandle("command-favorites"), async (ctx) => {
-    const userID = ctx.from.id;
-    const userIgnoreStatus = await getUserIsIgnoredStatus(userID);
-    if (userIgnoreStatus === null)
-        return await ctx.reply(ctx.t("favorites.newUser"));
-    if (userIgnoreStatus) return await ctx.reply(ctx.t("favorites.optout"));
+    const userIgnoreStatus = await getUserIsIgnoredStatus(ctx.from.id);
+
+    if (userIgnoreStatus === null) {
+        return ctx.reply(ctx.t("favorites.newUser"));
+    } else if (userIgnoreStatus) {
+        return ctx.reply(ctx.t("favorites.optout"));
+    }
 
     const prepareStatus = await prepareFavoritesSessionMenu(ctx);
-    if (!prepareStatus) return await ctx.reply(ctx.t("favorites.noData"));
+    if (!prepareStatus) {
+        return ctx.reply(ctx.t("favorites.noData"));
+    }
 
-    await ctx.reply(ctx.t("favorites.header"), { reply_markup: favoritesMenu });
+    return ctx.reply(ctx.t("favorites.header"), {
+        reply_markup: favoritesMenu,
+    });
 });
 
 export { composer as favoritesFeature };

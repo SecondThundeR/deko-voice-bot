@@ -12,13 +12,14 @@ feature.command("optin", logHandle("command-optin"), async (ctx) => {
     const userDetails = extractUserDetails(ctx.from);
     const optInStatus = await optInUser(userDetails);
 
-    if (optInStatus === "newUser") {
-        return await ctx.reply(ctx.t(`optin.newUser`));
+    switch (optInStatus) {
+        case "newUser":
+            return ctx.reply(ctx.t("optin.newUser"));
+        case "restored":
+            return ctx.reply(ctx.t("optin.success"));
+        case "alreadyOptedIn":
+            return ctx.reply(ctx.t("optin.alreadyOptedIn"));
     }
-    if (optInStatus === "restored") {
-        return await ctx.reply(ctx.t("optin.success"));
-    }
-    return await ctx.reply(ctx.t("optin.alreadyOptedIn"));
 });
 
 export { composer as optinFeature };
