@@ -17,9 +17,6 @@ feature.command(
         const maintenanceStatus = await toggleFeatureFlag(
             MAINTENANCE_FEATURE_FLAG,
         );
-        if (maintenanceStatus === null) {
-            return await ctx.reply(ctx.t("featureFlag.missing"));
-        }
 
         setCachedMaintenanceFeatureFlag(maintenanceStatus);
 
