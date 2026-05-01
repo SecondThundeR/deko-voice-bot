@@ -26,17 +26,16 @@ export const deleteVoiceByIdQuery = db
 export async function deleteVoiceAndCheckHasVoices(
     voiceId: SelectVoice["voiceId"],
 ) {
-    const [data] = await db.execute<{ hasVoices: boolean }>(sql`
-        with deleted_voice as (
-            delete from ${voicesTable}
-            where ${voicesTable.voiceId} = ${voiceId}
-            returning 1
-        )
-        select (
-            (select count(*) from ${voicesTable}) >
-            (select count(*) from deleted_voice)
-        ) as "hasVoices"
-    `);
+    return await db.transaction(async (tx) => {
+        await tx.delete(voicesTable).where(eq(voicesTable.voiceId, voiceId));
 
-    return data.hasVoices;
+        const [remaining] = await tx
+            .select({
+                hasVoices: sql<boolean>`exists(select 1 from ${voicesTable})`,
+            })
+            .from(voicesTable)
+            .limit(1);
+
+        return remaining?.hasVoices ?? false;
+    });
 }

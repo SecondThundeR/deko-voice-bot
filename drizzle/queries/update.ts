@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { toggleFeatureFlagQuery } from "../prepared/featureFlags";
+import { toggleFeatureFlagQuery } from "../prepared/feature-flags";
 import {
     type InsertFeatureFlag,
     type InsertVoice,

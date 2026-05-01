@@ -1,8 +1,8 @@
 import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import { db } from "../db";
-import { getFeatureFlagQuery } from "../prepared/featureFlags";
+import { getFeatureFlagQuery } from "../prepared/feature-flags";
 import { getUserIgnoreStatusQuery } from "../prepared/users";
-import { getUserFavoritesQuery } from "../prepared/usersFavorites";
+import { getUserFavoritesQuery } from "../prepared/users-favorites";
 import {
     type SelectFeatureFlag,
     type SelectUser,
