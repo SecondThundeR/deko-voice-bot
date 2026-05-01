@@ -1,6 +1,9 @@
+import { type ExecFileException, execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { Readable } from "node:stream";
+import { promisify } from "node:util";
 
 type FFMPEGConvertResultSuccess = { status: true; error: undefined };
 type FFMPEGConvertResultFailure = { status: false; error: string };
@@ -10,15 +13,22 @@ type FFMPEGConvertResult =
 
 let _canRunFFMPEG: boolean | null = null;
 
-async function canRunFFMPEG() {
-    try {
-        const { exited } = Bun.spawn(["ffmpeg", "-version"], {
-            stdout: null,
-            stderr: null,
-        });
-        const exitedCode = await exited;
+const execFilePromise = promisify(execFile);
 
-        return exitedCode === 0;
+function isExecFileError(
+    error: unknown,
+): error is ExecFileException & { stderr: string; stdout: string } {
+    return (
+        error instanceof Error &&
+        "stderr" in error &&
+        typeof (error as Record<string, unknown>).stderr === "string"
+    );
+}
+
+async function canRunFFMPEG(): Promise<boolean> {
+    try {
+        await execFilePromise("ffmpeg", ["-version"]);
+        return true;
     } catch {
         return false;
     }
@@ -36,41 +46,40 @@ export async function convertMP3ToOGGOpus(
     outputFilename: string,
 ): Promise<FFMPEGConvertResult> {
     try {
-        const { exited, stderr } = Bun.spawn([
-            "ffmpeg",
+        await execFilePromise("ffmpeg", [
             "-hide_banner",
             "-loglevel",
             "error",
+            "-y",
             "-i",
             inputFilename,
             "-c:a",
             "libopus",
             outputFilename,
         ]);
-        const exitedCode = await exited;
-
-        if (exitedCode === 0) {
-            return {
-                status: true,
-                error: undefined,
-            };
-        }
 
         return {
-            status: false,
-            error: await new Response(stderr).text(),
+            status: true,
+            error: undefined,
         };
     } catch (error: unknown) {
-        if (!(error instanceof Error)) {
+        if (isExecFileError(error)) {
             return {
                 status: false,
-                error: "Unknown error occurred",
+                error: error.stderr.trim() || error.message,
+            };
+        }
+
+        if (error instanceof Error) {
+            return {
+                status: false,
+                error: error.message,
             };
         }
 
         return {
             status: false,
-            error: error.message,
+            error: "Unknown error occurred",
         };
     }
 }
@@ -93,36 +102,32 @@ export function isEmpty(val: unknown) {
 }
 
 export async function readTextWithLimit(
-    stream: ReadableStream<Uint8Array> | null | undefined,
+    stream: Readable | null | undefined,
     maxBytes: number,
 ) {
     if (!stream) {
         return "";
     }
 
-    const reader = stream.getReader();
     const decoder = new TextDecoder();
     const chunks: string[] = [];
     let bytesRead = 0;
     let isTruncated = false;
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-            break;
-        }
+    for await (const chunk of stream) {
+        const buffer = chunk instanceof Buffer ? chunk : Buffer.from(chunk);
 
         if (bytesRead < maxBytes) {
             const remainingBytes = maxBytes - bytesRead;
-            const chunk =
-                value.byteLength > remainingBytes
-                    ? value.slice(0, remainingBytes)
-                    : value;
+            const chunkToDecode =
+                buffer.length > remainingBytes
+                    ? buffer.subarray(0, remainingBytes)
+                    : buffer;
 
-            chunks.push(decoder.decode(chunk, { stream: true }));
+            chunks.push(decoder.decode(chunkToDecode, { stream: true }));
         }
 
-        bytesRead += value.byteLength;
+        bytesRead += buffer.length;
         if (bytesRead > maxBytes) {
             isTruncated = true;
         }

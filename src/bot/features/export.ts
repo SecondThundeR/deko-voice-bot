@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
@@ -30,20 +31,25 @@ feature.command(
         const backupFileName = createDumpTempFilePath(`backup-${timestamp}`);
 
         try {
-            const dumpProcess = Bun.spawn({
-                cmd: [
-                    "pg_dump",
-                    Bun.env.DATABASE_URL,
-                    "-F",
-                    "c",
-                    "-f",
-                    backupFileName,
-                ],
-                stdout: null,
+            const dumpProcess = spawn(
+                "pg_dump",
+                [process.env.DATABASE_URL, "-F", "c", "-f", backupFileName],
+                {
+                    stdio: ["ignore", "ignore", "pipe"],
+                },
+            );
+
+            const exitCodePromise = new Promise<number>((resolve, reject) => {
+                dumpProcess.on("close", (code) => {
+                    resolve(code ?? 1);
+                });
+                dumpProcess.on("error", (err) => {
+                    reject(err);
+                });
             });
 
             const [exitCode, stderr] = await Promise.all([
-                dumpProcess.exited,
+                exitCodePromise,
                 readTextWithLimit(dumpProcess.stderr, MAX_DUMP_STDERR_BYTES),
             ]);
 
@@ -63,11 +69,7 @@ feature.command(
         } finally {
             setMaintenanceStatus(false);
 
-            const file = Bun.file(backupFileName);
-            const isFileExists = await file.exists();
-            if (isFileExists) {
-                await unlink(backupFileName);
-            }
+            unlink(backupFileName).catch(() => {});
         }
     },
 );

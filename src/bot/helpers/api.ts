@@ -38,7 +38,7 @@ export async function downloadTelegramFileToPath({
         );
         return true;
     } catch (error) {
-        await unlink(outputPath).catch(() => undefined);
+        unlink(outputPath).catch(() => {});
         throw error;
     }
 }
