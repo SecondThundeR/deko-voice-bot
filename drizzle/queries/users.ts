@@ -80,7 +80,7 @@ export async function optOutUser(
             .set({
                 fullname: null,
                 username: null,
-                usesAmount: null,
+                usesAmount: 0,
                 lastUsedAt: null,
                 isIgnored: true,
             })
