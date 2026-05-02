@@ -29,7 +29,7 @@ const mostUsedUsersStats = sql<FullUsersStats[]>`(
             uses_amount as "usesAmount"
         from users_table
         where is_ignored = false
-        order by coalesce(uses_amount, 0) desc
+        order by uses_amount desc
         limit 5
     ) most_used_users
 )`;
