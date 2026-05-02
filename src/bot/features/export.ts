@@ -59,7 +59,7 @@ feature.command(
                 );
             }
 
-            return ctx.replyWithDocument(new InputFile(backupFileName));
+            await ctx.replyWithDocument(new InputFile(backupFileName));
         } catch (error: unknown) {
             ctx.logger.error({
                 err: `Failed to export data from DB. Details: ${String(error)}`,
