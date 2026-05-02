@@ -29,19 +29,21 @@ export async function getVoicesCount(query?: SelectVoice["voiceTitle"]) {
     );
 }
 
+type GetVoicesPageOptions = {
+    favoritesUserId?: SelectUser["userId"];
+    limit: number;
+    offset: number;
+    orderFavoritesFirst?: boolean;
+    query?: SelectVoice["voiceTitle"];
+};
+
 export async function getVoicesPage({
     favoritesUserId,
     limit,
     offset,
     orderFavoritesFirst = false,
     query,
-}: {
-    favoritesUserId?: SelectUser["userId"];
-    limit: number;
-    offset: number;
-    orderFavoritesFirst?: boolean;
-    query?: SelectVoice["voiceTitle"];
-}) {
+}: GetVoicesPageOptions) {
     const filters = query
         ? ilike(voicesTable.voiceTitle, `%${query}%`)
         : undefined;

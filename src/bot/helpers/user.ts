@@ -4,9 +4,13 @@ import type { SelectUser } from "@/drizzle/schema";
 
 import { convertLastUsedAtTimestamp } from "./time";
 
-export function getFormattedUserData(data: Omit<SelectUser, "isIgnored">) {
-    const { userId, fullname, username, lastUsedAt, usesAmount } = data;
-
+export function getFormattedUserData({
+    userId,
+    fullname,
+    username,
+    lastUsedAt,
+    usesAmount,
+}: Omit<SelectUser, "isIgnored">) {
     return {
         usesAmount: String(usesAmount),
         userId: String(userId),
@@ -25,7 +29,7 @@ export function getUserFullname(firstName: string, lastName?: string) {
 }
 
 export function extractUserDetails(from: User) {
-    const { id: userId, first_name, last_name, username } = from;
+    const { id: userId, first_name, last_name, username = null } = from;
     const fullname = getUserFullname(first_name, last_name);
 
     return { userId, fullname, username: username ?? null };

@@ -3,6 +3,7 @@ import type {
     FullUsersStats,
     FullVoicesStats,
 } from "@/drizzle/types";
+import { convertLastUsedAtTimestamp } from "./time";
 
 function formatUserStatsLine({
     username,
@@ -12,9 +13,7 @@ function formatUserStatsLine({
 }: FullUsersStats) {
     const userName = username ? `@${username}` : fullname;
     const dateString = lastUsedAt
-        ? ` (${new Date(lastUsedAt).toLocaleString("ru-RU", {
-              timeZone: "Europe/Moscow",
-          })})`
+        ? ` (${convertLastUsedAtTimestamp(lastUsedAt)})`
         : "";
 
     return `- ${userName}: ${usesAmount} раз${dateString}`;

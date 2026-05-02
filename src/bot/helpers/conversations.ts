@@ -21,26 +21,24 @@ type SendConvertedVoiceResult =
           type: "convert";
       };
 
+type SendConvertedVoiceOptions = {
+    caption: string;
+    conversation: Conversation<Context, ConversationContext>;
+    ctx: ConversationContext;
+    filePath: string;
+};
+
 export async function sendConvertedVoice({
     caption,
     conversation,
     ctx,
     filePath,
-}: {
-    caption: string;
-    conversation: Conversation<Context, ConversationContext>;
-    ctx: ConversationContext;
-    filePath: string;
-}): Promise<SendConvertedVoiceResult> {
+}: SendConvertedVoiceOptions): Promise<SendConvertedVoiceResult> {
     const { input, output } = createVoiceTempFilePaths();
 
     try {
         const downloadStatus = await conversation.external(() =>
-            downloadTelegramFileToPath({
-                filePath,
-                outputPath: input,
-                token: ctx.api.token,
-            }),
+            downloadTelegramFileToPath(filePath, input, ctx.api.token),
         );
         if (!downloadStatus) {
             return {
@@ -54,9 +52,9 @@ export async function sendConvertedVoice({
         );
         if (!status) {
             return {
-                error,
                 status: false,
                 type: "convert",
+                error,
             };
         }
 
@@ -65,9 +63,9 @@ export async function sendConvertedVoice({
         } = await ctx.replyWithVoice(new InputFile(output), { caption });
 
         return {
+            status: true,
             fileId,
             fileUniqueId,
-            status: true,
         };
     } finally {
         await conversation.external(() =>

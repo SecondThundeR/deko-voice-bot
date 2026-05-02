@@ -9,20 +9,16 @@ export async function isBotBlockedByUser(ctx: Context) {
     try {
         await ctx.replyWithChatAction("find_location");
         return false;
-    } catch (_error: unknown) {
+    } catch {
         return true;
     }
 }
 
-export async function downloadTelegramFileToPath({
-    filePath,
-    outputPath,
-    token,
-}: {
-    filePath: string;
-    outputPath: string;
-    token: string;
-}) {
+export async function downloadTelegramFileToPath(
+    filePath: string,
+    outputPath: string,
+    token: string,
+) {
     const file = await fetch(
         `https://api.telegram.org/file/bot${token}/${filePath}`,
     );
@@ -51,11 +47,13 @@ export async function sendDonationInvoice(
         return ctx.reply(ctx.t("donate.negative"));
     }
 
+    const donationId = `donation-${ctx.from?.id}-${Date.now()}`;
+
     try {
         return ctx.replyWithInvoice(
             ctx.t("donate.title"),
             ctx.t("donate.message", { amount: String(amount) }),
-            `donation-${ctx.from?.id}-${Date.now()}`,
+            donationId,
             "XTR",
             [{ label: ctx.t("donate.label"), amount }],
         );
