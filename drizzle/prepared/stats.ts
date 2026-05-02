@@ -28,7 +28,7 @@ const mostUsedUsersStats = sql<FullUsersStats[]>`(
             last_used_at as "lastUsedAt",
             uses_amount as "usesAmount"
         from users_table
-        where is_ignored = false
+        where is_ignored = false and uses_amount <> 0
         order by uses_amount desc
         limit 5
     ) most_used_users
@@ -56,6 +56,7 @@ const mostUsedVoicesStats = sql<FullVoicesStats[]>`(
             voice_title as "voiceTitle",
             uses_amount as "usesAmount"
         from voices_table
+        where uses_amount <> 0
         order by uses_amount desc
         limit 5
     ) most_used_voices
