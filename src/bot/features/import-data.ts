@@ -47,11 +47,11 @@ feature.on(
             }
 
             restoreFileName = createDumpTempFilePath("restore");
-            const downloadStatus = await downloadTelegramFileToPath({
-                filePath: fileData.file_path,
-                outputPath: restoreFileName,
-                token: ctx.api.token,
-            });
+            const downloadStatus = await downloadTelegramFileToPath(
+                fileData.file_path,
+                restoreFileName,
+                ctx.api.token,
+            );
 
             if (!downloadStatus) {
                 throw new Error("Failed to download backup file");

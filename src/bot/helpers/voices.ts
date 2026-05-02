@@ -3,17 +3,19 @@ import type { SelectUser } from "@/drizzle/schema";
 
 import type { InlineQueriesArray } from "../types/inline";
 
+type GetVoiceQueriesPageOptions = {
+    favoritesUserId?: SelectUser["userId"];
+    limit: number;
+    offset: number;
+    queryString?: string;
+};
+
 export async function getVoiceQueriesPage({
     favoritesUserId,
     limit,
     offset,
     queryString = "",
-}: {
-    favoritesUserId?: SelectUser["userId"];
-    limit: number;
-    offset: number;
-    queryString?: string;
-}) {
+}: GetVoiceQueriesPageOptions) {
     const voicesPage = await getVoicesPage({
         favoritesUserId,
         limit,
