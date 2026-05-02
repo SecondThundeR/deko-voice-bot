@@ -15,7 +15,7 @@ feature.on(":voice", logHandle("voice-item"), async (ctx) => {
 
     const voiceData = await getVoiceByUniqueIdQuery.execute({ fileUniqueId });
     if (voiceData.length === 0) {
-        return;
+        return ctx.reply(ctx.t("voices.unknown"));
     }
 
     ctx.session.currentVoice = convertVoiceDataToQueriesArray(voiceData)[0];
