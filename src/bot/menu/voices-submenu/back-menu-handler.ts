@@ -1,4 +1,4 @@
-import type { MenuContext } from "../../context";
+import type { MenuContext } from "@/bot/context";
 import { genericBackHandler } from "../generic/generic-back-handler";
 
 export function backMenuHandler(ctx: MenuContext) {

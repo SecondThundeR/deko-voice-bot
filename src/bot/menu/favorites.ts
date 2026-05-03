@@ -1,6 +1,6 @@
 import { Menu } from "@grammyjs/menu";
 
-import type { Context } from "../context";
+import type { Context } from "@/bot/context";
 import { closeMenuHandler } from "./favorites/close-menu-handler";
 import { dynamicListHandler } from "./favorites/dynamic-list-handler";
 import { fingerprintHandler } from "./favorites/fingerprint-handler";

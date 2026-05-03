@@ -1,5 +1,5 @@
-import type { Context } from "../../context";
-import { getVoiceSubmenuIdentificator } from "../../helpers/menu";
+import type { Context } from "@/bot/context";
+import { getVoiceSubmenuIdentificator } from "@/bot/helpers/menu";
 
 export const fingerprintHandler = (ctx: Context) =>
     getVoiceSubmenuIdentificator(ctx);

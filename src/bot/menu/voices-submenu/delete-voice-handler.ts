@@ -1,5 +1,5 @@
-import { deleteVoiceAndCheckHasVoices } from "@/drizzle/prepared/voices";
-import type { MenuContext } from "../../context";
+import { deleteVoiceAndCheckHasVoices } from "drizzle/prepared/voices";
+import type { MenuContext } from "@/bot/context";
 import { genericBackHandler } from "../generic/generic-back-handler";
 
 export async function deleteVoiceHandler(ctx: MenuContext) {

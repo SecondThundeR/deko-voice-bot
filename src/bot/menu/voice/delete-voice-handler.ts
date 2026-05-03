@@ -1,5 +1,5 @@
-import { deleteVoiceByIdQuery } from "@/drizzle/prepared/voices";
-import type { MenuContext } from "../../context";
+import { deleteVoiceByIdQuery } from "drizzle/prepared/voices";
+import type { MenuContext } from "@/bot/context";
 import { closeMenuHandler } from "./close-menu-handler";
 
 export async function deleteVoiceHandler(ctx: MenuContext) {

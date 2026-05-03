@@ -1,7 +1,7 @@
 import { unlink } from "node:fs/promises";
 import type { Conversation } from "@grammyjs/conversations";
 import { InputFile } from "grammy";
-import type { Context, ConversationContext } from "../context";
+import type { Context, ConversationContext } from "@/bot/context";
 import { downloadTelegramFileToPath } from "./api";
 import { convertMP3ToOGGOpus, createVoiceTempFilePaths } from "./general";
 

@@ -1,7 +1,7 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { createConversation } from "@grammyjs/conversations";
-import type { Context, ConversationContext } from "../context";
-import { sendDonationInvoice } from "../helpers/api";
+import type { Context, ConversationContext } from "@/bot/context";
+import { sendDonationInvoice } from "@/bot/helpers/api";
 
 export const DONATE_CONVERSATION = "donate";
 

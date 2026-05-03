@@ -1,4 +1,4 @@
-import type { MenuContext } from "../../context";
+import type { MenuContext } from "@/bot/context";
 
 type NextHandlerData = {
     currentOffset: number;

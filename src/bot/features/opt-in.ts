@@ -1,8 +1,8 @@
+import { optInUser } from "drizzle/queries/users";
 import { Composer } from "grammy";
-import { optInUser } from "@/drizzle/queries/users";
-import type { Context } from "../context";
-import { logHandle } from "../helpers/logging";
-import { extractUserDetails } from "../helpers/user";
+import type { Context } from "@/bot/context";
+import { logHandle } from "@/bot/helpers/logging";
+import { extractUserDetails } from "@/bot/helpers/user";
 
 const composer = new Composer<Context>();
 

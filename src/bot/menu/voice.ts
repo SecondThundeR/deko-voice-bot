@@ -1,6 +1,6 @@
 import { Menu } from "@grammyjs/menu";
 
-import type { Context } from "../context";
+import type { Context } from "@/bot/context";
 import { closeMenuHandler } from "./voice/close-menu-handler";
 import { deleteVoiceHandler } from "./voice/delete-voice-handler";
 import { fingerprintHandler } from "./voices-submenu/fingerprint-handler";

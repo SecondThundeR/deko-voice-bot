@@ -3,9 +3,9 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { getPath } from "hono/utils/url";
 
-import type { Bot } from "../bot";
-import type { Config } from "../config";
-import type { Logger } from "../logger";
+import type { Bot } from "@/bot";
+import type { Config } from "@/config";
+import type { Logger } from "@/logger";
 
 import type { Env } from "./environment";
 import { setLogger } from "./middlewares/logger";

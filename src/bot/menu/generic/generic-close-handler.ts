@@ -1,6 +1,6 @@
-import type { CallbackWithContext, Context } from "../../context";
-import { getUpdateInfo } from "../../helpers/logging";
-import { closeMenuExceptionHandler } from "../../helpers/menu";
+import type { CallbackWithContext, Context } from "@/bot/context";
+import { getUpdateInfo } from "@/bot/helpers/logging";
+import { closeMenuExceptionHandler } from "@/bot/helpers/menu";
 
 export async function genericCloseHandler(
     ctx: Context,

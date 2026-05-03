@@ -1,4 +1,4 @@
-import type { Context } from "../../context";
+import type { Context } from "@/bot/context";
 import { genericCloseHandler } from "../generic/generic-close-handler";
 
 export function closeMenuHandler(ctx: Context) {

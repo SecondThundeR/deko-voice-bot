@@ -1,7 +1,7 @@
-import { getVoicesPage } from "@/drizzle/queries/select";
-import type { SelectUser } from "@/drizzle/schema";
+import { getVoicesPage } from "drizzle/queries/select";
+import type { SelectUser } from "drizzle/schema";
 
-import type { InlineQueriesArray } from "../types/inline";
+import type { InlineQueriesArray } from "@/bot/types/inline";
 
 type GetVoiceQueriesPageOptions = {
     favoritesUserId?: SelectUser["userId"];

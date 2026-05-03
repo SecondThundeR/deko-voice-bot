@@ -1,6 +1,5 @@
+import type { SelectUser } from "drizzle/schema";
 import type { User } from "grammy/types";
-
-import type { SelectUser } from "@/drizzle/schema";
 
 import { convertLastUsedAtTimestamp } from "./time";
 

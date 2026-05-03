@@ -1,8 +1,8 @@
+import { getBasicStatsQuery } from "drizzle/prepared/stats";
 import { Composer } from "grammy";
-import { getBasicStatsQuery } from "@/drizzle/prepared/stats";
-import type { Context } from "../context";
-import { isAdmin } from "../filter/is-admin";
-import { logHandle } from "../helpers/logging";
+import type { Context } from "@/bot/context";
+import { isAdmin } from "@/bot/filter/is-admin";
+import { logHandle } from "@/bot/helpers/logging";
 
 const composer = new Composer<Context>();
 

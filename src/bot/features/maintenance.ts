@@ -1,10 +1,10 @@
+import { toggleFeatureFlag } from "drizzle/queries/update";
 import { Composer } from "grammy";
-import { toggleFeatureFlag } from "@/drizzle/queries/update";
-import { MAINTENANCE_FEATURE_FLAG } from "../constants/feature-flags";
-import type { Context } from "../context";
-import { isAdmin } from "../filter/is-admin";
-import { logHandle } from "../helpers/logging";
-import { setCachedMaintenanceFeatureFlag } from "../store/maintenance";
+import { MAINTENANCE_FEATURE_FLAG } from "@/bot/constants/feature-flags";
+import type { Context } from "@/bot/context";
+import { isAdmin } from "@/bot/filter/is-admin";
+import { logHandle } from "@/bot/helpers/logging";
+import { setCachedMaintenanceFeatureFlag } from "@/bot/store/maintenance";
 
 const composer = new Composer<Context>();
 

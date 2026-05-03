@@ -4,7 +4,7 @@ import {
     type SessionOptions,
 } from "grammy";
 
-import type { Context, SessionData } from "../context";
+import type { Context, SessionData } from "@/bot/context";
 
 type Options = Pick<
     SessionOptions<SessionData, Context>,

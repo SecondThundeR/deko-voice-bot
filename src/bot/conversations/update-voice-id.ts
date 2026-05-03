@@ -1,7 +1,7 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { createConversation } from "@grammyjs/conversations";
-import { updateVoiceId } from "@/drizzle/queries/update";
-import type { Context, ConversationContext } from "../context";
+import { updateVoiceId } from "drizzle/queries/update";
+import type { Context, ConversationContext } from "@/bot/context";
 import { getVoiceIDTextSubconversation } from "./subconversations/get-voice-id-text";
 
 export const UPDATE_VOICE_ID_CONVERSATION = "voice-id-update";

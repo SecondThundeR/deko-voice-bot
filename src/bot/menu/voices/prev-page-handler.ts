@@ -1,5 +1,5 @@
-import { MAX_MENU_ELEMENTS_PER_PAGE } from "../../constants/inline";
-import type { MenuContext } from "../../context";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "@/bot/constants/inline";
+import type { MenuContext } from "@/bot/context";
 import { genericPrevHandler } from "../generic/generic-prev-handler";
 
 export function prevPageHandler(ctx: MenuContext) {

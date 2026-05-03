@@ -1,11 +1,11 @@
+import { insertPaymentQuery } from "drizzle/prepared/payments";
 import { Composer } from "grammy";
-import { insertPaymentQuery } from "@/drizzle/prepared/payments";
-import { donateData } from "../callback-data/donate";
-import type { Context } from "../context";
-import { DONATE_CONVERSATION } from "../conversations/donate";
-import { sendDonationInvoice } from "../helpers/api";
-import { getUpdateInfo, logHandle } from "../helpers/logging";
-import { createDonateKeyboard } from "../keyboards/donate";
+import { donateData } from "@/bot/callback-data/donate";
+import type { Context } from "@/bot/context";
+import { DONATE_CONVERSATION } from "@/bot/conversations/donate";
+import { sendDonationInvoice } from "@/bot/helpers/api";
+import { getUpdateInfo, logHandle } from "@/bot/helpers/logging";
+import { createDonateKeyboard } from "@/bot/keyboards/donate";
 
 const LEGACY_DONATE_AMOUNT_REGEX = /^donate_(\d+)$/;
 

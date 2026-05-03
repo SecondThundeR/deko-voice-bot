@@ -1,8 +1,8 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { createConversation } from "@grammyjs/conversations";
-import { updateVoiceFile } from "@/drizzle/queries/update";
-import type { Context, ConversationContext } from "../context";
-import { sendConvertedVoice } from "../helpers/conversations";
+import { updateVoiceFile } from "drizzle/queries/update";
+import type { Context, ConversationContext } from "@/bot/context";
+import { sendConvertedVoice } from "@/bot/helpers/conversations";
 import { getAudioFilePathSubconversation } from "./subconversations/get-audio-file-path";
 
 export const UPDATE_VOICE_FILE_CONVERSATION = "voice-file-update";

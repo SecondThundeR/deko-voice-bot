@@ -1,6 +1,6 @@
 import type { MenuRange } from "@grammyjs/menu";
-import type { Context, MenuContext } from "../../context";
-import { getFavoritesMenuPage } from "../../helpers/menu";
+import type { Context, MenuContext } from "@/bot/context";
+import { getFavoritesMenuPage } from "@/bot/helpers/menu";
 import { genericListHandler } from "../generic/generic-list-handler";
 import { favoriteItemHandler } from "./favorite-item-handler";
 

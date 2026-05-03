@@ -15,8 +15,9 @@
     "noUnusedParameters": true,
     "types": ["bun"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"],
+      "drizzle/*": ["./drizzle/*"]
     }
   },
-  "include": ["src/**/*", "drizzle.config.ts", "env.d.ts"]
+  "include": ["src/**/*", "drizzle/**/*.ts", "drizzle.config.ts", "env.d.ts"]
 }

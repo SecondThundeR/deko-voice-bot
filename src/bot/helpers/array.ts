@@ -1,4 +1,4 @@
-import { MAX_QUERY_ELEMENTS_PER_PAGE } from "../constants/inline";
+import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/bot/constants/inline";
 
 export function getArrayWithOffset<T>(
     array: T[],

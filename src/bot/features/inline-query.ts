@@ -1,11 +1,11 @@
+import { incrementVoiceUsesAmountQuery } from "drizzle/prepared/voices";
+import { updateUserData } from "drizzle/queries/insert";
 import { Composer } from "grammy";
-import { incrementVoiceUsesAmountQuery } from "@/drizzle/prepared/voices";
-import { updateUserData } from "@/drizzle/queries/insert";
-import { MAX_QUERY_ELEMENTS_PER_PAGE } from "../constants/inline";
-import type { Context } from "../context";
-import { logHandle } from "../helpers/logging";
-import { extractUserDetails } from "../helpers/user";
-import { getVoiceQueriesPage } from "../helpers/voices";
+import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/bot/constants/inline";
+import type { Context } from "@/bot/context";
+import { logHandle } from "@/bot/helpers/logging";
+import { extractUserDetails } from "@/bot/helpers/user";
+import { getVoiceQueriesPage } from "@/bot/helpers/voices";
 
 const composer = new Composer<Context>();
 const MAX_INLINE_QUERY_OFFSET = 1000;

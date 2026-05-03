@@ -1,8 +1,4 @@
-import type {
-    FullStats,
-    FullUsersStats,
-    FullVoicesStats,
-} from "@/drizzle/types";
+import type { FullStats, FullUsersStats, FullVoicesStats } from "drizzle/types";
 import { convertLastUsedAtTimestamp } from "./time";
 
 function formatUserStatsLine({

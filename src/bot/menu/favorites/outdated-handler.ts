@@ -1,5 +1,5 @@
-import { getVoicesCount } from "@/drizzle/queries/select";
-import type { MenuContext } from "../../context";
+import { getVoicesCount } from "drizzle/queries/select";
+import type { MenuContext } from "@/bot/context";
 import { genericOutdatedHandler } from "../generic/generic-outdated-handler";
 
 export async function outdatedHandler(ctx: MenuContext) {

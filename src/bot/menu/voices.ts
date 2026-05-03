@@ -1,5 +1,5 @@
 import { Menu } from "@grammyjs/menu";
-import type { Context } from "../context";
+import type { Context } from "@/bot/context";
 import { closeMenuHandler } from "./voices/close-menu-handler";
 import { dynamicListHandler } from "./voices/dynamic-list-handler";
 import { fingerprintHandler } from "./voices/fingerprint-handler";

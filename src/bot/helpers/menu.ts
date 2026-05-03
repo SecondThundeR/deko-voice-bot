@@ -1,8 +1,8 @@
-import { getVoicesCount, getVoicesPage } from "@/drizzle/queries/select";
-import { MAX_MENU_ELEMENTS_PER_PAGE } from "../constants/inline";
-import type { Context } from "../context";
-import type { FavoriteItem } from "../types/favorite-item";
-import type { InlineResultVoice } from "../types/inline";
+import { getVoicesCount, getVoicesPage } from "drizzle/queries/select";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "@/bot/constants/inline";
+import type { Context } from "@/bot/context";
+import type { FavoriteItem } from "@/bot/types/favorite-item";
+import type { InlineResultVoice } from "@/bot/types/inline";
 import { getVoiceQueriesPage } from "./voices";
 
 export async function prepareFavoritesSessionMenu(ctx: Context) {

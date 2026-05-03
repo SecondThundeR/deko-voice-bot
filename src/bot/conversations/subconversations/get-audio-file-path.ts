@@ -1,5 +1,5 @@
 import type { Conversation } from "@grammyjs/conversations";
-import type { Context, ConversationContext } from "../../context";
+import type { Context, ConversationContext } from "@/bot/context";
 
 export async function getAudioFilePathSubconversation(
     conversation: Conversation<Context, ConversationContext>,

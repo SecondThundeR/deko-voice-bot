@@ -1,9 +1,9 @@
+import { getVoicesCount } from "drizzle/queries/select";
 import { Composer } from "grammy";
-import { getVoicesCount } from "@/drizzle/queries/select";
-import type { Context } from "../context";
-import { isAdmin } from "../filter/is-admin";
-import { logHandle } from "../helpers/logging";
-import { createSelectVoiceKeyboard } from "../keyboards/select-voice";
+import type { Context } from "@/bot/context";
+import { isAdmin } from "@/bot/filter/is-admin";
+import { logHandle } from "@/bot/helpers/logging";
+import { createSelectVoiceKeyboard } from "@/bot/keyboards/select-voice";
 
 const composer = new Composer<Context>();
 

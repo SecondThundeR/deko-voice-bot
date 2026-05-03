@@ -1,8 +1,8 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { createConversation } from "@grammyjs/conversations";
-import { addRegularVoice } from "@/drizzle/queries/insert";
-import type { Context, ConversationContext } from "../context";
-import { sendConvertedVoice } from "../helpers/conversations";
+import { addRegularVoice } from "drizzle/queries/insert";
+import type { Context, ConversationContext } from "@/bot/context";
+import { sendConvertedVoice } from "@/bot/helpers/conversations";
 import { getAudioFilePathSubconversation } from "./subconversations/get-audio-file-path";
 import { getVoiceIDTextSubconversation } from "./subconversations/get-voice-id-text";
 import { getVoiceTitleTextSubconversation } from "./subconversations/get-voice-title-text";

@@ -1,4 +1,4 @@
-import type { Context } from "../../context";
+import type { Context } from "@/bot/context";
 
 export function infoButtonHandler(ctx: Context) {
     if (!ctx.session.currentVoice) {

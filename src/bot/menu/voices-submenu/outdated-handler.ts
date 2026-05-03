@@ -1,4 +1,4 @@
-import type { MenuContext } from "../../context";
+import type { MenuContext } from "@/bot/context";
 import { genericOutdatedHandler } from "../generic/generic-outdated-handler";
 
 export function outdatedHandler(ctx: MenuContext) {
