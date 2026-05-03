@@ -7,6 +7,8 @@ import { sendDonationInvoice } from "../helpers/api";
 import { getUpdateInfo, logHandle } from "../helpers/logging";
 import { createDonateKeyboard } from "../keyboards/donate";
 
+const LEGACY_DONATE_AMOUNT_REGEX = /^donate_(\d+)$/;
+
 const composer = new Composer<Context>();
 
 const feature = composer.chatType("private");
@@ -31,8 +33,31 @@ feature.callbackQuery(
 );
 
 feature.callbackQuery(
+    "donate_custom",
+    logHandle("keyboard-donate-custom-legacy"),
+    async (ctx) => {
+        await ctx.callbackQuery.answer();
+        await ctx.deleteMessage();
+
+        return ctx.conversation.enter(DONATE_CONVERSATION);
+    },
+);
+
+feature.callbackQuery(
     donateData.filter(),
     logHandle("keyboard-donate-regular"),
+    async (ctx) => {
+        await ctx.callbackQuery.answer();
+        await ctx.deleteMessage();
+
+        const amount = parseInt(ctx.match[1], 10);
+        return sendDonationInvoice(ctx, amount);
+    },
+);
+
+feature.callbackQuery(
+    LEGACY_DONATE_AMOUNT_REGEX,
+    logHandle("keyboard-donate-regular-legacy"),
     async (ctx) => {
         await ctx.callbackQuery.answer();
         await ctx.deleteMessage();
