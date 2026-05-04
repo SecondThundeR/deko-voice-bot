@@ -17,7 +17,7 @@ export async function genericOutdatedHandler<T>(
 
     try {
         if (!menuElement) {
-            await ctx.deleteMessage();
+            await ctx.deleteMessage().catch(() => {});
             return ctx.callbackQuery?.answer();
         }
 

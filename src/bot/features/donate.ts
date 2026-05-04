@@ -26,7 +26,7 @@ feature.callbackQuery(
     logHandle("keyboard-donate-custom"),
     async (ctx) => {
         await ctx.callbackQuery.answer();
-        await ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
 
         return ctx.conversation.enter(DONATE_CONVERSATION);
     },
@@ -37,7 +37,7 @@ feature.callbackQuery(
     logHandle("keyboard-donate-custom-legacy"),
     async (ctx) => {
         await ctx.callbackQuery.answer();
-        await ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
 
         return ctx.conversation.enter(DONATE_CONVERSATION);
     },
@@ -48,7 +48,7 @@ feature.callbackQuery(
     logHandle("keyboard-donate-regular"),
     async (ctx) => {
         await ctx.callbackQuery.answer();
-        await ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
 
         const amount = parseInt(ctx.match[1], 10);
         return sendDonationInvoice(ctx, amount);
@@ -60,7 +60,7 @@ feature.callbackQuery(
     logHandle("keyboard-donate-regular-legacy"),
     async (ctx) => {
         await ctx.callbackQuery.answer();
-        await ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
 
         const amount = parseInt(ctx.match[1], 10);
         return sendDonationInvoice(ctx, amount);

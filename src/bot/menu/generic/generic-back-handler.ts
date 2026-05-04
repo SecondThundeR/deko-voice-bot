@@ -6,7 +6,7 @@ export async function genericBackHandler(
     deleteMessage?: boolean,
 ) {
     if (deleteMessage) {
-        await ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
     } else {
         ctx.menu.back();
     }

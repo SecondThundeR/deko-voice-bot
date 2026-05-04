@@ -7,7 +7,7 @@ export async function genericCloseHandler(
     onClose?: CallbackWithContext,
 ) {
     try {
-        await ctx.deleteMessage();
+        await ctx.deleteMessage().catch(() => {});
         onClose?.(ctx);
     } catch (error: unknown) {
         let errorMessage = "Something prevented from closing menu. Details: ";
