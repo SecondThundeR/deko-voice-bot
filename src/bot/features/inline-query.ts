@@ -16,8 +16,8 @@ composer.on(
         const { from, result_id: voiceId } = ctx.chosenInlineResult;
         const userDetails = extractUserDetails(from);
 
-        trackVoiceUsage(voiceId);
-        trackUserUsage(userDetails);
+        trackVoiceUsage(voiceId, ctx.logger);
+        trackUserUsage(userDetails, ctx.logger);
     },
 );
 

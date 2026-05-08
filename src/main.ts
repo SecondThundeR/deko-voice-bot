@@ -23,14 +23,14 @@ async function startPolling(config: PollingConfig) {
     onShutdown(async () => {
         logger.info("Shutdown");
         await runner?.stop();
-        await stopUsageStatsFlushInterval();
+        await stopUsageStatsFlushInterval(logger);
     });
 
     await Promise.all([bot.init(), bot.api.deleteWebhook()]);
-    await loadIgnoredUsers();
+    await loadIgnoredUsers(logger);
     startUsageStatsFlushInterval((error) => {
         logger.error(error);
-    });
+    }, logger);
 
     // start bot
     runner = run(bot, {
@@ -66,15 +66,15 @@ async function startWebhook(config: WebhookConfig) {
     onShutdown(async () => {
         logger.info("Shutdown");
         await serverManager.stop();
-        await stopUsageStatsFlushInterval();
+        await stopUsageStatsFlushInterval(logger);
     });
 
     // to prevent receiving updates before the bot is ready
     await bot.init();
-    await loadIgnoredUsers();
+    await loadIgnoredUsers(logger);
     startUsageStatsFlushInterval((error) => {
         logger.error(error);
-    });
+    }, logger);
 
     // start server
     const info = serverManager.start();

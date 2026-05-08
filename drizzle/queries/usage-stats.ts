@@ -1,5 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 
+import type { Logger } from "@/logger";
+
 import { db } from "../db";
 import {
     type InsertUser,
@@ -23,37 +25,78 @@ const ignoredUsers = new Set<UserDetails["userId"]>();
 let flushTimer: ReturnType<typeof setInterval> | undefined;
 let currentFlush: Promise<void> | undefined;
 
-export function trackVoiceUsage(voiceId: SelectVoice["voiceId"]) {
-    voiceUses.set(voiceId, (voiceUses.get(voiceId) ?? 0) + 1);
+export function trackVoiceUsage(
+    voiceId: SelectVoice["voiceId"],
+    logger?: Logger,
+) {
+    const usesAmount = (voiceUses.get(voiceId) ?? 0) + 1;
+    voiceUses.set(voiceId, usesAmount);
+
+    logger?.debug({
+        msg: "Voice usage tracked",
+        voiceId,
+        usesAmount,
+        pendingVoiceUses: voiceUses.size,
+    });
 }
 
-export function trackUserUsage(userDetails: UserDetails) {
+export function trackUserUsage(userDetails: UserDetails, logger?: Logger) {
     if (ignoredUsers.has(userDetails.userId)) {
+        logger?.debug({
+            msg: "User usage ignored",
+            userId: userDetails.userId,
+            ignoredUsers: ignoredUsers.size,
+        });
         return;
     }
 
     const existing = userUses.get(userDetails.userId);
+    const usesAmount = (existing?.usesAmount ?? 0) + 1;
 
     userUses.set(userDetails.userId, {
         ...userDetails,
-        usesAmount: (existing?.usesAmount ?? 0) + 1,
+        usesAmount,
+    });
+
+    logger?.debug({
+        msg: "User usage tracked",
+        userId: userDetails.userId,
+        usesAmount,
+        pendingUserUses: userUses.size,
     });
 }
 
-export function allowUserUsage(userId: UserDetails["userId"]) {
+export function allowUserUsage(userId: UserDetails["userId"], logger?: Logger) {
     ignoredUsers.delete(userId);
+
+    logger?.debug({
+        msg: "User usage allowed",
+        userId,
+        ignoredUsers: ignoredUsers.size,
+    });
 }
 
-export function ignoreUserUsage(userId: UserDetails["userId"]) {
+export function ignoreUserUsage(
+    userId: UserDetails["userId"],
+    logger?: Logger,
+) {
     ignoredUsers.add(userId);
 
     const userUsageStats = userUses.get(userId);
     userUses.delete(userId);
 
+    logger?.debug({
+        msg: "User usage disabled",
+        userId,
+        pendingUsesAmount: userUsageStats?.usesAmount ?? 0,
+        ignoredUsers: ignoredUsers.size,
+        pendingUserUses: userUses.size,
+    });
+
     return userUsageStats;
 }
 
-export async function loadIgnoredUsers() {
+export async function loadIgnoredUsers(logger?: Logger) {
     const ignoredUserIds = await db
         .select({ userId: usersTable.userId })
         .from(usersTable)
@@ -62,53 +105,91 @@ export async function loadIgnoredUsers() {
     for (const { userId } of ignoredUserIds) {
         ignoredUsers.add(userId);
     }
+
+    logger?.debug({
+        msg: "Ignored users loaded",
+        ignoredUsers: ignoredUsers.size,
+    });
 }
 
 export function startUsageStatsFlushInterval(
     onError: (error: unknown) => void,
+    logger?: Logger,
 ) {
     if (flushTimer) {
+        logger?.debug({
+            msg: "Usage stats flush interval already started",
+            flushIntervalMs: FLUSH_INTERVAL_MS,
+        });
         return;
     }
 
     flushTimer = setInterval(() => {
-        flushUsageStats().catch(onError);
+        flushUsageStats(logger).catch(onError);
     }, FLUSH_INTERVAL_MS);
+
+    logger?.debug({
+        msg: "Usage stats flush interval started",
+        flushIntervalMs: FLUSH_INTERVAL_MS,
+    });
 }
 
-export async function stopUsageStatsFlushInterval() {
+export async function stopUsageStatsFlushInterval(logger?: Logger) {
     if (flushTimer) {
         clearInterval(flushTimer);
         flushTimer = undefined;
+
+        logger?.debug({
+            msg: "Usage stats flush interval stopped",
+            pendingVoiceUses: voiceUses.size,
+            pendingUserUses: userUses.size,
+        });
     }
 
     while (currentFlush || voiceUses.size > 0 || userUses.size > 0) {
-        await flushUsageStats();
+        await flushUsageStats(logger);
     }
 }
 
-function flushUsageStats() {
+function flushUsageStats(logger?: Logger) {
     if (currentFlush) {
+        logger?.debug({
+            msg: "Usage stats flush already in progress",
+            pendingVoiceUses: voiceUses.size,
+            pendingUserUses: userUses.size,
+        });
         return currentFlush;
     }
 
     if (voiceUses.size === 0 && userUses.size === 0) {
+        logger?.debug({
+            msg: "Usage stats flush skipped",
+            pendingVoiceUses: voiceUses.size,
+            pendingUserUses: userUses.size,
+        });
         return Promise.resolve();
     }
 
-    currentFlush = flushUsageStatsSnapshot().finally(() => {
+    currentFlush = flushUsageStatsSnapshot(logger).finally(() => {
         currentFlush = undefined;
     });
 
     return currentFlush;
 }
 
-async function flushUsageStatsSnapshot() {
+async function flushUsageStatsSnapshot(logger?: Logger) {
     const voiceUsesSnapshot = new Map(voiceUses);
     const userUsesSnapshot = new Map(userUses);
     const flushedAt = Date.now();
     voiceUses.clear();
     userUses.clear();
+
+    logger?.debug({
+        msg: "Usage stats flush started",
+        voiceUsageRows: voiceUsesSnapshot.size,
+        userUsageRows: userUsesSnapshot.size,
+        flushedAt,
+    });
 
     try {
         await db.transaction(async (tx) => {
@@ -125,6 +206,11 @@ async function flushUsageStatsSnapshot() {
                         as voice_usage(voice_id, uses_amount)
                     where ${voicesTable.voiceId} = voice_usage.voice_id
                 `);
+
+                logger?.debug({
+                    msg: "Voice usage flushed",
+                    voiceUsageRows: voiceUsesSnapshot.size,
+                });
             }
 
             if (userUsesSnapshot.size > 0) {
@@ -144,11 +230,31 @@ async function flushUsageStatsSnapshot() {
                         last_used_at = excluded.last_used_at
                     where ${usersTable.isIgnored} = false
                 `);
+
+                logger?.debug({
+                    msg: "User usage flushed",
+                    userUsageRows: userUsesSnapshot.size,
+                });
             }
+        });
+
+        logger?.debug({
+            msg: "Usage stats flush completed",
+            voiceUsageRows: voiceUsesSnapshot.size,
+            userUsageRows: userUsesSnapshot.size,
         });
     } catch (error) {
         mergeVoiceUses(voiceUsesSnapshot);
         mergeUserUses(userUsesSnapshot);
+
+        logger?.debug({
+            msg: "Usage stats flush failed and pending stats were restored",
+            voiceUsageRows: voiceUsesSnapshot.size,
+            userUsageRows: userUsesSnapshot.size,
+            pendingVoiceUses: voiceUses.size,
+            pendingUserUses: userUses.size,
+        });
+
         throw error;
     }
 }
