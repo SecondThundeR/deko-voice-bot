@@ -1,11 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import {
-    index,
-    pgEnum,
-    pgTable,
-    primaryKey,
-    uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { index, pgEnum, pgTable, primaryKey } from "drizzle-orm/pg-core";
 
 import {
     FEATURE_FLAG_NAME_LENGTH,
@@ -35,12 +29,7 @@ export const voicesTable = pgTable(
         usesAmount: t.integer().notNull().default(0),
     }),
     (table) => [
-        uniqueIndex("voices_table_file_unique_id_idx").on(table.fileUniqueId),
         index("voices_table_uses_amount_idx").on(table.usesAmount.desc()),
-        index("voices_table_voice_title_trgm_idx").using(
-            "gin",
-            sql`${table.voiceTitle} gin_trgm_ops`,
-        ),
     ],
 );
 
@@ -101,10 +90,7 @@ export const usersFavoritesTable = pgTable(
                 onUpdate: "cascade",
             }),
     }),
-    ({ userId, voiceId }) => [
-        primaryKey({ columns: [userId, voiceId] }),
-        index("users_favorites_table_voice_id_idx").on(voiceId),
-    ],
+    ({ userId, voiceId }) => [primaryKey({ columns: [userId, voiceId] })],
 );
 
 export type InsertUserFavorites = typeof usersFavoritesTable.$inferInsert;
@@ -130,15 +116,11 @@ export const paymentStatusEnum = pgEnum("payment_status", [
     "refunded",
 ]);
 
-export const paymentsTable = pgTable(
-    "payments",
-    (t) => ({
-        telegramPaymentChargeId: t.text().primaryKey(),
-        invoicePayload: t.text().notNull(),
-        userId: t.bigint({ mode: "number" }).notNull(),
-        amount: t.integer().notNull(),
-        paidAt: t.timestamp().defaultNow().notNull(),
-        status: paymentStatusEnum().default("paid").notNull(),
-    }),
-    (table) => [index("payments_user_id_idx").on(table.userId)],
-);
+export const paymentsTable = pgTable("payments", (t) => ({
+    telegramPaymentChargeId: t.text().primaryKey(),
+    invoicePayload: t.text().notNull(),
+    userId: t.bigint({ mode: "number" }).notNull(),
+    amount: t.integer().notNull(),
+    paidAt: t.timestamp().defaultNow().notNull(),
+    status: paymentStatusEnum().default("paid").notNull(),
+}));

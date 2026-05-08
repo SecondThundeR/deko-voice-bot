@@ -50,6 +50,13 @@
       "when": 1777742272175,
       "tag": "0006_users_uses_amount_not_null",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778260014782,
+      "tag": "0007_dizzy_nighthawk",
+      "breakpoints": true
     }
   ]
 }

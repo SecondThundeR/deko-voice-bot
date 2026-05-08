@@ -22,11 +22,8 @@ export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {
     return featureFlag.status;
 }
 
-export async function getVoicesCount(query?: SelectVoice["voiceTitle"]) {
-    return db.$count(
-        voicesTable,
-        query ? ilike(voicesTable.voiceTitle, `%${query}%`) : undefined,
-    );
+export async function getVoicesCount() {
+    return db.$count(voicesTable);
 }
 
 type GetVoicesPageOptions = {
