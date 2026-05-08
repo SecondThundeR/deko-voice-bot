@@ -1,6 +1,11 @@
 import process from "node:process";
 import type { RunnerHandle } from "@grammyjs/runner";
 import { run } from "@grammyjs/runner";
+import {
+    loadIgnoredUsers,
+    startUsageStatsFlushInterval,
+    stopUsageStatsFlushInterval,
+} from "drizzle/queries/usage-stats";
 
 import { createBot } from "./bot";
 import { config, type PollingConfig, type WebhookConfig } from "./config";
@@ -18,9 +23,14 @@ async function startPolling(config: PollingConfig) {
     onShutdown(async () => {
         logger.info("Shutdown");
         await runner?.stop();
+        await stopUsageStatsFlushInterval();
     });
 
     await Promise.all([bot.init(), bot.api.deleteWebhook()]);
+    await loadIgnoredUsers();
+    startUsageStatsFlushInterval((error) => {
+        logger.error(error);
+    });
 
     // start bot
     runner = run(bot, {
@@ -56,10 +66,15 @@ async function startWebhook(config: WebhookConfig) {
     onShutdown(async () => {
         logger.info("Shutdown");
         await serverManager.stop();
+        await stopUsageStatsFlushInterval();
     });
 
     // to prevent receiving updates before the bot is ready
     await bot.init();
+    await loadIgnoredUsers();
+    startUsageStatsFlushInterval((error) => {
+        logger.error(error);
+    });
 
     // start server
     const info = serverManager.start();

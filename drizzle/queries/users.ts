@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { db } from "../db";
 import {
@@ -7,6 +7,7 @@ import {
     usersFavoritesTable,
     usersTable,
 } from "../schema";
+import { allowUserUsage, ignoreUserUsage } from "./usage-stats";
 
 export type OptInStatus = "newUser" | "restored" | "alreadyOptedIn";
 
@@ -18,7 +19,7 @@ export async function optInUser({
     fullname,
     username,
 }: UserDetails): Promise<OptInStatus> {
-    return await db.transaction(async (tx) => {
+    const optInStatus = await db.transaction(async (tx) => {
         const [existing] = await tx
             .select({ isIgnored: usersTable.isIgnored })
             .from(usersTable)
@@ -51,11 +52,17 @@ export async function optInUser({
 
         return "alreadyOptedIn";
     });
+
+    allowUserUsage(userId);
+
+    return optInStatus;
 }
 
 export async function optOutUser(
     userId: SelectUser["userId"],
 ): Promise<UserData | null> {
+    const pendingUserUsage = ignoreUserUsage(userId);
+
     return await db.transaction(async (tx) => {
         const [targetUser] = await tx
             .select({
@@ -64,16 +71,45 @@ export async function optOutUser(
                 username: usersTable.username,
                 lastUsedAt: usersTable.lastUsedAt,
                 usesAmount: usersTable.usesAmount,
+                isIgnored: usersTable.isIgnored,
             })
             .from(usersTable)
-            .where(
-                and(
-                    eq(usersTable.userId, userId),
-                    eq(usersTable.isIgnored, false),
-                ),
-            );
+            .where(eq(usersTable.userId, userId));
 
-        if (!targetUser) return null;
+        if (!targetUser) {
+            await tx
+                .insert(usersTable)
+                .values({
+                    userId,
+                    fullname: null,
+                    username: null,
+                    usesAmount: 0,
+                    lastUsedAt: null,
+                    isIgnored: true,
+                })
+                .onConflictDoUpdate({
+                    target: usersTable.userId,
+                    set: {
+                        fullname: null,
+                        username: null,
+                        usesAmount: 0,
+                        lastUsedAt: null,
+                        isIgnored: true,
+                    },
+                });
+
+            return pendingUserUsage
+                ? {
+                      userId,
+                      fullname: pendingUserUsage.fullname ?? null,
+                      username: pendingUserUsage.username ?? null,
+                      lastUsedAt: null,
+                      usesAmount: pendingUserUsage.usesAmount,
+                  }
+                : null;
+        }
+
+        if (targetUser.isIgnored) return null;
 
         await tx
             .update(usersTable)
@@ -90,6 +126,8 @@ export async function optOutUser(
             .delete(usersFavoritesTable)
             .where(eq(usersFavoritesTable.userId, userId));
 
-        return targetUser;
+        const { isIgnored, ...userData } = targetUser;
+
+        return userData;
     });
 }

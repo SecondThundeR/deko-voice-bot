@@ -1,5 +1,4 @@
-import { incrementVoiceUsesAmountQuery } from "drizzle/prepared/voices";
-import { updateUserData } from "drizzle/queries/insert";
+import { trackUserUsage, trackVoiceUsage } from "drizzle/queries/usage-stats";
 import { Composer } from "grammy";
 import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/bot/constants/inline";
 import type { Context } from "@/bot/context";
@@ -17,8 +16,8 @@ composer.on(
         const { from, result_id: voiceId } = ctx.chosenInlineResult;
         const userDetails = extractUserDetails(from);
 
-        await incrementVoiceUsesAmountQuery.execute({ voiceId });
-        await updateUserData(userDetails);
+        trackVoiceUsage(voiceId);
+        trackUserUsage(userDetails);
     },
 );
 
