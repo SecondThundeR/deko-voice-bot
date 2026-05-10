@@ -19,19 +19,13 @@ export const featureFlagsTable = pgTable("feature_flags_table", (t) => ({
 export type InsertFeatureFlag = typeof featureFlagsTable.$inferInsert;
 export type SelectFeatureFlag = typeof featureFlagsTable.$inferSelect;
 
-export const voicesTable = pgTable(
-    "voices_table",
-    (t) => ({
-        voiceId: t.varchar({ length: VOICE_ID_LENGTH }).primaryKey(),
-        voiceTitle: t.varchar({ length: VOICE_TITLE_LENGTH }).notNull(),
-        fileId: t.varchar({ length: FILE_ID_LENGTH }),
-        fileUniqueId: t.varchar({ length: FILE_UNIQUE_ID_LENGTH }).notNull(),
-        usesAmount: t.integer().notNull().default(0),
-    }),
-    (table) => [
-        index("voices_table_uses_amount_idx").on(table.usesAmount.desc()),
-    ],
-);
+export const voicesTable = pgTable("voices_table", (t) => ({
+    voiceId: t.varchar({ length: VOICE_ID_LENGTH }).primaryKey(),
+    voiceTitle: t.varchar({ length: VOICE_TITLE_LENGTH }).notNull(),
+    fileId: t.varchar({ length: FILE_ID_LENGTH }),
+    fileUniqueId: t.varchar({ length: FILE_UNIQUE_ID_LENGTH }).notNull(),
+    usesAmount: t.integer().notNull().default(0),
+}));
 
 export const voicesRelations = relations(voicesTable, ({ many }) => ({
     usersFavoritesTable: many(usersFavoritesTable),
@@ -56,12 +50,6 @@ export const usersTable = pgTable(
         index("users_table_active_last_used_at_idx")
             .on(table.lastUsedAt.desc())
             .where(sql`${table.isIgnored} = false and ${table.usesAmount} > 0`),
-        index("users_table_active_uses_amount_idx")
-            .on(table.usesAmount.desc())
-            .where(sql`${table.isIgnored} = false`),
-        index("users_table_inactive_last_used_at_idx")
-            .on(table.lastUsedAt)
-            .where(sql`${table.isIgnored} = false`),
     ],
 );
 

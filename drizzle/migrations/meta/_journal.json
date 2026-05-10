@@ -57,6 +57,13 @@
       "when": 1778260014782,
       "tag": "0007_dizzy_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1778416117331,
+      "tag": "0008_graceful_energizer",
+      "breakpoints": true
     }
   ]
 }
