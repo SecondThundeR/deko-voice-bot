@@ -64,6 +64,13 @@
       "when": 1778416117331,
       "tag": "0008_graceful_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778715063709,
+      "tag": "0009_striped_thanos",
+      "breakpoints": true
     }
   ]
 }
