@@ -9,14 +9,6 @@ export const getVoiceByUniqueIdQuery = db
     .where(eq(voicesTable.fileUniqueId, sql.placeholder("fileUniqueId")))
     .prepare("get_voice_by_unique_id");
 
-export const incrementVoiceUsesAmountQuery = db
-    .update(voicesTable)
-    .set({
-        usesAmount: sql`${voicesTable.usesAmount} + 1`,
-    })
-    .where(eq(voicesTable.voiceId, sql.placeholder("voiceId")))
-    .prepare("increment_voice_use_amount");
-
 export const deleteVoiceByIdQuery = db
     .delete(voicesTable)
     .where(eq(voicesTable.voiceId, sql.placeholder("voiceId")))
