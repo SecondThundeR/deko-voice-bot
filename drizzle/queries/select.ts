@@ -95,9 +95,13 @@ export async function getVoicesPage({
 }
 
 export async function isVoiceIdUnique(voiceId: SelectVoice["voiceId"]) {
-    return (
-        (await db.$count(voicesTable, eq(voicesTable.voiceId, voiceId))) === 0
-    );
+    const [existing] = await db
+        .select({ voiceId: voicesTable.voiceId })
+        .from(voicesTable)
+        .where(eq(voicesTable.voiceId, voiceId))
+        .limit(1);
+
+    return !existing;
 }
 
 export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
