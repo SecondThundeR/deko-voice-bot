@@ -1,5 +1,5 @@
 import { trackUserUsage, trackVoiceUsage } from "drizzle/queries/usage-stats";
-import { Composer } from "grammy";
+import { Composer, GrammyError } from "grammy";
 import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/bot/constants/inline";
 import type { Context } from "@/bot/context";
 import { logHandle } from "@/bot/helpers/logging";
@@ -45,15 +45,23 @@ composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
             ? currentOffset + pageSize
             : undefined;
 
-    return ctx.answerInlineQuery(paginatedQueries, {
-        next_offset: nextOffset ? String(nextOffset) : undefined,
-        button: {
-            text: ctx.t("donate.queryText"),
-            start_parameter: "donate",
-        },
-        cache_time: 10,
-        is_personal: true,
-    });
+    try {
+        return await ctx.answerInlineQuery(paginatedQueries, {
+            next_offset: nextOffset ? String(nextOffset) : undefined,
+            button: {
+                text: ctx.t("donate.queryText"),
+                start_parameter: "donate",
+            },
+            cache_time: 10,
+            is_personal: true,
+        });
+    } catch (error) {
+        if (error instanceof GrammyError && error.error_code === 400) {
+            ctx.logger.debug({ msg: "inline query expired before response", err: error });
+            return;
+        }
+        throw error;
+    }
 });
 
 export { composer as inlineQueryFeature };
