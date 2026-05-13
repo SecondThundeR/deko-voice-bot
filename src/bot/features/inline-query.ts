@@ -57,7 +57,10 @@ composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
         });
     } catch (error) {
         if (error instanceof GrammyError && error.error_code === 400) {
-            ctx.logger.debug({ msg: "inline query expired before response", err: error });
+            ctx.logger.debug({
+                msg: "inline query expired before response",
+                err: error,
+            });
             return;
         }
         throw error;
