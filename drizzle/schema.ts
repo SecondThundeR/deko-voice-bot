@@ -11,7 +11,7 @@ import {
     VOICE_TITLE_LENGTH,
 } from "./constraints";
 
-export const featureFlagsTable = pgTable("feature_flags_table", (t) => ({
+export const featureFlagsTable = pgTable("feature_flags", (t) => ({
     name: t.varchar({ length: FEATURE_FLAG_NAME_LENGTH }).primaryKey(),
     status: t.boolean().notNull().default(false),
 }));
@@ -19,7 +19,7 @@ export const featureFlagsTable = pgTable("feature_flags_table", (t) => ({
 export type InsertFeatureFlag = typeof featureFlagsTable.$inferInsert;
 export type SelectFeatureFlag = typeof featureFlagsTable.$inferSelect;
 
-export const voicesTable = pgTable("voices_table", (t) => ({
+export const voicesTable = pgTable("voices", (t) => ({
     voiceId: t.varchar({ length: VOICE_ID_LENGTH }).primaryKey(),
     voiceTitle: t.varchar({ length: VOICE_TITLE_LENGTH }).notNull(),
     fileId: t.varchar({ length: FILE_ID_LENGTH }).notNull(),
@@ -35,7 +35,7 @@ export type InsertVoice = typeof voicesTable.$inferInsert;
 export type SelectVoice = typeof voicesTable.$inferSelect;
 
 export const usersTable = pgTable(
-    "users_table",
+    "users",
     (t) => ({
         userId: t.bigint({ mode: "number" }).primaryKey(),
         fullname: t.varchar({ length: FULLNAME_LENGTH }),
@@ -47,7 +47,7 @@ export const usersTable = pgTable(
         isIgnored: t.boolean().notNull().default(false),
     }),
     (table) => [
-        index("users_table_active_last_used_at_idx")
+        index("users_active_last_used_at_idx")
             .on(table.lastUsedAt.desc())
             .where(sql`${table.isIgnored} = false and ${table.usesAmount} > 0`),
     ],
@@ -61,7 +61,7 @@ export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
 
 export const usersFavoritesTable = pgTable(
-    "users_favorites_table",
+    "users_favorites",
     (t) => ({
         userId: t
             .bigint({ mode: "number" })
