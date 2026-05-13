@@ -1,0 +1,1 @@
+ALTER TABLE "voices_table" ALTER COLUMN "file_id" SET NOT NULL;

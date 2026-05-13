@@ -22,7 +22,7 @@ export type SelectFeatureFlag = typeof featureFlagsTable.$inferSelect;
 export const voicesTable = pgTable("voices_table", (t) => ({
     voiceId: t.varchar({ length: VOICE_ID_LENGTH }).primaryKey(),
     voiceTitle: t.varchar({ length: VOICE_TITLE_LENGTH }).notNull(),
-    fileId: t.varchar({ length: FILE_ID_LENGTH }),
+    fileId: t.varchar({ length: FILE_ID_LENGTH }).notNull(),
     fileUniqueId: t.varchar({ length: FILE_UNIQUE_ID_LENGTH }).notNull(),
     usesAmount: t.integer().notNull().default(0),
 }));

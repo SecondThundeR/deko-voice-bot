@@ -71,6 +71,13 @@
       "when": 1778715063709,
       "tag": "0009_striped_thanos",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778715421889,
+      "tag": "0010_wealthy_khan",
+      "breakpoints": true
     }
   ]
 }
