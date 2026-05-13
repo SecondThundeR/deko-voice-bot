@@ -1,0 +1,1 @@
+ALTER TABLE "payments" ADD CONSTRAINT "payments_user_id_users_table_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users_table"("user_id") ON DELETE restrict ON UPDATE cascade;

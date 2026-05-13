@@ -78,6 +78,13 @@
       "when": 1778715421889,
       "tag": "0010_wealthy_khan",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1778716178962,
+      "tag": "0011_bitter_colonel_america",
+      "breakpoints": true
     }
   ]
 }

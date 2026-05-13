@@ -107,7 +107,13 @@ export const paymentStatusEnum = pgEnum("payment_status", [
 export const paymentsTable = pgTable("payments", (t) => ({
     telegramPaymentChargeId: t.text().primaryKey(),
     invoicePayload: t.text().notNull(),
-    userId: t.bigint({ mode: "number" }).notNull(),
+    userId: t
+        .bigint({ mode: "number" })
+        .notNull()
+        .references(() => usersTable.userId, {
+            onDelete: "restrict",
+            onUpdate: "cascade",
+        }),
     amount: t.integer().notNull(),
     paidAt: t.timestamp().defaultNow().notNull(),
     status: paymentStatusEnum().default("paid").notNull(),
