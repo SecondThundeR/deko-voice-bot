@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.13-slim AS base
+FROM oven/bun:1.3.14-slim AS base
 WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
