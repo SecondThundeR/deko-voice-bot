@@ -1,5 +1,3 @@
-import process from "node:process";
-import type { RunnerHandle } from "@grammyjs/runner";
 import { run } from "@grammyjs/runner";
 import {
     loadIgnoredUsers,
@@ -9,37 +7,35 @@ import {
 
 import { createBot } from "./bot";
 import { config, type PollingConfig, type WebhookConfig } from "./config";
+import { createLifecycle } from "./lifecycle";
 import { logger } from "./logger";
 import { createServer, createServerManager } from "./server";
+
+const lifecycle = createLifecycle(logger);
+
+async function setupUsageStats() {
+    await loadIgnoredUsers(logger);
+    startUsageStatsFlushInterval((error) => logger.error(error), logger);
+    lifecycle.onShutdown(() => stopUsageStatsFlushInterval(logger));
+}
 
 async function startPolling(config: PollingConfig) {
     const bot = createBot(config.botToken, {
         config,
         logger,
     });
-    let runner: undefined | RunnerHandle;
-
-    // graceful shutdown
-    onShutdown(async () => {
-        logger.info("Shutdown");
-        await runner?.stop();
-        await stopUsageStatsFlushInterval(logger);
-    });
 
     await Promise.all([bot.init(), bot.api.deleteWebhook()]);
-    await loadIgnoredUsers(logger);
-    startUsageStatsFlushInterval((error) => {
-        logger.error(error);
-    }, logger);
+    await setupUsageStats();
 
-    // start bot
-    runner = run(bot, {
+    const runner = run(bot, {
         runner: {
             fetch: {
                 allowed_updates: config.botAllowedUpdates,
             },
         },
     });
+    lifecycle.onShutdown(() => runner.stop());
 
     logger.info({
         msg: "Bot running...",
@@ -62,28 +58,17 @@ async function startWebhook(config: WebhookConfig) {
         port: config.serverPort,
     });
 
-    // graceful shutdown
-    onShutdown(async () => {
-        logger.info("Shutdown");
-        await serverManager.stop();
-        await stopUsageStatsFlushInterval(logger);
-    });
-
     // to prevent receiving updates before the bot is ready
     await bot.init();
-    await loadIgnoredUsers(logger);
-    startUsageStatsFlushInterval((error) => {
-        logger.error(error);
-    }, logger);
+    await setupUsageStats();
 
-    // start server
     const info = serverManager.start();
+    lifecycle.onShutdown(() => serverManager.stop());
     logger.info({
         msg: "Server started",
         url: info.url,
     });
 
-    // set webhook
     await bot.api.setWebhook(config.botWebhook, {
         allowed_updates: config.botAllowedUpdates,
         secret_token: config.botWebhookSecret,
@@ -99,33 +84,12 @@ try {
         await startWebhook(config);
     } else if (config.isPollingMode) {
         await startPolling(config);
+    } else {
+        throw new Error(
+            "Bot config matches neither webhook nor polling mode",
+        );
     }
 } catch (error) {
     logger.error(error);
-    process.exit(1);
-}
-
-// Utils
-
-function onShutdown(cleanUp: () => Promise<void>) {
-    let isShuttingDown = false;
-    const handleShutdown = async () => {
-        if (isShuttingDown) {
-            return;
-        }
-
-        isShuttingDown = true;
-
-        try {
-            await cleanUp();
-            logger.flush();
-            process.exit(0);
-        } catch (error) {
-            logger.error(error);
-            logger.flush();
-            process.exit(1);
-        }
-    };
-    process.on("SIGINT", handleShutdown);
-    process.on("SIGTERM", handleShutdown);
+    await lifecycle.shutdown(1);
 }
