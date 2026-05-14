@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { getFeatureFlagQuery } from "../prepared/feature-flags";
 import { getUserIgnoreStatusQuery } from "../prepared/users";
@@ -11,6 +11,8 @@ import {
     usersFavoritesTable,
     voicesTable,
 } from "../schema";
+
+const VOICE_TITLE_SIMILARITY_THRESHOLD = 0.2;
 
 export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {
     const [featureFlag] = await getFeatureFlagQuery.execute({ name });
@@ -42,7 +44,14 @@ export async function getVoicesPage({
     query,
 }: GetVoicesPageOptions) {
     const filters = query
-        ? ilike(voicesTable.voiceTitle, `%${query}%`)
+        ? sql`(
+            ${voicesTable.voiceTitle} ilike ${`%${query}%`}
+            or word_similarity(${query}, ${voicesTable.voiceTitle}) > ${VOICE_TITLE_SIMILARITY_THRESHOLD}
+        )`
+        : undefined;
+
+    const similarityOrder = query
+        ? desc(sql`word_similarity(${query}, ${voicesTable.voiceTitle})`)
         : undefined;
 
     if (!favoritesUserId) {
@@ -57,12 +66,15 @@ export async function getVoicesPage({
             })
             .from(voicesTable)
             .where(filters)
-            .orderBy(voicesTable.voiceTitle)
+            .orderBy(
+                ...(similarityOrder ? [similarityOrder] : []),
+                voicesTable.voiceTitle,
+            )
             .limit(limit)
             .offset(offset);
     }
 
-    const queryBuilder = db
+    return db
         .select({
             voiceId: voicesTable.voiceId,
             voiceTitle: voicesTable.voiceTitle,
@@ -80,18 +92,15 @@ export async function getVoicesPage({
             ),
         )
         .where(filters)
-        .$dynamic();
-
-    if (orderFavoritesFirst) {
-        queryBuilder.orderBy(
-            desc(sql`${usersFavoritesTable.voiceId} is not null`),
+        .orderBy(
+            ...(orderFavoritesFirst
+                ? [desc(sql`${usersFavoritesTable.voiceId} is not null`)]
+                : []),
+            ...(similarityOrder ? [similarityOrder] : []),
             voicesTable.voiceTitle,
-        );
-    } else {
-        queryBuilder.orderBy(voicesTable.voiceTitle);
-    }
-
-    return queryBuilder.limit(limit).offset(offset);
+        )
+        .limit(limit)
+        .offset(offset);
 }
 
 export async function isVoiceIdUnique(voiceId: SelectVoice["voiceId"]) {

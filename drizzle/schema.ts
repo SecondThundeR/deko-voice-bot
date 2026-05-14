@@ -19,13 +19,22 @@ export const featureFlagsTable = pgTable("feature_flags", (t) => ({
 export type InsertFeatureFlag = typeof featureFlagsTable.$inferInsert;
 export type SelectFeatureFlag = typeof featureFlagsTable.$inferSelect;
 
-export const voicesTable = pgTable("voices", (t) => ({
-    voiceId: t.varchar({ length: VOICE_ID_LENGTH }).primaryKey(),
-    voiceTitle: t.varchar({ length: VOICE_TITLE_LENGTH }).notNull(),
-    fileId: t.varchar({ length: FILE_ID_LENGTH }).notNull(),
-    fileUniqueId: t.varchar({ length: FILE_UNIQUE_ID_LENGTH }).notNull(),
-    usesAmount: t.integer().notNull().default(0),
-}));
+export const voicesTable = pgTable(
+    "voices",
+    (t) => ({
+        voiceId: t.varchar({ length: VOICE_ID_LENGTH }).primaryKey(),
+        voiceTitle: t.varchar({ length: VOICE_TITLE_LENGTH }).notNull(),
+        fileId: t.varchar({ length: FILE_ID_LENGTH }).notNull(),
+        fileUniqueId: t.varchar({ length: FILE_UNIQUE_ID_LENGTH }).notNull(),
+        usesAmount: t.integer().notNull().default(0),
+    }),
+    (table) => [
+        index("voices_title_trgm_idx").using(
+            "gin",
+            sql`${table.voiceTitle} gin_trgm_ops`,
+        ),
+    ],
+);
 
 export const voicesRelations = relations(voicesTable, ({ many }) => ({
     usersFavoritesTable: many(usersFavoritesTable),

@@ -92,6 +92,13 @@
       "when": 1778716334435,
       "tag": "0012_safe_midnight",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1778716876603,
+      "tag": "0013_small_kate_bishop",
+      "breakpoints": true
     }
   ]
 }
