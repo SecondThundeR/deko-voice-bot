@@ -1,21 +1,16 @@
-import { or, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 import { db } from "../db";
 import { usersTable, voicesTable } from "../schema";
 import type { FullUsersStats, FullVoicesStats } from "../types";
 
 const oneMonthAgoMs = sql`(extract(epoch from (now() - interval '1 month')) * 1000)::bigint`;
-const threeMonthsAgoMs = sql`(extract(epoch from (now() - interval '3 months')) * 1000)::bigint`;
 
 const basicStatsColumns = {
     allUsedUsers: sql<number>`cast(count(*) as int)`,
     allIgnoredUsers: sql<number>`cast(count(*) filter (where ${usersTable.isIgnored} = true) as int)`,
-    allMAUUsers: sql<number>`cast(count(*) filter (where ${usersTable.isIgnored} = false and ${usersTable.lastUsedAt} is not null and ${usersTable.lastUsedAt} > ${oneMonthAgoMs}) as int)`,
-    allInactiveUsers: sql<number>`cast(count(*) filter (where ${or(
-        sql`${usersTable.isIgnored} = false and ${usersTable.lastUsedAt} is null`,
-        sql`${usersTable.isIgnored} = false and ${usersTable.lastUsedAt} = 0`,
-        sql`${usersTable.isIgnored} = false and ${usersTable.lastUsedAt} < ${threeMonthsAgoMs}`,
-    )}) as int)`,
+    allMAUUsers: sql<number>`cast(count(*) filter (where ${usersTable.isIgnored} = false and ${usersTable.lastUsedAt} > ${oneMonthAgoMs}) as int)`,
+    allInactiveUsers: sql<number>`cast(count(*) filter (where ${usersTable.isIgnored} = false and (${usersTable.lastUsedAt} is null or ${usersTable.lastUsedAt} < ${oneMonthAgoMs})) as int)`,
     allUsedVoices: sql<number>`(
         select cast(coalesce(sum(${voicesTable.usesAmount}), 0) as int)
         from ${voicesTable}
