@@ -181,8 +181,6 @@ async function flushUsageStatsSnapshot(logger?: Logger) {
     const voiceUsesSnapshot = new Map(voiceUses);
     const userUsesSnapshot = new Map(userUses);
     const flushedAt = Date.now();
-    voiceUses.clear();
-    userUses.clear();
 
     logger?.debug({
         msg: "Usage stats flush started",
@@ -238,17 +236,23 @@ async function flushUsageStatsSnapshot(logger?: Logger) {
             }
         });
 
+        // Only subtract the committed snapshot AFTER the transaction succeeds.
+        // Concurrent tracks added to the maps during the await are preserved.
+        // If the process dies between commit and subtract, the next flush will
+        // re-commit and double-count — preferred over silent data loss.
+        subtractVoiceUses(voiceUsesSnapshot);
+        subtractUserUses(userUsesSnapshot);
+
         logger?.debug({
             msg: "Usage stats flush completed",
             voiceUsageRows: voiceUsesSnapshot.size,
             userUsageRows: userUsesSnapshot.size,
+            pendingVoiceUses: voiceUses.size,
+            pendingUserUses: userUses.size,
         });
     } catch (error) {
-        mergeVoiceUses(voiceUsesSnapshot);
-        mergeUserUses(userUsesSnapshot);
-
         logger?.debug({
-            msg: "Usage stats flush failed and pending stats were restored",
+            msg: "Usage stats flush failed; pending stats preserved in memory",
             voiceUsageRows: voiceUsesSnapshot.size,
             userUsageRows: userUsesSnapshot.size,
             pendingVoiceUses: voiceUses.size,
@@ -259,20 +263,37 @@ async function flushUsageStatsSnapshot(logger?: Logger) {
     }
 }
 
-function mergeVoiceUses(usageStats: Map<SelectVoice["voiceId"], number>) {
-    for (const [voiceId, usesAmount] of usageStats) {
-        voiceUses.set(voiceId, (voiceUses.get(voiceId) ?? 0) + usesAmount);
+function subtractVoiceUses(snapshot: Map<SelectVoice["voiceId"], number>) {
+    for (const [voiceId, snapshotAmount] of snapshot) {
+        const current = voiceUses.get(voiceId);
+        if (current === undefined) {
+            continue;
+        }
+        const remaining = current - snapshotAmount;
+        if (remaining <= 0) {
+            voiceUses.delete(voiceId);
+        } else {
+            voiceUses.set(voiceId, remaining);
+        }
     }
 }
 
-function mergeUserUses(usageStats: Map<UserDetails["userId"], UserUsageStats>) {
-    for (const userUsageStats of usageStats.values()) {
-        const existing = userUses.get(userUsageStats.userId);
-
-        userUses.set(userUsageStats.userId, {
-            ...userUsageStats,
-            ...existing,
-            usesAmount: userUsageStats.usesAmount + (existing?.usesAmount ?? 0),
-        });
+function subtractUserUses(
+    snapshot: Map<UserDetails["userId"], UserUsageStats>,
+) {
+    for (const [userId, snapshotStats] of snapshot) {
+        const current = userUses.get(userId);
+        if (current === undefined) {
+            continue;
+        }
+        const remaining = current.usesAmount - snapshotStats.usesAmount;
+        if (remaining <= 0) {
+            userUses.delete(userId);
+        } else {
+            userUses.set(userId, {
+                ...current,
+                usesAmount: remaining,
+            });
+        }
     }
 }
