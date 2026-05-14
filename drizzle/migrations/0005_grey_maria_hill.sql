@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 ALTER TYPE "public"."payment_status" ADD VALUE 'refund_pending' BEFORE 'refunded';--> statement-breakpoint
 CREATE INDEX "payments_user_id_idx" ON "payments" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "users_favorites_table_voice_id_idx" ON "users_favorites_table" USING btree ("voice_id");--> statement-breakpoint
