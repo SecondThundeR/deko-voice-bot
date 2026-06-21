@@ -85,9 +85,7 @@ try {
     } else if (config.isPollingMode) {
         await startPolling(config);
     } else {
-        throw new Error(
-            "Bot config matches neither webhook nor polling mode",
-        );
+        throw new Error("Bot config matches neither webhook nor polling mode");
     }
 } catch (error) {
     logger.error(error);
