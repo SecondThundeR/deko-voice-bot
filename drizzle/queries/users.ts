@@ -1,13 +1,13 @@
 import { eq } from "drizzle-orm";
 
-import { db } from "../db";
+import { db } from "../db.ts";
 import {
     type InsertUser,
     type SelectUser,
     usersFavoritesTable,
     usersTable,
-} from "../schema";
-import { allowUserUsage, ignoreUserUsage } from "./usage-stats";
+} from "../schema.ts";
+import { allowUserUsage, ignoreUserUsage } from "./usage-stats.ts";
 
 export type OptInStatus = "newUser" | "restored" | "alreadyOptedIn";
 

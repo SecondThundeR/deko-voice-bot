@@ -1,8 +1,8 @@
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { logHandle } from "@/bot/helpers/logging";
-import { createDonateKeyboard } from "@/bot/keyboards/donate";
-import { createStartKeyboard } from "@/bot/keyboards/start";
+import type { Context } from "#root/bot/context.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
+import { createDonateKeyboard } from "#root/bot/keyboards/donate.js";
+import { createStartKeyboard } from "#root/bot/keyboards/start.js";
 
 const composer = new Composer<Context>();
 

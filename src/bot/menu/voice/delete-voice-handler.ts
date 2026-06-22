@@ -1,6 +1,6 @@
-import { deleteVoiceByIdQuery } from "drizzle/prepared/voices";
-import type { MenuContext } from "@/bot/context";
-import { closeMenuHandler } from "./close-menu-handler";
+import { deleteVoiceByIdQuery } from "#drizzle/prepared/voices.js";
+import type { MenuContext } from "#root/bot/context.js";
+import { closeMenuHandler } from "./close-menu-handler.ts";
 
 export async function deleteVoiceHandler(ctx: MenuContext) {
     if (!ctx.session.currentVoice) {

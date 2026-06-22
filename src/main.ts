@@ -3,13 +3,13 @@ import {
     loadIgnoredUsers,
     startUsageStatsFlushInterval,
     stopUsageStatsFlushInterval,
-} from "drizzle/queries/usage-stats";
+} from "#drizzle/queries/usage-stats.js";
 
-import { createBot } from "./bot";
-import { config, type PollingConfig, type WebhookConfig } from "./config";
-import { createLifecycle } from "./lifecycle";
-import { logger } from "./logger";
-import { createServer, createServerManager } from "./server";
+import { createBot } from "./bot/index.ts";
+import { config, type PollingConfig, type WebhookConfig } from "./config.ts";
+import { createLifecycle } from "./lifecycle.ts";
+import { logger } from "./logger.ts";
+import { createServer, createServerManager } from "./server/index.ts";
 
 const lifecycle = createLifecycle(logger);
 
@@ -62,7 +62,7 @@ async function startWebhook(config: WebhookConfig) {
     await bot.init();
     await setupUsageStats();
 
-    const info = serverManager.start();
+    const info = await serverManager.start();
     lifecycle.onShutdown(() => serverManager.stop());
     logger.info({
         msg: "Server started",

@@ -1,6 +1,6 @@
 import type { MenuRange } from "@grammyjs/menu";
 
-import type { Context } from "@/bot/context";
+import type { Context } from "#root/bot/context.js";
 
 type GenericListHandlerData<T> = {
     menuElements: T[] | null | undefined;

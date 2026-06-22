@@ -1,7 +1,7 @@
 import { type Conversation, createConversation } from "@grammyjs/conversations";
-import { updateVoiceTitle } from "drizzle/queries/update";
-import type { Context, ConversationContext } from "@/bot/context";
-import { getVoiceTitleTextSubconversation } from "./subconversations/get-voice-title-text";
+import { updateVoiceTitle } from "#drizzle/queries/update.js";
+import type { Context, ConversationContext } from "#root/bot/context.js";
+import { getVoiceTitleTextSubconversation } from "./subconversations/get-voice-title-text.ts";
 
 export const UPDATE_VOICE_TITLE_CONVERSATION = "voice-title-update";
 

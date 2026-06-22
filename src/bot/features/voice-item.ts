@@ -1,10 +1,10 @@
-import { getVoiceByUniqueIdQuery } from "drizzle/prepared/voices";
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { isAdmin } from "@/bot/filter/is-admin";
-import { convertVoiceDataToQueriesArray } from "@/bot/helpers/inline-query";
-import { logHandle } from "@/bot/helpers/logging";
-import { voiceMenu } from "@/bot/menu/voice";
+import { getVoiceByUniqueIdQuery } from "#drizzle/prepared/voices.js";
+import type { Context } from "#root/bot/context.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
+import { convertVoiceDataToQueriesArray } from "#root/bot/helpers/inline-query.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
+import { voiceMenu } from "#root/bot/menu/voice.js";
 
 const composer = new Composer<Context>();
 

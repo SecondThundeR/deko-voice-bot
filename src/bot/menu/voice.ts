@@ -1,14 +1,14 @@
 import { Menu } from "@grammyjs/menu";
 
-import type { Context } from "@/bot/context";
-import { closeMenuHandler } from "./voice/close-menu-handler";
-import { deleteVoiceHandler } from "./voice/delete-voice-handler";
-import { fingerprintHandler } from "./voices-submenu/fingerprint-handler";
-import { infoButtonHandler } from "./voices-submenu/info-button-handler";
-import { outdatedHandler } from "./voices-submenu/outdated-handler";
-import { updateIDHandler } from "./voices-submenu/update-id-handler";
-import { updateTitleHandler } from "./voices-submenu/update-title-handler";
-import { updateVoiceDataHandler } from "./voices-submenu/update-voice-data-handler";
+import type { Context } from "#root/bot/context.js";
+import { closeMenuHandler } from "./voice/close-menu-handler.ts";
+import { deleteVoiceHandler } from "./voice/delete-voice-handler.ts";
+import { fingerprintHandler } from "./voices-submenu/fingerprint-handler.ts";
+import { infoButtonHandler } from "./voices-submenu/info-button-handler.ts";
+import { outdatedHandler } from "./voices-submenu/outdated-handler.ts";
+import { updateIDHandler } from "./voices-submenu/update-id-handler.ts";
+import { updateTitleHandler } from "./voices-submenu/update-title-handler.ts";
+import { updateVoiceDataHandler } from "./voices-submenu/update-voice-data-handler.ts";
 
 export const voiceMenu = new Menu<Context>("voice-menu", {
     autoAnswer: false,

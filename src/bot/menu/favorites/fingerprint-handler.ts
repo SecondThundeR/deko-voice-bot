@@ -1,5 +1,5 @@
-import type { Context } from "@/bot/context";
-import { getFavoritesMenuIdentificator } from "@/bot/helpers/menu";
+import type { Context } from "#root/bot/context.js";
+import { getFavoritesMenuIdentificator } from "#root/bot/helpers/menu.js";
 
 export const fingerprintHandler = (ctx: Context) =>
     getFavoritesMenuIdentificator(ctx);

@@ -1,5 +1,5 @@
 import { InlineKeyboard } from "grammy";
-import type { Context } from "@/bot/context";
+import type { Context } from "#root/bot/context.js";
 
 export function createSelectVoiceKeyboard(ctx: Context) {
     return InlineKeyboard.from([

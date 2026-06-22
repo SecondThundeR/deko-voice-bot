@@ -5,17 +5,26 @@
     "private": true,
     "module": "src/main.ts",
     "license": "MIT",
+    "packageManager": "pnpm@10.33.2",
     "engines": {
-        "bun": ">=1.3.14"
+        "node": ">=22.0.0"
+    },
+    "imports": {
+        "#root/*.js": "./src/*.ts",
+        "#root/*": "./src/*.ts",
+        "#drizzle/*.js": "./drizzle/*.ts",
+        "#drizzle/*": "./drizzle/*.ts"
     },
     "scripts": {
-        "dev": "NODE_ENV=development bun run --watch ./src/main.ts",
-        "start": "NODE_ENV=production bun run ./src/main.ts",
+        "dev": "NODE_ENV=development node --watch ./src/main.ts",
+        "build": "tsdown",
+        "start": "NODE_ENV=production node ./dist/main.mjs",
+        "typecheck": "tsc",
         "lint": "biome check",
         "lint:write": "biome check --write",
         "format": "biome format --write .",
         "db:generate": "drizzle-kit generate",
-        "db:migrate": "bun run drizzle/migrate.ts"
+        "db:migrate": "node ./drizzle/migrate.ts"
     },
     "dependencies": {
         "@grammyjs/auto-chat-action": "0.1.1",
@@ -26,6 +35,7 @@
         "@grammyjs/menu": "1.3.1",
         "@grammyjs/parse-mode": "1.11.1",
         "@grammyjs/runner": "2.0.3",
+        "@hono/node-server": "2.0.5",
         "callback-data": "1.1.1",
         "drizzle-orm": "0.45.2",
         "grammy": "1.44.0",
@@ -37,8 +47,9 @@
     },
     "devDependencies": {
         "@biomejs/biome": "2.5.0",
-        "@types/bun": "1.3.14",
+        "@types/node": "26.0.0",
         "drizzle-kit": "0.31.10",
+        "tsdown": "0.22.3",
         "typescript": "6.0.3"
     }
 }

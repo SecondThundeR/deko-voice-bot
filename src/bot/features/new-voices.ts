@@ -1,9 +1,9 @@
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { NEW_VOICES_CONVERSATION } from "@/bot/conversations/new-voices";
-import { isAdmin } from "@/bot/filter/is-admin";
-import { getFFMPEGStatus } from "@/bot/helpers/general";
-import { logHandle } from "@/bot/helpers/logging";
+import type { Context } from "#root/bot/context.js";
+import { NEW_VOICES_CONVERSATION } from "#root/bot/conversations/new-voices.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
+import { getFFMPEGStatus } from "#root/bot/helpers/general.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
 
 const composer = new Composer<Context>();
 

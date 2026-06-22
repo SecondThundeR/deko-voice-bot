@@ -1,5 +1,9 @@
-import type { FullStats, FullUsersStats, FullVoicesStats } from "drizzle/types";
-import { convertLastUsedAtTimestamp } from "./time";
+import type {
+    FullStats,
+    FullUsersStats,
+    FullVoicesStats,
+} from "#drizzle/types.js";
+import { convertLastUsedAtTimestamp } from "./time.ts";
 
 function formatUserStatsLine({
     username,

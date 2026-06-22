@@ -1,7 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 
-import { db } from "../db";
-import { usersFavoritesTable } from "../schema";
+import { db } from "../db.ts";
+import { usersFavoritesTable } from "../schema.ts";
 
 export const getUserFavoritesQuery = db
     .select({

@@ -1,6 +1,6 @@
-import type { MenuContext } from "@/bot/context";
-import { UPDATE_VOICE_TITLE_CONVERSATION } from "@/bot/conversations/update-voice-title";
-import { genericCloseHandler } from "../generic/generic-close-handler";
+import type { MenuContext } from "#root/bot/context.js";
+import { UPDATE_VOICE_TITLE_CONVERSATION } from "#root/bot/conversations/update-voice-title.js";
+import { genericCloseHandler } from "../generic/generic-close-handler.ts";
 
 export async function updateTitleHandler(ctx: MenuContext) {
     await genericCloseHandler(ctx);

@@ -1,8 +1,8 @@
 import type { MenuRange } from "@grammyjs/menu";
-import type { Context, MenuContext } from "@/bot/context";
-import { getFavoritesMenuPage } from "@/bot/helpers/menu";
-import { genericListHandler } from "../generic/generic-list-handler";
-import { favoriteItemHandler } from "./favorite-item-handler";
+import type { Context, MenuContext } from "#root/bot/context.js";
+import { getFavoritesMenuPage } from "#root/bot/helpers/menu.js";
+import { genericListHandler } from "../generic/generic-list-handler.ts";
+import { favoriteItemHandler } from "./favorite-item-handler.ts";
 
 export async function dynamicListHandler(
     ctx: Context,

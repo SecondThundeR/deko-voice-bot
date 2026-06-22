@@ -2,18 +2,18 @@ import { spawn } from "node:child_process";
 import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { isAdmin } from "@/bot/filter/is-admin";
-import { downloadTelegramFileToPath } from "@/bot/helpers/api";
+import type { Context } from "#root/bot/context.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
+import { downloadTelegramFileToPath } from "#root/bot/helpers/api.js";
 import {
     createDumpTempFilePath,
     readTextWithLimit,
-} from "@/bot/helpers/general";
-import { logHandle } from "@/bot/helpers/logging";
+} from "#root/bot/helpers/general.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
 import {
     isMaintenanceActive,
     setMaintenanceStatus,
-} from "@/bot/store/maintenance";
+} from "#root/bot/store/maintenance.js";
 
 export const composer = new Composer<Context>();
 

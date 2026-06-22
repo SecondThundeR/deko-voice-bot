@@ -1,8 +1,8 @@
 import { and, desc, eq, sql } from "drizzle-orm";
-import { db } from "../db";
-import { getFeatureFlagQuery } from "../prepared/feature-flags";
-import { getUserIgnoreStatusQuery } from "../prepared/users";
-import { getUserFavoritesQuery } from "../prepared/users-favorites";
+import { db } from "../db.ts";
+import { getFeatureFlagQuery } from "../prepared/feature-flags.ts";
+import { getUserIgnoreStatusQuery } from "../prepared/users.ts";
+import { getUserFavoritesQuery } from "../prepared/users-favorites.ts";
 import {
     type SelectFeatureFlag,
     type SelectUser,
@@ -10,7 +10,7 @@ import {
     type SelectVoice,
     usersFavoritesTable,
     voicesTable,
-} from "../schema";
+} from "../schema.ts";
 
 const VOICE_TITLE_SIMILARITY_THRESHOLD = 0.2;
 

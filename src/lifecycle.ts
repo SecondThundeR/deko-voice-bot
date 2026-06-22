@@ -1,6 +1,6 @@
 import process from "node:process";
 
-import type { Logger } from "./logger";
+import type { Logger } from "./logger.ts";
 
 type ShutdownHook = () => Promise<void> | void;
 

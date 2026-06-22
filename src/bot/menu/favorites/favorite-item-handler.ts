@@ -1,7 +1,7 @@
-import { deleteUserFavoriteQuery } from "drizzle/prepared/users-favorites";
-import { addUserFavorite } from "drizzle/queries/insert";
-import type { MenuContext } from "@/bot/context";
-import type { FavoriteItem } from "@/bot/types/favorite-item";
+import { deleteUserFavoriteQuery } from "#drizzle/prepared/users-favorites.js";
+import { addUserFavorite } from "#drizzle/queries/insert.js";
+import type { MenuContext } from "#root/bot/context.js";
+import type { FavoriteItem } from "#root/bot/types/favorite-item.js";
 
 export async function favoriteItemHandler(
     ctx: MenuContext,

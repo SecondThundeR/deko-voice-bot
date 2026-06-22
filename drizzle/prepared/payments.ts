@@ -1,7 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 
-import { db } from "../db";
-import { paymentsTable } from "../schema";
+import { db } from "../db.ts";
+import { paymentsTable } from "../schema.ts";
 
 export const getPaymentByChargeIdQuery = db
     .select()

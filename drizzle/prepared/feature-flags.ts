@@ -1,7 +1,7 @@
 import { eq, not, sql } from "drizzle-orm";
 
-import { db } from "../db";
-import { featureFlagsTable } from "../schema";
+import { db } from "../db.ts";
+import { featureFlagsTable } from "../schema.ts";
 
 export const getFeatureFlagQuery = db
     .select({

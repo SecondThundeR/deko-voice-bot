@@ -1,8 +1,8 @@
 import { sql } from "drizzle-orm";
 
-import { db } from "../db";
-import { usersTable, voicesTable } from "../schema";
-import type { FullUsersStats, FullVoicesStats } from "../types";
+import { db } from "../db.ts";
+import { usersTable, voicesTable } from "../schema.ts";
+import type { FullUsersStats, FullVoicesStats } from "../types.ts";
 
 const oneMonthAgoMs = sql`(extract(epoch from (now() - interval '1 month')) * 1000)::bigint`;
 
