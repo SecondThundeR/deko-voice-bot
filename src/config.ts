@@ -126,6 +126,12 @@ function createConfigFromEnvironment() {
     }
 
     try {
+        process.loadEnvFile();
+    } catch {
+        // No .env file found
+    }
+
+    try {
         // @ts-expect-error create config from environment variables
         return createConfig(convertKeysToCamelCase(process.env));
     } catch (error) {

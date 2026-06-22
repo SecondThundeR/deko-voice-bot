@@ -1,12 +1,12 @@
 import { Menu } from "@grammyjs/menu";
 
-import type { Context } from "@/bot/context";
-import { closeMenuHandler } from "./favorites/close-menu-handler";
-import { dynamicListHandler } from "./favorites/dynamic-list-handler";
-import { fingerprintHandler } from "./favorites/fingerprint-handler";
-import { nextPageHandler } from "./favorites/next-page-handler";
-import { outdatedHandler } from "./favorites/outdated-handler";
-import { prevPageHandler } from "./favorites/prev-page-handler";
+import type { Context } from "#root/bot/context.js";
+import { closeMenuHandler } from "./favorites/close-menu-handler.ts";
+import { dynamicListHandler } from "./favorites/dynamic-list-handler.ts";
+import { fingerprintHandler } from "./favorites/fingerprint-handler.ts";
+import { nextPageHandler } from "./favorites/next-page-handler.ts";
+import { outdatedHandler } from "./favorites/outdated-handler.ts";
+import { prevPageHandler } from "./favorites/prev-page-handler.ts";
 
 export const favoritesMenu = new Menu<Context>("fav-menu", {
     autoAnswer: false,

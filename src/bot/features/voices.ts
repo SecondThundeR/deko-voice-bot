@@ -1,9 +1,9 @@
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { isAdmin } from "@/bot/filter/is-admin";
-import { logHandle } from "@/bot/helpers/logging";
-import { prepareVoicesSessionMenu } from "@/bot/helpers/menu";
-import { voicesMenu } from "@/bot/menu/voices";
+import type { Context } from "#root/bot/context.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
+import { prepareVoicesSessionMenu } from "#root/bot/helpers/menu.js";
+import { voicesMenu } from "#root/bot/menu/voices.js";
 
 const composer = new Composer<Context>();
 

@@ -1,10 +1,13 @@
-import { trackUserUsage, trackVoiceUsage } from "drizzle/queries/usage-stats";
 import { Composer, GrammyError } from "grammy";
-import { MAX_QUERY_ELEMENTS_PER_PAGE } from "@/bot/constants/inline";
-import type { Context } from "@/bot/context";
-import { logHandle } from "@/bot/helpers/logging";
-import { extractUserDetails } from "@/bot/helpers/user";
-import { getVoiceQueriesPage } from "@/bot/helpers/voices";
+import {
+    trackUserUsage,
+    trackVoiceUsage,
+} from "#drizzle/queries/usage-stats.js";
+import { MAX_QUERY_ELEMENTS_PER_PAGE } from "#root/bot/constants/inline.js";
+import type { Context } from "#root/bot/context.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
+import { extractUserDetails } from "#root/bot/helpers/user.js";
+import { getVoiceQueriesPage } from "#root/bot/helpers/voices.js";
 
 const composer = new Composer<Context>();
 const MAX_INLINE_QUERY_OFFSET = 1000;

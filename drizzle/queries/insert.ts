@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { db } from "../db";
+import { db } from "../db.ts";
 import {
     type InsertUser,
     type InsertUserFavorites,
@@ -8,7 +8,7 @@ import {
     usersFavoritesTable,
     usersTable,
     voicesTable,
-} from "../schema";
+} from "../schema.ts";
 
 export async function addRegularVoice(data: Omit<InsertVoice, "usesAmount">) {
     const insertedData = await db

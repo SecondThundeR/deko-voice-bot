@@ -1,13 +1,13 @@
+import { Composer } from "grammy";
 import {
     claimPaymentForRefundQuery,
     getPaymentByChargeIdQuery,
     markPaymentAsRefundedQuery,
     releasePaymentRefundClaimQuery,
-} from "drizzle/prepared/payments";
-import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { isAdmin } from "@/bot/filter/is-admin";
-import { getUpdateInfo, logHandle } from "@/bot/helpers/logging";
+} from "#drizzle/prepared/payments.js";
+import type { Context } from "#root/bot/context.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
+import { getUpdateInfo, logHandle } from "#root/bot/helpers/logging.js";
 
 const composer = new Composer<Context>();
 

@@ -1,8 +1,8 @@
-import { optOutUser } from "drizzle/queries/users";
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { logHandle } from "@/bot/helpers/logging";
-import { getFormattedUserData } from "@/bot/helpers/user";
+import { optOutUser } from "#drizzle/queries/users.js";
+import type { Context } from "#root/bot/context.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
+import { getFormattedUserData } from "#root/bot/helpers/user.js";
 
 const composer = new Composer<Context>();
 

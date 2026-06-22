@@ -1,11 +1,11 @@
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { NEW_VOICES_CONVERSATION } from "@/bot/conversations/new-voices";
-import { UPDATE_VOICE_FILE_CONVERSATION } from "@/bot/conversations/update-voice-file";
-import { UPDATE_VOICE_ID_CONVERSATION } from "@/bot/conversations/update-voice-id";
-import { UPDATE_VOICE_TITLE_CONVERSATION } from "@/bot/conversations/update-voice-title";
-import { isEmpty } from "@/bot/helpers/general";
-import { logHandle } from "@/bot/helpers/logging";
+import type { Context } from "#root/bot/context.js";
+import { NEW_VOICES_CONVERSATION } from "#root/bot/conversations/new-voices.js";
+import { UPDATE_VOICE_FILE_CONVERSATION } from "#root/bot/conversations/update-voice-file.js";
+import { UPDATE_VOICE_ID_CONVERSATION } from "#root/bot/conversations/update-voice-id.js";
+import { UPDATE_VOICE_TITLE_CONVERSATION } from "#root/bot/conversations/update-voice-title.js";
+import { isEmpty } from "#root/bot/helpers/general.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
 
 const UPDATE_CONVERSATIONS = [
     UPDATE_VOICE_FILE_CONVERSATION,

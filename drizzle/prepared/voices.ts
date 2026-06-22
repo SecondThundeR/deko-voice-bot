@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 
-import { db } from "../db";
-import { type SelectVoice, voicesTable } from "../schema";
+import { db } from "../db.ts";
+import { type SelectVoice, voicesTable } from "../schema.ts";
 
 export const getVoiceByUniqueIdQuery = db
     .select()

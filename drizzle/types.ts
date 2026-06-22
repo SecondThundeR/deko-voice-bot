@@ -1,4 +1,4 @@
-import type { SelectUser, SelectVoice } from "./schema";
+import type { SelectUser, SelectVoice } from "./schema.ts";
 
 export type BasicUsersStats = {
     allUsedUsers: number;

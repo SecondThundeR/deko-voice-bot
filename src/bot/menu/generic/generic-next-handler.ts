@@ -1,4 +1,4 @@
-import type { MenuContext } from "@/bot/context";
+import type { MenuContext } from "#root/bot/context.js";
 
 type NextHandlerData = {
     currentOffset: number;

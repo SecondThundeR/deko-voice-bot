@@ -1,4 +1,4 @@
-import type { CallbackWithContext, MenuContext } from "@/bot/context";
+import type { CallbackWithContext, MenuContext } from "#root/bot/context.js";
 
 export async function genericBackHandler(
     ctx: MenuContext,

@@ -9,7 +9,7 @@ import {
     USERNAME_LENGTH,
     VOICE_ID_LENGTH,
     VOICE_TITLE_LENGTH,
-} from "./constraints";
+} from "./constraints.ts";
 
 export const featureFlagsTable = pgTable("feature_flags", (t) => ({
     name: t.varchar({ length: FEATURE_FLAG_NAME_LENGTH }).primaryKey(),

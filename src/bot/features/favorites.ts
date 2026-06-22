@@ -1,9 +1,9 @@
-import { getUserIsIgnoredStatus } from "drizzle/queries/select";
 import { Composer } from "grammy";
-import type { Context } from "@/bot/context";
-import { logHandle } from "@/bot/helpers/logging";
-import { prepareFavoritesSessionMenu } from "@/bot/helpers/menu";
-import { favoritesMenu } from "@/bot/menu/favorites";
+import { getUserIsIgnoredStatus } from "#drizzle/queries/select.js";
+import type { Context } from "#root/bot/context.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
+import { prepareFavoritesSessionMenu } from "#root/bot/helpers/menu.js";
+import { favoritesMenu } from "#root/bot/menu/favorites.js";
 
 const composer = new Composer<Context>();
 

@@ -1,16 +1,17 @@
+import { serve } from "@hono/node-server";
 import { webhookCallback } from "grammy";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { getPath } from "hono/utils/url";
 
-import type { Bot } from "@/bot";
-import type { Config } from "@/config";
-import type { Logger } from "@/logger";
+import type { Bot } from "#root/bot/index.js";
+import type { Config } from "#root/config.js";
+import type { Logger } from "#root/logger.js";
 
-import type { Env } from "./environment";
-import { setLogger } from "./middlewares/logger";
-import { requestId } from "./middlewares/request-id";
-import { requestLogger } from "./middlewares/request-logger";
+import type { Env } from "./environment.ts";
+import { setLogger } from "./middlewares/logger.ts";
+import { requestId } from "./middlewares/request-id.ts";
+import { requestLogger } from "./middlewares/request-logger.ts";
 
 interface Dependencies {
     bot: Bot;
@@ -74,20 +75,31 @@ export function createServerManager(
     server: Server,
     options: { host: string; port: number },
 ) {
-    let handle: undefined | ReturnType<typeof Bun.serve>;
+    let handle: undefined | ReturnType<typeof serve>;
     return {
         start() {
-            handle = Bun.serve({
-                fetch: server.fetch,
-                hostname: options.host,
-                port: options.port,
+            return new Promise<{ url: string }>((resolve) => {
+                handle = serve(
+                    {
+                        fetch: server.fetch,
+                        hostname: options.host,
+                        port: options.port,
+                    },
+                    (info) =>
+                        resolve({
+                            url:
+                                info.family === "IPv6"
+                                    ? `http://[${info.address}]:${info.port}`
+                                    : `http://${info.address}:${info.port}`,
+                        }),
+                );
             });
-            return {
-                url: handle.url,
-            };
         },
         stop() {
-            return handle?.stop();
+            return new Promise<void>((resolve) => {
+                if (handle) handle.close(() => resolve());
+                else resolve();
+            });
         },
     };
 }

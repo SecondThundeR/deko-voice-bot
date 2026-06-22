@@ -1,5 +1,5 @@
 import type { Conversation } from "@grammyjs/conversations";
-import type { Context, ConversationContext } from "@/bot/context";
+import type { Context, ConversationContext } from "#root/bot/context.js";
 
 export async function getVoiceTitleTextSubconversation(
     conversation: Conversation<Context, ConversationContext>,

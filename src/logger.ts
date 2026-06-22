@@ -1,6 +1,6 @@
 import { pino } from "pino";
 
-import { config } from "./config";
+import { config } from "./config.ts";
 
 export const logger = pino({
     level: config.logLevel,

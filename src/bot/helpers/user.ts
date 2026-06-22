@@ -1,7 +1,7 @@
-import type { SelectUser } from "drizzle/schema";
 import type { User } from "grammy/types";
+import type { SelectUser } from "#drizzle/schema.js";
 
-import { convertLastUsedAtTimestamp } from "./time";
+import { convertLastUsedAtTimestamp } from "./time.ts";
 
 export function getFormattedUserData({
     userId,

@@ -1,13 +1,13 @@
-import { getFeatureFlag } from "drizzle/queries/select";
 import type { Middleware } from "grammy";
-import { MAINTENANCE_FEATURE_FLAG } from "@/bot/constants/feature-flags";
-import type { Context } from "@/bot/context";
-import { isAdmin } from "@/bot/filter/is-admin";
+import { getFeatureFlag } from "#drizzle/queries/select.js";
+import { MAINTENANCE_FEATURE_FLAG } from "#root/bot/constants/feature-flags.js";
+import type { Context } from "#root/bot/context.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
 import {
     getCachedMaintenanceFeatureFlag,
     isMaintenanceActive,
     setCachedMaintenanceFeatureFlag,
-} from "@/bot/store/maintenance";
+} from "#root/bot/store/maintenance.js";
 
 export function maintenanceGatekeep(): Middleware<Context> {
     return async (ctx, next) => {

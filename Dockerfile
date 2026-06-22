@@ -1,5 +1,8 @@
-FROM oven/bun:1.3.14-slim AS base
+FROM node:22-slim AS base
 WORKDIR /usr/src/app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -16,27 +19,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get install -y --no-install-recommends postgresql-client-18 \
     && rm -rf /var/lib/apt/lists/*
 
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json bun.lock /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
-
-RUN mkdir -p /temp/prod
-COPY package.json bun.lock /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
-
-FROM base AS prerelease
-COPY --from=install /temp/dev/node_modules node_modules
+FROM base AS build
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY . .
+RUN pnpm build
+
+FROM base AS prod-deps
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 FROM base AS release
-COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=prerelease /usr/src/app/drizzle drizzle
-COPY --from=prerelease /usr/src/app/locales locales
-COPY --from=prerelease /usr/src/app/src src
-COPY --from=prerelease /usr/src/app/package.json .
-COPY --from=prerelease /usr/src/app/tsconfig.json .
+COPY --from=prod-deps /usr/src/app/node_modules node_modules
+COPY --from=build /usr/src/app/dist dist
+COPY --from=build /usr/src/app/drizzle drizzle
+COPY --from=build /usr/src/app/locales locales
+COPY --from=build /usr/src/app/package.json .
 
-RUN chown -R bun:bun /usr/src/app
-USER bun
-ENTRYPOINT ["bun", "start"]
+RUN chown -R node:node /usr/src/app
+USER node
+ENTRYPOINT ["node", "./dist/main.mjs"]

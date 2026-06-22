@@ -1,7 +1,7 @@
 import type { MenuRange } from "@grammyjs/menu";
-import type { Context } from "@/bot/context";
-import { getVoicesMenuPage } from "@/bot/helpers/menu";
-import { genericListHandler } from "../generic/generic-list-handler";
+import type { Context } from "#root/bot/context.js";
+import { getVoicesMenuPage } from "#root/bot/helpers/menu.js";
+import { genericListHandler } from "../generic/generic-list-handler.ts";
 
 export async function dynamicListHandler(
     ctx: Context,

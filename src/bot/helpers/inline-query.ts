@@ -1,4 +1,4 @@
-import type { SelectVoice } from "drizzle/schema";
+import type { SelectVoice } from "#drizzle/schema.js";
 
 const voiceDataToQueriesMapper = ({
     voiceId: id,

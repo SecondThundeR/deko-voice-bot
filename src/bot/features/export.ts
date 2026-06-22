@@ -2,17 +2,17 @@ import { spawn } from "node:child_process";
 import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
-import type { Context } from "@/bot/context";
-import { isAdmin } from "@/bot/filter/is-admin";
+import type { Context } from "#root/bot/context.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
 import {
     createDumpTempFilePath,
     readTextWithLimit,
-} from "@/bot/helpers/general";
-import { getUpdateInfo, logHandle } from "@/bot/helpers/logging";
+} from "#root/bot/helpers/general.js";
+import { getUpdateInfo, logHandle } from "#root/bot/helpers/logging.js";
 import {
     isMaintenanceActive,
     setMaintenanceStatus,
-} from "@/bot/store/maintenance";
+} from "#root/bot/store/maintenance.js";
 
 const composer = new Composer<Context>();
 

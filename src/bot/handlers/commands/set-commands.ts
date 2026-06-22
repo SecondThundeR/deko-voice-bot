@@ -1,6 +1,6 @@
 import { Command, CommandGroup } from "@grammyjs/commands";
 import type { CommandContext } from "grammy";
-import type { Context } from "@/bot/context";
+import type { Context } from "#root/bot/context.js";
 
 const USER_COMMANDS = [
     "start",

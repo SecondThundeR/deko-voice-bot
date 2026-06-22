@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { toggleFeatureFlagQuery } from "../prepared/feature-flags";
+import { db } from "../db.ts";
+import { toggleFeatureFlagQuery } from "../prepared/feature-flags.ts";
 import {
     type InsertFeatureFlag,
     type InsertVoice,
     voicesTable,
-} from "../schema";
+} from "../schema.ts";
 
 export async function toggleFeatureFlag(name: InsertFeatureFlag["name"]) {
     const [updatedFeatureFlag] = await toggleFeatureFlagQuery.execute({ name });

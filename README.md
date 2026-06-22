@@ -9,7 +9,7 @@
 
 ## Используемые технологии
 
-- Бот построен на [Bun](https://bun.sh/) с использованием [TypeScript](https://www.typescriptlang.org/)
+- Бот построен на [Node.js](https://nodejs.org/) с использованием [TypeScript](https://www.typescriptlang.org/)
 - В качестве библиотеки для взаимодействия с Telegram Bot API используется [grammY](https://github.com/grammyjs/grammY/)
 - Бот и база данных работают на хостинге [Railway](https://railway.app/). Данные управляются с помощью [Drizzle ORM](https://orm.drizzle.team/)
 - Строки сообщений и другого текста бота находятся в [Fluent](https://projectfluent.org/) формате и обрабатываются с помощью плагина [@grammyjs/i18n](https://grammy.dev/plugins/i18n/)

@@ -1,7 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 
-import { db } from "../db";
-import { usersTable } from "../schema";
+import { db } from "../db.ts";
+import { usersTable } from "../schema.ts";
 
 export const getUserDataQuery = db
     .select({

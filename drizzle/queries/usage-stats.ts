@@ -1,14 +1,14 @@
 import { eq, sql } from "drizzle-orm";
 
-import type { Logger } from "@/logger";
+import type { Logger } from "#root/logger.js";
 
-import { db } from "../db";
+import { db } from "../db.ts";
 import {
     type InsertUser,
     type SelectVoice,
     usersTable,
     voicesTable,
-} from "../schema";
+} from "../schema.ts";
 
 const FLUSH_INTERVAL_MS = 60 * 1000;
 
