@@ -1,16 +1,8 @@
 node_modules
 dist
 .git
-.github
-*.log
-.env
-.env.*
-!.env.example
 .DS_Store
-coverage
 .vscode
-.idea
 Dockerfile
 .dockerignore
 README.md
-CLAUDE.md
