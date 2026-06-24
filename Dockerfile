@@ -7,7 +7,6 @@ RUN corepack enable
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
-    ffmpeg \
     gnupg \
     && mkdir -p /usr/share/keyrings \
     && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
@@ -30,12 +29,12 @@ COPY package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 FROM base AS release
-COPY --from=prod-deps /usr/src/app/node_modules node_modules
-COPY --from=build /usr/src/app/dist dist
-COPY --from=build /usr/src/app/drizzle drizzle
-COPY --from=build /usr/src/app/locales locales
-COPY --from=build /usr/src/app/package.json .
+COPY --from=mwader/static-ffmpeg:8.1.2 /ffmpeg /ffprobe /usr/local/bin/
+COPY --from=prod-deps --chown=node:node /usr/src/app/node_modules node_modules
+COPY --from=build --chown=node:node /usr/src/app/dist dist
+COPY --from=build --chown=node:node /usr/src/app/drizzle drizzle
+COPY --from=build --chown=node:node /usr/src/app/locales locales
+COPY --from=build --chown=node:node /usr/src/app/package.json .
 
-RUN chown -R node:node /usr/src/app
 USER node
 ENTRYPOINT ["node", "./dist/main.mjs"]
