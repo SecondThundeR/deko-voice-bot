@@ -36,6 +36,8 @@ COPY --from=build --chown=node:node /usr/src/app/dist dist
 COPY --from=build --chown=node:node /usr/src/app/drizzle drizzle
 COPY --from=build --chown=node:node /usr/src/app/locales locales
 COPY --from=build --chown=node:node /usr/src/app/package.json .
+COPY --chown=node:node pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN chown node:node /usr/src/app
 
 USER node
 ENTRYPOINT ["node", "./dist/main.mjs"]
