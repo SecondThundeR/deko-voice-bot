@@ -1,8 +1,11 @@
 FROM node:22-slim AS base
 WORKDIR /usr/src/app
 ENV PNPM_HOME="/pnpm"
+ENV COREPACK_HOME="/pnpm/corepack"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+COPY package.json ./
+RUN corepack prepare --activate && chmod -R a+rX "$COREPACK_HOME"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
