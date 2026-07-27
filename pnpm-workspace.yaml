@@ -3,3 +3,5 @@ allowBuilds:
 overrides:
   esbuild@<=0.24.2: ^0.28.1
 confirmModulesPurge: false
+minimumReleaseAgeExclude:
+  - '@types/node@26.1.2'

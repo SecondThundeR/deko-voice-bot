@@ -1,4 +1,4 @@
-FROM node:22.23.1-slim AS base
+FROM node:24.18.0-slim AS base
 WORKDIR /usr/src/app
 ENV PNPM_HOME="/pnpm"
 ENV COREPACK_HOME="/pnpm/corepack"
