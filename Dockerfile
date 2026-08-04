@@ -1,4 +1,4 @@
-FROM node:24.18.0-slim AS base
+FROM node:24.18.1-slim AS base
 WORKDIR /usr/src/app
 ENV PNPM_HOME="/pnpm"
 ENV COREPACK_HOME="/pnpm/corepack"
@@ -13,10 +13,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     && mkdir -p /usr/share/keyrings \
     && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
-      | gpg --dearmor -o /usr/share/keyrings/postgres.gpg \
+    | gpg --dearmor -o /usr/share/keyrings/postgres.gpg \
     && . /etc/os-release \
     && echo "deb [signed-by=/usr/share/keyrings/postgres.gpg] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" \
-      > /etc/apt/sources.list.d/pgdg.list \
+    > /etc/apt/sources.list.d/pgdg.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends postgresql-client-18 \
     && apt-get purge -y --auto-remove curl gnupg \
