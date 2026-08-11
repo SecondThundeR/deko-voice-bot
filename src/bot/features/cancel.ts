@@ -4,7 +4,6 @@ import { NEW_VOICES_CONVERSATION } from "#root/bot/conversations/new-voices.js";
 import { UPDATE_VOICE_FILE_CONVERSATION } from "#root/bot/conversations/update-voice-file.js";
 import { UPDATE_VOICE_ID_CONVERSATION } from "#root/bot/conversations/update-voice-id.js";
 import { UPDATE_VOICE_TITLE_CONVERSATION } from "#root/bot/conversations/update-voice-title.js";
-import { isEmpty } from "#root/bot/helpers/general.js";
 import { escapeHTML } from "#root/bot/helpers/html.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { importSessions } from "#root/bot/store/import-sessions.js";
@@ -25,7 +24,7 @@ feature.command("cancel", logHandle("command-cancel"), async (ctx) => {
     }
 
     const activeConversations = ctx.conversation.active();
-    if (isEmpty(activeConversations)) {
+    if (Object.keys(activeConversations).length === 0) {
         return;
     }
 

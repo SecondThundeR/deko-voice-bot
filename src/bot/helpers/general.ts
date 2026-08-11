@@ -105,7 +105,3 @@ export function createVoiceTempFilePaths() {
         output: `${basename}.ogg`,
     };
 }
-
-export function isEmpty(val: unknown) {
-    return val == null || !(Object.keys(val) || val).length;
-}
