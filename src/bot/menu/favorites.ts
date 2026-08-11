@@ -1,20 +1,22 @@
-import { Menu } from "@grammyjs/menu";
-
+import { getVoicesCount } from "#drizzle/queries/voices.js";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "#root/bot/constants/inline.js";
 import type { Context } from "#root/bot/context.js";
-import { closeMenuHandler } from "./favorites/close-menu-handler.ts";
+import { getFavoritesMenuIdentificator } from "#root/bot/helpers/menu.js";
 import { dynamicListHandler } from "./favorites/dynamic-list-handler.ts";
-import { fingerprintHandler } from "./favorites/fingerprint-handler.ts";
-import { nextPageHandler } from "./favorites/next-page-handler.ts";
-import { outdatedHandler } from "./favorites/outdated-handler.ts";
-import { prevPageHandler } from "./favorites/prev-page-handler.ts";
+import { createPaginatedMenu } from "./generic/create-paginated-menu.ts";
 
-export const favoritesMenu = new Menu<Context>("fav-menu", {
-    autoAnswer: false,
-    onMenuOutdated: outdatedHandler,
-    fingerprint: fingerprintHandler,
-})
-    .dynamic(dynamicListHandler)
-    .row()
-    .text((ctx) => ctx.t("menu-previous-button"), prevPageHandler)
-    .text((ctx) => ctx.t("menu-close-button"), closeMenuHandler)
-    .text((ctx) => ctx.t("menu-next-button"), nextPageHandler);
+export const favoritesMenu = createPaginatedMenu({
+    id: "fav-menu",
+    elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
+    fingerprint: getFavoritesMenuIdentificator,
+    getCurrentOffset: (ctx) => ctx.session.currentFavoritesOffset,
+    getTotalElements: getVoicesCount,
+    hasElements: async () => (await getVoicesCount()) > 0,
+    render: dynamicListHandler,
+    reset: (ctx: Context) => {
+        ctx.session.currentFavoritesOffset = 0;
+    },
+    setCurrentOffset: (ctx, offset) => {
+        ctx.session.currentFavoritesOffset = offset;
+    },
+});

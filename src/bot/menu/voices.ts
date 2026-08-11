@@ -1,44 +1,39 @@
-import { Menu } from "@grammyjs/menu";
-import type { Context } from "#root/bot/context.js";
-import { closeMenuHandler } from "./voices/close-menu-handler.ts";
+import { getVoicesCount } from "#drizzle/queries/voices.js";
+import { MAX_MENU_ELEMENTS_PER_PAGE } from "#root/bot/constants/inline.js";
+import type { Context, MenuContext } from "#root/bot/context.js";
+import { getVoicesMenuIdentificator } from "#root/bot/helpers/menu.js";
+import { createPaginatedMenu } from "./generic/create-paginated-menu.ts";
+import { createVoiceActionsMenu } from "./generic/create-voice-actions-menu.ts";
+import { genericBackHandler } from "./generic/generic-back-handler.ts";
 import { dynamicListHandler } from "./voices/dynamic-list-handler.ts";
-import { fingerprintHandler } from "./voices/fingerprint-handler.ts";
-import { nextPageHandler } from "./voices/next-page-handler.ts";
-import { outdatedHandler } from "./voices/outdated-handler.ts";
-import { prevPageHandler } from "./voices/prev-page-handler.ts";
-import { backMenuHandler } from "./voices-submenu/back-menu-handler.ts";
 import { deleteVoiceHandler } from "./voices-submenu/delete-voice-handler.ts";
-import { fingerprintHandler as fingerprintSubmenuHandler } from "./voices-submenu/fingerprint-handler.ts";
-import { infoButtonHandler } from "./voices-submenu/info-button-handler.ts";
-import { outdatedHandler as outdatedSubmenuHandler } from "./voices-submenu/outdated-handler.ts";
-import { updateIDHandler } from "./voices-submenu/update-id-handler.ts";
-import { updateTitleHandler } from "./voices-submenu/update-title-handler.ts";
-import { updateVoiceDataHandler } from "./voices-submenu/update-voice-data-handler.ts";
 
-export const voicesMenu = new Menu<Context>("voices-menu", {
-    autoAnswer: false,
-    onMenuOutdated: outdatedHandler,
-    fingerprint: fingerprintHandler,
-})
-    .dynamic(dynamicListHandler)
-    .row()
-    .text((ctx) => ctx.t("menu-previous-button"), prevPageHandler)
-    .text((ctx) => ctx.t("menu-close-button"), closeMenuHandler)
-    .text((ctx) => ctx.t("menu-next-button"), nextPageHandler);
+export const voicesMenu = createPaginatedMenu({
+    id: "voices-menu",
+    elementsPerPage: MAX_MENU_ELEMENTS_PER_PAGE,
+    fingerprint: getVoicesMenuIdentificator,
+    getCurrentOffset: (ctx) => ctx.session.currentVoicesOffset,
+    getTotalElements: getVoicesCount,
+    hasElements: async () => (await getVoicesCount()) > 0,
+    render: dynamicListHandler,
+    reset: (ctx: Context) => {
+        ctx.session.currentVoicesOffset = 0;
+    },
+    setCurrentOffset: (ctx, offset) => {
+        ctx.session.currentVoicesOffset = offset;
+    },
+});
 
-const voicesSubmenu = new Menu<Context>("voice-submenu", {
-    autoAnswer: false,
-    onMenuOutdated: outdatedSubmenuHandler,
-    fingerprint: fingerprintSubmenuHandler,
-})
-    .text(infoButtonHandler, (ctx) => ctx.callbackQuery.answer())
-    .row()
-    .text((ctx) => ctx.t("voices-update-id-button"), updateIDHandler)
-    .text((ctx) => ctx.t("voices-update-title-button"), updateTitleHandler)
-    .text((ctx) => ctx.t("voices-delete-button"), deleteVoiceHandler)
-    .row()
-    .text((ctx) => ctx.t("voices-update-file-button"), updateVoiceDataHandler)
-    .row()
-    .text((ctx) => ctx.t("menu-back-button"), backMenuHandler);
+const voicesSubmenu = createVoiceActionsMenu({
+    id: "voice-submenu",
+    deleteVoice: deleteVoiceHandler,
+    finalAction: {
+        label: (ctx: Context) => ctx.t("menu-back-button"),
+        handler: (ctx: MenuContext) =>
+            genericBackHandler(ctx, (ctx) => {
+                ctx.session.currentVoice = null;
+            }),
+    },
+});
 
 voicesMenu.register(voicesSubmenu);

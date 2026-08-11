@@ -1,7 +1,7 @@
 import { deleteVoice } from "#drizzle/queries/voices.js";
 import type { MenuContext } from "#root/bot/context.js";
 import { escapeHTML } from "#root/bot/helpers/html.js";
-import { closeMenuHandler } from "./close-menu-handler.ts";
+import { genericCloseHandler } from "../generic/generic-close-handler.ts";
 
 export async function deleteVoiceHandler(ctx: MenuContext) {
     const currentVoice = ctx.session.currentVoice;
@@ -15,7 +15,9 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
         ? "voices-delete-success"
         : "voices-delete-failed";
 
-    await closeMenuHandler(ctx);
+    await genericCloseHandler(ctx, (ctx) => {
+        ctx.session.currentVoice = null;
+    });
     return ctx.reply(
         ctx.t(messageId, {
             voiceTitle: escapeHTML(
