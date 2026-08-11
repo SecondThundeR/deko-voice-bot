@@ -9,9 +9,7 @@ import type { Logger } from "#root/logger.js";
 import { getSafeErrorInfo } from "#root/logging.js";
 
 import type { Env } from "./environment.ts";
-import { setLogger } from "./middlewares/logger.ts";
-import { requestId } from "./middlewares/request-id.ts";
-import { requestLogger } from "./middlewares/request-logger.ts";
+import { requestId, requestLogger, setLogger } from "./middlewares.ts";
 
 interface Dependencies {
     bot: Bot;
