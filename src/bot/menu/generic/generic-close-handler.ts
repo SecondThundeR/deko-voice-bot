@@ -7,7 +7,7 @@ export async function genericCloseHandler(
     onClose?: CallbackWithContext,
 ) {
     try {
-        await ctx.deleteMessage().catch(() => {});
+        await ctx.deleteMessage();
         onClose?.(ctx);
     } catch (error: unknown) {
         ctx.logger.error({
