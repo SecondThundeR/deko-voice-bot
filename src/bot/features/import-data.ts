@@ -167,7 +167,13 @@ feature.callbackQuery(
             });
         }
 
-        await ctx.answerCallbackQuery();
+        await ctx.answerCallbackQuery().catch((error: unknown) => {
+            ctx.logger.warn({
+                msg: "Failed to answer database import callback query",
+                operationId: session.operationId,
+                ...getSafeErrorInfo(error),
+            });
+        });
         if (action === "cancel") {
             await Promise.allSettled([
                 unlink(session.dumpPath),
