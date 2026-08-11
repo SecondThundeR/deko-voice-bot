@@ -1,0 +1,1 @@
+DROP INDEX "voices_title_trgm_idx";
