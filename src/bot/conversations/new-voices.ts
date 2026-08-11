@@ -83,7 +83,7 @@ export function newVoicesConversation() {
                     );
                 }
 
-                return conversation.external((ctx) => {
+                await conversation.external((ctx) => {
                     ctx.session.addedVoices?.push(voiceTitle);
                 });
             }
