@@ -46,7 +46,7 @@ export function getLocalizedUserData(
     return lines.join("\n");
 }
 
-export function getUserFullname(firstName: string, lastName?: string) {
+function getUserFullname(firstName: string, lastName?: string) {
     return !lastName ? firstName : `${firstName} ${lastName}`;
 }
 
