@@ -1,11 +1,17 @@
 import { autoChatAction } from "@grammyjs/auto-chat-action";
-import { type ConversationData, conversations } from "@grammyjs/conversations";
+import {
+    type ConversationData,
+    conversations,
+    type VersionedState,
+} from "@grammyjs/conversations";
 import { hydrate } from "@grammyjs/hydrate";
 import { hydrateReply, parseMode } from "@grammyjs/parse-mode";
 import { sequentialize } from "@grammyjs/runner";
+import { RedisAdapter } from "@grammyjs/storage-redis";
 import { type BotConfig, Bot as TelegramBot } from "grammy";
 import type { Config } from "#root/config.js";
 import type { Logger } from "#root/logger.js";
+import { redis } from "#root/redis.js";
 import type { Context, SessionData } from "./context.ts";
 import { donateConversation } from "./conversations/donate.ts";
 import { newVoicesConversation } from "./conversations/new-voices.ts";
@@ -44,21 +50,29 @@ import { maintenanceGatekeep } from "./middlewares/maintenance-gatekeep.ts";
 import { session } from "./middlewares/session.ts";
 import { updateLogger } from "./middlewares/update-logger.ts";
 import { databaseTrafficGatekeep } from "./store/database-traffic.ts";
-import {
-    createTtlMemoryStorage,
-    createTtlVersionedMemoryStorage,
-} from "./store/ttl-memory-storage.ts";
 
-const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
-const STORAGE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
+const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 interface Dependencies {
     config: Config;
     logger: Logger;
 }
 
-function getSessionKey(ctx: Omit<Context, "session">) {
+type SessionKeyContext = {
+    chat?: { id: number };
+    from?: { id: number };
+};
+
+function getSessionKey(ctx: SessionKeyContext) {
     return ctx.from?.id.toString() || ctx.chat?.id.toString();
+}
+
+function getPrefixedSessionKey(
+    prefix: "conversation" | "session",
+    ctx: SessionKeyContext,
+) {
+    const key = getSessionKey(ctx);
+    return key ? `${prefix}:${key}` : undefined;
 }
 
 export function createBot(
@@ -67,15 +81,16 @@ export function createBot(
     botConfig?: BotConfig<Context>,
 ) {
     const { config, logger } = dependencies;
-    const sessionStorage = createTtlMemoryStorage<SessionData>({
-        cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
-        ttlMs: SESSION_TTL_MS,
+    const sessionStorage = new RedisAdapter<SessionData>({
+        instance: redis,
+        ttl: SESSION_TTL_SECONDS,
     });
-    const conversationStorage =
-        createTtlVersionedMemoryStorage<ConversationData>({
-            cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
-            ttlMs: SESSION_TTL_MS,
-        });
+    const conversationStorage = new RedisAdapter<
+        VersionedState<ConversationData>
+    >({
+        instance: redis,
+        ttl: SESSION_TTL_SECONDS,
+    });
 
     const bot = new TelegramBot<Context>(token, botConfig);
 
@@ -103,7 +118,7 @@ export function createBot(
     protectedBot.use(hydrate());
     protectedBot.use(
         session({
-            getSessionKey,
+            getSessionKey: (ctx) => getPrefixedSessionKey("session", ctx),
             storage: sessionStorage,
         }),
     );
@@ -113,7 +128,8 @@ export function createBot(
             plugins: [i18n],
             storage: {
                 adapter: conversationStorage,
-                getStorageKey: getSessionKey,
+                getStorageKey: (ctx) =>
+                    getPrefixedSessionKey("conversation", ctx),
                 type: "key",
             },
         }),

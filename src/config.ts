@@ -53,6 +53,14 @@ const baseConfigSchema = v.object({
         ),
         "[]",
     ),
+    redisUrl: v.pipe(
+        v.string(),
+        v.url(),
+        v.check(
+            (value) => ["redis:", "rediss:"].includes(new URL(value).protocol),
+            "Must use the redis:// or rediss:// protocol",
+        ),
+    ),
     backupEncryptionKey: v.pipe(
         v.string(),
         v.regex(/^[A-Za-z0-9+/]{43}=$/, "Must be 32 bytes encoded as base64"),
