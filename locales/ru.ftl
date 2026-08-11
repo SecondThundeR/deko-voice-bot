@@ -154,6 +154,8 @@ new-voices-id-hint = Отлично! Введите ID реплики (обыч�
 new-voices-id-too-long = ID реплики не должен превышать 64 символа. Введите другой ID, чтобы продолжить.
 new-voices-id-not-unique = Реплика с таким ID уже существует. Придумайте для неё другой ID.
 new-voices-title-hint = Как называется реплика?
+# $maxLength (Number) — максимальная длина названия реплики.
+new-voices-title-too-long = Название реплики не должно превышать { NUMBER($maxLength, useGrouping: 0) } символов. Введите другое название, чтобы продолжить.
 
 # $errorMessage (String) — экранированное сообщение FFmpeg.
 new-voices-conversion-failed = Что-то пошло не так во время конвертации реплики. Детали ошибки: { $errorMessage }

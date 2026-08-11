@@ -1,4 +1,5 @@
 import type { Conversation } from "@grammyjs/conversations";
+import { VOICE_TITLE_LENGTH } from "#drizzle/constraints.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
 
 export async function getVoiceTitleTextSubconversation(
@@ -8,5 +9,18 @@ export async function getVoiceTitleTextSubconversation(
 ) {
     await ctx.reply(otherLocaleText);
 
-    return conversation.form.text();
+    while (true) {
+        const text = await conversation.form.text();
+
+        if (text.length > VOICE_TITLE_LENGTH) {
+            await ctx.reply(
+                ctx.t("new-voices-title-too-long", {
+                    maxLength: VOICE_TITLE_LENGTH,
+                }),
+            );
+            continue;
+        }
+
+        return text;
+    }
 }
