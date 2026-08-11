@@ -5,8 +5,6 @@ import { getSafeErrorInfo } from "./logging.ts";
 
 type ShutdownHook = () => Promise<void> | void;
 
-export type Lifecycle = ReturnType<typeof createLifecycle>;
-
 export function createLifecycle(logger: Logger) {
     const hooks: ShutdownHook[] = [];
     let isShuttingDown = false;
