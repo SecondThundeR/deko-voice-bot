@@ -5,6 +5,17 @@ import { pipeline } from "node:stream/promises";
 import type { I18nFlavor } from "@grammyjs/i18n";
 import type { Context } from "grammy";
 
+const POSITIVE_INTEGER = /^[1-9]\d*$/;
+
+export function parseDonationAmount(value: string) {
+    if (!POSITIVE_INTEGER.test(value)) {
+        return null;
+    }
+
+    const amount = Number(value);
+    return Number.isSafeInteger(amount) ? amount : null;
+}
+
 export async function isBotBlockedByUser(ctx: Context) {
     try {
         await ctx.replyWithChatAction("find_location");

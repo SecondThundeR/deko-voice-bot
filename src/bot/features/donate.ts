@@ -6,7 +6,10 @@ import {
 import { donateData } from "#root/bot/callback-data/donate.js";
 import type { Context } from "#root/bot/context.js";
 import { DONATE_CONVERSATION } from "#root/bot/conversations/donate.js";
-import { sendDonationInvoice } from "#root/bot/helpers/api.js";
+import {
+    parseDonationAmount,
+    sendDonationInvoice,
+} from "#root/bot/helpers/api.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { createDonateKeyboard } from "#root/bot/keyboards/donate.js";
 import { getSafeErrorInfo } from "#root/logging.js";
@@ -54,7 +57,10 @@ feature.callbackQuery(
         await ctx.callbackQuery.answer();
         await ctx.deleteMessage().catch(() => {});
 
-        const amount = parseInt(ctx.match[1], 10);
+        const amount = parseDonationAmount(ctx.match[1]);
+        if (amount === null) {
+            return ctx.reply(ctx.t("donate-custom-amount-invalid"));
+        }
         return sendDonationInvoice(ctx, amount);
     },
 );
@@ -66,7 +72,10 @@ feature.callbackQuery(
         await ctx.callbackQuery.answer();
         await ctx.deleteMessage().catch(() => {});
 
-        const amount = parseInt(ctx.match[1], 10);
+        const amount = parseDonationAmount(ctx.match[1]);
+        if (amount === null) {
+            return ctx.reply(ctx.t("donate-custom-amount-invalid"));
+        }
         return sendDonationInvoice(ctx, amount);
     },
 );

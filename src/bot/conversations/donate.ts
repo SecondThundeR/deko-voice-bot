@@ -1,7 +1,10 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { createConversation } from "@grammyjs/conversations";
 import type { Context, ConversationContext } from "#root/bot/context.js";
-import { sendDonationInvoice } from "#root/bot/helpers/api.js";
+import {
+    parseDonationAmount,
+    sendDonationInvoice,
+} from "#root/bot/helpers/api.js";
 
 export const DONATE_CONVERSATION = "donate";
 
@@ -13,9 +16,9 @@ export function donateConversation() {
         ) => {
             await ctx.reply(ctx.t("donate-custom-amount-question"));
             const amountCtx = await conversation.waitFor("message:text");
-            const amount = parseInt(amountCtx.message.text, 10);
+            const amount = parseDonationAmount(amountCtx.message.text);
 
-            if (Number.isNaN(amount) || amount <= 0) {
+            if (amount === null) {
                 return ctx.reply(ctx.t("donate-custom-amount-invalid"));
             }
 
