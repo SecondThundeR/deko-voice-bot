@@ -20,6 +20,26 @@ const composer = new Composer<Context>();
 
 const feature = composer.chatType("private");
 
+async function prepareDonation(ctx: Context) {
+    await ctx.answerCallbackQuery();
+    await ctx.deleteMessage().catch(() => {});
+}
+
+async function handleCustomDonation(ctx: Context) {
+    await prepareDonation(ctx);
+    return ctx.conversation.enter(DONATE_CONVERSATION);
+}
+
+async function handleRegularDonation(ctx: Context, amountValue: string) {
+    await prepareDonation(ctx);
+
+    const amount = parseDonationAmount(amountValue);
+    if (amount === null) {
+        return ctx.reply(ctx.t("donate-custom-amount-invalid"));
+    }
+    return sendDonationInvoice(ctx, amount);
+}
+
 feature.command("donate", logHandle("command-donate"), (ctx) =>
     ctx.reply(ctx.t("donate-message"), {
         reply_markup: createDonateKeyboard(ctx),
@@ -31,53 +51,25 @@ feature.callbackQuery(
         amount: "custom",
     }),
     logHandle("keyboard-donate-custom"),
-    async (ctx) => {
-        await ctx.callbackQuery.answer();
-        await ctx.deleteMessage().catch(() => {});
-
-        return ctx.conversation.enter(DONATE_CONVERSATION);
-    },
+    handleCustomDonation,
 );
 
 feature.callbackQuery(
     "donate_custom",
     logHandle("keyboard-donate-custom-legacy"),
-    async (ctx) => {
-        await ctx.callbackQuery.answer();
-        await ctx.deleteMessage().catch(() => {});
-
-        return ctx.conversation.enter(DONATE_CONVERSATION);
-    },
+    handleCustomDonation,
 );
 
 feature.callbackQuery(
     donateData.filter(),
     logHandle("keyboard-donate-regular"),
-    async (ctx) => {
-        await ctx.callbackQuery.answer();
-        await ctx.deleteMessage().catch(() => {});
-
-        const amount = parseDonationAmount(ctx.match[1]);
-        if (amount === null) {
-            return ctx.reply(ctx.t("donate-custom-amount-invalid"));
-        }
-        return sendDonationInvoice(ctx, amount);
-    },
+    (ctx) => handleRegularDonation(ctx, ctx.match[1]),
 );
 
 feature.callbackQuery(
     LEGACY_DONATE_AMOUNT_REGEX,
     logHandle("keyboard-donate-regular-legacy"),
-    async (ctx) => {
-        await ctx.callbackQuery.answer();
-        await ctx.deleteMessage().catch(() => {});
-
-        const amount = parseDonationAmount(ctx.match[1]);
-        if (amount === null) {
-            return ctx.reply(ctx.t("donate-custom-amount-invalid"));
-        }
-        return sendDonationInvoice(ctx, amount);
-    },
+    (ctx) => handleRegularDonation(ctx, ctx.match[1]),
 );
 
 composer.on(
