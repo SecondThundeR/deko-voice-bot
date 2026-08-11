@@ -32,6 +32,14 @@ afterEach(async () => {
 });
 
 describe("ImportSessionStore", () => {
+    it("reads an awaiting-file session without consuming it", async () => {
+        const store = new ImportSessionStore();
+        const started = await store.start(10, 20, 60_000);
+
+        assert.equal(store.get(10, 20), started);
+        assert.equal(store.takeAwaitingFile(10, 20), started);
+    });
+
     it("requires the matching user, chat and operation to confirm", async () => {
         const store = new ImportSessionStore();
         const started = await store.start(10, 20, 60_000);
