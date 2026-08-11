@@ -46,7 +46,11 @@ const baseConfigSchema = v.object({
         "[]",
     ),
     adminIds: v.optional(
-        v.pipe(v.string(), v.transform(JSON.parse), v.array(v.number())),
+        v.pipe(
+            v.string(),
+            v.transform(JSON.parse),
+            v.array(v.pipe(v.number(), v.safeInteger(), v.minValue(1))),
+        ),
         "[]",
     ),
     backupEncryptionKey: v.pipe(
@@ -96,7 +100,14 @@ const configSchema = v.variant("botMode", [
             botWebhookSecret: v.pipe(v.string(), v.minLength(12)),
             serverHost: v.optional(v.string(), "0.0.0.0"),
             serverPort: v.optional(
-                v.pipe(v.string(), v.transform(Number), v.number()),
+                v.pipe(
+                    v.string(),
+                    v.transform(Number),
+                    v.number(),
+                    v.safeInteger(),
+                    v.minValue(1),
+                    v.maxValue(65_535),
+                ),
                 "80",
             ),
         }),
