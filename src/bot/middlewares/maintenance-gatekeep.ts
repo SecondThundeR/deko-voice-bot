@@ -5,7 +5,6 @@ import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import {
     getCachedMaintenanceFeatureFlag,
-    isMaintenanceActive,
     setCachedMaintenanceFeatureFlag,
 } from "#root/bot/store/maintenance.js";
 
@@ -23,9 +22,7 @@ export function maintenanceGatekeep(): Middleware<Context> {
             setCachedMaintenanceFeatureFlag(maintenanceFeatureFlagStatus);
         }
 
-        const isInMaintenance =
-            maintenanceFeatureFlagStatus || isMaintenanceActive();
-        if (!isInMaintenance) {
+        if (!maintenanceFeatureFlagStatus) {
             return next();
         }
 

@@ -24,6 +24,7 @@
         "lint": "biome check",
         "lint:write": "biome check --write",
         "format": "biome format --write .",
+        "backup:crypto": "node ./scripts/backup-crypto.ts",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "node ./drizzle/migrate.ts"
     },

@@ -1,140 +1,262 @@
-import { spawn } from "node:child_process";
-import { unlink } from "node:fs/promises";
-import { chatAction } from "@grammyjs/auto-chat-action";
-import { Composer } from "grammy";
+import { randomUUID } from "node:crypto";
+import { stat, unlink } from "node:fs/promises";
+import { Composer, InlineKeyboard, InputFile } from "grammy";
+
+import {
+    createDatabaseDump,
+    hashFile,
+    restoreDatabaseDump,
+    validateDatabaseDump,
+    validateRestoredDatabase,
+} from "#root/backup/database.js";
+import {
+    decryptBackupFile,
+    ENCRYPTED_BACKUP_EXTENSION,
+    encryptBackupFile,
+    parseBackupEncryptionKey,
+} from "#root/backup/encryption.js";
+import { BackupOperationBusyError } from "#root/backup/errors.js";
+import { withBackupAdvisoryLock } from "#root/backup/lock.js";
+import { createBackupTempPaths } from "#root/backup/paths.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { downloadTelegramFileToPath } from "#root/bot/helpers/api.js";
-import {
-    createDumpTempFilePath,
-    readTextWithLimit,
-} from "#root/bot/helpers/general.js";
-import { escapeHTML } from "#root/bot/helpers/html.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import {
-    isMaintenanceActive,
-    setMaintenanceStatus,
-} from "#root/bot/store/maintenance.js";
+    beginDatabaseImportMaintenance,
+    endDatabaseImportMaintenance,
+} from "#root/bot/store/database-traffic.js";
+import { importSessions } from "#root/bot/store/import-sessions.js";
+import { setCachedMaintenanceFeatureFlag } from "#root/bot/store/maintenance.js";
 import { getSafeErrorInfo } from "#root/logging.js";
 
-export const composer = new Composer<Context>();
+const IMPORT_CALLBACK = /^import:(confirm|cancel):([0-9a-f-]{36})$/;
 
+export const composer = new Composer<Context>();
 const feature = composer.chatType("private").filter(isAdmin);
-const MAX_RESTORE_STDERR_BYTES = 16 * 1024;
+
+function getImportSessionTtlMs(ctx: Context) {
+    return ctx.config.importSessionTtlMinutes * 60 * 1_000;
+}
+
+function getMaxBackupBytes(ctx: Context) {
+    return ctx.config.backupMaxSizeMb * 1024 * 1024;
+}
+
+feature.command("import", logHandle("command-import"), async (ctx) => {
+    await importSessions.start(
+        ctx.from.id,
+        ctx.chat.id,
+        getImportSessionTtlMs(ctx),
+    );
+    return ctx.reply(
+        ctx.t("import-awaiting-file", {
+            maxSizeMb: ctx.config.backupMaxSizeMb,
+            ttlMinutes: ctx.config.importSessionTtlMinutes,
+        }),
+    );
+});
 
 feature.on(
     "msg:document",
     logHandle("import-data-document"),
-    chatAction("typing"),
-    async (ctx) => {
-        if (isMaintenanceActive()) {
-            return ctx.reply(ctx.t("import-maintenance-pending"));
+    async (ctx, next) => {
+        const session = importSessions.takeAwaitingFile(
+            ctx.from.id,
+            ctx.chat.id,
+        );
+        if (!session) {
+            return next();
         }
 
+        const paths = createBackupTempPaths("restore");
+        const maxBytes = getMaxBackupBytes(ctx);
         const document = ctx.msg.document;
-        if (
-            !document.file_name?.endsWith(".dump") &&
-            document.mime_type !== "application/octet-stream"
-        ) {
-            return;
-        }
-
-        setMaintenanceStatus(true);
-
-        let restoreFileName: string | null = null;
-        let message: Awaited<ReturnType<typeof ctx.reply>> | null = null;
 
         try {
-            message = await ctx.reply(ctx.t("import-in-progress"));
+            if (!document.file_name?.endsWith(ENCRYPTED_BACKUP_EXTENSION)) {
+                return ctx.reply(ctx.t("import-invalid-file-type"));
+            }
+            if (document.file_size && document.file_size > maxBytes) {
+                return ctx.reply(
+                    ctx.t("import-file-too-large", {
+                        maxSizeMb: ctx.config.backupMaxSizeMb,
+                    }),
+                );
+            }
+
+            const statusMessage = await ctx.reply(ctx.t("import-validating"));
             const fileData = await ctx.getFile();
             if (!fileData.file_path) {
                 throw new Error("Backup file path is missing");
             }
 
-            restoreFileName = createDumpTempFilePath("restore");
-            const downloadStatus = await downloadTelegramFileToPath(
+            const downloaded = await downloadTelegramFileToPath(
                 fileData.file_path,
-                restoreFileName,
+                paths.encrypted,
                 ctx.api.token,
+                maxBytes,
             );
-
-            if (!downloadStatus) {
+            if (!downloaded) {
                 throw new Error("Failed to download backup file");
             }
 
-            const restoreProcess = spawn(
-                "pg_restore",
-                [
-                    "-d",
-                    process.env.DATABASE_URL,
-                    "--single-transaction",
-                    "--clean",
-                    "--if-exists",
-                    "--no-owner",
-                    restoreFileName,
-                ],
-                {
-                    stdio: ["ignore", "ignore", "pipe"],
-                },
+            const encryptionKey = parseBackupEncryptionKey(
+                ctx.config.backupEncryptionKey,
             );
+            await decryptBackupFile(paths.encrypted, paths.dump, encryptionKey);
+            await validateDatabaseDump(paths.dump);
 
-            const exitCodePromise = new Promise<number>((resolve, reject) => {
-                restoreProcess.on("close", (code) => {
-                    resolve(code ?? 1);
-                });
-                restoreProcess.on("error", (err) => {
-                    reject(err);
-                });
+            const [sha256, fileStats] = await Promise.all([
+                hashFile(paths.encrypted),
+                stat(paths.encrypted),
+            ]);
+            importSessions.addAwaitingConfirmation(session, {
+                dumpPath: paths.dump,
+                encryptedPath: paths.encrypted,
+                sha256,
+                size: fileStats.size,
             });
 
-            const [exitCode, stderr] = await Promise.all([
-                exitCodePromise,
-                readTextWithLimit(
-                    restoreProcess.stderr,
-                    MAX_RESTORE_STDERR_BYTES,
-                ),
-            ]);
-
-            if (exitCode !== 0) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new Error(
-                    `pg_restore failed with exit code ${exitCode}:\n${stderr}`,
+            const keyboard = new InlineKeyboard()
+                .text(
+                    ctx.t("import-confirm-button"),
+                    `import:confirm:${session.operationId}`,
+                )
+                .text(
+                    ctx.t("import-cancel-button"),
+                    `import:cancel:${session.operationId}`,
                 );
-            }
-
-            ctx.logger.info({ msg: "Database import completed" });
-            return message.editText(ctx.t("import-completed"));
-        } catch (error) {
-            ctx.logger.error({
-                msg: "Import failed. Rollback has been completed",
+            return statusMessage.editText(
+                ctx.t("import-confirmation", {
+                    sha256,
+                    sizeMb: (fileStats.size / 1024 / 1024).toFixed(2),
+                }),
+                { reply_markup: keyboard },
+            );
+        } catch (error: unknown) {
+            await importSessions.cancel(ctx.from.id, ctx.chat.id);
+            await Promise.allSettled([
+                unlink(paths.dump),
+                unlink(paths.encrypted),
+            ]);
+            ctx.logger.warn({
+                msg: "Database import file validation failed",
+                operationId: session.operationId,
                 ...getSafeErrorInfo(error),
             });
+            return ctx.reply(ctx.t("import-validation-failed"));
+        }
+    },
+);
 
-            if (error instanceof Error) {
-                const errorMessage = ctx.t("import-error", {
-                    errorMessage: escapeHTML(error.message),
-                });
+feature.callbackQuery(
+    IMPORT_CALLBACK,
+    logHandle("import-data-confirmation"),
+    async (ctx) => {
+        const [, action, operationId] = ctx.match;
+        const session = importSessions.takeForConfirmation(
+            ctx.from.id,
+            ctx.chat.id,
+            operationId,
+        );
+        if (!session) {
+            return ctx.answerCallbackQuery({
+                text: ctx.t("import-session-expired"),
+                show_alert: true,
+            });
+        }
 
-                if (message) {
-                    return message.editText(errorMessage);
-                } else {
-                    return ctx.reply(errorMessage);
-                }
-            } else {
-                const errorMessage = ctx.t("import-unknown-error");
+        await ctx.answerCallbackQuery();
+        if (action === "cancel") {
+            await Promise.allSettled([
+                unlink(session.dumpPath),
+                unlink(session.encryptedPath),
+            ]);
+            return ctx.editMessageText(ctx.t("import-cancelled"));
+        }
 
-                if (message) {
-                    return message.editText(errorMessage);
-                } else {
-                    return ctx.reply(errorMessage);
-                }
+        const runtimeOperationId = randomUUID();
+        const emergencyPaths = createBackupTempPaths("pre-import");
+        let maintenanceStarted = false;
+
+        try {
+            await ctx.editMessageText(ctx.t("import-preparing"));
+            maintenanceStarted = await beginDatabaseImportMaintenance();
+            if (!maintenanceStarted) {
+                throw new BackupOperationBusyError();
             }
+
+            const encryptionKey = parseBackupEncryptionKey(
+                ctx.config.backupEncryptionKey,
+            );
+            await withBackupAdvisoryLock(process.env.DATABASE_URL, async () => {
+                await createDatabaseDump(
+                    process.env.DATABASE_URL,
+                    emergencyPaths.dump,
+                );
+                await encryptBackupFile(
+                    emergencyPaths.dump,
+                    emergencyPaths.encrypted,
+                    encryptionKey,
+                );
+                const emergencySha256 = await hashFile(
+                    emergencyPaths.encrypted,
+                );
+
+                const timestamp = new Date()
+                    .toISOString()
+                    .replace(/[:.]/g, "-");
+                await ctx.replyWithDocument(
+                    new InputFile(
+                        emergencyPaths.encrypted,
+                        `pre-import-${timestamp}.dump.enc`,
+                    ),
+                    {
+                        caption: ctx.t("import-emergency-backup", {
+                            sha256: emergencySha256,
+                        }),
+                    },
+                );
+
+                await restoreDatabaseDump(
+                    process.env.DATABASE_URL,
+                    session.dumpPath,
+                );
+                setCachedMaintenanceFeatureFlag(null);
+                await validateRestoredDatabase(process.env.DATABASE_URL);
+            });
+
+            ctx.logger.info({
+                msg: "Database import completed",
+                operationId: runtimeOperationId,
+                sourceSha256: session.sha256,
+                sourceSize: session.size,
+            });
+            return ctx.reply(ctx.t("import-completed"));
+        } catch (error: unknown) {
+            ctx.logger.error({
+                msg: "Database import failed",
+                operationId: runtimeOperationId,
+                sourceSha256: session.sha256,
+                sourceSize: session.size,
+                ...getSafeErrorInfo(error),
+            });
+            return ctx.reply(
+                ctx.t("import-error", {
+                    operationId: runtimeOperationId,
+                }),
+            );
         } finally {
-            setMaintenanceStatus(false);
-
-            if (restoreFileName) {
-                unlink(restoreFileName).catch(() => {});
+            if (maintenanceStarted) {
+                endDatabaseImportMaintenance();
             }
+            await Promise.allSettled([
+                unlink(session.dumpPath),
+                unlink(session.encryptedPath),
+                unlink(emergencyPaths.dump),
+                unlink(emergencyPaths.encrypted),
+            ]);
         }
     },
 );

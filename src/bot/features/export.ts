@@ -1,84 +1,78 @@
-import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
+
+import { createDatabaseDump, hashFile } from "#root/backup/database.js";
+import {
+    encryptBackupFile,
+    parseBackupEncryptionKey,
+} from "#root/backup/encryption.js";
+import { withBackupAdvisoryLock } from "#root/backup/lock.js";
+import { createBackupTempPaths } from "#root/backup/paths.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
-import {
-    createDumpTempFilePath,
-    readTextWithLimit,
-} from "#root/bot/helpers/general.js";
-import { escapeHTML } from "#root/bot/helpers/html.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
-import {
-    isMaintenanceActive,
-    setMaintenanceStatus,
-} from "#root/bot/store/maintenance.js";
 import { getSafeErrorInfo } from "#root/logging.js";
 
 const composer = new Composer<Context>();
-
 const feature = composer.chatType("private").filter(isAdmin);
-const MAX_DUMP_STDERR_BYTES = 16 * 1024;
 
 feature.command(
     "export",
     logHandle("command-export"),
     chatAction("upload_document"),
     async (ctx) => {
-        if (isMaintenanceActive()) {
-            return ctx.reply(ctx.t("export-maintenance-pending"));
-        }
-
-        setMaintenanceStatus(true);
-
+        const operationId = randomUUID();
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const backupFileName = createDumpTempFilePath(`backup-${timestamp}`);
+        const fileName = `backup-${timestamp}.dump.enc`;
+        const paths = createBackupTempPaths("export");
 
         try {
-            const dumpProcess = spawn(
-                "pg_dump",
-                [process.env.DATABASE_URL, "-F", "c", "-f", backupFileName],
-                {
-                    stdio: ["ignore", "ignore", "pipe"],
+            const encryptionKey = parseBackupEncryptionKey(
+                ctx.config.backupEncryptionKey,
+            );
+            const sha256 = await withBackupAdvisoryLock(
+                process.env.DATABASE_URL,
+                async () => {
+                    await createDatabaseDump(
+                        process.env.DATABASE_URL,
+                        paths.dump,
+                    );
+                    await encryptBackupFile(
+                        paths.dump,
+                        paths.encrypted,
+                        encryptionKey,
+                    );
+                    return hashFile(paths.encrypted);
                 },
             );
 
-            const exitCodePromise = new Promise<number>((resolve, reject) => {
-                dumpProcess.on("close", (code) => {
-                    resolve(code ?? 1);
-                });
-                dumpProcess.on("error", (err) => {
-                    reject(err);
-                });
-            });
-
-            const [exitCode, stderr] = await Promise.all([
-                exitCodePromise,
-                readTextWithLimit(dumpProcess.stderr, MAX_DUMP_STDERR_BYTES),
-            ]);
-
-            if (exitCode !== 0) {
-                return ctx.reply(
-                    ctx.t("export-error", {
-                        exitCode,
-                        stderr: escapeHTML(stderr),
+            await ctx.replyWithDocument(
+                new InputFile(paths.encrypted, fileName),
+                {
+                    caption: ctx.t("export-completed", {
+                        sha256,
                     }),
-                );
-            }
-
-            await ctx.replyWithDocument(new InputFile(backupFileName));
-            ctx.logger.info({ msg: "Database export completed" });
+                },
+            );
+            ctx.logger.info({
+                msg: "Database export completed",
+                operationId,
+                sha256,
+            });
         } catch (error: unknown) {
             ctx.logger.error({
                 msg: "Failed to export data from DB",
+                operationId,
                 ...getSafeErrorInfo(error),
             });
-            return ctx.reply(ctx.t("export-unknown-error"));
+            return ctx.reply(ctx.t("export-unknown-error", { operationId }));
         } finally {
-            setMaintenanceStatus(false);
-
-            unlink(backupFileName).catch(() => {});
+            await Promise.allSettled([
+                unlink(paths.dump),
+                unlink(paths.encrypted),
+            ]);
         }
     },
 );

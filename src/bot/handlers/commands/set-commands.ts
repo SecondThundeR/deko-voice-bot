@@ -20,6 +20,7 @@ const ADMIN_COMMANDS = {
     voices: "voices-command-description",
     newvoices: "new-voices-command-description",
     export: "export-command-description",
+    import: "import-command-description",
     refund: "refund-command-description",
 } as const;
 

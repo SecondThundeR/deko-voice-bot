@@ -43,6 +43,7 @@ import { voicesMenu } from "./menu/voices.ts";
 import { maintenanceGatekeep } from "./middlewares/maintenance-gatekeep.ts";
 import { session } from "./middlewares/session.ts";
 import { updateLogger } from "./middlewares/update-logger.ts";
+import { databaseTrafficGatekeep } from "./store/database-traffic.ts";
 import {
     createTtlMemoryStorage,
     createTtlVersionedMemoryStorage,
@@ -119,6 +120,7 @@ export function createBot(
             },
         }),
     );
+    protectedBot.use(databaseTrafficGatekeep());
     protectedBot.use(maintenanceGatekeep());
     protectedBot.use(inlineQueryFeature);
     protectedBot.use(cancelFeature);

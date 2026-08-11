@@ -217,16 +217,33 @@ voices-delete-failed = Что-то пошло не так, и реплика «{
 voices-unknown = Неизвестная реплика
 voices-no-data = У меня пока нет реплик. Добавьте их с помощью команды /newvoices.
 
-export-command-description = Экспортировать данные из базы данных в файл .dump
-export-error = Ошибка при экспорте данных! Код завершения: { NUMBER($exitCode, useGrouping: 0) }. stderr: { $stderr }
-export-maintenance-pending = Нельзя экспортировать данные, пока уже выполняется другая операция с базой данных.
-export-unknown-error = Произошла неизвестная ошибка при экспорте данных!
+export-command-description = Экспортировать зашифрованную резервную копию
+export-completed =
+    Зашифрованная резервная копия базы данных.
+    SHA-256: <code>{ $sha256 }</code>
+export-unknown-error = Не удалось экспортировать данные. Код операции: <code>{ $operationId }</code>
 
-import-maintenance-pending = Нельзя импортировать данные, пока уже выполняется другая операция с базой данных.
-import-in-progress = Выполняется импорт данных…
+import-command-description = Восстановить базу из зашифрованной копии
+import-awaiting-file =
+    Отправьте файл <code>.dump.enc</code> размером не более { NUMBER($maxSizeMb, useGrouping: 0) } МБ в течение { NUMBER($ttlMinutes, useGrouping: 0) } мин.
+    Для отмены используйте /cancel.
+import-invalid-file-type = Ожидается зашифрованный файл с расширением <code>.dump.enc</code>. Запустите /import ещё раз.
+import-file-too-large = Размер файла превышает лимит { NUMBER($maxSizeMb, useGrouping: 0) } МБ. Запустите /import ещё раз.
+import-validating = Загружаю и проверяю резервную копию…
+import-validation-failed = Файл не прошёл проверку. База данных не изменена. Запустите /import ещё раз.
+import-confirmation =
+    Резервная копия проверена.
+    Размер: { $sizeMb } МБ
+    SHA-256: <code>{ $sha256 }</code>
+
+    Восстановление полностью заменит текущие данные. Перед началом бот отправит аварийную копию текущей базы.
+import-confirm-button = Восстановить
+import-cancel-button = Отмена
+import-session-expired = Сессия импорта истекла или уже завершена
+import-cancelled = Импорт отменён. Временные файлы удалены.
+import-preparing = Останавливаю обработку запросов и создаю аварийную копию…
+import-emergency-backup =
+    Аварийная копия базы перед импортом.
+    SHA-256: <code>{ $sha256 }</code>
 import-completed = Данные успешно импортированы!
-import-error =
-    Произошла ошибка при импорте данных! Выполняется откат импорта. Детали:
-    <code>{ $errorMessage }</code>
-
-import-unknown-error = Произошла неизвестная ошибка при импорте данных! Выполняется откат импорта.
+import-error = Импорт не выполнен. Код операции: <code>{ $operationId }</code>. Если аварийная копия уже была отправлена, сохраните её до выяснения причины.

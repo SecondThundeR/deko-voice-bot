@@ -10,6 +10,9 @@ declare global {
             SERVER_HOST?: string;
             SERVER_PORT?: string;
             DATABASE_URL: string;
+            BACKUP_ENCRYPTION_KEY: string;
+            BACKUP_MAX_SIZE_MB?: string;
+            IMPORT_SESSION_TTL_MINUTES?: string;
             ADMIN_IDS?: string;
             LOG_LEVEL?:
                 | "trace"

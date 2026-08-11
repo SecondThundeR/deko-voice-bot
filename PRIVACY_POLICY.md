@@ -89,13 +89,13 @@ To request access to other personal information held by the Service Provider, co
 - Payment records are retained indefinitely as the Bot's complete payment and refund history.
 - Telegram update identifiers and their processing times, used to prevent duplicate usage accounting, currently have no automatic deletion period and are retained indefinitely. They are not directly linked to user profiles in the database.
 - Railway service logs are retained for 7 days under the Service Provider's current Hobby plan. Railway audit logs are retained for 48 hours.
-- The Service Provider's Railway plan does not include database backups. Administrative database export files may be created manually; the temporary local file is deleted after being sent to the Service Provider through Telegram. The copy delivered through Telegram remains subject to Telegram's storage and retention controls.
+- The Service Provider's Railway plan does not include database backups. Administrative database export files may be created manually. Exports are encrypted before being sent through Telegram, and temporary plaintext and encrypted files are deleted from the Bot host after the operation. The encrypted copy delivered through Telegram remains subject to Telegram's storage and retention controls.
 
 ## Sharing and Service Providers
 
 Information is processed or shared only as needed to operate the Bot:
 
-- **Telegram** delivers Bot updates, stores communications and files on its platform, sends voice quotes, processes Telegram Stars payments and refunds, and may carry administrative database exports.
+- **Telegram** delivers Bot updates, stores communications and files on its platform, sends voice quotes, processes Telegram Stars payments and refunds, and may carry encrypted administrative database exports.
 - **Railway** hosts the Bot and its PostgreSQL database in the Netherlands and may process stored data, logs, and network information on the Service Provider's behalf. The current Railway plan does not include database backups.
 - **The Service Provider** is the Bot's only administrator and may access user statistics, payment information, logs, and manually created database exports when needed to operate, secure, and maintain the Bot or handle refunds and user requests.
 

@@ -7,6 +7,7 @@ import { UPDATE_VOICE_TITLE_CONVERSATION } from "#root/bot/conversations/update-
 import { isEmpty } from "#root/bot/helpers/general.js";
 import { escapeHTML } from "#root/bot/helpers/html.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
+import { importSessions } from "#root/bot/store/import-sessions.js";
 
 const UPDATE_CONVERSATIONS = [
     UPDATE_VOICE_FILE_CONVERSATION,
@@ -19,6 +20,10 @@ export const composer = new Composer<Context>();
 const feature = composer.chatType("private");
 
 feature.command("cancel", logHandle("command-cancel"), async (ctx) => {
+    if (await importSessions.cancel(ctx.from.id, ctx.chat.id)) {
+        return ctx.reply(ctx.t("import-cancelled"));
+    }
+
     const activeConversations = ctx.conversation.active();
     if (isEmpty(activeConversations)) {
         return;

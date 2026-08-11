@@ -1,6 +1,6 @@
 import { createWriteStream } from "node:fs";
 import { unlink } from "node:fs/promises";
-import { Readable } from "node:stream";
+import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import type { I18nFlavor } from "@grammyjs/i18n";
 import type { Context } from "grammy";
@@ -18,6 +18,7 @@ export async function downloadTelegramFileToPath(
     filePath: string,
     outputPath: string,
     token: string,
+    maxBytes?: number,
 ) {
     const file = await fetch(
         `https://api.telegram.org/file/bot${token}/${filePath}`,
@@ -28,9 +29,22 @@ export async function downloadTelegramFileToPath(
     }
 
     try {
+        let bytesDownloaded = 0;
+        const sizeLimiter = new Transform({
+            transform(chunk: Buffer, _encoding, callback) {
+                bytesDownloaded += chunk.length;
+                if (maxBytes !== undefined && bytesDownloaded > maxBytes) {
+                    callback(new Error("Telegram file exceeds the size limit"));
+                    return;
+                }
+                callback(null, chunk);
+            },
+        });
+
         await pipeline(
             Readable.fromWeb(file.body),
-            createWriteStream(outputPath),
+            sizeLimiter,
+            createWriteStream(outputPath, { mode: 0o600 }),
         );
         return true;
     } catch (error) {

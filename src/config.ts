@@ -49,6 +49,30 @@ const baseConfigSchema = v.object({
         v.pipe(v.string(), v.transform(JSON.parse), v.array(v.number())),
         "[]",
     ),
+    backupEncryptionKey: v.pipe(
+        v.string(),
+        v.regex(/^[A-Za-z0-9+/]{43}=$/, "Must be 32 bytes encoded as base64"),
+    ),
+    backupMaxSizeMb: v.optional(
+        v.pipe(
+            v.string(),
+            v.transform(Number),
+            v.integer(),
+            v.minValue(1),
+            v.maxValue(2_000),
+        ),
+        "50",
+    ),
+    importSessionTtlMinutes: v.optional(
+        v.pipe(
+            v.string(),
+            v.transform(Number),
+            v.integer(),
+            v.minValue(1),
+            v.maxValue(60),
+        ),
+        "5",
+    ),
 });
 
 const configSchema = v.variant("botMode", [
