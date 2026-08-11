@@ -3,13 +3,13 @@ import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
 
-import { createDatabaseDump, hashFile } from "#root/backup/database.js";
-import {
-    encryptBackupFile,
-    parseBackupEncryptionKey,
-} from "#root/backup/encryption.js";
+import { createEncryptedDatabaseBackup } from "#root/backup/create.js";
+import { parseBackupEncryptionKey } from "#root/backup/encryption.js";
 import { withBackupAdvisoryLock } from "#root/backup/lock.js";
-import { createBackupTempPaths } from "#root/backup/paths.js";
+import {
+    createBackupTempPaths,
+    createDatedBackupFileName,
+} from "#root/backup/paths.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
@@ -24,8 +24,7 @@ feature.command(
     chatAction("upload_document"),
     async (ctx) => {
         const operationId = randomUUID();
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const fileName = `backup-${timestamp}.dump.enc`;
+        const fileName = createDatedBackupFileName("backup");
         const paths = createBackupTempPaths("export");
 
         try {
@@ -34,18 +33,12 @@ feature.command(
             );
             const sha256 = await withBackupAdvisoryLock(
                 process.env.DATABASE_URL,
-                async () => {
-                    await createDatabaseDump(
-                        process.env.DATABASE_URL,
-                        paths.dump,
-                    );
-                    await encryptBackupFile(
-                        paths.dump,
-                        paths.encrypted,
+                () =>
+                    createEncryptedDatabaseBackup({
+                        databaseUrl: process.env.DATABASE_URL,
                         encryptionKey,
-                    );
-                    return hashFile(paths.encrypted);
-                },
+                        paths,
+                    }),
             );
 
             await ctx.replyWithDocument(

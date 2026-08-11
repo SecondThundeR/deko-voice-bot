@@ -10,3 +10,8 @@ export function createBackupTempPaths(prefix: string) {
         encrypted: `${basename}.dump.enc`,
     };
 }
+
+export function createDatedBackupFileName(prefix: string) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    return `${prefix}-${timestamp}.dump.enc`;
+}

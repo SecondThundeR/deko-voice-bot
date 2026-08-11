@@ -2,8 +2,8 @@ import { randomUUID } from "node:crypto";
 import { stat, unlink } from "node:fs/promises";
 import { Composer, InlineKeyboard, InputFile } from "grammy";
 
+import { createEncryptedDatabaseBackup } from "#root/backup/create.js";
 import {
-    createDatabaseDump,
     hashFile,
     restoreDatabaseDump,
     validateDatabaseDump,
@@ -12,12 +12,14 @@ import {
 import {
     decryptBackupFile,
     ENCRYPTED_BACKUP_EXTENSION,
-    encryptBackupFile,
     parseBackupEncryptionKey,
 } from "#root/backup/encryption.js";
 import { BackupOperationBusyError } from "#root/backup/errors.js";
 import { withBackupAdvisoryLock } from "#root/backup/lock.js";
-import { createBackupTempPaths } from "#root/backup/paths.js";
+import {
+    createBackupTempPaths,
+    createDatedBackupFileName,
+} from "#root/backup/paths.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { downloadTelegramFileToPath } from "#root/bot/helpers/api.js";
@@ -203,26 +205,16 @@ feature.callbackQuery(
                 ctx.config.backupEncryptionKey,
             );
             await withBackupAdvisoryLock(process.env.DATABASE_URL, async () => {
-                await createDatabaseDump(
-                    process.env.DATABASE_URL,
-                    emergencyPaths.dump,
-                );
-                await encryptBackupFile(
-                    emergencyPaths.dump,
-                    emergencyPaths.encrypted,
+                const emergencySha256 = await createEncryptedDatabaseBackup({
+                    databaseUrl: process.env.DATABASE_URL,
                     encryptionKey,
-                );
-                const emergencySha256 = await hashFile(
-                    emergencyPaths.encrypted,
-                );
+                    paths: emergencyPaths,
+                });
 
-                const timestamp = new Date()
-                    .toISOString()
-                    .replace(/[:.]/g, "-");
                 await ctx.replyWithDocument(
                     new InputFile(
                         emergencyPaths.encrypted,
-                        `pre-import-${timestamp}.dump.enc`,
+                        createDatedBackupFileName("pre-import"),
                     ),
                     {
                         caption: ctx.t("import-emergency-backup", {
