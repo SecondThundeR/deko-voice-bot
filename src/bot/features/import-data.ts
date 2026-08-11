@@ -61,30 +61,36 @@ feature.on(
     "msg:document",
     logHandle("import-data-document"),
     async (ctx, next) => {
+        const pendingSession = importSessions.get(ctx.from.id, ctx.chat.id);
+        if (pendingSession?.stage !== "awaiting-file") {
+            return next();
+        }
+
+        const maxBytes = getMaxBackupBytes(ctx);
+        const document = ctx.msg.document;
+
+        if (!document.file_name?.endsWith(ENCRYPTED_BACKUP_EXTENSION)) {
+            return ctx.reply(ctx.t("import-invalid-file-type"));
+        }
+        if (document.file_size && document.file_size > maxBytes) {
+            return ctx.reply(
+                ctx.t("import-file-too-large", {
+                    maxSizeMb: ctx.config.backupMaxSizeMb,
+                }),
+            );
+        }
+
         const session = importSessions.takeAwaitingFile(
             ctx.from.id,
             ctx.chat.id,
         );
         if (!session) {
-            return next();
+            return ctx.reply(ctx.t("import-session-expired"));
         }
 
         const paths = createBackupTempPaths("restore");
-        const maxBytes = getMaxBackupBytes(ctx);
-        const document = ctx.msg.document;
 
         try {
-            if (!document.file_name?.endsWith(ENCRYPTED_BACKUP_EXTENSION)) {
-                return ctx.reply(ctx.t("import-invalid-file-type"));
-            }
-            if (document.file_size && document.file_size > maxBytes) {
-                return ctx.reply(
-                    ctx.t("import-file-too-large", {
-                        maxSizeMb: ctx.config.backupMaxSizeMb,
-                    }),
-                );
-            }
-
             const statusMessage = await ctx.reply(ctx.t("import-validating"));
             const fileData = await ctx.getFile();
             if (!fileData.file_path) {
