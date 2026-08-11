@@ -13,6 +13,9 @@ type FFMPEGConvertResult =
 let _canRunFFMPEG: boolean | null = null;
 
 const execFilePromise = promisify(execFile);
+const FFMPEG_CHECK_TIMEOUT_MS = 10_000;
+const FFMPEG_CONVERSION_TIMEOUT_MS = 2 * 60 * 1_000;
+const FFMPEG_MAX_OUTPUT_BYTES = 256 * 1_024;
 
 function isExecFileError(
     error: unknown,
@@ -26,7 +29,9 @@ function isExecFileError(
 
 async function canRunFFMPEG(): Promise<boolean> {
     try {
-        await execFilePromise("ffmpeg", ["-version"]);
+        await execFilePromise("ffmpeg", ["-version"], {
+            timeout: FFMPEG_CHECK_TIMEOUT_MS,
+        });
         return true;
     } catch {
         return false;
@@ -45,17 +50,26 @@ export async function convertMP3ToOGGOpus(
     outputFilename: string,
 ): Promise<FFMPEGConvertResult> {
     try {
-        await execFilePromise("ffmpeg", [
-            "-hide_banner",
-            "-loglevel",
-            "error",
-            "-y",
-            "-i",
-            inputFilename,
-            "-c:a",
-            "libopus",
-            outputFilename,
-        ]);
+        await execFilePromise(
+            "ffmpeg",
+            [
+                "-hide_banner",
+                "-nostdin",
+                "-loglevel",
+                "error",
+                "-y",
+                "-i",
+                inputFilename,
+                "-c:a",
+                "libopus",
+                outputFilename,
+            ],
+            {
+                killSignal: "SIGKILL",
+                maxBuffer: FFMPEG_MAX_OUTPUT_BYTES,
+                timeout: FFMPEG_CONVERSION_TIMEOUT_MS,
+            },
+        );
 
         return {
             status: true,
