@@ -37,10 +37,10 @@ function formatVoiceStatsLine(
 
 export function getFullStatsData(
     {
-        basicStats,
         mostUsedUsersStats,
         lastUsedUsersStats,
         mostUsedVoicesStats,
+        ...basicStats
     }: FullStats,
     translate: TranslateFunction,
     locale: string,

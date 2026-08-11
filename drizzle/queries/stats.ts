@@ -22,8 +22,7 @@ export type BasicStats = BasicUsersStats & BasicVoicesStats;
 export type FullUsersStats = Omit<SelectUser, "isIgnored" | "userId">;
 export type FullVoicesStats = Pick<SelectVoice, "usesAmount" | "voiceTitle">;
 
-export type FullStats = {
-    basicStats: BasicStats;
+export type FullStats = BasicStats & {
     mostUsedUsersStats: FullUsersStats[];
     lastUsedUsersStats: FullUsersStats[];
     mostUsedVoicesStats: FullVoicesStats[];
