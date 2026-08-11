@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { stat, unlink } from "node:fs/promises";
 import { Composer, InlineKeyboard, InputFile } from "grammy";
+import { databaseUrl } from "#drizzle/env.js";
 
 import { createEncryptedDatabaseBackup } from "#root/backup/create.js";
 import {
@@ -204,9 +205,9 @@ feature.callbackQuery(
             const encryptionKey = parseBackupEncryptionKey(
                 ctx.config.backupEncryptionKey,
             );
-            await withBackupAdvisoryLock(process.env.DATABASE_URL, async () => {
+            await withBackupAdvisoryLock(databaseUrl, async () => {
                 const emergencySha256 = await createEncryptedDatabaseBackup({
-                    databaseUrl: process.env.DATABASE_URL,
+                    databaseUrl,
                     encryptionKey,
                     paths: emergencyPaths,
                 });
@@ -223,12 +224,9 @@ feature.callbackQuery(
                     },
                 );
 
-                await restoreDatabaseDump(
-                    process.env.DATABASE_URL,
-                    session.dumpPath,
-                );
+                await restoreDatabaseDump(databaseUrl, session.dumpPath);
                 setCachedMaintenanceFeatureFlag(null);
-                await validateRestoredDatabase(process.env.DATABASE_URL);
+                await validateRestoredDatabase(databaseUrl);
             });
 
             ctx.logger.info({

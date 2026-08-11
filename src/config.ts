@@ -1,5 +1,6 @@
 import { API_CONSTANTS } from "grammy";
 import * as v from "valibot";
+import { loadEnvironmentFile } from "./environment.ts";
 
 const baseConfigSchema = v.object({
     nodeEnv: v.optional(
@@ -134,11 +135,7 @@ export function createConfig(input: unknown) {
 export const config = createConfigFromEnvironment();
 
 function createConfigFromEnvironment() {
-    try {
-        process.loadEnvFile();
-    } catch {
-        // No .env file found
-    }
+    loadEnvironmentFile();
 
     try {
         return createConfig({

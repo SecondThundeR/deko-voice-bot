@@ -6,19 +6,9 @@ import {
     encryptBackupFile,
     parseBackupEncryptionKey,
 } from "../src/backup/encryption.ts";
+import { loadEnvironmentFile } from "../src/environment.ts";
 
-try {
-    process.loadEnvFile();
-} catch (error) {
-    if (
-        !error ||
-        typeof error !== "object" ||
-        !("code" in error) ||
-        error.code !== "ENOENT"
-    ) {
-        throw error;
-    }
-}
+loadEnvironmentFile();
 
 const [action, inputArgument, outputArgument] = process.argv.slice(2);
 if (

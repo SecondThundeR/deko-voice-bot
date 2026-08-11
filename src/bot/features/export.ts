@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
+import { databaseUrl } from "#drizzle/env.js";
 
 import { createEncryptedDatabaseBackup } from "#root/backup/create.js";
 import { parseBackupEncryptionKey } from "#root/backup/encryption.js";
@@ -31,14 +32,12 @@ feature.command(
             const encryptionKey = parseBackupEncryptionKey(
                 ctx.config.backupEncryptionKey,
             );
-            const sha256 = await withBackupAdvisoryLock(
-                process.env.DATABASE_URL,
-                () =>
-                    createEncryptedDatabaseBackup({
-                        databaseUrl: process.env.DATABASE_URL,
-                        encryptionKey,
-                        paths,
-                    }),
+            const sha256 = await withBackupAdvisoryLock(databaseUrl, () =>
+                createEncryptedDatabaseBackup({
+                    databaseUrl,
+                    encryptionKey,
+                    paths,
+                }),
             );
 
             await ctx.replyWithDocument(
