@@ -1,5 +1,8 @@
 import { Composer } from "grammy";
-import { insertPayment } from "#drizzle/queries/payments.js";
+import {
+    insertPayment,
+    markPaymentAsRefunded,
+} from "#drizzle/queries/payments.js";
 import { donateData } from "#root/bot/callback-data/donate.js";
 import type { Context } from "#root/bot/context.js";
 import { DONATE_CONVERSATION } from "#root/bot/conversations/donate.js";
@@ -72,6 +75,26 @@ composer.on(
     "pre_checkout_query",
     logHandle("donate-pre-checkout-query"),
     (ctx) => ctx.preCheckoutQuery.answer(true),
+);
+
+composer.on(
+    "message:refunded_payment",
+    logHandle("donate-refunded-payment"),
+    async (ctx) => {
+        const payment = ctx.message.refunded_payment;
+        const isPaymentMarkedAsRefunded = await markPaymentAsRefunded(
+            payment.telegram_payment_charge_id,
+        );
+
+        if (!isPaymentMarkedAsRefunded) {
+            ctx.logger.warn({
+                msg: "Received a refund confirmation for an unknown payment",
+            });
+            return;
+        }
+
+        ctx.logger.info({ msg: "Refund reconciled from Telegram update" });
+    },
 );
 
 feature.on(
