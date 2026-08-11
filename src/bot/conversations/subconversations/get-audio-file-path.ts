@@ -5,7 +5,7 @@ export async function getAudioFilePathSubconversation(
     conversation: Conversation<Context, ConversationContext>,
     ctx: ConversationContext,
 ) {
-    await ctx.reply(ctx.t("newvoices.audioHint"));
+    await ctx.reply(ctx.t("new-voices-audio-hint"));
 
     const audioMessage = await conversation.waitFor(":audio");
     const audioFile = await audioMessage.getFile();

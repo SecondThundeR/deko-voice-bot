@@ -10,12 +10,12 @@ const feature = composer.chatType("private");
 
 feature.command("start", logHandle("command-start"), async (ctx) => {
     if (ctx.match === "donate") {
-        return ctx.reply(ctx.t("donate.commandText"), {
+        return ctx.reply(ctx.t("donate-message"), {
             reply_markup: createDonateKeyboard(ctx),
         });
     }
 
-    return ctx.reply(ctx.t("start.text"), {
+    return ctx.reply(ctx.t("start-message"), {
         reply_markup: createStartKeyboard(ctx),
     });
 });

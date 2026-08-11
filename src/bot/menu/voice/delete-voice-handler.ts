@@ -1,5 +1,6 @@
 import { deleteVoice } from "#drizzle/queries/voices.js";
 import type { MenuContext } from "#root/bot/context.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { closeMenuHandler } from "./close-menu-handler.ts";
 
 export async function deleteVoiceHandler(ctx: MenuContext) {
@@ -10,12 +11,16 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
 
     const voiceId = currentVoice.id;
     const deletedVoice = await deleteVoice(voiceId);
-    const translationPath = deletedVoice ? "Success" : "Failure";
+    const messageId = deletedVoice
+        ? "voices-delete-success"
+        : "voices-delete-failed";
 
     await closeMenuHandler(ctx);
     return ctx.reply(
-        ctx.t(`voices.deleted${translationPath}`, {
-            voiceTitle: deletedVoice?.voiceTitle ?? currentVoice.title,
+        ctx.t(messageId, {
+            voiceTitle: escapeHTML(
+                deletedVoice?.voiceTitle ?? currentVoice.title,
+            ),
         }),
     );
 }

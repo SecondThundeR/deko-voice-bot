@@ -11,7 +11,7 @@ const feature = composer.chatType("private").filter(isAdmin);
 feature.command("stats", logHandle("command-stats"), async (ctx) => {
     const statsData = await getBasicStats();
 
-    return ctx.reply(ctx.t("stats.regular", statsData));
+    return ctx.reply(ctx.t("stats-message", statsData));
 });
 
 export { composer as statsFeature };

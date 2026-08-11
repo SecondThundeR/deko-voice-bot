@@ -12,7 +12,7 @@ export async function favoriteItemHandler(
     const userId = ctx.from?.id;
     if (!userId) {
         return ctx.answerCallbackQuery({
-            text: ctx.t("favorites.inlineAnswerFail"),
+            text: ctx.t("favorites-update-failed"),
         });
     }
 
@@ -28,6 +28,6 @@ export async function favoriteItemHandler(
         immediate: true,
     });
     return ctx.answerCallbackQuery({
-        text: ctx.t("favorites.inlineAnswerSuccess"),
+        text: ctx.t("favorites-update-started"),
     });
 }

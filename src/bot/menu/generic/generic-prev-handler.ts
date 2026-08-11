@@ -14,7 +14,7 @@ export async function genericPrevHandler(
 
     if (currentOffset === 0) {
         return ctx.callbackQuery?.answer({
-            text: ctx.t("menu.alreadyPrev"),
+            text: ctx.t("menu-already-first-page"),
             show_alert: true,
         });
     }

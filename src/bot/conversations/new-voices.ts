@@ -3,6 +3,7 @@ import { createConversation } from "@grammyjs/conversations";
 import { addVoice } from "#drizzle/queries/voices.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
 import { sendConvertedVoice } from "#root/bot/helpers/conversations.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { getAudioFilePathSubconversation } from "./subconversations/get-audio-file-path.ts";
 import { getVoiceIDTextSubconversation } from "./subconversations/get-voice-id-text.ts";
 import { getVoiceTitleTextSubconversation } from "./subconversations/get-voice-title-text.ts";
@@ -27,7 +28,7 @@ export function newVoicesConversation() {
                     ctx,
                 );
                 if (!audioFilePath) {
-                    return ctx.reply(ctx.t("newvoices.audioPathEmpty"));
+                    return ctx.reply(ctx.t("new-voices-audio-path-empty"));
                 }
 
                 await ctx.replyWithChatAction("typing");
@@ -44,8 +45,8 @@ export function newVoicesConversation() {
                 await ctx.replyWithChatAction("upload_voice");
 
                 const voiceResult = await sendConvertedVoice({
-                    caption: ctx.t("newvoices.success", {
-                        title: voiceTitle,
+                    caption: ctx.t("new-voices-added", {
+                        title: escapeHTML(voiceTitle),
                     }),
                     conversation,
                     ctx,
@@ -54,12 +55,14 @@ export function newVoicesConversation() {
 
                 if (!voiceResult.status) {
                     if (voiceResult.type === "download") {
-                        return ctx.reply(ctx.t("newvoices.audioFetchFailed"));
+                        return ctx.reply(
+                            ctx.t("new-voices-audio-fetch-failed"),
+                        );
                     }
 
                     return ctx.reply(
-                        ctx.t("newvoices.convertFailed", {
-                            errorMsg: voiceResult.error,
+                        ctx.t("new-voices-conversion-failed", {
+                            errorMessage: escapeHTML(voiceResult.error),
                         }),
                     );
                 }
@@ -74,7 +77,9 @@ export function newVoicesConversation() {
                 );
                 if (!insertStatus) {
                     return ctx.reply(
-                        ctx.t("newvoices.failed", { title: voiceTitle }),
+                        ctx.t("new-voices-add-failed", {
+                            title: escapeHTML(voiceTitle),
+                        }),
                     );
                 }
 

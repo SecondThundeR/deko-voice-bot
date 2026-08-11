@@ -25,13 +25,13 @@ export async function genericOutdatedHandler<T>(
             immediate: true,
         });
         return ctx.callbackQuery?.answer({
-            text: ctx.t("menu.outdated"),
+            text: ctx.t("menu-outdated"),
         });
     } catch (error: unknown) {
         const isBannedByUser = await isBotBlockedByUser(ctx);
         if (isBannedByUser) {
             return ctx.callbackQuery?.answer({
-                text: ctx.t("inline.blocked"),
+                text: ctx.t("inline-bot-blocked"),
             });
         }
 

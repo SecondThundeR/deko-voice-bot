@@ -14,7 +14,7 @@ const composer = new Composer<Context>();
 const feature = composer.chatType("private");
 
 feature.command("donate", logHandle("command-donate"), (ctx) =>
-    ctx.reply(ctx.t("donate.commandText"), {
+    ctx.reply(ctx.t("donate-message"), {
         reply_markup: createDonateKeyboard(ctx),
     }),
 );
@@ -95,7 +95,7 @@ feature.on(
         }
 
         const amount = payment.total_amount;
-        return ctx.reply(ctx.t("donate.success", { amount: String(amount) }));
+        return ctx.reply(ctx.t("donate-success", { amount }));
     },
 );
 

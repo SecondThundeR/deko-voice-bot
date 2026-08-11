@@ -9,6 +9,7 @@ import {
     createDumpTempFilePath,
     readTextWithLimit,
 } from "#root/bot/helpers/general.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import {
     isMaintenanceActive,
@@ -26,7 +27,7 @@ feature.on(
     chatAction("typing"),
     async (ctx) => {
         if (isMaintenanceActive()) {
-            return ctx.reply(ctx.t("importData.maintenancePending"));
+            return ctx.reply(ctx.t("import-maintenance-pending"));
         }
 
         const document = ctx.msg.document;
@@ -43,7 +44,7 @@ feature.on(
         let message: Awaited<ReturnType<typeof ctx.reply>> | null = null;
 
         try {
-            message = await ctx.reply(ctx.t("importData.inProgress"));
+            message = await ctx.reply(ctx.t("import-in-progress"));
             const fileData = await ctx.getFile();
             if (!fileData.file_path) {
                 throw new Error("Backup file path is missing");
@@ -100,7 +101,7 @@ feature.on(
                 );
             }
 
-            return message.editText(ctx.t("importData.done"));
+            return message.editText(ctx.t("import-completed"));
         } catch (error) {
             ctx.logger.error({
                 msg: "Import failed. Rollback has been completed",
@@ -108,8 +109,8 @@ feature.on(
             });
 
             if (error instanceof Error) {
-                const errorMessage = ctx.t("importData.error", {
-                    errorMessage: error.message,
+                const errorMessage = ctx.t("import-error", {
+                    errorMessage: escapeHTML(error.message),
                 });
 
                 if (message) {
@@ -118,7 +119,7 @@ feature.on(
                     return ctx.reply(errorMessage);
                 }
             } else {
-                const errorMessage = ctx.t("importData.unknownError");
+                const errorMessage = ctx.t("import-unknown-error");
 
                 if (message) {
                     return message.editText(errorMessage);

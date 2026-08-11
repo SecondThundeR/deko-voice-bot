@@ -4,7 +4,7 @@ import type { Context, ConversationContext } from "#root/bot/context.js";
 export async function getVoiceTitleTextSubconversation(
     conversation: Conversation<Context, ConversationContext>,
     ctx: ConversationContext,
-    otherLocaleText = ctx.t("newvoices.titleHint"),
+    otherLocaleText = ctx.t("new-voices-title-hint"),
 ) {
     await ctx.reply(otherLocaleText);
 

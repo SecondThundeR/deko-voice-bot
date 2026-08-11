@@ -8,6 +8,7 @@ import {
     createDumpTempFilePath,
     readTextWithLimit,
 } from "#root/bot/helpers/general.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { getUpdateInfo, logHandle } from "#root/bot/helpers/logging.js";
 import {
     isMaintenanceActive,
@@ -25,7 +26,7 @@ feature.command(
     chatAction("upload_document"),
     async (ctx) => {
         if (isMaintenanceActive()) {
-            return ctx.reply(ctx.t("export.maintenancePending"));
+            return ctx.reply(ctx.t("export-maintenance-pending"));
         }
 
         setMaintenanceStatus(true);
@@ -58,7 +59,10 @@ feature.command(
 
             if (exitCode !== 0) {
                 return ctx.reply(
-                    ctx.t("export.dumpError", { exitCode, stderr }),
+                    ctx.t("export-error", {
+                        exitCode,
+                        stderr: escapeHTML(stderr),
+                    }),
                 );
             }
 
@@ -68,7 +72,7 @@ feature.command(
                 err: `Failed to export data from DB. Details: ${String(error)}`,
                 update: getUpdateInfo(ctx),
             });
-            return ctx.reply(ctx.t("export.unknownError"));
+            return ctx.reply(ctx.t("export-unknown-error"));
         } finally {
             setMaintenanceStatus(false);
 

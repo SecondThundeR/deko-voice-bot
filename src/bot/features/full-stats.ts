@@ -11,20 +11,25 @@ const feature = composer.chatType("private").filter(isAdmin);
 
 feature.command("fullstats", logHandle("command-fullstats"), async (ctx) => {
     const statsData = await getFullStats();
-    const statsMessageData = getFullStatsData({
-        basicStats: {
-            allUsedUsers: statsData.allUsedUsers,
-            allIgnoredUsers: statsData.allIgnoredUsers,
-            allMAUUsers: statsData.allMAUUsers,
-            allInactiveUsers: statsData.allInactiveUsers,
-            allUsedVoices: statsData.allUsedVoices,
+    const locale = await ctx.i18n.getLocale();
+    const statsMessageData = getFullStatsData(
+        {
+            basicStats: {
+                allUsedUsers: statsData.allUsedUsers,
+                allIgnoredUsers: statsData.allIgnoredUsers,
+                allMAUUsers: statsData.allMAUUsers,
+                allInactiveUsers: statsData.allInactiveUsers,
+                allUsedVoices: statsData.allUsedVoices,
+            },
+            mostUsedUsersStats: statsData.mostUsedUsersStats,
+            lastUsedUsersStats: statsData.lastUsedUsersStats,
+            mostUsedVoicesStats: statsData.mostUsedVoicesStats,
         },
-        mostUsedUsersStats: statsData.mostUsedUsersStats,
-        lastUsedUsersStats: statsData.lastUsedUsersStats,
-        mostUsedVoicesStats: statsData.mostUsedVoicesStats,
-    });
+        ctx.t,
+        locale,
+    );
 
-    return ctx.reply(ctx.t("stats.full", statsMessageData));
+    return ctx.reply(ctx.t("full-stats-message", statsMessageData));
 });
 
 export { composer as fullStatsFeature };

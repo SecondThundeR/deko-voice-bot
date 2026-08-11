@@ -13,17 +13,17 @@ feature.command("favorites", logHandle("command-favorites"), async (ctx) => {
     const userIgnoreStatus = await getUserIsIgnoredStatus(ctx.from.id);
 
     if (userIgnoreStatus === null) {
-        return ctx.reply(ctx.t("favorites.newUser"));
+        return ctx.reply(ctx.t("favorites-new-user"));
     } else if (userIgnoreStatus) {
-        return ctx.reply(ctx.t("favorites.optout"));
+        return ctx.reply(ctx.t("favorites-opted-out"));
     }
 
     const prepareStatus = await prepareFavoritesSessionMenu(ctx);
     if (!prepareStatus) {
-        return ctx.reply(ctx.t("favorites.noData"));
+        return ctx.reply(ctx.t("favorites-no-data"));
     }
 
-    return ctx.reply(ctx.t("favorites.header"), {
+    return ctx.reply(ctx.t("favorites-header"), {
         reply_markup: favoritesMenu,
     });
 });

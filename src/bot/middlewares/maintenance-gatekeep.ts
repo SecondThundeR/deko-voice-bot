@@ -32,7 +32,7 @@ export function maintenanceGatekeep(): Middleware<Context> {
         if (ctx.inlineQuery) {
             return ctx.answerInlineQuery([], {
                 button: {
-                    text: ctx.t("maintenance.inline-button"),
+                    text: ctx.t("maintenance-inline-button"),
                     start_parameter: MAINTENANCE_FEATURE_FLAG,
                 },
                 cache_time: 30,
@@ -40,8 +40,10 @@ export function maintenanceGatekeep(): Middleware<Context> {
             });
         }
 
-        const translationPath =
-            ctx.match === MAINTENANCE_FEATURE_FLAG ? "Inline" : "Chat";
-        return ctx.reply(ctx.t(`maintenance.description${translationPath}`));
+        const messageId =
+            ctx.match === MAINTENANCE_FEATURE_FLAG
+                ? "maintenance-inline-unavailable"
+                : "maintenance-chat-unavailable";
+        return ctx.reply(ctx.t(messageId));
     };
 }

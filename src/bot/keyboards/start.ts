@@ -5,7 +5,7 @@ export function createStartKeyboard(ctx: Context) {
     return InlineKeyboard.from([
         [
             {
-                text: ctx.t("start.keyboard"),
+                text: ctx.t("start-button"),
                 switch_inline_query: "",
             },
         ],

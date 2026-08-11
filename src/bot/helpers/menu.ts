@@ -86,7 +86,7 @@ export function getVoiceSubmenuIdentificator(ctx: Context) {
 
 export async function closeMenuExceptionHandler(ctx: Context) {
     const messageId = ctx.msg?.message_id;
-    const replyText = ctx.t("menu.failedToDelete");
+    const replyText = ctx.t("menu-delete-too-old");
     if (!messageId) {
         return ctx.reply(replyText);
     }
@@ -100,7 +100,7 @@ export async function closeMenuExceptionHandler(ctx: Context) {
 
 export async function outdatedExceptionHandler(ctx: Context) {
     const messageId = ctx.msg?.message_id;
-    const replyText = ctx.t("menu.failedToUpdate");
+    const replyText = ctx.t("menu-update-too-old");
     if (!messageId) {
         return ctx.reply(replyText);
     }

@@ -5,6 +5,7 @@ import { UPDATE_VOICE_FILE_CONVERSATION } from "#root/bot/conversations/update-v
 import { UPDATE_VOICE_ID_CONVERSATION } from "#root/bot/conversations/update-voice-id.js";
 import { UPDATE_VOICE_TITLE_CONVERSATION } from "#root/bot/conversations/update-voice-title.js";
 import { isEmpty } from "#root/bot/helpers/general.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 
 const UPDATE_CONVERSATIONS = [
@@ -33,24 +34,24 @@ feature.command("cancel", logHandle("command-cancel"), async (ctx) => {
     ctx.session.currentVoice = null;
 
     if (isUpdatingVoice) {
-        return ctx.reply(ctx.t("conversation.updateCancel"));
+        return ctx.reply(ctx.t("conversation-update-cancelled"));
     }
 
     if (isAddingVoices) {
         ctx.session.addedVoices = null;
 
         if (!addedVoices || addedVoices.length === 0) {
-            return ctx.reply(ctx.t("conversation.addCancel"));
+            return ctx.reply(ctx.t("conversation-add-cancelled"));
         }
 
         return ctx.reply(
-            ctx.t("conversation.addResults", {
-                voices: addedVoices.join("\n"),
+            ctx.t("conversation-add-results", {
+                voices: escapeHTML(addedVoices.join("\n")),
             }),
         );
     }
 
-    return ctx.reply(ctx.t("conversation.cancel"));
+    return ctx.reply(ctx.t("conversation-cancelled"));
 });
 
 export { composer as cancelFeature };

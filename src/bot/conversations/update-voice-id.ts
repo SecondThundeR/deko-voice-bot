@@ -2,6 +2,7 @@ import type { Conversation } from "@grammyjs/conversations";
 import { createConversation } from "@grammyjs/conversations";
 import { updateVoiceId } from "#drizzle/queries/voices.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { getVoiceIDTextSubconversation } from "./subconversations/get-voice-id-text.ts";
 
 export const UPDATE_VOICE_ID_CONVERSATION = "voice-id-update";
@@ -23,9 +24,9 @@ export function updateVoiceIDConversation() {
                 conversation,
                 ctx,
                 {
-                    hint: ctx.t("voiceid.hint"),
-                    notUnique: ctx.t("voiceid.notUnique"),
-                    long: ctx.t("voiceid.long"),
+                    hint: ctx.t("voice-id-hint"),
+                    notUnique: ctx.t("voice-id-not-unique"),
+                    long: ctx.t("voice-id-too-long"),
                 },
             );
 
@@ -38,14 +39,14 @@ export function updateVoiceIDConversation() {
                 await conversation.external((ctx) => {
                     ctx.session.currentVoice = null;
                 });
-                return ctx.reply(ctx.t("voiceid.failed"));
+                return ctx.reply(ctx.t("voice-id-update-failed"));
             }
 
             await ctx.reply(
-                ctx.t("voiceid.success", {
-                    voiceTitle: voiceData.title,
-                    oldVoiceID: voiceData.id,
-                    voiceID: newVoiceID,
+                ctx.t("voice-id-updated", {
+                    voiceTitle: escapeHTML(voiceData.title),
+                    oldVoiceId: escapeHTML(voiceData.id),
+                    voiceId: escapeHTML(newVoiceID),
                 }),
                 {
                     parse_mode: "HTML",

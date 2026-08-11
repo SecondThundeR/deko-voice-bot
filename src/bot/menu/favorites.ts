@@ -15,6 +15,6 @@ export const favoritesMenu = new Menu<Context>("fav-menu", {
 })
     .dynamic(dynamicListHandler)
     .row()
-    .text((ctx) => ctx.t("menu.prev"), prevPageHandler)
-    .text((ctx) => ctx.t("menu.close"), closeMenuHandler)
-    .text((ctx) => ctx.t("menu.next"), nextPageHandler);
+    .text((ctx) => ctx.t("menu-previous-button"), prevPageHandler)
+    .text((ctx) => ctx.t("menu-close-button"), closeMenuHandler)
+    .text((ctx) => ctx.t("menu-next-button"), nextPageHandler);

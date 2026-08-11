@@ -12,10 +12,10 @@ const feature = composer.chatType("private").filter(isAdmin);
 feature.command("voice", logHandle("command-voice"), async (ctx) => {
     const voicesCount = await getVoicesCount();
     if (voicesCount === 0) {
-        return ctx.reply(ctx.t("voices.noData"));
+        return ctx.reply(ctx.t("voices-no-data"));
     }
 
-    return ctx.reply(ctx.t("voices.menuItemHeaderHint"), {
+    return ctx.reply(ctx.t("voices-item-menu-hint"), {
         reply_markup: createSelectVoiceKeyboard(ctx),
     });
 });

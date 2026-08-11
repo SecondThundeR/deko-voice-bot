@@ -17,7 +17,7 @@ export async function genericNextHandler(
     const newOffset = currentOffset + elementsPerPage;
     if (newOffset >= totalElements) {
         return ctx.callbackQuery?.answer({
-            text: ctx.t("menu.alreadyNext"),
+            text: ctx.t("menu-no-next-page"),
             show_alert: true,
         });
     }

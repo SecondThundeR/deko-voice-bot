@@ -15,7 +15,7 @@ feature.on(":voice", logHandle("voice-item"), async (ctx) => {
 
     const voiceData = await getVoicesByUniqueId(fileUniqueId);
     if (voiceData.length === 0) {
-        return ctx.reply(ctx.t("voices.unknown"));
+        return ctx.reply(ctx.t("voices-unknown"));
     }
 
     if (voiceData.length > 1) {
@@ -28,7 +28,7 @@ feature.on(":voice", logHandle("voice-item"), async (ctx) => {
 
     ctx.session.currentVoice = convertVoiceDataToQueriesArray(voiceData)[0];
 
-    return ctx.reply(ctx.t("voices.menuItemHeader"), {
+    return ctx.reply(ctx.t("voices-item-menu-header"), {
         reply_markup: voiceMenu,
     });
 });

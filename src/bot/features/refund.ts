@@ -7,6 +7,7 @@ import {
 } from "#drizzle/queries/payments.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { getUpdateInfo, logHandle } from "#root/bot/helpers/logging.js";
 
 const composer = new Composer<Context>();
@@ -16,7 +17,7 @@ const feature = composer.chatType("private").filter(isAdmin);
 feature.command("refund", logHandle("command-refund"), async (ctx) => {
     const chargeId = ctx.match.trim();
     if (!chargeId) {
-        return ctx.reply(ctx.t("refund.emptyId"));
+        return ctx.reply(ctx.t("refund-id-required"));
     }
 
     try {
@@ -26,14 +27,14 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
             const existingPayment = await getPaymentByChargeId(chargeId);
 
             if (!existingPayment) {
-                return ctx.reply(ctx.t("refund.notFound"));
+                return ctx.reply(ctx.t("refund-not-found"));
             }
 
             if (existingPayment.status === "refund_pending") {
-                return ctx.reply(ctx.t("refund.inProgress"));
+                return ctx.reply(ctx.t("refund-in-progress"));
             }
 
-            return ctx.reply(ctx.t("refund.alreadyRefunded"));
+            return ctx.reply(ctx.t("refund-already-completed"));
         }
 
         try {
@@ -59,16 +60,16 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
         }
 
         await ctx.reply(
-            ctx.t("refund.success", {
+            ctx.t("refund-success", {
                 amount: payment.amount,
-                userId: String(payment.userId),
+                userId: payment.userId,
             }),
         );
 
         ctx.api
             .sendMessage(
                 payment.userId,
-                ctx.t("refund.userNotice", { amount: String(payment.amount) }),
+                ctx.t("refund-user-notice", { amount: payment.amount }),
             )
             .catch((err) => {
                 ctx.logger.error({
@@ -84,8 +85,8 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
 
         if (!error || typeof error !== "object") {
             return ctx.reply(
-                ctx.t("refund.error", {
-                    message: ctx.t("general.unknownError"),
+                ctx.t("refund-error", {
+                    errorMessage: ctx.t("general-unknown-error"),
                 }),
             );
         }
@@ -100,9 +101,10 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
                 : undefined;
 
         return ctx.reply(
-            ctx.t("refund.error", {
-                message:
-                    description || message || ctx.t("general.unknownError"),
+            ctx.t("refund-error", {
+                errorMessage: escapeHTML(
+                    description || message || ctx.t("general-unknown-error"),
+                ),
             }),
         );
     }

@@ -20,8 +20,10 @@ feature.command(
 
         setCachedMaintenanceFeatureFlag(maintenanceStatus);
 
-        const translationPath = maintenanceStatus ? "enabled" : "disabled";
-        return ctx.reply(ctx.t(`maintenance.${translationPath}`));
+        const messageId = maintenanceStatus
+            ? "maintenance-enabled"
+            : "maintenance-disabled";
+        return ctx.reply(ctx.t(messageId));
     },
 );
 

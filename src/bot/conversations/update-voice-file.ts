@@ -3,6 +3,7 @@ import { createConversation } from "@grammyjs/conversations";
 import { updateVoiceFile } from "#drizzle/queries/voices.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
 import { sendConvertedVoice } from "#root/bot/helpers/conversations.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { getAudioFilePathSubconversation } from "./subconversations/get-audio-file-path.ts";
 
 export const UPDATE_VOICE_FILE_CONVERSATION = "voice-file-update";
@@ -29,13 +30,15 @@ export function updateVoiceFileConversation() {
                 await conversation.external((ctx) => {
                     ctx.session.currentVoice = null;
                 });
-                return ctx.reply(ctx.t("newvoices.audioPathEmpty"));
+                return ctx.reply(ctx.t("new-voices-audio-path-empty"));
             }
 
             await ctx.replyWithChatAction("typing");
 
             const voiceResult = await sendConvertedVoice({
-                caption: ctx.t("newvoices.updated", { title }),
+                caption: ctx.t("new-voices-updated", {
+                    title: escapeHTML(title),
+                }),
                 conversation,
                 ctx,
                 filePath: audioFilePath,
@@ -47,12 +50,12 @@ export function updateVoiceFileConversation() {
                 });
 
                 if (voiceResult.type === "download") {
-                    return ctx.reply(ctx.t("newvoices.audioFetchFailed"));
+                    return ctx.reply(ctx.t("new-voices-audio-fetch-failed"));
                 }
 
                 return ctx.reply(
-                    ctx.t("newvoices.convertFailed", {
-                        errorMsg: voiceResult.error,
+                    ctx.t("new-voices-conversion-failed", {
+                        errorMessage: escapeHTML(voiceResult.error),
                     }),
                 );
             }
@@ -64,7 +67,11 @@ export function updateVoiceFileConversation() {
                 }),
             );
             if (!updateStatus) {
-                return ctx.reply(ctx.t("newvoices.failed", { title }));
+                return ctx.reply(
+                    ctx.t("new-voices-add-failed", {
+                        title: escapeHTML(title),
+                    }),
+                );
             }
 
             return conversation.external((ctx) => {

@@ -44,21 +44,21 @@ export async function sendDonationInvoice(
     amount: number,
 ) {
     if (amount < 1) {
-        return ctx.reply(ctx.t("donate.negative"));
+        return ctx.reply(ctx.t("donate-amount-too-small"));
     }
 
     const donationId = `donation-${ctx.from?.id}-${Date.now()}`;
 
     try {
         return ctx.replyWithInvoice(
-            ctx.t("donate.title"),
-            ctx.t("donate.message", { amount: String(amount) }),
+            ctx.t("donate-invoice-title"),
+            ctx.t("donate-invoice-description", { amount }),
             donationId,
             "XTR",
-            [{ label: ctx.t("donate.label"), amount }],
+            [{ label: ctx.t("donate-invoice-label"), amount }],
         );
     } catch {
-        return ctx.reply(ctx.t("donate.error"), {
+        return ctx.reply(ctx.t("donate-error"), {
             parse_mode: "HTML",
         });
     }

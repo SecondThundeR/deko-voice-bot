@@ -1,26 +1,49 @@
+import type { TranslateFunction } from "@grammyjs/i18n";
 import type { User } from "grammy/types";
 import type { SelectUser } from "#drizzle/schema.js";
 
-import { convertLastUsedAtTimestamp } from "./time.ts";
+import { escapeHTML } from "./html.ts";
+import { formatMoscowDateTime } from "./time.ts";
 
-export function getFormattedUserData({
-    userId,
-    fullname,
-    username,
-    lastUsedAt,
-    usesAmount,
-}: Omit<SelectUser, "isIgnored">) {
-    return {
-        usesAmount: String(usesAmount),
-        userId: String(userId),
-        fullname: fullname ? `\n- Ваше полное имя в Telegram: ${fullname}` : "",
-        username: username
-            ? `\n- Ваше имя пользователя в Telegram: @${username}`
-            : "",
-        lastUsedAt: lastUsedAt
-            ? `\n- Время последней отправки реплики (по МСК): ${convertLastUsedAtTimestamp(lastUsedAt)}`
-            : "",
-    };
+export function getLocalizedUserData(
+    translate: TranslateFunction,
+    locale: string,
+    {
+        userId,
+        fullname,
+        username,
+        lastUsedAt,
+        usesAmount,
+    }: Omit<SelectUser, "isIgnored">,
+) {
+    const lines = [translate("my-data-user-id", { userId })];
+
+    if (fullname) {
+        lines.push(
+            translate("my-data-full-name", {
+                fullName: escapeHTML(fullname),
+            }),
+        );
+    }
+    if (username) {
+        lines.push(
+            translate("my-data-username", { username: escapeHTML(username) }),
+        );
+    }
+
+    lines.push(translate("my-data-uses-amount", { usesAmount }));
+
+    if (lastUsedAt) {
+        lines.push(
+            translate("my-data-last-used-at", {
+                lastUsedAt: escapeHTML(
+                    formatMoscowDateTime(lastUsedAt, locale),
+                ),
+            }),
+        );
+    }
+
+    return lines.join("\n");
 }
 
 export function getUserFullname(firstName: string, lastName?: string) {

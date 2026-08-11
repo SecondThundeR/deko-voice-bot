@@ -13,9 +13,9 @@ export async function getVoiceIDTextSubconversation(
     },
 ) {
     const {
-        hint = ctx.t("newvoices.idHint"),
-        notUnique = ctx.t("newvoices.idNotUnique"),
-        long = ctx.t("newvoices.idLong"),
+        hint = ctx.t("new-voices-id-hint"),
+        notUnique = ctx.t("new-voices-id-not-unique"),
+        long = ctx.t("new-voices-id-too-long"),
     } = { ...otherLocale };
 
     await ctx.reply(hint, { parse_mode: "HTML" });

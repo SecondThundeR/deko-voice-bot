@@ -22,9 +22,9 @@ export const voicesMenu = new Menu<Context>("voices-menu", {
 })
     .dynamic(dynamicListHandler)
     .row()
-    .text((ctx) => ctx.t("menu.prev"), prevPageHandler)
-    .text((ctx) => ctx.t("menu.close"), closeMenuHandler)
-    .text((ctx) => ctx.t("menu.next"), nextPageHandler);
+    .text((ctx) => ctx.t("menu-previous-button"), prevPageHandler)
+    .text((ctx) => ctx.t("menu-close-button"), closeMenuHandler)
+    .text((ctx) => ctx.t("menu-next-button"), nextPageHandler);
 
 const voicesSubmenu = new Menu<Context>("voice-submenu", {
     autoAnswer: false,
@@ -33,12 +33,12 @@ const voicesSubmenu = new Menu<Context>("voice-submenu", {
 })
     .text(infoButtonHandler, (ctx) => ctx.callbackQuery.answer())
     .row()
-    .text((ctx) => ctx.t("voices.updateID"), updateIDHandler)
-    .text((ctx) => ctx.t("voices.updateTitle"), updateTitleHandler)
-    .text((ctx) => ctx.t("voices.delete"), deleteVoiceHandler)
+    .text((ctx) => ctx.t("voices-update-id-button"), updateIDHandler)
+    .text((ctx) => ctx.t("voices-update-title-button"), updateTitleHandler)
+    .text((ctx) => ctx.t("voices-delete-button"), deleteVoiceHandler)
     .row()
-    .text((ctx) => ctx.t("voices.updateFile"), updateVoiceDataHandler)
+    .text((ctx) => ctx.t("voices-update-file-button"), updateVoiceDataHandler)
     .row()
-    .text((ctx) => ctx.t("menu.back"), backMenuHandler);
+    .text((ctx) => ctx.t("menu-back-button"), backMenuHandler);
 
 voicesMenu.register(voicesSubmenu);

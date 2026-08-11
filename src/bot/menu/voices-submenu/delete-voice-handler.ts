@@ -21,6 +21,6 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
     );
 
     if (!hasVoices) {
-        return ctx.reply(ctx.t("voices.noData"));
+        return ctx.reply(ctx.t("voices-no-data"));
     }
 }

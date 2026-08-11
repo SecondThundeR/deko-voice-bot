@@ -11,12 +11,12 @@ export function donateConversation() {
             conversation: Conversation<Context, ConversationContext>,
             ctx: ConversationContext,
         ) => {
-            await ctx.reply(ctx.t("donate.customAmountQuestion"));
+            await ctx.reply(ctx.t("donate-custom-amount-question"));
             const amountCtx = await conversation.waitFor("message:text");
             const amount = parseInt(amountCtx.message.text, 10);
 
             if (Number.isNaN(amount) || amount <= 0) {
-                return ctx.reply(ctx.t("donate.incorrectCustomAmount"));
+                return ctx.reply(ctx.t("donate-custom-amount-invalid"));
             }
 
             return conversation.external(() =>

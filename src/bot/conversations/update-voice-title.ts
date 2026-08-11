@@ -1,6 +1,7 @@
 import { type Conversation, createConversation } from "@grammyjs/conversations";
 import { updateVoiceTitle } from "#drizzle/queries/voices.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 import { getVoiceTitleTextSubconversation } from "./subconversations/get-voice-title-text.ts";
 
 export const UPDATE_VOICE_TITLE_CONVERSATION = "voice-title-update";
@@ -21,7 +22,7 @@ export function updateVoiceTitleConversation() {
             const newVoiceTitle = await getVoiceTitleTextSubconversation(
                 conversation,
                 ctx,
-                ctx.t("voicetitle.hint"),
+                ctx.t("voice-title-hint"),
             );
 
             await ctx.replyWithChatAction("typing");
@@ -33,13 +34,13 @@ export function updateVoiceTitleConversation() {
                 await conversation.external((ctx) => {
                     ctx.session.currentVoice = null;
                 });
-                return ctx.reply(ctx.t("voicetitle.failed"));
+                return ctx.reply(ctx.t("voice-title-update-failed"));
             }
 
             await ctx.reply(
-                ctx.t("voicetitle.success", {
-                    oldVoiceTitle: voiceData.title,
-                    voiceTitle: newVoiceTitle,
+                ctx.t("voice-title-updated", {
+                    oldVoiceTitle: escapeHTML(voiceData.title),
+                    voiceTitle: escapeHTML(newVoiceTitle),
                 }),
                 {
                     parse_mode: "HTML",

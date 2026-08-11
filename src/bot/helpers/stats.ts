@@ -1,51 +1,66 @@
+import type { TranslateFunction } from "@grammyjs/i18n";
 import type {
     FullStats,
     FullUsersStats,
     FullVoicesStats,
 } from "#drizzle/queries/stats.js";
-import { convertLastUsedAtTimestamp } from "./time.ts";
+import { escapeHTML } from "./html.ts";
+import { formatMoscowDateTime } from "./time.ts";
 
-function formatUserStatsLine({
-    username,
-    fullname,
-    usesAmount,
-    lastUsedAt,
-}: FullUsersStats) {
-    const userName = username ? `@${username}` : fullname;
-    const dateString = lastUsedAt
-        ? ` (${convertLastUsedAtTimestamp(lastUsedAt)})`
-        : "";
+function formatUserStatsLine(
+    translate: TranslateFunction,
+    locale: string,
+    { username, fullname, usesAmount, lastUsedAt }: FullUsersStats,
+) {
+    const userName = escapeHTML(username ? `@${username}` : (fullname ?? ""));
 
-    return `- ${userName}: ${usesAmount} раз${dateString}`;
+    if (lastUsedAt) {
+        return translate("stats-user-line-with-date", {
+            userName,
+            usesAmount,
+            lastUsedAt: escapeHTML(formatMoscowDateTime(lastUsedAt, locale)),
+        });
+    }
+
+    return translate("stats-user-line", { userName, usesAmount });
 }
 
-function formatVoiceStatsLine({ voiceTitle, usesAmount }: FullVoicesStats) {
-    return `- ${voiceTitle}: ${usesAmount} раз`;
+function formatVoiceStatsLine(
+    translate: TranslateFunction,
+    { voiceTitle, usesAmount }: FullVoicesStats,
+) {
+    return translate("stats-voice-line", {
+        voiceTitle: escapeHTML(voiceTitle),
+        usesAmount,
+    });
 }
 
-export function getFullStatsData({
-    basicStats,
-    mostUsedUsersStats,
-    lastUsedUsersStats,
-    mostUsedVoicesStats,
-}: FullStats) {
+export function getFullStatsData(
+    {
+        basicStats,
+        mostUsedUsersStats,
+        lastUsedUsersStats,
+        mostUsedVoicesStats,
+    }: FullStats,
+    translate: TranslateFunction,
+    locale: string,
+) {
     const mostUsedUsers = mostUsedUsersStats
-        .map(formatUserStatsLine)
+        .map((user) => formatUserStatsLine(translate, locale, user))
         .join("\n");
     const mostUsedVoices = mostUsedVoicesStats
-        .map(formatVoiceStatsLine)
+        .map((voice) => formatVoiceStatsLine(translate, voice))
         .join("\n");
     const lastUsedUsers = lastUsedUsersStats
-        .map(formatUserStatsLine)
+        .map((user) => formatUserStatsLine(translate, locale, user))
         .join("\n");
+
+    const noData = translate("stats-no-data");
 
     return {
         ...basicStats,
-        mostUsedUsers:
-            mostUsedUsers.length === 0 ? "Нет информации" : mostUsedUsers,
-        lastUsedUsers:
-            lastUsedUsers.length === 0 ? "Нет информации" : lastUsedUsers,
-        mostUsedVoices:
-            mostUsedVoices.length === 0 ? "Нет информации" : mostUsedVoices,
+        mostUsedUsers: mostUsedUsers || noData,
+        lastUsedUsers: lastUsedUsers || noData,
+        mostUsedVoices: mostUsedVoices || noData,
     };
 }
