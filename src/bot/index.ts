@@ -50,8 +50,14 @@ import { maintenanceGatekeep } from "./middlewares/maintenance-gatekeep.ts";
 import { session } from "./middlewares/session.ts";
 import { updateLogger } from "./middlewares/update-logger.ts";
 import { databaseTrafficGatekeep } from "./store/database-traffic.ts";
+import {
+    createTtlMemoryStorage,
+    createTtlVersionedMemoryStorage,
+} from "./store/ttl-memory-storage.ts";
 
 const SESSION_TTL_SECONDS = 24 * 60 * 60;
+const SESSION_TTL_MS = SESSION_TTL_SECONDS * 1_000;
+const STORAGE_CLEANUP_INTERVAL_MS = 60 * 60 * 1_000;
 
 interface Dependencies {
     config: Config;
@@ -81,16 +87,24 @@ export function createBot(
     botConfig?: BotConfig<Context>,
 ) {
     const { config, logger } = dependencies;
-    const sessionStorage = new RedisAdapter<SessionData>({
-        instance: redis,
-        ttl: SESSION_TTL_SECONDS,
-    });
-    const conversationStorage = new RedisAdapter<
-        VersionedState<ConversationData>
-    >({
-        instance: redis,
-        ttl: SESSION_TTL_SECONDS,
-    });
+    const sessionStorage = redis
+        ? new RedisAdapter<SessionData>({
+              instance: redis,
+              ttl: SESSION_TTL_SECONDS,
+          })
+        : createTtlMemoryStorage<SessionData>({
+              cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
+              ttlMs: SESSION_TTL_MS,
+          });
+    const conversationStorage = redis
+        ? new RedisAdapter<VersionedState<ConversationData>>({
+              instance: redis,
+              ttl: SESSION_TTL_SECONDS,
+          })
+        : createTtlVersionedMemoryStorage<ConversationData>({
+              cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
+              ttlMs: SESSION_TTL_MS,
+          });
 
     const bot = new TelegramBot<Context>(token, botConfig);
 

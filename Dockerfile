@@ -33,6 +33,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --prod --frozen-lockfile
 
 FROM base AS release
+ENV NODE_ENV=production
 COPY --from=mwader/static-ffmpeg:8.1.2 /ffmpeg /ffprobe /usr/local/bin/
 COPY --from=prod-deps --chown=node:node /usr/src/app/node_modules node_modules
 COPY --from=build --chown=node:node /usr/src/app/dist dist

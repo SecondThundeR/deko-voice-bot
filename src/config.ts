@@ -13,6 +13,10 @@ type KeysToCamelCase<T> = {
 };
 
 const baseConfigSchema = v.object({
+    nodeEnv: v.optional(
+        v.picklist(["development", "production"]),
+        "development",
+    ),
     useDebug: v.optional(
         v.pipe(v.string(), v.transform(JSON.parse), v.boolean()),
         "false",
@@ -53,12 +57,15 @@ const baseConfigSchema = v.object({
         ),
         "[]",
     ),
-    redisUrl: v.pipe(
-        v.string(),
-        v.url(),
-        v.check(
-            (value) => ["redis:", "rediss:"].includes(new URL(value).protocol),
-            "Must use the redis:// or rediss:// protocol",
+    redisUrl: v.optional(
+        v.pipe(
+            v.string(),
+            v.url(),
+            v.check(
+                (value) =>
+                    ["redis:", "rediss:"].includes(new URL(value).protocol),
+                "Must use the redis:// or rediss:// protocol",
+            ),
         ),
     ),
     backupEncryptionKey: v.pipe(
@@ -93,6 +100,13 @@ const configSchema = v.variant("botMode", [
             botMode: v.literal("polling"),
             ...baseConfigSchema.entries,
         }),
+        v.forward(
+            v.check(
+                (input) => input.nodeEnv !== "production" || !!input.redisUrl,
+                "REDIS_URL is required in production",
+            ),
+            ["redisUrl"],
+        ),
         v.transform((input) => ({
             ...input,
             isDebug: input.useDebug,
@@ -119,6 +133,13 @@ const configSchema = v.variant("botMode", [
                 "80",
             ),
         }),
+        v.forward(
+            v.check(
+                (input) => input.nodeEnv !== "production" || !!input.redisUrl,
+                "REDIS_URL is required in production",
+            ),
+            ["redisUrl"],
+        ),
         v.transform((input) => ({
             ...input,
             isDebug: input.useDebug,

@@ -73,8 +73,18 @@ async function startWebhook(config: WebhookConfig) {
 }
 
 try {
-    await Promise.all([checkDatabaseConnection(), checkRedisConnection()]);
-    logger.info({ msg: "Database and Redis connections established" });
+    const [, isRedisConnected] = await Promise.all([
+        checkDatabaseConnection(),
+        checkRedisConnection(),
+    ]);
+    logger.info({ msg: "Database connection established" });
+    if (isRedisConnected) {
+        logger.info({ msg: "Redis connection established" });
+    } else {
+        logger.warn({
+            msg: "REDIS_URL is not configured; using in-memory session storage",
+        });
+    }
 
     if (config.isWebhookMode) {
         await startWebhook(config);
