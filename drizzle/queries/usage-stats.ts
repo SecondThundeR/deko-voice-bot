@@ -1,299 +1,106 @@
-import { eq, sql } from "drizzle-orm";
+import { setTimeout as delay } from "node:timers/promises";
+
+import { sql } from "drizzle-orm";
 
 import type { Logger } from "#root/logger.js";
 
 import { db } from "../db.ts";
 import {
     type InsertUser,
+    processedUsageUpdatesTable,
     type SelectVoice,
     usersTable,
     voicesTable,
 } from "../schema.ts";
 
-const FLUSH_INTERVAL_MS = 60 * 1000;
+const RETRY_DELAYS_MS = [0, 100, 300] as const;
 
 type UserDetails = Omit<InsertUser, "isIgnored" | "usesAmount" | "lastUsedAt">;
 
-interface UserUsageStats extends UserDetails {
-    usesAmount: number;
+interface RecordUsageOptions {
+    logger?: Logger;
+    updateId: number;
+    user: UserDetails;
+    voiceId: SelectVoice["voiceId"];
 }
 
-const voiceUses = new Map<SelectVoice["voiceId"], number>();
-const userUses = new Map<UserDetails["userId"], UserUsageStats>();
-const ignoredUsers = new Set<UserDetails["userId"]>();
-
-let flushTimer: ReturnType<typeof setInterval> | undefined;
-let currentFlush: Promise<void> | undefined;
-
-export function trackVoiceUsage(
-    voiceId: SelectVoice["voiceId"],
-    logger?: Logger,
-) {
-    const usesAmount = (voiceUses.get(voiceId) ?? 0) + 1;
-    voiceUses.set(voiceId, usesAmount);
-
-    logger?.debug({
-        msg: "Voice usage tracked",
-        voiceId,
-        usesAmount,
-        pendingVoiceUses: voiceUses.size,
-    });
-}
-
-export function trackUserUsage(userDetails: UserDetails, logger?: Logger) {
-    if (ignoredUsers.has(userDetails.userId)) {
-        logger?.debug({
-            msg: "User usage ignored",
-            userId: userDetails.userId,
-            ignoredUsers: ignoredUsers.size,
-        });
-        return;
-    }
-
-    const existing = userUses.get(userDetails.userId);
-    const usesAmount = (existing?.usesAmount ?? 0) + 1;
-
-    userUses.set(userDetails.userId, {
-        ...userDetails,
-        usesAmount,
-    });
-
-    logger?.debug({
-        msg: "User usage tracked",
-        userId: userDetails.userId,
-        usesAmount,
-        pendingUserUses: userUses.size,
-    });
-}
-
-export function allowUserUsage(userId: UserDetails["userId"], logger?: Logger) {
-    ignoredUsers.delete(userId);
-
-    logger?.debug({
-        msg: "User usage allowed",
-        userId,
-        ignoredUsers: ignoredUsers.size,
-    });
-}
-
-export function ignoreUserUsage(
-    userId: UserDetails["userId"],
-    logger?: Logger,
-) {
-    ignoredUsers.add(userId);
-
-    const userUsageStats = userUses.get(userId);
-    userUses.delete(userId);
-
-    logger?.debug({
-        msg: "User usage disabled",
-        userId,
-        pendingUsesAmount: userUsageStats?.usesAmount ?? 0,
-        ignoredUsers: ignoredUsers.size,
-        pendingUserUses: userUses.size,
-    });
-
-    return userUsageStats;
-}
-
-export async function loadIgnoredUsers(logger?: Logger) {
-    const ignoredUserIds = await db
-        .select({ userId: usersTable.userId })
-        .from(usersTable)
-        .where(eq(usersTable.isIgnored, true));
-
-    for (const { userId } of ignoredUserIds) {
-        ignoredUsers.add(userId);
-    }
-
-    logger?.debug({
-        msg: "Ignored users loaded",
-        ignoredUsers: ignoredUsers.size,
-    });
-}
-
-export function startUsageStatsFlushInterval(
-    onError: (error: unknown) => void,
-    logger?: Logger,
-) {
-    if (flushTimer) {
-        logger?.debug({
-            msg: "Usage stats flush interval already started",
-            flushIntervalMs: FLUSH_INTERVAL_MS,
-        });
-        return;
-    }
-
-    flushTimer = setInterval(() => {
-        flushUsageStats(logger).catch(onError);
-    }, FLUSH_INTERVAL_MS);
-
-    logger?.debug({
-        msg: "Usage stats flush interval started",
-        flushIntervalMs: FLUSH_INTERVAL_MS,
-    });
-}
-
-export async function stopUsageStatsFlushInterval(logger?: Logger) {
-    if (flushTimer) {
-        clearInterval(flushTimer);
-        flushTimer = undefined;
-
-        logger?.debug({
-            msg: "Usage stats flush interval stopped",
-            pendingVoiceUses: voiceUses.size,
-            pendingUserUses: userUses.size,
-        });
-    }
-
-    while (currentFlush || voiceUses.size > 0 || userUses.size > 0) {
-        await flushUsageStats(logger);
-    }
-}
-
-function flushUsageStats(logger?: Logger) {
-    if (currentFlush) {
-        logger?.debug({
-            msg: "Usage stats flush already in progress",
-            pendingVoiceUses: voiceUses.size,
-            pendingUserUses: userUses.size,
-        });
-        return currentFlush;
-    }
-
-    if (voiceUses.size === 0 && userUses.size === 0) {
-        logger?.debug({
-            msg: "Usage stats flush skipped",
-            pendingVoiceUses: voiceUses.size,
-            pendingUserUses: userUses.size,
-        });
-        return Promise.resolve();
-    }
-
-    currentFlush = flushUsageStatsSnapshot(logger).finally(() => {
-        currentFlush = undefined;
-    });
-
-    return currentFlush;
-}
-
-async function flushUsageStatsSnapshot(logger?: Logger) {
-    const voiceUsesSnapshot = new Map(voiceUses);
-    const userUsesSnapshot = new Map(userUses);
-    const flushedAt = Date.now();
-
-    logger?.debug({
-        msg: "Usage stats flush started",
-        voiceUsageRows: voiceUsesSnapshot.size,
-        userUsageRows: userUsesSnapshot.size,
-        flushedAt,
-    });
-
-    try {
-        await db.transaction(async (tx) => {
-            if (voiceUsesSnapshot.size > 0) {
-                const voiceUsageRows = [...voiceUsesSnapshot].map(
-                    ([voiceId, usesAmount]) =>
-                        sql`(${voiceId}, ${usesAmount}::integer)`,
-                );
-
-                await tx.execute(sql`
-                    update ${voicesTable}
-                    set uses_amount = ${voicesTable.usesAmount} + voice_usage.uses_amount
-                    from (values ${sql.join(voiceUsageRows, sql`, `)})
-                        as voice_usage(voice_id, uses_amount)
-                    where ${voicesTable.voiceId} = voice_usage.voice_id
-                `);
-
-                logger?.debug({
-                    msg: "Voice usage flushed",
-                    voiceUsageRows: voiceUsesSnapshot.size,
-                });
-            }
-
-            if (userUsesSnapshot.size > 0) {
-                const userUsageRows = [...userUsesSnapshot.values()].map(
-                    ({ userId, fullname, username, usesAmount }) =>
-                        sql`(${userId}::bigint, ${fullname ?? null}, ${username ?? null}, ${usesAmount}::integer, ${flushedAt}::bigint)`,
-                );
-
-                await tx.execute(sql`
-                    insert into ${usersTable}
-                        (user_id, fullname, username, uses_amount, last_used_at)
-                    values ${sql.join(userUsageRows, sql`, `)}
-                    on conflict (user_id) do update set
-                        fullname = excluded.fullname,
-                        username = excluded.username,
-                        uses_amount = ${usersTable.usesAmount} + excluded.uses_amount,
-                        last_used_at = excluded.last_used_at
-                    where ${usersTable.isIgnored} = false
-                `);
-
-                logger?.debug({
-                    msg: "User usage flushed",
-                    userUsageRows: userUsesSnapshot.size,
-                });
-            }
-        });
-
-        // Only subtract the committed snapshot AFTER the transaction succeeds.
-        // Concurrent tracks added to the maps during the await are preserved.
-        // If the process dies between commit and subtract, the next flush will
-        // re-commit and double-count — preferred over silent data loss.
-        subtractVoiceUses(voiceUsesSnapshot);
-        subtractUserUses(userUsesSnapshot);
-
-        logger?.debug({
-            msg: "Usage stats flush completed",
-            voiceUsageRows: voiceUsesSnapshot.size,
-            userUsageRows: userUsesSnapshot.size,
-            pendingVoiceUses: voiceUses.size,
-            pendingUserUses: userUses.size,
-        });
-    } catch (error) {
-        logger?.debug({
-            msg: "Usage stats flush failed; pending stats preserved in memory",
-            voiceUsageRows: voiceUsesSnapshot.size,
-            userUsageRows: userUsesSnapshot.size,
-            pendingVoiceUses: voiceUses.size,
-            pendingUserUses: userUses.size,
-        });
-
-        throw error;
-    }
-}
-
-function subtractVoiceUses(snapshot: Map<SelectVoice["voiceId"], number>) {
-    for (const [voiceId, snapshotAmount] of snapshot) {
-        const current = voiceUses.get(voiceId);
-        if (current === undefined) {
-            continue;
+export async function recordUsage({
+    logger,
+    updateId,
+    user,
+    voiceId,
+}: RecordUsageOptions) {
+    for (const [attempt, retryDelayMs] of RETRY_DELAYS_MS.entries()) {
+        if (retryDelayMs > 0) {
+            await delay(retryDelayMs);
         }
-        const remaining = current - snapshotAmount;
-        if (remaining <= 0) {
-            voiceUses.delete(voiceId);
-        } else {
-            voiceUses.set(voiceId, remaining);
-        }
-    }
-}
 
-function subtractUserUses(
-    snapshot: Map<UserDetails["userId"], UserUsageStats>,
-) {
-    for (const [userId, snapshotStats] of snapshot) {
-        const current = userUses.get(userId);
-        if (current === undefined) {
-            continue;
-        }
-        const remaining = current.usesAmount - snapshotStats.usesAmount;
-        if (remaining <= 0) {
-            userUses.delete(userId);
-        } else {
-            userUses.set(userId, {
-                ...current,
-                usesAmount: remaining,
+        try {
+            await recordUsageOnce({ updateId, user, voiceId });
+            return;
+        } catch (error) {
+            const isLastAttempt = attempt === RETRY_DELAYS_MS.length - 1;
+
+            logger?.warn({
+                msg: isLastAttempt
+                    ? "Failed to record usage"
+                    : "Failed to record usage; retrying",
+                err: error,
+                updateId,
+                voiceId,
+                attempt: attempt + 1,
             });
+
+            if (isLastAttempt) {
+                throw error;
+            }
         }
     }
+}
+
+async function recordUsageOnce({
+    updateId,
+    user: { userId, fullname, username },
+    voiceId,
+}: Omit<RecordUsageOptions, "logger">) {
+    const usedAt = Date.now();
+
+    await db.execute(sql`
+        with new_usage_update as (
+            insert into ${processedUsageUpdatesTable}
+                (update_id)
+            values (${updateId}::bigint)
+            on conflict do nothing
+            returning update_id
+        ),
+        voice_usage as (
+            update ${voicesTable}
+            set uses_amount = ${voicesTable.usesAmount} + 1
+            where
+                ${voicesTable.voiceId} = ${voiceId}
+                and exists (select 1 from new_usage_update)
+            returning voice_id
+        )
+        insert into ${usersTable}
+            (
+                user_id,
+                fullname,
+                username,
+                uses_amount,
+                last_used_at
+            )
+        select
+            ${userId}::bigint,
+            ${fullname ?? null},
+            ${username ?? null},
+            1,
+            ${usedAt}::bigint
+        where exists (select 1 from new_usage_update)
+        on conflict (user_id) do update set
+            fullname = excluded.fullname,
+            username = excluded.username,
+            uses_amount = ${usersTable.usesAmount} + 1,
+            last_used_at = excluded.last_used_at
+        where ${usersTable.isIgnored} = false
+    `);
 }

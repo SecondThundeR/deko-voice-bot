@@ -1,4 +1,4 @@
-import { getVoicesCount } from "#drizzle/queries/select.js";
+import { getVoicesCount } from "#drizzle/queries/voices.js";
 import type { MenuContext } from "#root/bot/context.js";
 import { genericOutdatedHandler } from "../generic/generic-outdated-handler.ts";
 

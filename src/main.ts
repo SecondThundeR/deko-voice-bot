@@ -1,9 +1,8 @@
 import { run } from "@grammyjs/runner";
 import {
-    loadIgnoredUsers,
-    startUsageStatsFlushInterval,
-    stopUsageStatsFlushInterval,
-} from "#drizzle/queries/usage-stats.js";
+    checkDatabaseConnection,
+    closeDatabaseConnection,
+} from "#drizzle/db.js";
 
 import { createBot } from "./bot/index.ts";
 import { config, type PollingConfig, type WebhookConfig } from "./config.ts";
@@ -12,12 +11,7 @@ import { logger } from "./logger.ts";
 import { createServer, createServerManager } from "./server/index.ts";
 
 const lifecycle = createLifecycle(logger);
-
-async function setupUsageStats() {
-    await loadIgnoredUsers(logger);
-    startUsageStatsFlushInterval((error) => logger.error(error), logger);
-    lifecycle.onShutdown(() => stopUsageStatsFlushInterval(logger));
-}
+lifecycle.onShutdown(closeDatabaseConnection);
 
 async function startPolling(config: PollingConfig) {
     const bot = createBot(config.botToken, {
@@ -26,8 +20,6 @@ async function startPolling(config: PollingConfig) {
     });
 
     await Promise.all([bot.init(), bot.api.deleteWebhook()]);
-    await setupUsageStats();
-
     const runner = run(bot, {
         runner: {
             fetch: {
@@ -60,8 +52,6 @@ async function startWebhook(config: WebhookConfig) {
 
     // to prevent receiving updates before the bot is ready
     await bot.init();
-    await setupUsageStats();
-
     const info = await serverManager.start();
     lifecycle.onShutdown(() => serverManager.stop());
     logger.info({
@@ -80,6 +70,9 @@ async function startWebhook(config: WebhookConfig) {
 }
 
 try {
+    await checkDatabaseConnection();
+    logger.info({ msg: "Database connection established" });
+
     if (config.isWebhookMode) {
         await startWebhook(config);
     } else if (config.isPollingMode) {

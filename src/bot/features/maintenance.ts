@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { toggleFeatureFlag } from "#drizzle/queries/update.js";
+import { toggleFeatureFlag } from "#drizzle/queries/feature-flags.js";
 import { MAINTENANCE_FEATURE_FLAG } from "#root/bot/constants/feature-flags.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";

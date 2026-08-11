@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { index, pgEnum, pgTable, primaryKey } from "drizzle-orm/pg-core";
 
 import {
@@ -16,7 +16,6 @@ export const featureFlagsTable = pgTable("feature_flags", (t) => ({
     status: t.boolean().notNull().default(false),
 }));
 
-export type InsertFeatureFlag = typeof featureFlagsTable.$inferInsert;
 export type SelectFeatureFlag = typeof featureFlagsTable.$inferSelect;
 
 export const voicesTable = pgTable(
@@ -36,10 +35,6 @@ export const voicesTable = pgTable(
     ],
 );
 
-export const voicesRelations = relations(voicesTable, ({ many }) => ({
-    usersFavoritesTable: many(usersFavoritesTable),
-}));
-
 export type InsertVoice = typeof voicesTable.$inferInsert;
 export type SelectVoice = typeof voicesTable.$inferSelect;
 
@@ -52,7 +47,7 @@ export const usersTable = pgTable(
         usesAmount: t.integer().notNull().default(0),
         // Using `bigint` with `Date.now` timestamp here instead of `date/timestamp`
         // from drizzle-orm/pg-core for backwards compatibility after MongoDB migration
-        lastUsedAt: t.bigint({ mode: "number" }).$onUpdate(() => Date.now()),
+        lastUsedAt: t.bigint({ mode: "number" }),
         isIgnored: t.boolean().notNull().default(false),
     }),
     (table) => [
@@ -61,10 +56,6 @@ export const usersTable = pgTable(
             .where(sql`${table.isIgnored} = false and ${table.usesAmount} > 0`),
     ],
 );
-
-export const usersRelations = relations(usersTable, ({ many }) => ({
-    usersFavoritesTable: many(usersFavoritesTable),
-}));
 
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
@@ -91,19 +82,12 @@ export const usersFavoritesTable = pgTable(
 );
 
 export type InsertUserFavorites = typeof usersFavoritesTable.$inferInsert;
-export type SelectUserFavorites = typeof usersFavoritesTable.$inferSelect;
 
-export const usersFavoritesTableRelations = relations(
-    usersFavoritesTable,
-    ({ one }) => ({
-        voice: one(voicesTable, {
-            fields: [usersFavoritesTable.voiceId],
-            references: [voicesTable.voiceId],
-        }),
-        user: one(usersTable, {
-            fields: [usersFavoritesTable.userId],
-            references: [usersTable.userId],
-        }),
+export const processedUsageUpdatesTable = pgTable(
+    "processed_usage_updates",
+    (t) => ({
+        updateId: t.bigint({ mode: "number" }).primaryKey(),
+        processedAt: t.timestamp({ withTimezone: true }).defaultNow().notNull(),
     }),
 );
 

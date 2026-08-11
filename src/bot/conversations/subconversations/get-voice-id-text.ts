@@ -1,6 +1,6 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { VOICE_ID_LENGTH } from "#drizzle/constraints.js";
-import { isVoiceIdUnique } from "#drizzle/queries/select.js";
+import { isVoiceIdUnique } from "#drizzle/queries/voices.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
 
 export async function getVoiceIDTextSubconversation(

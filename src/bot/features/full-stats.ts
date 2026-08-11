@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { getFullStatsQuery } from "#drizzle/prepared/stats.js";
+import { getFullStats } from "#drizzle/queries/stats.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
@@ -10,7 +10,7 @@ const composer = new Composer<Context>();
 const feature = composer.chatType("private").filter(isAdmin);
 
 feature.command("fullstats", logHandle("command-fullstats"), async (ctx) => {
-    const [statsData] = await getFullStatsQuery.execute();
+    const statsData = await getFullStats();
     const statsMessageData = getFullStatsData({
         basicStats: {
             allUsedUsers: statsData.allUsedUsers,

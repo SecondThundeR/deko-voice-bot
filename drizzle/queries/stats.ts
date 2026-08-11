@@ -1,8 +1,33 @@
 import { sql } from "drizzle-orm";
 
 import { db } from "../db.ts";
-import { usersTable, voicesTable } from "../schema.ts";
-import type { FullUsersStats, FullVoicesStats } from "../types.ts";
+import {
+    type SelectUser,
+    type SelectVoice,
+    usersTable,
+    voicesTable,
+} from "../schema.ts";
+
+export type BasicUsersStats = {
+    allUsedUsers: number;
+    allIgnoredUsers: number;
+    allMAUUsers: number;
+    allInactiveUsers: number;
+};
+export type BasicVoicesStats = {
+    allUsedVoices: number;
+};
+export type BasicStats = BasicUsersStats & BasicVoicesStats;
+
+export type FullUsersStats = Omit<SelectUser, "isIgnored" | "userId">;
+export type FullVoicesStats = Pick<SelectVoice, "usesAmount" | "voiceTitle">;
+
+export type FullStats = {
+    basicStats: BasicStats;
+    mostUsedUsersStats: FullUsersStats[];
+    lastUsedUsersStats: FullUsersStats[];
+    mostUsedVoicesStats: FullVoicesStats[];
+};
 
 const oneMonthAgoMs = sql`(extract(epoch from (now() - interval '1 month')) * 1000)::bigint`;
 
@@ -60,12 +85,12 @@ const mostUsedVoicesStats = sql<FullVoicesStats[]>`(
     ) most_used_voices
 )`;
 
-export const getBasicStatsQuery = db
+const getBasicStatsQuery = db
     .select(basicStatsColumns)
     .from(usersTable)
     .prepare("get_basic_stats");
 
-export const getFullStatsQuery = db
+const getFullStatsQuery = db
     .select({
         ...basicStatsColumns,
         mostUsedUsersStats,
@@ -74,3 +99,15 @@ export const getFullStatsQuery = db
     })
     .from(usersTable)
     .prepare("get_full_stats");
+
+export async function getBasicStats() {
+    const [stats] = await getBasicStatsQuery.execute();
+
+    return stats;
+}
+
+export async function getFullStats() {
+    const [stats] = await getFullStatsQuery.execute();
+
+    return stats;
+}

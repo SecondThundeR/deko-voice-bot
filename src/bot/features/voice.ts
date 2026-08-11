@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { getVoicesCount } from "#drizzle/queries/select.js";
+import { getVoicesCount } from "#drizzle/queries/voices.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { logHandle } from "#root/bot/helpers/logging.js";

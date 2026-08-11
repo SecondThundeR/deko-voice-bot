@@ -1,4 +1,4 @@
-import { getVoicesPage } from "#drizzle/queries/select.js";
+import { getVoicesPage } from "#drizzle/queries/voices.js";
 import type { SelectUser } from "#drizzle/schema.js";
 
 import type { InlineQueriesArray } from "#root/bot/types/inline.js";

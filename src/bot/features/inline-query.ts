@@ -1,8 +1,5 @@
 import { Composer, GrammyError } from "grammy";
-import {
-    trackUserUsage,
-    trackVoiceUsage,
-} from "#drizzle/queries/usage-stats.js";
+import { recordUsage } from "#drizzle/queries/usage-stats.js";
 import { MAX_QUERY_ELEMENTS_PER_PAGE } from "#root/bot/constants/inline.js";
 import type { Context } from "#root/bot/context.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
@@ -19,8 +16,12 @@ composer.on(
         const { from, result_id: voiceId } = ctx.chosenInlineResult;
         const userDetails = extractUserDetails(from);
 
-        trackVoiceUsage(voiceId, ctx.logger);
-        trackUserUsage(userDetails, ctx.logger);
+        await recordUsage({
+            updateId: ctx.update.update_id,
+            user: userDetails,
+            voiceId,
+            logger: ctx.logger,
+        });
     },
 );
 

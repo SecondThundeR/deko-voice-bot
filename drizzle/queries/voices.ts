@@ -1,32 +1,15 @@
 import { and, desc, eq, sql } from "drizzle-orm";
+
 import { db } from "../db.ts";
-import { getFeatureFlagQuery } from "../prepared/feature-flags.ts";
-import { getUserIgnoreStatusQuery } from "../prepared/users.ts";
-import { getUserFavoritesQuery } from "../prepared/users-favorites.ts";
 import {
-    type SelectFeatureFlag,
+    type InsertVoice,
     type SelectUser,
-    type SelectUserFavorites,
     type SelectVoice,
     usersFavoritesTable,
     voicesTable,
 } from "../schema.ts";
 
 const VOICE_TITLE_SIMILARITY_THRESHOLD = 0.2;
-
-export async function getFeatureFlag(name: SelectFeatureFlag["name"]) {
-    const [featureFlag] = await getFeatureFlagQuery.execute({ name });
-
-    if (!featureFlag) {
-        return null;
-    }
-
-    return featureFlag.status;
-}
-
-export async function getVoicesCount() {
-    return db.$count(voicesTable);
-}
 
 type GetVoicesPageOptions = {
     favoritesUserId?: SelectUser["userId"];
@@ -35,6 +18,23 @@ type GetVoicesPageOptions = {
     orderFavoritesFirst?: boolean;
     query?: SelectVoice["voiceTitle"];
 };
+
+const getVoicesByUniqueIdQuery = db
+    .select()
+    .from(voicesTable)
+    .where(eq(voicesTable.fileUniqueId, sql.placeholder("fileUniqueId")))
+    .orderBy(voicesTable.voiceId)
+    .prepare("get_voices_by_unique_id");
+
+export async function getVoicesByUniqueId(
+    fileUniqueId: SelectVoice["fileUniqueId"],
+) {
+    return getVoicesByUniqueIdQuery.execute({ fileUniqueId });
+}
+
+export async function getVoicesCount() {
+    return db.$count(voicesTable);
+}
 
 export async function getVoicesPage({
     favoritesUserId,
@@ -104,29 +104,83 @@ export async function getVoicesPage({
 }
 
 export async function isVoiceIdUnique(voiceId: SelectVoice["voiceId"]) {
-    const [existing] = await db
+    const [existingVoice] = await db
         .select({ voiceId: voicesTable.voiceId })
         .from(voicesTable)
         .where(eq(voicesTable.voiceId, voiceId))
         .limit(1);
 
-    return !existing;
+    return !existingVoice;
 }
 
-export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
-    const [userIgnoreStatus] = await getUserIgnoreStatusQuery.execute({
-        userId,
+export async function addVoice(data: Omit<InsertVoice, "usesAmount">) {
+    const [insertedVoice] = await db
+        .insert(voicesTable)
+        .values(data)
+        .onConflictDoNothing()
+        .returning({ voiceId: voicesTable.voiceId });
+
+    return !!insertedVoice;
+}
+
+export async function updateVoiceId(
+    voiceId: InsertVoice["voiceId"],
+    newVoiceId: InsertVoice["voiceId"],
+) {
+    const [updatedVoice] = await db
+        .update(voicesTable)
+        .set({ voiceId: newVoiceId })
+        .where(eq(voicesTable.voiceId, voiceId))
+        .returning({ voiceId: voicesTable.voiceId });
+
+    return !!updatedVoice;
+}
+
+export async function updateVoiceTitle(
+    voiceId: InsertVoice["voiceId"],
+    newVoiceTitle: InsertVoice["voiceTitle"],
+) {
+    const [updatedVoice] = await db
+        .update(voicesTable)
+        .set({ voiceTitle: newVoiceTitle })
+        .where(eq(voicesTable.voiceId, voiceId))
+        .returning({ voiceId: voicesTable.voiceId });
+
+    return !!updatedVoice;
+}
+
+export async function updateVoiceFile(
+    voiceId: InsertVoice["voiceId"],
+    { fileId, fileUniqueId }: Pick<InsertVoice, "fileId" | "fileUniqueId">,
+) {
+    const [updatedVoice] = await db
+        .update(voicesTable)
+        .set({ fileId, fileUniqueId })
+        .where(eq(voicesTable.voiceId, voiceId))
+        .returning({ voiceId: voicesTable.voiceId });
+
+    return !!updatedVoice;
+}
+
+export async function deleteVoice(voiceId: SelectVoice["voiceId"]) {
+    return await db.transaction(async (tx) => {
+        const [deletedVoice] = await tx
+            .delete(voicesTable)
+            .where(eq(voicesTable.voiceId, voiceId))
+            .returning({ voiceTitle: voicesTable.voiceTitle });
+
+        if (!deletedVoice) {
+            return null;
+        }
+
+        const [remainingVoice] = await tx
+            .select({ voiceId: voicesTable.voiceId })
+            .from(voicesTable)
+            .limit(1);
+
+        return {
+            hasVoices: !!remainingVoice,
+            voiceTitle: deletedVoice.voiceTitle,
+        };
     });
-
-    if (!userIgnoreStatus) {
-        return null;
-    }
-
-    return userIgnoreStatus.isIgnored;
-}
-
-export async function getUserFavorites(userId: SelectUserFavorites["userId"]) {
-    const favoritesData = await getUserFavoritesQuery.execute({ userId });
-
-    return favoritesData.map(({ voiceId }) => voiceId);
 }

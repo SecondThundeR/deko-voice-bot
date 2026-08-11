@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { getUserIsIgnoredStatus } from "#drizzle/queries/select.js";
+import { getUserIsIgnoredStatus } from "#drizzle/queries/users.js";
 import type { Context } from "#root/bot/context.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { prepareFavoritesSessionMenu } from "#root/bot/helpers/menu.js";

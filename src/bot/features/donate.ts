@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { insertPaymentQuery } from "#drizzle/prepared/payments.js";
+import { insertPayment } from "#drizzle/queries/payments.js";
 import { donateData } from "#root/bot/callback-data/donate.js";
 import type { Context } from "#root/bot/context.js";
 import { DONATE_CONVERSATION } from "#root/bot/conversations/donate.js";
@@ -79,11 +79,8 @@ feature.on(
     async (ctx) => {
         const payment = ctx.message.successful_payment;
 
-        const amount = payment.total_amount;
-        await ctx.reply(ctx.t("donate.success", { amount: String(amount) }));
-
         try {
-            await insertPaymentQuery.execute({
+            await insertPayment({
                 chargeId: payment.telegram_payment_charge_id,
                 invoicePayload: payment.invoice_payload,
                 userId: ctx.from.id,
@@ -94,7 +91,11 @@ feature.on(
                 err: `Failed to store payment payload in database: ${String(error)}`,
                 update: getUpdateInfo(ctx),
             });
+            throw error;
         }
+
+        const amount = payment.total_amount;
+        return ctx.reply(ctx.t("donate.success", { amount: String(amount) }));
     },
 );
 

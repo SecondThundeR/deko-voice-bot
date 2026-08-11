@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import { getVoiceByUniqueIdQuery } from "#drizzle/prepared/voices.js";
+import { getVoicesByUniqueId } from "#drizzle/queries/voices.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { convertVoiceDataToQueriesArray } from "#root/bot/helpers/inline-query.js";
@@ -13,9 +13,17 @@ const feature = composer.chatType("private").filter(isAdmin);
 feature.on(":voice", logHandle("voice-item"), async (ctx) => {
     const fileUniqueId = ctx.message.voice.file_unique_id;
 
-    const voiceData = await getVoiceByUniqueIdQuery.execute({ fileUniqueId });
+    const voiceData = await getVoicesByUniqueId(fileUniqueId);
     if (voiceData.length === 0) {
         return ctx.reply(ctx.t("voices.unknown"));
+    }
+
+    if (voiceData.length > 1) {
+        ctx.logger.warn({
+            msg: "Multiple voices have the same Telegram file_unique_id",
+            fileUniqueId,
+            voiceIds: voiceData.map(({ voiceId }) => voiceId),
+        });
     }
 
     ctx.session.currentVoice = convertVoiceDataToQueriesArray(voiceData)[0];

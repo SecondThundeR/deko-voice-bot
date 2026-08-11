@@ -1,6 +1,6 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { createConversation } from "@grammyjs/conversations";
-import { addRegularVoice } from "#drizzle/queries/insert.js";
+import { addVoice } from "#drizzle/queries/voices.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
 import { sendConvertedVoice } from "#root/bot/helpers/conversations.js";
 import { getAudioFilePathSubconversation } from "./subconversations/get-audio-file-path.ts";
@@ -65,7 +65,7 @@ export function newVoicesConversation() {
                 }
 
                 const insertStatus = await conversation.external(() =>
-                    addRegularVoice({
+                    addVoice({
                         voiceId,
                         voiceTitle,
                         fileId: voiceResult.fileId,

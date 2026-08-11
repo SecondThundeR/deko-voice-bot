@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "../db.ts";
 import {
@@ -7,72 +7,95 @@ import {
     usersFavoritesTable,
     usersTable,
 } from "../schema.ts";
-import { allowUserUsage, ignoreUserUsage } from "./usage-stats.ts";
 
-export type OptInStatus = "newUser" | "restored" | "alreadyOptedIn";
-
+type OptInStatus = "newUser" | "restored" | "alreadyOptedIn";
 type UserDetails = Omit<InsertUser, "isIgnored" | "usesAmount" | "lastUsedAt">;
 type UserData = Omit<SelectUser, "isIgnored">;
+
+const getUserDataQuery = db
+    .select({
+        userId: usersTable.userId,
+        fullname: usersTable.fullname,
+        username: usersTable.username,
+        lastUsedAt: usersTable.lastUsedAt,
+        usesAmount: usersTable.usesAmount,
+    })
+    .from(usersTable)
+    .where(
+        and(
+            eq(usersTable.userId, sql.placeholder("userId")),
+            eq(usersTable.isIgnored, false),
+        ),
+    )
+    .prepare("get_user_data");
+
+const getUserIgnoreStatusQuery = db
+    .select({ isIgnored: usersTable.isIgnored })
+    .from(usersTable)
+    .where(eq(usersTable.userId, sql.placeholder("userId")))
+    .prepare("get_user_ignore_status");
+
+export async function getUserData(userId: SelectUser["userId"]) {
+    const [user] = await getUserDataQuery.execute({ userId });
+
+    return user ?? null;
+}
+
+export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
+    const [user] = await getUserIgnoreStatusQuery.execute({ userId });
+
+    return user?.isIgnored ?? null;
+}
 
 export async function optInUser({
     userId,
     fullname,
     username,
 }: UserDetails): Promise<OptInStatus> {
-    const optInStatus = await db.transaction(async (tx) => {
-        const [existing] = await tx
-            .select({ isIgnored: usersTable.isIgnored })
-            .from(usersTable)
-            .where(eq(usersTable.userId, userId));
+    const [insertedUser] = await db
+        .insert(usersTable)
+        .values({ userId, fullname, username })
+        .onConflictDoNothing()
+        .returning({ userId: usersTable.userId });
 
-        if (!existing) {
-            await tx.insert(usersTable).values({
-                userId,
-                fullname,
-                username,
-                usesAmount: 0,
-                isIgnored: false,
-            });
-            return "newUser";
-        }
+    if (insertedUser) {
+        return "newUser";
+    }
 
-        if (existing.isIgnored) {
-            await tx
-                .update(usersTable)
-                .set({
-                    fullname,
-                    username,
-                    usesAmount: 0,
-                    lastUsedAt: null,
-                    isIgnored: false,
-                })
-                .where(eq(usersTable.userId, userId));
-            return "restored";
-        }
+    const [restoredUser] = await db
+        .update(usersTable)
+        .set({
+            fullname,
+            username,
+            usesAmount: 0,
+            lastUsedAt: null,
+            isIgnored: false,
+        })
+        .where(
+            and(eq(usersTable.userId, userId), eq(usersTable.isIgnored, true)),
+        )
+        .returning({ userId: usersTable.userId });
 
-        return "alreadyOptedIn";
-    });
+    if (restoredUser) {
+        return "restored";
+    }
 
-    allowUserUsage(userId);
+    await db
+        .update(usersTable)
+        .set({ fullname, username })
+        .where(
+            and(eq(usersTable.userId, userId), eq(usersTable.isIgnored, false)),
+        );
 
-    return optInStatus;
+    return "alreadyOptedIn";
 }
 
 export async function optOutUser(
     userId: SelectUser["userId"],
 ): Promise<UserData | null> {
-    const pendingUserUsage = ignoreUserUsage(userId);
-
     return await db.transaction(async (tx) => {
         const [targetUser] = await tx
-            .select({
-                userId: usersTable.userId,
-                fullname: usersTable.fullname,
-                username: usersTable.username,
-                lastUsedAt: usersTable.lastUsedAt,
-                usesAmount: usersTable.usesAmount,
-                isIgnored: usersTable.isIgnored,
-            })
+            .select()
             .from(usersTable)
             .where(eq(usersTable.userId, userId));
 
@@ -98,18 +121,12 @@ export async function optOutUser(
                     },
                 });
 
-            return pendingUserUsage
-                ? {
-                      userId,
-                      fullname: pendingUserUsage.fullname ?? null,
-                      username: pendingUserUsage.username ?? null,
-                      lastUsedAt: null,
-                      usesAmount: pendingUserUsage.usesAmount,
-                  }
-                : null;
+            return null;
         }
 
-        if (targetUser.isIgnored) return null;
+        if (targetUser.isIgnored) {
+            return null;
+        }
 
         await tx
             .update(usersTable)

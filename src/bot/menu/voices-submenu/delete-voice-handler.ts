@@ -1,4 +1,4 @@
-import { deleteVoiceAndCheckHasVoices } from "#drizzle/prepared/voices.js";
+import { deleteVoice, getVoicesCount } from "#drizzle/queries/voices.js";
 import type { MenuContext } from "#root/bot/context.js";
 import { genericBackHandler } from "../generic/generic-back-handler.ts";
 
@@ -8,7 +8,8 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
     }
 
     const voiceId = ctx.session.currentVoice.id;
-    const hasVoices = await deleteVoiceAndCheckHasVoices(voiceId);
+    const deletedVoice = await deleteVoice(voiceId);
+    const hasVoices = deletedVoice?.hasVoices ?? (await getVoicesCount()) > 0;
 
     await genericBackHandler(
         ctx,

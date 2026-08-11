@@ -1,4 +1,4 @@
-import { getVoicesCount, getVoicesPage } from "#drizzle/queries/select.js";
+import { getVoicesCount, getVoicesPage } from "#drizzle/queries/voices.js";
 import { MAX_MENU_ELEMENTS_PER_PAGE } from "#root/bot/constants/inline.js";
 import type { Context } from "#root/bot/context.js";
 import type { FavoriteItem } from "#root/bot/types/favorite-item.js";

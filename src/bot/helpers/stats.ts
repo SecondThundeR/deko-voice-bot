@@ -2,7 +2,7 @@ import type {
     FullStats,
     FullUsersStats,
     FullVoicesStats,
-} from "#drizzle/types.js";
+} from "#drizzle/queries/stats.js";
 import { convertLastUsedAtTimestamp } from "./time.ts";
 
 function formatUserStatsLine({

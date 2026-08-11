@@ -1,5 +1,5 @@
 import type { Middleware } from "grammy";
-import { getFeatureFlag } from "#drizzle/queries/select.js";
+import { getFeatureFlag } from "#drizzle/queries/feature-flags.js";
 import { MAINTENANCE_FEATURE_FLAG } from "#root/bot/constants/feature-flags.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
