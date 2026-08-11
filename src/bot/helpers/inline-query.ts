@@ -1,17 +1,14 @@
 import type { SelectVoice } from "#drizzle/schema.js";
 
-const voiceDataToQueriesMapper = ({
+export function convertVoiceDataToQuery({
     voiceId: id,
     voiceTitle: title,
     fileId: voice_file_id,
-}: SelectVoice) =>
-    ({
+}: SelectVoice) {
+    return {
         type: "voice",
         id,
         title,
         voice_file_id,
-    }) as const;
-
-export function convertVoiceDataToQueriesArray(voicesData: SelectVoice[]) {
-    return voicesData.map(voiceDataToQueriesMapper);
+    } as const;
 }

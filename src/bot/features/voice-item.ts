@@ -2,7 +2,7 @@ import { Composer } from "grammy";
 import { getVoicesByUniqueId } from "#drizzle/queries/voices.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
-import { convertVoiceDataToQueriesArray } from "#root/bot/helpers/inline-query.js";
+import { convertVoiceDataToQuery } from "#root/bot/helpers/inline-query.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { voiceMenu } from "#root/bot/menu/voice.js";
 
@@ -27,7 +27,7 @@ feature.on(":voice", logHandle("voice-item"), async (ctx) => {
         });
     }
 
-    ctx.session.currentVoice = convertVoiceDataToQueriesArray(voiceData)[0];
+    ctx.session.currentVoice = convertVoiceDataToQuery(voiceData[0]);
 
     return ctx.reply(ctx.t("voices-item-menu-header"), {
         reply_markup: voiceMenu,
