@@ -94,9 +94,7 @@ export function createBot(
     // Middlewares
     bot.api.config.use(parseMode("HTML"));
 
-    if (config.isPollingMode) {
-        protectedBot.use(sequentialize(getSessionKey));
-    }
+    protectedBot.use(sequentialize(getSessionKey));
     if (config.isDebug) {
         protectedBot.use(updateLogger());
     }
