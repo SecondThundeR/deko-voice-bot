@@ -44,8 +44,8 @@ describe("createConfig", () => {
             ...webhookConfig,
             serverPort: "65535",
         });
-        assert.equal(config.isWebhookMode, true);
-        if (!config.isWebhookMode) {
+        assert.equal(config.botMode, "webhook");
+        if (config.botMode !== "webhook") {
             assert.fail("Expected webhook config");
         }
         assert.equal(config.serverPort, 65_535);

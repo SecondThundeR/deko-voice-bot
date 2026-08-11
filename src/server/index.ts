@@ -63,7 +63,7 @@ export function createServer(dependencies: Dependencies) {
 
     server.get("/", (c) => c.json({ status: true }));
 
-    if (config.isWebhookMode) {
+    if (config.botMode === "webhook") {
         server.post(
             "/webhook",
             webhookCallback(bot, "hono", {

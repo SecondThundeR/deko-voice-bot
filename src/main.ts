@@ -86,9 +86,9 @@ try {
         });
     }
 
-    if (config.isWebhookMode) {
+    if (config.botMode === "webhook") {
         await startWebhook(config);
-    } else if (config.isPollingMode) {
+    } else if (config.botMode === "polling") {
         await startPolling(config);
     } else {
         throw new Error("Bot config matches neither webhook nor polling mode");

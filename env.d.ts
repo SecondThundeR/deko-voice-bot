@@ -23,6 +23,8 @@ declare global {
                 | "error"
                 | "fatal"
                 | "silent";
+            LOG_COLORIZE?: string;
+            LOG_FORMAT?: "pretty" | "json";
             USE_DEBUG?: string;
         }
     }
