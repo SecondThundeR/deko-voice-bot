@@ -8,7 +8,8 @@ const client = postgres(databaseUrl);
 export const db = drizzle({
     client,
     casing: "snake_case",
-    logger: process.env.NODE_ENV === "development",
+    // Drizzle's query logger includes bound values, which may contain personal data.
+    logger: false,
 });
 
 export async function checkDatabaseConnection() {

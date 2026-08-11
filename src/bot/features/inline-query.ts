@@ -5,6 +5,7 @@ import type { Context } from "#root/bot/context.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { extractUserDetails } from "#root/bot/helpers/user.js";
 import { getVoiceQueriesPage } from "#root/bot/helpers/voices.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 const composer = new Composer<Context>();
 const MAX_INLINE_QUERY_OFFSET = 1000;
@@ -50,7 +51,7 @@ composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
             : undefined;
 
     try {
-        return await ctx.answerInlineQuery(paginatedQueries, {
+        const answer = await ctx.answerInlineQuery(paginatedQueries, {
             next_offset: nextOffset ? String(nextOffset) : undefined,
             button: {
                 text: ctx.t("donate-inline-button"),
@@ -59,11 +60,21 @@ composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
             cache_time: 10,
             is_personal: true,
         });
+
+        ctx.logger.debug({
+            msg: "Inline query answered",
+            hasNextPage: nextOffset !== undefined,
+            offset: currentOffset,
+            queryLength: data.length,
+            results: paginatedQueries.length,
+        });
+
+        return answer;
     } catch (error) {
         if (error instanceof GrammyError && error.error_code === 400) {
             ctx.logger.debug({
                 msg: "inline query expired before response",
-                err: error,
+                ...getSafeErrorInfo(error),
             });
             return;
         }

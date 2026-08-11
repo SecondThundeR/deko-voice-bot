@@ -22,6 +22,7 @@ feature.on(":voice", logHandle("voice-item"), async (ctx) => {
         ctx.logger.warn({
             msg: "Multiple voices have the same Telegram file_unique_id",
             fileUniqueId,
+            matches: voiceData.length,
             voiceIds: voiceData.map(({ voiceId }) => voiceId),
         });
     }

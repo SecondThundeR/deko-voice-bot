@@ -1,6 +1,7 @@
 import process from "node:process";
 
 import type { Logger } from "./logger.ts";
+import { getSafeErrorInfo } from "./logging.ts";
 
 type ShutdownHook = () => Promise<void> | void;
 
@@ -21,7 +22,10 @@ export function createLifecycle(logger: Logger) {
             try {
                 await hooks[i]();
             } catch (error) {
-                logger.error(error);
+                logger.error({
+                    msg: "Shutdown hook failed",
+                    ...getSafeErrorInfo(error),
+                });
                 firstError ??= error;
             }
         }
@@ -42,11 +46,17 @@ export function createLifecycle(logger: Logger) {
     process.on("SIGINT", () => handleSignal("SIGINT"));
     process.on("SIGTERM", () => handleSignal("SIGTERM"));
     process.on("uncaughtException", (error) => {
-        logger.fatal({ msg: "uncaughtException", error });
+        logger.fatal({
+            msg: "Uncaught exception",
+            ...getSafeErrorInfo(error),
+        });
         shutdown(1);
     });
     process.on("unhandledRejection", (reason) => {
-        logger.fatal({ msg: "unhandledRejection", reason });
+        logger.fatal({
+            msg: "Unhandled rejection",
+            ...getSafeErrorInfo(reason),
+        });
         shutdown(1);
     });
 

@@ -15,6 +15,7 @@ import {
     isMaintenanceActive,
     setMaintenanceStatus,
 } from "#root/bot/store/maintenance.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 export const composer = new Composer<Context>();
 
@@ -101,11 +102,12 @@ feature.on(
                 );
             }
 
+            ctx.logger.info({ msg: "Database import completed" });
             return message.editText(ctx.t("import-completed"));
         } catch (error) {
             ctx.logger.error({
                 msg: "Import failed. Rollback has been completed",
-                error,
+                ...getSafeErrorInfo(error),
             });
 
             if (error instanceof Error) {

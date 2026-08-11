@@ -9,11 +9,12 @@ import {
     readTextWithLimit,
 } from "#root/bot/helpers/general.js";
 import { escapeHTML } from "#root/bot/helpers/html.js";
-import { getUpdateInfo, logHandle } from "#root/bot/helpers/logging.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
 import {
     isMaintenanceActive,
     setMaintenanceStatus,
 } from "#root/bot/store/maintenance.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 const composer = new Composer<Context>();
 
@@ -67,10 +68,11 @@ feature.command(
             }
 
             await ctx.replyWithDocument(new InputFile(backupFileName));
+            ctx.logger.info({ msg: "Database export completed" });
         } catch (error: unknown) {
             ctx.logger.error({
-                err: `Failed to export data from DB. Details: ${String(error)}`,
-                update: getUpdateInfo(ctx),
+                msg: "Failed to export data from DB",
+                ...getSafeErrorInfo(error),
             });
             return ctx.reply(ctx.t("export-unknown-error"));
         } finally {

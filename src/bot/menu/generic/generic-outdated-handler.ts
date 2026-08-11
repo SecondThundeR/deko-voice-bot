@@ -2,8 +2,8 @@ import { GrammyError } from "grammy";
 
 import type { MenuContext } from "#root/bot/context.js";
 import { isBotBlockedByUser } from "#root/bot/helpers/api.js";
-import { getUpdateInfo } from "#root/bot/helpers/logging.js";
 import { outdatedExceptionHandler } from "#root/bot/helpers/menu.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 type OutdatedHandlerData<T> = {
     menuElement: T | T[] | null | undefined;
@@ -39,17 +39,9 @@ export async function genericOutdatedHandler<T>(
             await outdatedExceptionHandler(ctx);
         }
 
-        let errorMessage = "Something prevented from updating menu. Details: ";
-
-        if (error instanceof Error) {
-            errorMessage += error.message;
-        } else {
-            errorMessage += JSON.stringify(error, null, 4);
-        }
-
         ctx.logger.error({
-            err: errorMessage,
-            update: getUpdateInfo(ctx),
+            msg: "Failed to update menu",
+            ...getSafeErrorInfo(error),
         });
         return ctx.callbackQuery?.answer();
     }

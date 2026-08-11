@@ -2,11 +2,11 @@ import { serve } from "@hono/node-server";
 import { webhookCallback } from "grammy";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { getPath } from "hono/utils/url";
 
 import type { Bot } from "#root/bot/index.js";
 import type { Config } from "#root/config.js";
 import type { Logger } from "#root/logger.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 import type { Env } from "./environment.ts";
 import { setLogger } from "./middlewares/logger.ts";
@@ -32,10 +32,16 @@ export function createServer(dependencies: Dependencies) {
 
     server.onError(async (error, c) => {
         if (error instanceof HTTPException) {
+            const logData = {
+                msg: "HTTP request failed",
+                status: error.status,
+                ...getSafeErrorInfo(error),
+            };
+
             if (error.status < 500) {
-                c.var.logger.info(error);
+                c.var.logger.info(logData);
             } else {
-                c.var.logger.error(error);
+                c.var.logger.error(logData);
             }
 
             return error.getResponse();
@@ -43,9 +49,9 @@ export function createServer(dependencies: Dependencies) {
 
         // unexpected error
         c.var.logger.error({
-            err: error,
+            msg: "Unexpected HTTP request failure",
+            ...getSafeErrorInfo(error),
             method: c.req.raw.method,
-            path: getPath(c.req.raw),
         });
         return c.json(
             {

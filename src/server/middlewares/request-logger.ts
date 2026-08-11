@@ -1,10 +1,18 @@
 import type { MiddlewareHandler } from "hono";
 import { getPath } from "hono/utils/url";
 
+const KNOWN_PATHS = new Set(["/", "/webhook"]);
+
+function getSafePath(request: Request) {
+    const path = getPath(request);
+
+    return KNOWN_PATHS.has(path) ? path : "[other]";
+}
+
 export function requestLogger(): MiddlewareHandler {
     return async (c, next) => {
         const { method } = c.req;
-        const path = getPath(c.req.raw);
+        const path = getSafePath(c.req.raw);
 
         c.var.logger.debug({
             msg: "Incoming request",
@@ -21,7 +29,7 @@ export function requestLogger(): MiddlewareHandler {
             method,
             path,
             status: c.res.status,
-            elapsed: endTime - startTime,
+            durationMs: endTime - startTime,
         });
     };
 }

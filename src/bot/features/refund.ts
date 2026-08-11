@@ -8,7 +8,8 @@ import {
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { escapeHTML } from "#root/bot/helpers/html.js";
-import { getUpdateInfo, logHandle } from "#root/bot/helpers/logging.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 const composer = new Composer<Context>();
 
@@ -45,8 +46,8 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
         } catch (error) {
             await releasePaymentRefundClaim(chargeId).catch((releaseError) => {
                 ctx.logger.error({
-                    err: `Failed to release refund claim: ${String(releaseError)}`,
-                    update: getUpdateInfo(ctx),
+                    msg: "Failed to release refund claim",
+                    ...getSafeErrorInfo(releaseError),
                 });
             });
 
@@ -58,6 +59,8 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
         if (!isPaymentMarkedAsRefunded) {
             throw new Error("Failed to mark payment as refunded");
         }
+
+        ctx.logger.info({ msg: "Refund completed" });
 
         await ctx.reply(
             ctx.t("refund-success", {
@@ -73,14 +76,14 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
             )
             .catch((err) => {
                 ctx.logger.error({
-                    msg: `Failed to send refund notice to user ${payment.userId}`,
-                    err,
+                    msg: "Failed to send refund notice",
+                    ...getSafeErrorInfo(err),
                 });
             });
     } catch (error: unknown) {
         ctx.logger.error({
-            err: `Failed to make a refund: ${String(error)}`,
-            update: getUpdateInfo(ctx),
+            msg: "Failed to make a refund",
+            ...getSafeErrorInfo(error),
         });
 
         if (!error || typeof error !== "object") {

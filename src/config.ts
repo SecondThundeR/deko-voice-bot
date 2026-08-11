@@ -32,6 +32,10 @@ const baseConfigSchema = v.object({
         ),
         "info",
     ),
+    logFormat: v.optional(v.picklist(["pretty", "json"]), "pretty"),
+    logColorize: v.optional(
+        v.pipe(v.string(), v.transform(JSON.parse), v.boolean()),
+    ),
     botToken: v.pipe(v.string(), v.regex(/^\d+:[\w-]+$/, "Invalid token")),
     botAllowedUpdates: v.optional(
         v.pipe(

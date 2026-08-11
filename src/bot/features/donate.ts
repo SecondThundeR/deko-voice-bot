@@ -4,8 +4,9 @@ import { donateData } from "#root/bot/callback-data/donate.js";
 import type { Context } from "#root/bot/context.js";
 import { DONATE_CONVERSATION } from "#root/bot/conversations/donate.js";
 import { sendDonationInvoice } from "#root/bot/helpers/api.js";
-import { getUpdateInfo, logHandle } from "#root/bot/helpers/logging.js";
+import { logHandle } from "#root/bot/helpers/logging.js";
 import { createDonateKeyboard } from "#root/bot/keyboards/donate.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 const LEGACY_DONATE_AMOUNT_REGEX = /^donate_(\d+)$/;
 
@@ -88,11 +89,13 @@ feature.on(
             });
         } catch (error: unknown) {
             ctx.logger.error({
-                err: `Failed to store payment payload in database: ${String(error)}`,
-                update: getUpdateInfo(ctx),
+                msg: "Failed to store payment in database",
+                ...getSafeErrorInfo(error),
             });
             throw error;
         }
+
+        ctx.logger.info({ msg: "Payment recorded" });
 
         const amount = payment.total_amount;
         return ctx.reply(ctx.t("donate-success", { amount }));

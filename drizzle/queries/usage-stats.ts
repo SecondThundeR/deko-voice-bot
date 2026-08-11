@@ -3,6 +3,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { sql } from "drizzle-orm";
 
 import type { Logger } from "#root/logger.js";
+import { getSafeErrorInfo } from "#root/logging.js";
 
 import { db } from "../db.ts";
 import {
@@ -45,10 +46,10 @@ export async function recordUsage({
                 msg: isLastAttempt
                     ? "Failed to record usage"
                     : "Failed to record usage; retrying",
-                err: error,
+                ...getSafeErrorInfo(error),
+                attempt: attempt + 1,
                 updateId,
                 voiceId,
-                attempt: attempt + 1,
             });
 
             if (isLastAttempt) {

@@ -8,6 +8,7 @@ import { createBot } from "./bot/index.ts";
 import { config, type PollingConfig, type WebhookConfig } from "./config.ts";
 import { createLifecycle } from "./lifecycle.ts";
 import { logger } from "./logger.ts";
+import { getSafeErrorInfo } from "./logging.ts";
 import { createServer, createServerManager } from "./server/index.ts";
 
 const lifecycle = createLifecycle(logger);
@@ -65,7 +66,7 @@ async function startWebhook(config: WebhookConfig) {
     });
     logger.info({
         msg: "Webhook was set",
-        url: config.botWebhook,
+        webhookOrigin: new URL(config.botWebhook).origin,
     });
 }
 
@@ -81,6 +82,9 @@ try {
         throw new Error("Bot config matches neither webhook nor polling mode");
     }
 } catch (error) {
-    logger.error(error);
+    logger.error({
+        msg: "Application startup failed",
+        ...getSafeErrorInfo(error),
+    });
     await lifecycle.shutdown(1);
 }

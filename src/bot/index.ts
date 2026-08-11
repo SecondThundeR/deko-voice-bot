@@ -35,6 +35,7 @@ import { voiceItemFeature } from "./features/voice-item.ts";
 import { voicesFeature } from "./features/voices.ts";
 import { isAdmin } from "./filter/is-admin.ts";
 import { errorHandler } from "./handlers/error.ts";
+import { getUpdateType } from "./helpers/logging.ts";
 import { i18n } from "./i18n.ts";
 import { favoritesMenu } from "./menu/favorites.ts";
 import { voiceMenu } from "./menu/voice.ts";
@@ -80,7 +81,8 @@ export function createBot(
     bot.use(async (ctx, next) => {
         ctx.config = config;
         ctx.logger = logger.child({
-            update_id: ctx.update.update_id,
+            updateId: ctx.update.update_id,
+            updateType: getUpdateType(ctx),
         });
 
         await next();
