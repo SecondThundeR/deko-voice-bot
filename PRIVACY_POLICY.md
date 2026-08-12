@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: August 12, 2026
+Last updated: August 13, 2026
 
 This Privacy Policy explains how the Deko Voice Bot for Telegram (the "Bot"), operated by Uladzislau Hramyka in Belarus (the "Service Provider"), collects, uses, stores, and shares information. The Bot is provided free of charge and on an "AS IS" basis. Optional donations are processed through Telegram Stars.
 
@@ -17,6 +17,12 @@ Unless you opt out, when you send a voice quote through the Bot's inline mode, t
 - the date and time when you most recently sent a voice quote.
 
 The Bot also stores your selected favorite voice quotes if you use the favorites feature. Favorites are associated with your Telegram user ID.
+
+The Telegram Mini App can display the public voice catalog and aggregate statistics without creating or restoring a usage profile. Adding favorites or submitting a voice requires explicit consent in the Mini App. For non-administrators, leaderboard names are masked by the server and usernames are omitted; administrators can access the same identified statistics available through the Bot's administrative commands.
+
+### Voice submissions
+
+If you propose a new voice quote through the Mini App, the service stores your Telegram user ID, proposed title, submission status, moderation outcome and, when applicable, a rejection reason or approved voice identifier. The uploaded MP3 is sent to a private Telegram moderation group. Rejected source files are deleted after moderation; approved source MP3 messages are deleted after conversion while the final Telegram voice file remains in the catalog. Finalized submission metadata is retained for 90 days.
 
 ### Payments
 
@@ -85,6 +91,7 @@ To request access to other personal information held by the Service Provider, co
 ## Data Retention
 
 - Active usage profiles and favorites are retained while the Bot operates, unless you opt out or request deletion.
+- Finalized voice-submission metadata is retained for 90 days. Source MP3 moderation messages are deleted after a decision; approved catalog voice files remain while the voice is available.
 - The Telegram user ID and opt-out flag are retained for as long as necessary to honor the opt-out choice.
 - Production Redis session and conversation data expires within 24 hours after the latest session write.
 - Payment records are retained indefinitely as the Bot's complete payment and refund history.

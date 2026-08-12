@@ -1,0 +1,50 @@
+{
+    "name": "@deko-voice-bot/bot",
+    "version": "3.10.0",
+    "private": true,
+    "type": "module",
+    "module": "src/main.ts",
+    "imports": {
+        "#root/*.js": "./src/*.ts",
+        "#root/*": "./src/*.ts"
+    },
+    "scripts": {
+        "dev": "NODE_ENV=development node --watch ./src/main.ts",
+        "build": "tsdown",
+        "start": "NODE_ENV=production node ./dist/main.mjs",
+        "test": "node --test",
+        "typecheck": "tsc",
+        "lint": "biome check",
+        "lint:write": "biome check --write",
+        "format": "biome format --write .",
+        "backup:crypto": "node ./scripts/backup-crypto.ts",
+        "queue:replay": "node ./scripts/queue-replay.ts"
+    },
+    "dependencies": {
+        "@deko-voice-bot/config": "workspace:*",
+        "@deko-voice-bot/contracts": "workspace:*",
+        "@deko-voice-bot/database": "workspace:*",
+        "@grammyjs/auto-chat-action": "0.1.1",
+        "@grammyjs/commands": "1.4.0",
+        "@grammyjs/conversations": "2.1.1",
+        "@grammyjs/hydrate": "1.7.0",
+        "@grammyjs/i18n": "1.1.2",
+        "@grammyjs/menu": "1.4.0",
+        "@grammyjs/parse-mode": "1.11.1",
+        "@grammyjs/runner": "2.0.3",
+        "@grammyjs/storage-redis": "2.6.0",
+        "@hono/node-server": "catalog:",
+        "callback-data": "1.1.1",
+        "grammy": "1.45.1",
+        "hono": "catalog:",
+        "ioredis": "6.0.0",
+        "pino": "catalog:",
+        "pino-pretty": "catalog:",
+        "postgres": "catalog:",
+        "valibot": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:",
+        "tsdown": "catalog:"
+    }
+}

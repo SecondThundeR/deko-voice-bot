@@ -1,0 +1,14 @@
+{
+    "extends": "../../packages/typescript-config/node.json",
+    "compilerOptions": {
+        "paths": {
+            "#root/*": ["./src/*"]
+        }
+    },
+    "include": [
+        "src/**/*.ts",
+        "scripts/**/*.ts",
+        "tsdown.config.ts",
+        "env.d.ts"
+    ]
+}

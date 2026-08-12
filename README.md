@@ -11,9 +11,52 @@
 
 - Бот построен на [Node.js](https://nodejs.org/) с использованием [TypeScript](https://www.typescriptlang.org/)
 - В качестве библиотеки для взаимодействия с Telegram Bot API используется [grammY](https://github.com/grammyjs/grammY/)
+- Telegram Mini App построен на React, Vite, Base UI и shadcn/ui; API приложения использует Hono
 - Бот и база данных работают на хостинге [Railway](https://railway.app/). Данные управляются с помощью [Drizzle ORM](https://orm.drizzle.team/)
 - Строки сообщений и другого текста бота находятся в [Fluent](https://projectfluent.org/) формате и обрабатываются с помощью плагина [@grammyjs/i18n](https://grammy.dev/plugins/i18n/)
 - Менюшки работают через плагин [@grammyjs/menu](https://grammy.dev/plugins/menu) и интерактивные диалоги через плагин [@grammyjs/conversations](https://grammy.dev/plugins/conversations)
+
+## Структура проекта
+
+Проект является pnpm/Turborepo-монорепозиторием:
+
+```text
+apps/
+├── bot/       # grammY-бот, Telegram webhook, backup/import и модерация
+├── api/       # Hono API для Telegram Mini App
+└── web/       # React + Vite Mini App, production-сборка для Nginx
+packages/
+├── config/             # общая загрузка и проверка окружения
+├── contracts/          # общие API-типы и Valibot-схемы
+├── database/           # Drizzle-схема, запросы и миграции
+└── typescript-config/  # общие TypeScript-конфигурации
+```
+
+Основные команды запускаются из корня:
+
+```sh
+pnpm install
+pnpm dev
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+pnpm db:migrate
+```
+
+Mini App открывается из `/start`, меню чата и настроенного через BotFather Main Mini App. В приложении доступны общая статистика, лидерборды, поиск и прослушивание реплик, избранное, переход в inline-режим и отправка новых MP3 на модерацию
+
+## Переменные окружения Mini App
+
+Бот использует прежние переменные и дополнительно требует в production:
+
+- `WEB_APP_URL` — публичный HTTPS URL сервиса `apps/web`;
+- `VOICE_MODERATION_CHAT_ID` — ID приватной группы/супергруппы модераторов;
+- `ADMIN_IDS` — Telegram ID пользователей, которым разрешены модерация и полные лидерборды.
+
+API использует `BOT_TOKEN`, `DATABASE_URL`, `ADMIN_IDS`, `VOICE_MODERATION_CHAT_ID`, `PORT`, `LOG_LEVEL` и `LOG_FORMAT`. Web-сервис использует runtime-переменные `PORT` и `API_UPSTREAM`; Nginx проксирует `/api` к приватному Railway-адресу API, поэтому отдельный публичный API-домен и CORS не требуются
+
+Для Railway создайте три сервиса с корнем репозитория и Dockerfile `apps/bot/Dockerfile`, `apps/api/Dockerfile` и `apps/web/Dockerfile`. Для web задайте `API_UPSTREAM` в виде `http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}`. Миграции выполняются один раз командой `pnpm db:migrate` перед развёртыванием приложений. После первого релиза настройте в BotFather Main Mini App на тот же `WEB_APP_URL`
 
 ## Как работает бот
 

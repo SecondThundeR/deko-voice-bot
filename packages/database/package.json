@@ -1,0 +1,31 @@
+{
+    "name": "@deko-voice-bot/database",
+    "version": "3.10.0",
+    "private": true,
+    "type": "module",
+    "sideEffects": false,
+    "exports": {
+        "./*.js": "./src/*.ts",
+        "./*": "./src/*.ts"
+    },
+    "scripts": {
+        "build": "tsc --noEmit",
+        "test": "node --test",
+        "typecheck": "tsc",
+        "lint": "biome check",
+        "lint:write": "biome check --write",
+        "format": "biome format --write .",
+        "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
+        "db:migrate": "node ./src/migrate.ts",
+        "db:check": "drizzle-kit check --dialect=postgresql --out=./src/migrations"
+    },
+    "dependencies": {
+        "drizzle-orm": "catalog:",
+        "postgres": "catalog:",
+        "valibot": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:",
+        "drizzle-kit": "0.31.10"
+    }
+}

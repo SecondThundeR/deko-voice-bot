@@ -1,32 +1,11 @@
 {
-    "compilerOptions": {
-        "lib": ["ESNext"],
-        "target": "ESNext",
-        "module": "NodeNext",
-        "moduleDetection": "force",
-        "moduleResolution": "nodenext",
-        "allowImportingTsExtensions": true,
-        "rewriteRelativeImportExtensions": true,
-        "erasableSyntaxOnly": true,
-        "isolatedModules": true,
-        "verbatimModuleSyntax": true,
-        "noEmit": true,
-        "strict": true,
-        "skipLibCheck": true,
-        "noFallthroughCasesInSwitch": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "types": ["node"],
-        "paths": {
-            "#root/*": ["./src/*"],
-            "#drizzle/*": ["./drizzle/*"]
-        }
-    },
-    "include": [
-        "src/**/*",
-        "drizzle/**/*.ts",
-        "drizzle.config.ts",
-        "tsdown.config.ts",
-        "env.d.ts"
+    "files": [],
+    "references": [
+        { "path": "./packages/config" },
+        { "path": "./packages/contracts" },
+        { "path": "./packages/database" },
+        { "path": "./apps/bot" },
+        { "path": "./apps/api" },
+        { "path": "./apps/web" }
     ]
 }

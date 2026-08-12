@@ -1,0 +1,30 @@
+{
+    "$schema": "https://turborepo.dev/schema.json",
+    "ui": "tui",
+    "tasks": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": ["dist/**"]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "test": {
+            "dependsOn": ["^build"]
+        },
+        "typecheck": {
+            "dependsOn": ["^typecheck"],
+            "outputs": ["**/*.tsbuildinfo"]
+        },
+        "lint": {
+            "dependsOn": ["^lint"]
+        },
+        "lint:write": {
+            "cache": false
+        },
+        "format": {
+            "cache": false
+        }
+    }
+}
