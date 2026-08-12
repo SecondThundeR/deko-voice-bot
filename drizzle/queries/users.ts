@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "../db.ts";
 import {
@@ -12,37 +12,30 @@ type OptInStatus = "newUser" | "restored" | "alreadyOptedIn";
 type UserDetails = Omit<InsertUser, "isIgnored" | "usesAmount" | "lastUsedAt">;
 type UserData = Omit<SelectUser, "isIgnored">;
 
-const getUserDataQuery = db
-    .select({
-        userId: usersTable.userId,
-        fullname: usersTable.fullname,
-        username: usersTable.username,
-        lastUsedAt: usersTable.lastUsedAt,
-        usesAmount: usersTable.usesAmount,
-    })
-    .from(usersTable)
-    .where(
-        and(
-            eq(usersTable.userId, sql.placeholder("userId")),
-            eq(usersTable.isIgnored, false),
-        ),
-    )
-    .prepare("get_user_data");
-
-const getUserIgnoreStatusQuery = db
-    .select({ isIgnored: usersTable.isIgnored })
-    .from(usersTable)
-    .where(eq(usersTable.userId, sql.placeholder("userId")))
-    .prepare("get_user_ignore_status");
+const userDataColumns = {
+    userId: usersTable.userId,
+    fullname: usersTable.fullname,
+    username: usersTable.username,
+    lastUsedAt: usersTable.lastUsedAt,
+    usesAmount: usersTable.usesAmount,
+};
 
 export async function getUserData(userId: SelectUser["userId"]) {
-    const [user] = await getUserDataQuery.execute({ userId });
+    const [user] = await db
+        .select(userDataColumns)
+        .from(usersTable)
+        .where(
+            and(eq(usersTable.userId, userId), eq(usersTable.isIgnored, false)),
+        );
 
     return user ?? null;
 }
 
 export async function getUserIsIgnoredStatus(userId: SelectUser["userId"]) {
-    const [user] = await getUserIgnoreStatusQuery.execute({ userId });
+    const [user] = await db
+        .select({ isIgnored: usersTable.isIgnored })
+        .from(usersTable)
+        .where(eq(usersTable.userId, userId));
 
     return user?.isIgnored ?? null;
 }

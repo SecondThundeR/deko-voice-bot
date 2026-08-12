@@ -3,6 +3,7 @@ import { optOutUser } from "#drizzle/queries/users.js";
 import type { Context } from "#root/bot/context.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { getLocalizedUserData } from "#root/bot/helpers/user.js";
+import { redis } from "#root/redis.js";
 
 const composer = new Composer<Context>();
 
@@ -17,6 +18,9 @@ feature.command("optout", logHandle("command-optout"), async (ctx) => {
 
     const locale = await ctx.i18n.getLocale();
     const localizedUserData = getLocalizedUserData(ctx.t, locale, lastUserData);
+    if (redis) {
+        await redis.del(`session:${userId}`, `conversation:${userId}`);
+    }
 
     return ctx.reply(
         [

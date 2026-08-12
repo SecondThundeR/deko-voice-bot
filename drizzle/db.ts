@@ -3,9 +3,9 @@ import postgres from "postgres";
 
 import { databaseUrl } from "./env.ts";
 
-const client = postgres(databaseUrl);
+let client = postgres(databaseUrl);
 
-export const db = drizzle({
+export let db = drizzle({
     client,
     casing: "snake_case",
     // Drizzle's query logger includes bound values, which may contain personal data.
@@ -18,4 +18,11 @@ export async function checkDatabaseConnection() {
 
 export async function closeDatabaseConnection() {
     await client.end({ timeout: 5 });
+}
+
+export async function resetDatabaseConnection() {
+    await closeDatabaseConnection();
+    client = postgres(databaseUrl);
+    db = drizzle({ client, casing: "snake_case", logger: false });
+    await checkDatabaseConnection();
 }

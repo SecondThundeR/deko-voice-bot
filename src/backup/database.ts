@@ -6,6 +6,7 @@ import postgres from "postgres";
 import { BackupError } from "./errors.ts";
 
 const MAX_STDERR_BYTES = 16 * 1024;
+const DATABASE_UTILITY_TIMEOUT_MS = 5 * 60_000;
 const REQUIRED_TABLES = [
     "feature_flags",
     "payments",
@@ -13,6 +14,11 @@ const REQUIRED_TABLES = [
     "users",
     "users_favorites",
     "voices",
+] as const;
+const REQUIRED_CONSTRAINTS = [
+    "voices_file_unique_id_unique",
+    "voices_uses_amount_nonnegative",
+    "users_uses_amount_nonnegative",
 ] as const;
 
 type ProcessResult = {
@@ -25,10 +31,16 @@ async function runDatabaseUtility(
     executable: string,
     args: string[],
     captureStdout = false,
+    env?: Partial<NodeJS.ProcessEnv>,
 ): Promise<ProcessResult> {
     const child = spawn(executable, args, {
+        env: { ...process.env, ...env },
         stdio: ["ignore", captureStdout ? "pipe" : "ignore", "pipe"],
     });
+    const timeout = setTimeout(
+        () => child.kill("SIGTERM"),
+        DATABASE_UTILITY_TIMEOUT_MS,
+    );
     const stderrChunks: Buffer[] = [];
     const stdoutChunks: Buffer[] = [];
     let stderrBytes = 0;
@@ -46,6 +58,7 @@ async function runDatabaseUtility(
         child.once("error", reject);
         child.once("close", (code) => resolve(code ?? 1));
     });
+    clearTimeout(timeout);
 
     const stderr = Buffer.concat(stderrChunks).toString("utf8");
     return {
@@ -55,6 +68,16 @@ async function runDatabaseUtility(
                 ? `${stderr}\n... stderr output truncated`
                 : stderr,
         stdout: Buffer.concat(stdoutChunks).toString("utf8"),
+    };
+}
+
+function getUtilityConnection(databaseUrl: string) {
+    const parsed = new URL(databaseUrl);
+    const password = decodeURIComponent(parsed.password);
+    parsed.password = "";
+    return {
+        url: parsed.toString(),
+        env: password ? { PGPASSWORD: password } : undefined,
     };
 }
 
@@ -75,14 +98,21 @@ export async function createDatabaseDump(
     databaseUrl: string,
     outputPath: string,
 ) {
-    const result = await runDatabaseUtility("pg_dump", [
-        databaseUrl,
-        "--format=custom",
-        "--no-owner",
-        "--no-acl",
-        "--file",
-        outputPath,
-    ]);
+    const connection = getUtilityConnection(databaseUrl);
+    const result = await runDatabaseUtility(
+        "pg_dump",
+        [
+            connection.url,
+            "--format=custom",
+            "--schema=public",
+            "--no-owner",
+            "--no-acl",
+            "--file",
+            outputPath,
+        ],
+        false,
+        connection.env,
+    );
     assertSuccessfulProcess(result, "pg_dump");
 }
 
@@ -106,22 +136,44 @@ export async function validateDatabaseDump(dumpPath: string) {
             "BACKUP_SCHEMA_MISMATCH",
         );
     }
+    if (/\bbot_runtime\b/.test(result.stdout)) {
+        throw new BackupError(
+            "Operational bot_runtime objects must not be present in an application backup",
+            "BACKUP_SCHEMA_MISMATCH",
+        );
+    }
+    const missingConstraints = REQUIRED_CONSTRAINTS.filter(
+        (constraint) => !result.stdout.includes(constraint),
+    );
+    if (missingConstraints.length > 0) {
+        throw new BackupError(
+            `The backup is missing required constraints: ${missingConstraints.join(", ")}`,
+            "BACKUP_SCHEMA_MISMATCH",
+        );
+    }
 }
 
 export async function restoreDatabaseDump(
     databaseUrl: string,
     dumpPath: string,
 ) {
-    const result = await runDatabaseUtility("pg_restore", [
-        "--dbname",
-        databaseUrl,
-        "--single-transaction",
-        "--clean",
-        "--if-exists",
-        "--no-owner",
-        "--no-acl",
-        dumpPath,
-    ]);
+    const connection = getUtilityConnection(databaseUrl);
+    const result = await runDatabaseUtility(
+        "pg_restore",
+        [
+            "--dbname",
+            connection.url,
+            "--schema=public",
+            "--single-transaction",
+            "--clean",
+            "--if-exists",
+            "--no-owner",
+            "--no-acl",
+            dumpPath,
+        ],
+        false,
+        connection.env,
+    );
     assertSuccessfulProcess(result, "pg_restore");
 }
 
@@ -147,6 +199,20 @@ export async function validateRestoredDatabase(databaseUrl: string) {
 
         await client`select 1 from users limit 1`;
         await client`select 1 from voices limit 1`;
+        const constraints = await client<{ conname: string }[]>`
+            select conname from pg_constraint
+            where connamespace = 'public'::regnamespace
+        `;
+        const names = new Set(constraints.map(({ conname }) => conname));
+        const missingConstraints = REQUIRED_CONSTRAINTS.filter(
+            (constraint) => !names.has(constraint),
+        );
+        if (missingConstraints.length > 0) {
+            throw new BackupError(
+                `The restored database is missing required constraints: ${missingConstraints.join(", ")}`,
+                "RESTORED_SCHEMA_MISMATCH",
+            );
+        }
     } finally {
         await client.end({ timeout: 5 });
     }

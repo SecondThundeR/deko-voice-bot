@@ -10,6 +10,13 @@ export async function deleteVoiceHandler(ctx: MenuContext) {
     }
 
     const voiceId = currentVoice.id;
+    const confirmation = `${voiceId}:${currentVoice.title}`;
+    if (ctx.session.deleteVoiceConfirmation !== confirmation) {
+        ctx.session.deleteVoiceConfirmation = confirmation;
+        await ctx.menu.update({ immediate: true });
+        return ctx.answerCallbackQuery();
+    }
+    ctx.session.deleteVoiceConfirmation = null;
     const deletedVoice = await deleteVoice(voiceId);
     const messageId = deletedVoice
         ? "voices-delete-success"

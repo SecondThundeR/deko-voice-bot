@@ -6,6 +6,7 @@ import { logHandle } from "#root/bot/helpers/logging.js";
 import { extractUserDetails } from "#root/bot/helpers/user.js";
 import { getVoiceQueriesPage } from "#root/bot/helpers/voices.js";
 import { getSafeErrorInfo } from "#root/logging.js";
+import { consumeInlineQueryToken } from "#root/redis.js";
 
 const composer = new Composer<Context>();
 const MAX_INLINE_QUERY_OFFSET = 1000;
@@ -28,6 +29,10 @@ composer.on(
 
 composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
     const userID = ctx.from.id;
+    if (!(await consumeInlineQueryToken(userID))) {
+        await ctx.answerInlineQuery([], { cache_time: 1, is_personal: true });
+        return;
+    }
     const requestedOffset = Number(ctx.update.inline_query.offset) || 0;
     const currentOffset =
         Number.isInteger(requestedOffset) && requestedOffset > 0
@@ -46,7 +51,8 @@ composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
     });
     const paginatedQueries = currentQueriesPage.slice(0, pageSize);
     const nextOffset =
-        currentQueriesPage.length > pageSize
+        currentQueriesPage.length > pageSize &&
+        currentOffset + pageSize < MAX_INLINE_QUERY_OFFSET
             ? currentOffset + pageSize
             : undefined;
 

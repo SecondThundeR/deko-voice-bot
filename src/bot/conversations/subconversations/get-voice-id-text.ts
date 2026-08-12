@@ -1,6 +1,5 @@
 import type { Conversation } from "@grammyjs/conversations";
-import { VOICE_ID_LENGTH } from "#drizzle/constraints.js";
-import { isVoiceIdUnique } from "#drizzle/queries/voices.js";
+import { isValidVoiceId, isVoiceIdUnique } from "#drizzle/queries/voices.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
 
 export async function getVoiceIDTextSubconversation(
@@ -23,6 +22,10 @@ export async function getVoiceIDTextSubconversation(
     while (true) {
         const text = await conversation.form.text();
 
+        if (!isValidVoiceId(text)) {
+            await ctx.reply(long);
+            continue;
+        }
         const isIdUnique = await conversation.external(() =>
             isVoiceIdUnique(text),
         );
@@ -30,11 +33,6 @@ export async function getVoiceIDTextSubconversation(
             await ctx.reply(notUnique);
             continue;
         }
-        if (text.length > VOICE_ID_LENGTH) {
-            await ctx.reply(long);
-            continue;
-        }
-
         return text;
     }
 }

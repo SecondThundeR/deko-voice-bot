@@ -7,6 +7,7 @@ export function createBackupTempPaths(prefix: string) {
 
     return {
         dump: `${basename}.dump`,
+        package: `${basename}.package`,
         encrypted: `${basename}.dump.enc`,
     };
 }

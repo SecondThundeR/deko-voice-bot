@@ -4,6 +4,7 @@ import type { Logger } from "./logger.ts";
 import { getSafeErrorInfo } from "./logging.ts";
 
 type ShutdownHook = () => Promise<void> | void;
+const SHUTDOWN_TIMEOUT_MS = 15_000;
 
 export function createLifecycle(logger: Logger) {
     const hooks: ShutdownHook[] = [];
@@ -18,7 +19,15 @@ export function createLifecycle(logger: Logger) {
         let firstError: unknown;
         for (let i = hooks.length - 1; i >= 0; i--) {
             try {
-                await hooks[i]();
+                await Promise.race([
+                    hooks[i](),
+                    new Promise<never>((_, reject) =>
+                        setTimeout(
+                            () => reject(new Error("Shutdown hook timed out")),
+                            SHUTDOWN_TIMEOUT_MS,
+                        ),
+                    ),
+                ]);
             } catch (error) {
                 logger.error({
                     msg: "Shutdown hook failed",

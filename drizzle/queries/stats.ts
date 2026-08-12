@@ -84,29 +84,21 @@ const mostUsedVoicesStats = sql<FullVoicesStats[]>`(
     ) most_used_voices
 )`;
 
-const getBasicStatsQuery = db
-    .select(basicStatsColumns)
-    .from(usersTable)
-    .prepare("get_basic_stats");
-
-const getFullStatsQuery = db
-    .select({
-        ...basicStatsColumns,
-        mostUsedUsersStats,
-        lastUsedUsersStats,
-        mostUsedVoicesStats,
-    })
-    .from(usersTable)
-    .prepare("get_full_stats");
-
 export async function getBasicStats() {
-    const [stats] = await getBasicStatsQuery.execute();
+    const [stats] = await db.select(basicStatsColumns).from(usersTable);
 
     return stats;
 }
 
 export async function getFullStats() {
-    const [stats] = await getFullStatsQuery.execute();
+    const [stats] = await db
+        .select({
+            ...basicStatsColumns,
+            mostUsedUsersStats,
+            lastUsedUsersStats,
+            mostUsedVoicesStats,
+        })
+        .from(usersTable);
 
     return stats;
 }

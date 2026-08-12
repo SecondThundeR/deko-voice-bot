@@ -32,6 +32,16 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
             }
 
             if (existingPayment.status === "refund_pending") {
+                const transactions = await ctx.api.getStarTransactions({
+                    limit: 100,
+                });
+                const confirmedByTelegram = JSON.stringify(
+                    transactions,
+                ).includes(existingPayment.telegramPaymentChargeId);
+                if (confirmedByTelegram) {
+                    await markPaymentAsRefunded(chargeId);
+                    return ctx.reply(ctx.t("refund-already-completed"));
+                }
                 return ctx.reply(ctx.t("refund-in-progress"));
             }
 
@@ -69,7 +79,7 @@ feature.command("refund", logHandle("command-refund"), async (ctx) => {
             }),
         );
 
-        ctx.api
+        void ctx.api
             .sendMessage(
                 payment.userId,
                 ctx.t("refund-user-notice", { amount: payment.amount }),

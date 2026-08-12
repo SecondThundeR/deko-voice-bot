@@ -24,7 +24,7 @@ If you make a donation using Telegram Stars, the Bot stores:
 
 - your Telegram user ID;
 - the Telegram payment charge ID;
-- the invoice identifier, which includes your Telegram user ID and the invoice creation time;
+- a random invoice identifier that does not contain your Telegram user ID or creation time;
 - the amount paid;
 - the payment time; and
 - the payment or refund status.
@@ -37,7 +37,8 @@ Telegram sends the Bot the information contained in updates needed to handle you
 
 Most message and query content is processed only to provide the requested feature and is not stored in the Bot's main database. However:
 
-- temporary session and conversation data is kept in server memory for up to 24 hours after the latest session write, or until the Bot process restarts, whichever happens first;
+- temporary session and conversation data is kept in production Redis for up to 24 hours after the latest session write;
+- webhook updates are durably queued in PostgreSQL while pending or failed; successfully processed payloads are deleted immediately, leaving a minimal duplicate marker for up to 7 days, and remaining queued payloads expire after 7 days;
 - Telegram update identifiers and their processing times are stored to prevent the same usage event from being counted more than once; these records are not directly linked to a user profile in the Bot's database; and
 - operational logs record technical events such as the Telegram update identifier and type, handler name, Bot API method and payload field names (but not payload values), voice and file identifiers from the Bot's non-user voice catalog, processing time, and sanitized error type, code, message, and stack trace. Error details are automatically redacted for common user and chat identifiers, Telegram usernames, email addresses, bot tokens, payment and file identifiers, and home-directory names. Message contents, inline search text, Telegram profile fields, user and chat identifiers, payment payloads, complete Telegram updates, and Bot API payload values are not intentionally written to application logs.
 
@@ -85,11 +86,11 @@ To request access to other personal information held by the Service Provider, co
 
 - Active usage profiles and favorites are retained while the Bot operates, unless you opt out or request deletion.
 - The Telegram user ID and opt-out flag are retained for as long as necessary to honor the opt-out choice.
-- In-memory session and conversation data expires within 24 hours after the latest session write and is also lost when the Bot process restarts.
+- Production Redis session and conversation data expires within 24 hours after the latest session write.
 - Payment records are retained indefinitely as the Bot's complete payment and refund history.
-- Telegram update identifiers and their processing times, used to prevent duplicate usage accounting, currently have no automatic deletion period and are retained indefinitely. They are not directly linked to user profiles in the database.
+- Webhook and usage duplicate markers expire automatically after 7 days. Successfully handled webhook payloads are deleted immediately; pending and failed payloads are deleted after 7 days.
 - Railway service logs are retained for 7 days under the Service Provider's current Hobby plan. Railway audit logs are retained for 48 hours.
-- The Service Provider's Railway plan does not include database backups. Administrative database export files may be created manually. Exports are encrypted before being sent through Telegram, and temporary plaintext and encrypted files are deleted from the Bot host after the operation. The encrypted copy delivered through Telegram remains subject to Telegram's storage and retention controls.
+- Point-in-time recovery is not currently enabled. Administrative database export files may be created manually. Exports are authenticated and encrypted before being sent through Telegram, and temporary plaintext and encrypted files are deleted from the Bot host after the operation. The encrypted copy delivered through Telegram remains subject to Telegram's storage and retention controls.
 
 ## Sharing and Service Providers
 

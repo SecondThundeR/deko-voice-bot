@@ -22,6 +22,17 @@ function getInfoButtonText(ctx: Context) {
     return voice ? `${voice.title} (${voice.id})` : ctx.t("voices-unknown");
 }
 
+function getDeleteButtonText(ctx: Context) {
+    const voice = ctx.session.currentVoice;
+    const confirmation = voice ? `${voice.id}:${voice.title}` : null;
+    return voice && ctx.session.deleteVoiceConfirmation === confirmation
+        ? ctx.t("voices-delete-confirm-button", {
+              voiceId: voice.id,
+              voiceTitle: voice.title,
+          })
+        : ctx.t("voices-delete-button");
+}
+
 function enterConversation(conversationId: string) {
     return async (ctx: MenuContext) => {
         await genericCloseHandler(ctx);
@@ -52,7 +63,7 @@ export function createVoiceActionsMenu({
             (ctx) => ctx.t("voices-update-title-button"),
             enterConversation(UPDATE_VOICE_TITLE_CONVERSATION),
         )
-        .text((ctx) => ctx.t("voices-delete-button"), deleteVoice)
+        .text(getDeleteButtonText, deleteVoice)
         .row()
         .text(
             (ctx) => ctx.t("voices-update-file-button"),

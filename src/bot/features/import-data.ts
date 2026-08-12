@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { stat, unlink } from "node:fs/promises";
 import { Composer, InlineKeyboard, InputFile } from "grammy";
+import {
+    closeDatabaseConnection,
+    resetDatabaseConnection,
+} from "#drizzle/db.js";
 import { databaseUrl } from "#drizzle/env.js";
 
 import { createEncryptedDatabaseBackup } from "#root/backup/create.js";
@@ -17,6 +21,7 @@ import {
 } from "#root/backup/encryption.js";
 import { BackupOperationBusyError } from "#root/backup/errors.js";
 import { withBackupAdvisoryLock } from "#root/backup/lock.js";
+import { unpackBackup } from "#root/backup/manifest.js";
 import {
     createBackupTempPaths,
     createDatedBackupFileName,
@@ -32,6 +37,7 @@ import {
 import { importSessions } from "#root/bot/store/import-sessions.js";
 import { setCachedMaintenanceFeatureFlag } from "#root/bot/store/maintenance.js";
 import { getSafeErrorInfo } from "#root/logging.js";
+import { clearBotSessionState } from "#root/redis.js";
 
 const IMPORT_CALLBACK = /^import:(confirm|cancel):([0-9a-f-]{36})$/;
 
@@ -113,19 +119,29 @@ feature.on(
             const encryptionKey = parseBackupEncryptionKey(
                 ctx.config.backupEncryptionKey,
             );
-            await decryptBackupFile(paths.encrypted, paths.dump, encryptionKey);
+            await decryptBackupFile(
+                paths.encrypted,
+                paths.package,
+                encryptionKey,
+            );
+            await unpackBackup(paths.package, paths.dump);
+            await unlink(paths.package);
             await validateDatabaseDump(paths.dump);
 
             const [sha256, fileStats] = await Promise.all([
                 hashFile(paths.encrypted),
                 stat(paths.encrypted),
             ]);
-            importSessions.addAwaitingConfirmation(session, {
-                dumpPath: paths.dump,
-                encryptedPath: paths.encrypted,
-                sha256,
-                size: fileStats.size,
-            });
+            importSessions.addAwaitingConfirmation(
+                session,
+                {
+                    dumpPath: paths.dump,
+                    encryptedPath: paths.encrypted,
+                    sha256,
+                    size: fileStats.size,
+                },
+                getImportSessionTtlMs(ctx),
+            );
 
             const keyboard = new InlineKeyboard()
                 .text(
@@ -147,6 +163,7 @@ feature.on(
             await importSessions.cancel(ctx.from.id, ctx.chat.id);
             await Promise.allSettled([
                 unlink(paths.dump),
+                unlink(paths.package),
                 unlink(paths.encrypted),
             ]);
             ctx.logger.warn({
@@ -194,6 +211,7 @@ feature.callbackQuery(
         const runtimeOperationId = randomUUID();
         const emergencyPaths = createBackupTempPaths("pre-import");
         let maintenanceStarted = false;
+        let applicationDatabaseClosed = false;
 
         try {
             await ctx.editMessageText(ctx.t("import-preparing"));
@@ -224,9 +242,15 @@ feature.callbackQuery(
                     },
                 );
 
+                applicationDatabaseClosed = true;
+                await closeDatabaseConnection();
                 await restoreDatabaseDump(databaseUrl, session.dumpPath);
+                await resetDatabaseConnection();
+                applicationDatabaseClosed = false;
                 setCachedMaintenanceFeatureFlag(null);
                 await validateRestoredDatabase(databaseUrl);
+                await clearBotSessionState();
+                await importSessions.clear();
             });
 
             ctx.logger.info({
@@ -237,6 +261,14 @@ feature.callbackQuery(
             });
             return ctx.reply(ctx.t("import-completed"));
         } catch (error: unknown) {
+            if (applicationDatabaseClosed) {
+                await resetDatabaseConnection().catch((reconnectError) => {
+                    ctx.logger.error({
+                        msg: "Database reconnect after failed import failed",
+                        ...getSafeErrorInfo(reconnectError),
+                    });
+                });
+            }
             ctx.logger.error({
                 msg: "Database import failed",
                 operationId: runtimeOperationId,
@@ -257,6 +289,7 @@ feature.callbackQuery(
                 unlink(session.dumpPath),
                 unlink(session.encryptedPath),
                 unlink(emergencyPaths.dump),
+                unlink(emergencyPaths.package),
                 unlink(emergencyPaths.encrypted),
             ]);
         }

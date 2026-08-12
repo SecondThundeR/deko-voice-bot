@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { webhookCallback } from "grammy";
+import type { Update } from "grammy/types";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 
@@ -7,6 +7,7 @@ import type { Bot } from "#root/bot/index.js";
 import type { Config } from "#root/config.js";
 import type { Logger } from "#root/logger.js";
 import { getSafeErrorInfo } from "#root/logging.js";
+import type { WebhookInbox } from "#root/webhook/inbox.js";
 
 import type { Env } from "./environment.ts";
 import { requestId, requestLogger, setLogger } from "./middlewares.ts";
@@ -15,10 +16,11 @@ interface Dependencies {
     bot: Bot;
     config: Config;
     logger: Logger;
+    inbox?: WebhookInbox;
 }
 
 export function createServer(dependencies: Dependencies) {
-    const { bot, config, logger } = dependencies;
+    const { config, inbox, logger } = dependencies;
 
     const server = new Hono<Env>();
 
@@ -62,12 +64,25 @@ export function createServer(dependencies: Dependencies) {
     server.get("/", (c) => c.json({ status: true }));
 
     if (config.botMode === "webhook") {
-        server.post(
-            "/webhook",
-            webhookCallback(bot, "hono", {
-                secretToken: config.botWebhookSecret,
-            }),
-        );
+        if (!inbox) throw new Error("Webhook inbox dependency is required");
+        server.post("/webhook", async (c) => {
+            if (
+                c.req.header("x-telegram-bot-api-secret-token") !==
+                config.botWebhookSecret
+            ) {
+                return c.json({ error: "Unauthorized" }, 401);
+            }
+
+            const update = await c.req.json<Update>();
+            if (
+                !Number.isSafeInteger(update.update_id) ||
+                update.update_id < 0
+            ) {
+                return c.json({ error: "Invalid Telegram update" }, 400);
+            }
+            await inbox.enqueue(update);
+            return c.json({ ok: true });
+        });
     }
 
     return server;
@@ -82,7 +97,7 @@ export function createServerManager(
     let handle: undefined | ReturnType<typeof serve>;
     return {
         start() {
-            return new Promise<{ url: string }>((resolve) => {
+            return new Promise<{ url: string }>((resolve, reject) => {
                 handle = serve(
                     {
                         fetch: server.fetch,
@@ -97,6 +112,7 @@ export function createServerManager(
                                     : `http://${info.address}:${info.port}`,
                         }),
                 );
+                handle.once("error", reject);
             });
         },
         stop() {

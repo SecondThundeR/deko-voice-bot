@@ -113,6 +113,13 @@
       "when": 1786461277510,
       "tag": "0015_chief_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1786531200000,
+      "tag": "0016_runtime_inbox_and_invariants",
+      "breakpoints": true
     }
   ]
 }

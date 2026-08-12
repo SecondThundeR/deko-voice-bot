@@ -10,4 +10,7 @@ export const errorHandler: ErrorHandler<Context> = (error) => {
         msg: "Update processing failed",
         ...getSafeErrorInfo(error.error),
     });
+    // The transport owns retry/replay policy. Propagate the failure so a durable
+    // inbox item cannot be acknowledged as successfully processed.
+    throw error.error;
 };

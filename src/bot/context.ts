@@ -14,6 +14,7 @@ export type SessionData = {
     currentVoicesOffset: number;
     currentVoice?: InlineResultVoice | null;
     addedVoices?: string[] | null;
+    deleteVoiceConfirmation?: string | null;
 };
 
 interface ExtendedContextFlavor {

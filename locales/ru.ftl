@@ -214,6 +214,7 @@ voices-update-id-button = Обновить ID
 voices-update-file-button = Обновить файл
 voices-update-title-button = Обновить название
 voices-delete-button = Удалить
+voices-delete-confirm-button = Подтвердить: «{ $voiceTitle }» ({ $voiceId })
 voices-delete-success = Реплика «{ $voiceTitle }» успешно удалена!
 voices-delete-failed = Что-то пошло не так, и реплика «{ $voiceTitle }» не была удалена.
 voices-unknown = Неизвестная реплика

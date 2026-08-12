@@ -63,6 +63,7 @@ feature.command(
         } finally {
             await Promise.allSettled([
                 unlink(paths.dump),
+                unlink(paths.package),
                 unlink(paths.encrypted),
             ]);
         }

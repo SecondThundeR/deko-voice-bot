@@ -28,7 +28,8 @@ export function newVoicesConversation() {
                     ctx,
                 );
                 if (!audioFilePath) {
-                    return ctx.reply(ctx.t("new-voices-audio-path-empty"));
+                    await ctx.reply(ctx.t("new-voices-audio-path-empty"));
+                    continue;
                 }
 
                 await ctx.replyWithChatAction("typing");
@@ -55,16 +56,16 @@ export function newVoicesConversation() {
 
                 if (!voiceResult.status) {
                     if (voiceResult.type === "download") {
-                        return ctx.reply(
-                            ctx.t("new-voices-audio-fetch-failed"),
-                        );
+                        await ctx.reply(ctx.t("new-voices-audio-fetch-failed"));
+                        continue;
                     }
 
-                    return ctx.reply(
+                    await ctx.reply(
                         ctx.t("new-voices-conversion-failed", {
                             errorMessage: escapeHTML(voiceResult.error),
                         }),
                     );
+                    continue;
                 }
 
                 const insertStatus = await conversation.external(() =>
@@ -76,11 +77,12 @@ export function newVoicesConversation() {
                     }),
                 );
                 if (!insertStatus) {
-                    return ctx.reply(
+                    await ctx.reply(
                         ctx.t("new-voices-add-failed", {
                             title: escapeHTML(voiceTitle),
                         }),
                     );
+                    continue;
                 }
 
                 await conversation.external((ctx) => {

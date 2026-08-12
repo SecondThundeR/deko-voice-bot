@@ -10,6 +10,18 @@ import {
 } from "../schema.ts";
 
 const VOICE_TITLE_SIMILARITY_THRESHOLD = 0.2;
+export const VOICE_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+
+export function isValidVoiceId(voiceId: string) {
+    return VOICE_ID_PATTERN.test(voiceId);
+}
+
+function escapeLikePattern(value: string) {
+    return value
+        .replaceAll("\\", "\\\\")
+        .replaceAll("%", "\\%")
+        .replaceAll("_", "\\_");
+}
 
 type GetVoicesPageOptions = {
     favoritesUserId?: SelectUser["userId"];
@@ -19,17 +31,14 @@ type GetVoicesPageOptions = {
     query?: SelectVoice["voiceTitle"];
 };
 
-const getVoicesByUniqueIdQuery = db
-    .select()
-    .from(voicesTable)
-    .where(eq(voicesTable.fileUniqueId, sql.placeholder("fileUniqueId")))
-    .orderBy(voicesTable.voiceId)
-    .prepare("get_voices_by_unique_id");
-
 export async function getVoicesByUniqueId(
     fileUniqueId: SelectVoice["fileUniqueId"],
 ) {
-    return getVoicesByUniqueIdQuery.execute({ fileUniqueId });
+    return db
+        .select()
+        .from(voicesTable)
+        .where(eq(voicesTable.fileUniqueId, fileUniqueId))
+        .orderBy(voicesTable.voiceId);
 }
 
 export async function getVoicesCount() {
@@ -43,9 +52,10 @@ export async function getVoicesPage({
     orderFavoritesFirst = false,
     query,
 }: GetVoicesPageOptions) {
+    const escapedQuery = query ? escapeLikePattern(query) : undefined;
     const filters = query
         ? sql`(
-            ${voicesTable.voiceTitle} ilike ${`%${query}%`}
+            ${voicesTable.voiceTitle} ilike ${`%${escapedQuery}%`} escape '\\'
             or word_similarity(${query}, ${voicesTable.voiceTitle}) > ${VOICE_TITLE_SIMILARITY_THRESHOLD}
         )`
         : undefined;
@@ -114,6 +124,7 @@ export async function isVoiceIdUnique(voiceId: SelectVoice["voiceId"]) {
 }
 
 export async function addVoice(data: Omit<InsertVoice, "usesAmount">) {
+    if (!isValidVoiceId(data.voiceId)) return false;
     const [insertedVoice] = await db
         .insert(voicesTable)
         .values(data)
@@ -127,6 +138,7 @@ export async function updateVoiceId(
     voiceId: InsertVoice["voiceId"],
     newVoiceId: InsertVoice["voiceId"],
 ) {
+    if (!isValidVoiceId(newVoiceId)) return false;
     const [updatedVoice] = await db
         .update(voicesTable)
         .set({ voiceId: newVoiceId })

@@ -1,6 +1,6 @@
 import { setTimeout as delay } from "node:timers/promises";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "../db.ts";
 import { paymentsTable, usersTable } from "../schema.ts";
@@ -9,60 +9,25 @@ type Payment = typeof paymentsTable.$inferSelect;
 type ChargeId = Payment["telegramPaymentChargeId"];
 
 const RETRY_DELAYS_MS = [0, 100, 300] as const;
+const TRANSIENT_SQLSTATES = new Set([
+    "40001",
+    "40P01",
+    "55P03",
+    "57014",
+    "08000",
+    "08003",
+    "08006",
+]);
 
-const getPaymentByChargeIdQuery = db
-    .select()
-    .from(paymentsTable)
-    .where(
-        eq(paymentsTable.telegramPaymentChargeId, sql.placeholder("chargeId")),
-    )
-    .prepare("get_payment_by_charge_id");
-
-const claimPaymentForRefundQuery = db
-    .update(paymentsTable)
-    .set({ status: "refund_pending" })
-    .where(
-        and(
-            eq(
-                paymentsTable.telegramPaymentChargeId,
-                sql.placeholder("chargeId"),
-            ),
-            eq(paymentsTable.status, "paid"),
-        ),
-    )
-    .returning()
-    .prepare("claim_payment_for_refund");
-
-const releasePaymentRefundClaimQuery = db
-    .update(paymentsTable)
-    .set({ status: "paid" })
-    .where(
-        and(
-            eq(
-                paymentsTable.telegramPaymentChargeId,
-                sql.placeholder("chargeId"),
-            ),
-            eq(paymentsTable.status, "refund_pending"),
-        ),
-    )
-    .prepare("release_payment_refund_claim");
-
-const markPaymentAsRefundedQuery = db
-    .update(paymentsTable)
-    .set({ status: "refunded" })
-    .where(
-        and(
-            eq(
-                paymentsTable.telegramPaymentChargeId,
-                sql.placeholder("chargeId"),
-            ),
-            eq(paymentsTable.status, "refund_pending"),
-        ),
-    )
-    .returning({
-        telegramPaymentChargeId: paymentsTable.telegramPaymentChargeId,
-    })
-    .prepare("mark_payment_as_refunded");
+function isTransientDatabaseError(error: unknown) {
+    return (
+        !!error &&
+        typeof error === "object" &&
+        "code" in error &&
+        typeof error.code === "string" &&
+        TRANSIENT_SQLSTATES.has(error.code)
+    );
+}
 
 interface InsertPaymentOptions {
     amount: Payment["amount"];
@@ -84,7 +49,10 @@ async function retryPaymentWrite<T>(operation: () => Promise<T>) {
         try {
             return await operation();
         } catch (error) {
-            if (attempt === RETRY_DELAYS_MS.length - 1) {
+            if (
+                attempt === RETRY_DELAYS_MS.length - 1 ||
+                !isTransientDatabaseError(error)
+            ) {
                 throw error;
             }
         }
@@ -113,20 +81,40 @@ async function insertPaymentOnce(payment: InsertPaymentOptions) {
 }
 
 export async function getPaymentByChargeId(chargeId: ChargeId) {
-    const [payment] = await getPaymentByChargeIdQuery.execute({ chargeId });
+    const [payment] = await db
+        .select()
+        .from(paymentsTable)
+        .where(eq(paymentsTable.telegramPaymentChargeId, chargeId));
 
     return payment ?? null;
 }
 
 export async function claimPaymentForRefund(chargeId: ChargeId) {
-    const [payment] = await claimPaymentForRefundQuery.execute({ chargeId });
+    const [payment] = await db
+        .update(paymentsTable)
+        .set({ status: "refund_pending", refundStartedAt: new Date() })
+        .where(
+            and(
+                eq(paymentsTable.telegramPaymentChargeId, chargeId),
+                eq(paymentsTable.status, "paid"),
+            ),
+        )
+        .returning();
 
     return payment ?? null;
 }
 
 export async function releasePaymentRefundClaim(chargeId: ChargeId) {
     await retryPaymentWrite(() =>
-        releasePaymentRefundClaimQuery.execute({ chargeId }),
+        db
+            .update(paymentsTable)
+            .set({ status: "paid", refundStartedAt: null })
+            .where(
+                and(
+                    eq(paymentsTable.telegramPaymentChargeId, chargeId),
+                    eq(paymentsTable.status, "refund_pending"),
+                ),
+            ),
     );
 }
 
@@ -135,7 +123,18 @@ export async function markPaymentAsRefunded(chargeId: ChargeId) {
 }
 
 async function markPaymentAsRefundedOnce(chargeId: ChargeId) {
-    const [payment] = await markPaymentAsRefundedQuery.execute({ chargeId });
+    const [payment] = await db
+        .update(paymentsTable)
+        .set({ status: "refunded", refundedAt: new Date() })
+        .where(
+            and(
+                eq(paymentsTable.telegramPaymentChargeId, chargeId),
+                eq(paymentsTable.status, "refund_pending"),
+            ),
+        )
+        .returning({
+            telegramPaymentChargeId: paymentsTable.telegramPaymentChargeId,
+        });
 
     if (payment) {
         return true;

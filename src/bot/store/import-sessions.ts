@@ -84,12 +84,16 @@ export class ImportSessionStore {
     addAwaitingConfirmation(
         base: ImportSession,
         data: Omit<AwaitingConfirmationSession, "stage">,
+        ttlMs?: number,
     ) {
         const key = getSessionKey(base.userId, base.chatId);
         const session: ImportSession = {
             ...base,
             ...data,
             stage: "awaiting-confirmation",
+            expiresAt:
+                Date.now() +
+                (ttlMs ?? Math.max(0, base.expiresAt - Date.now())),
         };
         this.#sessions.set(key, session);
         this.#scheduleExpiration(
@@ -98,6 +102,13 @@ export class ImportSessionStore {
             Math.max(0, session.expiresAt - Date.now()),
         );
         return session;
+    }
+
+    async clear() {
+        const sessions = [...this.#sessions.values()];
+        for (const session of sessions) {
+            await this.cancel(session.userId, session.chatId);
+        }
     }
 
     takeForConfirmation(userId: number, chatId: number, operationId: string) {

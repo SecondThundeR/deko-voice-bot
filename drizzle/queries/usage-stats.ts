@@ -15,6 +15,25 @@ import {
 } from "../schema.ts";
 
 const RETRY_DELAYS_MS = [0, 100, 300] as const;
+const TRANSIENT_SQLSTATES = new Set([
+    "40001",
+    "40P01",
+    "55P03",
+    "57014",
+    "08000",
+    "08003",
+    "08006",
+]);
+
+function isTransientDatabaseError(error: unknown) {
+    return (
+        !!error &&
+        typeof error === "object" &&
+        "code" in error &&
+        typeof error.code === "string" &&
+        TRANSIENT_SQLSTATES.has(error.code)
+    );
+}
 
 type UserDetails = Omit<InsertUser, "isIgnored" | "usesAmount" | "lastUsedAt">;
 
@@ -52,7 +71,7 @@ export async function recordUsage({
                 voiceId,
             });
 
-            if (isLastAttempt) {
+            if (isLastAttempt || !isTransientDatabaseError(error)) {
                 throw error;
             }
         }
@@ -70,7 +89,10 @@ async function recordUsageOnce({
         with new_usage_update as (
             insert into ${processedUsageUpdatesTable}
                 (update_id)
-            values (${updateId}::bigint)
+            select ${updateId}::bigint
+            where exists (
+                select 1 from ${voicesTable} where ${voicesTable.voiceId} = ${voiceId}
+            )
             on conflict do nothing
             returning update_id
         ),
@@ -96,7 +118,7 @@ async function recordUsageOnce({
             ${username ?? null},
             1,
             ${usedAt}::bigint
-        where exists (select 1 from new_usage_update)
+        where exists (select 1 from voice_usage)
         on conflict (user_id) do update set
             fullname = excluded.fullname,
             username = excluded.username,

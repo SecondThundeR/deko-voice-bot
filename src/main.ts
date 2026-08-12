@@ -11,6 +11,7 @@ import { logger } from "./logger.ts";
 import { getSafeErrorInfo } from "./logging.ts";
 import { checkRedisConnection, closeRedisConnection } from "./redis.ts";
 import { createServer, createServerManager } from "./server/index.ts";
+import { createWebhookInbox, startWebhookWorkers } from "./webhook/inbox.ts";
 
 const lifecycle = createLifecycle(logger);
 lifecycle.onShutdown(closeDatabaseConnection);
@@ -43,9 +44,11 @@ async function startWebhook(config: WebhookConfig) {
         config,
         logger,
     });
+    const inbox = createWebhookInbox();
     const server = createServer({
         bot,
         config,
+        inbox,
         logger,
     });
     const serverManager = createServerManager(server, {
@@ -55,6 +58,9 @@ async function startWebhook(config: WebhookConfig) {
 
     // to prevent receiving updates before the bot is ready
     await bot.init();
+    const stopWorkers = startWebhookWorkers(inbox, bot, logger);
+    lifecycle.onShutdown(() => inbox.close());
+    lifecycle.onShutdown(stopWorkers);
     const info = await serverManager.start();
     lifecycle.onShutdown(() => serverManager.stop());
     logger.info({
