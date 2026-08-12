@@ -8,7 +8,7 @@ let client = postgres(databaseUrl);
 export let db = drizzle({
     client,
     casing: "snake_case",
-    // Drizzle's query logger includes bound values, which may contain personal data.
+    // Drizzle's query logger includes bound values, which may contain personal data
     logger: false,
 });
 

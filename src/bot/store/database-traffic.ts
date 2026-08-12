@@ -53,7 +53,7 @@ async function waitForActiveRequestsAtMost(limit: number) {
 /**
  * Stops new updates and waits until only the update that initiated the import
  * remains active. This coordinator is intentionally process-local and assumes
- * that the bot is deployed as a single replica.
+ * that the bot is deployed as a single replica
  */
 export async function beginDatabaseImportMaintenance() {
     if (isImportMaintenanceActive) {

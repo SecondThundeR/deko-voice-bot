@@ -11,6 +11,6 @@ export const errorHandler: ErrorHandler<Context> = (error) => {
         ...getSafeErrorInfo(error.error),
     });
     // The transport owns retry/replay policy. Propagate the failure so a durable
-    // inbox item cannot be acknowledged as successfully processed.
+    // inbox item cannot be acknowledged as successfully processed
     throw error.error;
 };
