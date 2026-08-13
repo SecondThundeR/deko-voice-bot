@@ -430,9 +430,16 @@ export const routes = new Hono<ApiEnv>()
                 startMs: form.get("startMs"),
                 endMs: form.get("endMs"),
             });
+            const addedBy = c.var.user.username
+                ? `@${c.var.user.username}`
+                : fullname(c.var.user);
             const sent = await convertAndSendVoice({
                 bytes: new Uint8Array(await file.arrayBuffer()),
-                caption: `Добавлено администратором: ${title}`,
+                caption: [
+                    `ID: ${voiceId}`,
+                    `Название: ${title}`,
+                    `Добавлено модератором: ${addedBy}`,
+                ].join("\n"),
                 trim,
             });
             const added = await addVoice({
