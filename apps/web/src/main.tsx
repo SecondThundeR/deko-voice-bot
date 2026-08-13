@@ -1,11 +1,10 @@
 import "./index.css";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider } from "@tanstack/react-router";
 import { BanIcon } from "lucide-react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
-import { AppShell } from "@/components/app-shell";
 import {
     Empty,
     EmptyDescription,
@@ -14,32 +13,11 @@ import {
     EmptyTitle,
 } from "@/components/ui/empty";
 import { Toaster } from "@/components/ui/sonner";
+import { queryClient } from "@/lib/query-client";
 import { initializeTelegram, WebApp } from "@/lib/telegram";
-import { DashboardPage } from "@/pages/dashboard";
-import { ProfilePage } from "@/pages/profile";
-import { SubmitPage } from "@/pages/submit";
-import { VoicesPage } from "@/pages/voices";
+import { router } from "@/router";
 
 initializeTelegram();
-
-const router = createBrowserRouter([
-    {
-        path: "/",
-        Component: AppShell,
-        children: [
-            { index: true, Component: DashboardPage },
-            { path: "voices", Component: VoicesPage },
-            { path: "submit", Component: SubmitPage },
-            { path: "profile", Component: ProfilePage },
-        ],
-    },
-]);
-
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: { retry: 1, staleTime: 30_000 },
-    },
-});
 
 function Root() {
     if (!WebApp?.initData) {

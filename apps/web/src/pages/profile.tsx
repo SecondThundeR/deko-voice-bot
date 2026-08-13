@@ -2,13 +2,12 @@ import type { UserProfile, Viewer } from "@deko-voice-bot/contracts";
 import {
     type QueryClient,
     useMutation,
-    useQuery,
     useQueryClient,
+    useSuspenseQuery,
 } from "@tanstack/react-query";
 import { ShieldXIcon, Trash2Icon, UserRoundCheckIcon } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -38,9 +37,9 @@ import {
     EmptyTitle,
 } from "@/components/ui/empty";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
+import { profileQueryOptions, queryKeys } from "@/lib/queries";
 import { WebApp } from "@/lib/telegram";
 
 const numberFormatter = new Intl.NumberFormat("ru-RU");
@@ -92,7 +91,7 @@ function TelegramGreeting() {
 }
 
 function updateViewerConsent(queryClient: QueryClient, hasConsent: boolean) {
-    queryClient.setQueryData<Viewer>(["viewer"], (viewer) =>
+    queryClient.setQueryData<Viewer>(queryKeys.viewer, (viewer) =>
         viewer ? { ...viewer, hasConsent } : viewer,
     );
 }
@@ -105,14 +104,20 @@ function ActiveProfile({ profile }: { profile: ActiveUserProfile }) {
         onSuccess: async () => {
             setConfirmOpen(false);
             updateViewerConsent(queryClient, false);
-            queryClient.setQueryData<UserProfile>(["profile"], {
+            queryClient.setQueryData<UserProfile>(queryKeys.profile, {
                 status: "excluded",
             });
-            queryClient.removeQueries({ queryKey: ["submissions"] });
+            queryClient.removeQueries({ queryKey: queryKeys.submissions });
             await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ["profile"] }),
-                queryClient.invalidateQueries({ queryKey: ["viewer"] }),
-                queryClient.invalidateQueries({ queryKey: ["voices"] }),
+                queryClient.invalidateQueries({
+                    queryKey: queryKeys.profile,
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: queryKeys.viewer,
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: queryKeys.voices.all,
+                }),
             ]);
             toast.success("Вы исключены из статистики");
         },
@@ -235,8 +240,12 @@ function ExcludedProfile() {
         onSuccess: async () => {
             updateViewerConsent(queryClient, true);
             await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ["profile"] }),
-                queryClient.invalidateQueries({ queryKey: ["viewer"] }),
+                queryClient.invalidateQueries({
+                    queryKey: queryKeys.profile,
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: queryKeys.viewer,
+                }),
             ]);
             toast.success("Участие в статистике включено");
         },
@@ -275,34 +284,13 @@ function ExcludedProfile() {
 }
 
 export function ProfilePage() {
-    const profile = useQuery({
-        queryKey: ["profile"],
-        queryFn: api.profile,
-    });
-
-    let content: ReactNode;
-    if (profile.error) {
-        content = (
-            <Alert variant="destructive">
-                <AlertTitle>Не удалось загрузить профиль</AlertTitle>
-                <AlertDescription>{profile.error.message}</AlertDescription>
-            </Alert>
+    const profile = useSuspenseQuery(profileQueryOptions);
+    const content =
+        profile.data.status === "active" ? (
+            <ActiveProfile profile={profile.data} />
+        ) : (
+            <ExcludedProfile />
         );
-    } else if (!profile.data) {
-        content = (
-            <div className="flex flex-col gap-3">
-                <Skeleton className="h-72" />
-                <Skeleton className="h-40" />
-            </div>
-        );
-    } else {
-        content =
-            profile.data.status === "active" ? (
-                <ActiveProfile profile={profile.data} />
-            ) : (
-                <ExcludedProfile />
-            );
-    }
 
     return (
         <div className="flex flex-1 flex-col gap-4">

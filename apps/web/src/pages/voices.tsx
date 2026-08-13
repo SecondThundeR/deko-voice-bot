@@ -1,25 +1,20 @@
 import {
-    useInfiniteQuery,
     useMutation,
-    useQuery,
     useQueryClient,
+    useSuspenseInfiniteQuery,
+    useSuspenseQuery,
 } from "@tanstack/react-query";
 import {
     AudioLinesIcon,
     HeartIcon,
     PauseIcon,
     PlayIcon,
-    PlusIcon,
     SearchIcon,
     SendIcon,
     XIcon,
 } from "lucide-react";
-import { type SubmitEvent, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-    type AudioSelection,
-    LazyAudioTrimmer,
-} from "@/components/lazy-audio-trimmer";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -29,28 +24,13 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-import {
     Empty,
     EmptyDescription,
     EmptyHeader,
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty";
-import {
-    Field,
-    FieldDescription,
-    FieldGroup,
-    FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Field } from "@/components/ui/field";
 import {
     InputGroup,
     InputGroupAddon,
@@ -61,27 +41,50 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
+import {
+    queryKeys,
+    type VoiceSort,
+    viewerQueryOptions,
+    voicesQueryOptions,
+} from "@/lib/queries";
 import { WebApp } from "@/lib/telegram";
-import { cn } from "@/lib/utils";
+import { voicesRoute } from "@/router";
+
+const AdminVoiceForm = lazy(() =>
+    import("@/components/admin-voice-form").then((module) => ({
+        default: module.AdminVoiceForm,
+    })),
+);
 
 export function VoicesPage() {
-    const [search, setSearch] = useState("");
-    const [query, setQuery] = useState("");
-    const [sort, setSort] = useState<"title" | "popularity" | "favorites">(
-        "title",
-    );
+    const { q: query, sort } = voicesRoute.useSearch();
+    const navigate = voicesRoute.useNavigate();
+    const [search, setSearch] = useState(query);
     const [playing, setPlaying] = useState<string>();
     const [sharing, setSharing] = useState<string>();
     const audio = useRef<{ element: HTMLAudioElement; url: string } | null>(
         null,
     );
     const queryClient = useQueryClient();
-    const viewer = useQuery({ queryKey: ["viewer"], queryFn: api.viewer });
+    const viewer = useSuspenseQuery(viewerQueryOptions);
 
     useEffect(() => {
-        const timeout = setTimeout(() => setQuery(search.trim()), 250);
+        const normalizedSearch = search.trim();
+        if (normalizedSearch === query) return;
+        const timeout = setTimeout(() => {
+            void navigate({
+                replace: true,
+                resetScroll: false,
+                search: (previous) => ({
+                    ...previous,
+                    q: normalizedSearch,
+                }),
+            });
+        }, 250);
         return () => clearTimeout(timeout);
-    }, [search]);
+    }, [navigate, query, search]);
+
+    useEffect(() => setSearch(query), [query]);
 
     useEffect(
         () => () => {
@@ -91,17 +94,16 @@ export function VoicesPage() {
         [],
     );
 
-    const voices = useInfiniteQuery({
-        queryKey: ["voices", query, sort],
-        queryFn: ({ pageParam }) => api.voices(query, sort, pageParam),
-        initialPageParam: 0,
-        getNextPageParam: (page) => page.nextOffset ?? undefined,
-    });
+    const voices = useSuspenseInfiniteQuery(
+        voicesQueryOptions({ query, sort }),
+    );
     const favorite = useMutation({
         mutationFn: ({ id, value }: { id: string; value: boolean }) =>
             api.favorite(id, value),
         onSuccess: () =>
-            queryClient.invalidateQueries({ queryKey: ["voices"] }),
+            queryClient.invalidateQueries({
+                queryKey: queryKeys.voices.all,
+            }),
         onError: (error) => toast.error(error.message),
     });
 
@@ -196,7 +198,6 @@ export function VoicesPage() {
                                     aria-label="Очистить поиск"
                                     onClick={() => {
                                         setSearch("");
-                                        setQuery("");
                                     }}
                                 >
                                     <XIcon />
@@ -205,13 +206,23 @@ export function VoicesPage() {
                         ) : null}
                     </InputGroup>
                 </Field>
-                {viewer.data?.isAdmin ? <AdminVoiceForm /> : null}
+                {viewer.data?.isAdmin ? (
+                    <Suspense fallback={<Skeleton className="h-8 w-24" />}>
+                        <AdminVoiceForm />
+                    </Suspense>
+                ) : null}
             </div>
             <Tabs
                 value={sort}
-                onValueChange={(value) =>
-                    setSort(value as "title" | "popularity" | "favorites")
-                }
+                onValueChange={(value) => {
+                    void navigate({
+                        resetScroll: false,
+                        search: (previous) => ({
+                            ...previous,
+                            sort: value as VoiceSort,
+                        }),
+                    });
+                }}
             >
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="title">Название</TabsTrigger>
@@ -219,18 +230,7 @@ export function VoicesPage() {
                     <TabsTrigger value="favorites">Избранное</TabsTrigger>
                 </TabsList>
             </Tabs>
-            {voices.isLoading ? <Skeleton className="h-72" /> : null}
-            {voices.error ? (
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyTitle>Ошибка</EmptyTitle>
-                        <EmptyDescription>
-                            {voices.error.message}
-                        </EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
-            ) : null}
-            {items.length === 0 && voices.isSuccess ? (
+            {items.length === 0 ? (
                 <Empty>
                     <EmptyHeader>
                         <EmptyMedia variant="icon">
@@ -334,242 +334,5 @@ export function VoicesPage() {
                 </Button>
             ) : null}
         </div>
-    );
-}
-
-function AdminVoiceForm() {
-    const queryClient = useQueryClient();
-    const [isOpen, setIsOpen] = useState(false);
-    const [isDiscardOpen, setIsDiscardOpen] = useState(false);
-    const [voiceId, setVoiceId] = useState("");
-    const [title, setTitle] = useState("");
-    const [file, setFile] = useState<File>();
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
-    const audioUrlRef = useRef<string | null>(null);
-    const [fileInputKey, setFileInputKey] = useState(0);
-    const [selection, setSelection] = useState<AudioSelection>({
-        startMs: 0,
-        endMs: null,
-    });
-    const hasData =
-        voiceId.length > 0 || title.length > 0 || file !== undefined;
-
-    function resetForm() {
-        setVoiceId("");
-        setTitle("");
-        setFile(undefined);
-        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
-        audioUrlRef.current = null;
-        setAudioUrl(null);
-        setSelection({ startMs: 0, endMs: null });
-        setFileInputKey((key) => key + 1);
-    }
-
-    function closeDialog() {
-        setIsOpen(false);
-    }
-
-    function requestClose() {
-        if (add.isPending) return;
-        if (hasData) setIsDiscardOpen(true);
-        else closeDialog();
-    }
-
-    const add = useMutation({
-        mutationFn: api.addVoice,
-        onSuccess: () => {
-            toast.success("Реплика добавлена");
-            closeDialog();
-            queryClient.invalidateQueries({ queryKey: ["voices"] });
-        },
-        onError: (error) => toast.error(error.message),
-    });
-
-    useEffect(
-        () => () => {
-            if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
-        },
-        [],
-    );
-
-    function handleFile(nextFile?: File) {
-        setFile(nextFile);
-        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
-        const nextUrl = nextFile ? URL.createObjectURL(nextFile) : null;
-        audioUrlRef.current = nextUrl;
-        setAudioUrl(nextUrl);
-        setSelection({ startMs: 0, endMs: null });
-    }
-
-    function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-        event.preventDefault();
-        if (!file) return toast.error("Выберите MP3-файл");
-        const form = new FormData();
-        form.set("voiceId", voiceId);
-        form.set("title", title);
-        form.set("file", file);
-        form.set("startMs", String(selection.startMs));
-        form.set(
-            "endMs",
-            selection.endMs === null ? "" : String(selection.endMs),
-        );
-        add.mutate(form);
-    }
-
-    return (
-        <Dialog
-            open={isOpen}
-            onOpenChange={(open, details) => {
-                if (open) setIsOpen(true);
-                else {
-                    details.cancel();
-                    if (isDiscardOpen) setIsDiscardOpen(false);
-                    else requestClose();
-                }
-            }}
-            onOpenChangeComplete={(open) => {
-                if (!open) {
-                    setIsDiscardOpen(false);
-                    resetForm();
-                }
-            }}
-        >
-            <DialogTrigger>
-                <Button variant="outline">
-                    <PlusIcon data-icon="inline-start" /> Добавить
-                </Button>
-            </DialogTrigger>
-            <DialogContent
-                className={cn(
-                    "max-h-[calc(100dvh-2rem)] overflow-y-auto",
-                    isDiscardOpen ? "sm:max-w-sm" : "sm:max-w-lg",
-                )}
-                showCloseButton={!add.isPending && !isDiscardOpen}
-            >
-                <div className="contents" hidden={isDiscardOpen}>
-                    <DialogHeader>
-                        <DialogTitle>Добавить реплику</DialogTitle>
-                        <DialogDescription>
-                            Реплика будет опубликована напрямую в каталоге без
-                            пользовательской заявки
-                        </DialogDescription>
-                    </DialogHeader>
-                    <form
-                        className="flex flex-col gap-4"
-                        onSubmit={handleSubmit}
-                    >
-                        <FieldGroup>
-                            <Field>
-                                <FieldLabel htmlFor="admin-voice-id">
-                                    ID реплики
-                                </FieldLabel>
-                                <Input
-                                    id="admin-voice-id"
-                                    value={voiceId}
-                                    minLength={1}
-                                    maxLength={64}
-                                    pattern="[A-Za-z0-9_-]+"
-                                    required
-                                    disabled={add.isPending}
-                                    onChange={(event) =>
-                                        setVoiceId(event.target.value)
-                                    }
-                                />
-                                <FieldDescription>
-                                    Латинские буквы, цифры, дефис и
-                                    подчёркивание
-                                </FieldDescription>
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="admin-voice-title">
-                                    Название
-                                </FieldLabel>
-                                <Input
-                                    id="admin-voice-title"
-                                    value={title}
-                                    minLength={1}
-                                    maxLength={128}
-                                    required
-                                    disabled={add.isPending}
-                                    onChange={(event) =>
-                                        setTitle(event.target.value)
-                                    }
-                                />
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="admin-voice-file">
-                                    MP3-файл
-                                </FieldLabel>
-                                <Input
-                                    key={fileInputKey}
-                                    id="admin-voice-file"
-                                    type="file"
-                                    accept="audio/mpeg,.mp3"
-                                    required
-                                    disabled={add.isPending}
-                                    onChange={(event) =>
-                                        handleFile(event.target.files?.[0])
-                                    }
-                                />
-                            </Field>
-                            {audioUrl ? (
-                                <LazyAudioTrimmer
-                                    src={audioUrl}
-                                    onChange={setSelection}
-                                />
-                            ) : null}
-                        </FieldGroup>
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={add.isPending}
-                                onClick={requestClose}
-                            >
-                                Отмена
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={add.isPending || !file}
-                            >
-                                {add.isPending ? (
-                                    <Spinner data-icon="inline-start" />
-                                ) : (
-                                    <PlusIcon data-icon="inline-start" />
-                                )}
-                                Добавить в каталог
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </div>
-                {isDiscardOpen ? (
-                    <>
-                        <DialogHeader>
-                            <DialogTitle>Закрыть форму добавления?</DialogTitle>
-                            <DialogDescription>
-                                Введённые данные и выбранный файл будут удалены.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                autoFocus
-                                onClick={() => setIsDiscardOpen(false)}
-                            >
-                                Продолжить редактирование
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="destructive"
-                                onClick={closeDialog}
-                            >
-                                Закрыть и удалить данные
-                            </Button>
-                        </DialogFooter>
-                    </>
-                ) : null}
-            </DialogContent>
-        </Dialog>
     );
 }

@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ActivityIcon, AudioLinesIcon, UsersIcon } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
     Card,
     CardContent,
@@ -15,39 +14,15 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/lib/api";
+import { leaderboardsQueryOptions, statsQueryOptions } from "@/lib/queries";
 
 function formatNumber(value: number) {
     return new Intl.NumberFormat("ru-RU").format(value);
 }
 
 export function DashboardPage() {
-    const stats = useQuery({ queryKey: ["stats"], queryFn: api.stats });
-    const leaderboards = useQuery({
-        queryKey: ["leaderboards"],
-        queryFn: api.leaderboards,
-    });
-
-    if (stats.error || leaderboards.error) {
-        return (
-            <Alert variant="destructive">
-                <AlertTitle>Не удалось загрузить статистику</AlertTitle>
-                <AlertDescription>
-                    {stats.error?.message || leaderboards.error?.message}
-                </AlertDescription>
-            </Alert>
-        );
-    }
-
-    if (!stats.data || !leaderboards.data) {
-        return (
-            <div className="grid gap-3">
-                <Skeleton className="h-28" />
-                <Skeleton className="h-64" />
-            </div>
-        );
-    }
+    const stats = useSuspenseQuery(statsQueryOptions);
+    const leaderboards = useSuspenseQuery(leaderboardsQueryOptions);
 
     const cards = [
         {

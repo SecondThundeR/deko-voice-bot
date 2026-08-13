@@ -1,33 +1,56 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+    Link,
+    Outlet,
+    useRouter,
+    useRouterState,
+} from "@tanstack/react-router";
 import {
     BarChart3Icon,
     ListMusicIcon,
     UploadIcon,
     UserRoundIcon,
 } from "lucide-react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useTelegram, useTelegramBackButton } from "@/hooks/use-telegram";
-import { api } from "@/lib/api";
+import { viewerQueryOptions } from "@/lib/queries";
 
 const links = [
-    { to: "/", label: "Статистика", icon: BarChart3Icon },
-    { to: "/voices", label: "Реплики", icon: ListMusicIcon },
-    { to: "/submit", label: "Предложить", icon: UploadIcon },
-    { to: "/profile", label: "Профиль", icon: UserRoundIcon },
+    {
+        to: "/",
+        label: "Статистика",
+        icon: BarChart3Icon,
+    },
+    {
+        to: "/voices",
+        label: "Реплики",
+        icon: ListMusicIcon,
+    },
+    {
+        to: "/submit",
+        label: "Предложить",
+        icon: UploadIcon,
+    },
+    {
+        to: "/profile",
+        label: "Профиль",
+        icon: UserRoundIcon,
+    },
 ] as const;
 
 export function AppShell() {
     useTelegram();
-    const viewer = useQuery({ queryKey: ["viewer"], queryFn: api.viewer });
-    const location = useLocation();
-    const navigate = useNavigate();
-    const activeLink = links.find(({ to }) => to === location.pathname);
+    const viewer = useSuspenseQuery(viewerQueryOptions);
+    const router = useRouter();
+    const pathname = useRouterState({
+        select: (state) => state.location.pathname,
+    });
+    const activeLink = links.find(({ to }) => to === pathname);
     const pageTitle =
         activeLink?.to === "/submit" && viewer.data?.isAdmin
             ? "Заявки"
             : (activeLink?.label ?? "Deko Voice Bot");
-    useTelegramBackButton(location.pathname !== "/", () => navigate(-1));
+    useTelegramBackButton(pathname !== "/", () => router.history.back());
 
     return (
         <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-[max(5.5rem,var(--tg-content-safe-area-inset-bottom,0px))]">
@@ -44,11 +67,9 @@ export function AppShell() {
                     {links.map(({ to, label, icon: Icon }) => (
                         <Button
                             key={to}
-                            render={<NavLink to={to} />}
+                            render={<Link to={to} preload="intent" />}
                             nativeButton={false}
-                            variant={
-                                location.pathname === to ? "secondary" : "ghost"
-                            }
+                            variant={pathname === to ? "secondary" : "ghost"}
                             className="h-auto flex-1 flex-col py-2"
                         >
                             <Icon data-icon="inline-start" />

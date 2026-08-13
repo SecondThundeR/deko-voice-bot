@@ -7,12 +7,13 @@ export function useTelegram() {
 
 export function useTelegramBackButton(show: boolean, onBack: () => void) {
     useEffect(() => {
-        if (!WebApp || !show) return;
-        WebApp.BackButton.show();
-        WebApp.BackButton.onClick(onBack);
+        const webApp = WebApp;
+        if (!webApp || !show) return;
+        webApp.BackButton.show();
+        webApp.BackButton.onClick(onBack);
         return () => {
-            WebApp.BackButton.offClick(onBack);
-            WebApp.BackButton.hide();
+            webApp.BackButton.offClick(onBack);
+            webApp.BackButton.hide();
         };
     }, [onBack, show]);
 }

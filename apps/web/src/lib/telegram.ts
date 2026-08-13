@@ -1,6 +1,7 @@
 /// <reference types="@types/telegram-web-app" />
 
-export const WebApp = window.Telegram?.WebApp;
+export const WebApp =
+    typeof window === "undefined" ? undefined : window.Telegram?.WebApp;
 
 const LIGHT_THEME_COLOR = "#ffffff";
 const DARK_THEME_COLOR = "#090b0c";
