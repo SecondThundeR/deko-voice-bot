@@ -9,6 +9,12 @@ import {
 } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import {
+    DashboardPageSkeleton,
+    ProfilePageSkeleton,
+    SubmitPageSkeleton,
+    VoicesPageSkeleton,
+} from "@/components/page-skeletons";
+import {
     RouteErrorBoundary,
     RouteLoading,
     RouteNotFound,
@@ -53,6 +59,7 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
 const dashboardRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/",
+    pendingComponent: DashboardPageSkeleton,
     loader: ({ context }) =>
         Promise.all([
             context.queryClient.ensureQueryData(statsQueryOptions),
@@ -69,6 +76,7 @@ const dashboardRoute = createRoute({
 export const voicesRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/voices",
+    pendingComponent: VoicesPageSkeleton,
     validateSearch: (search: VoicesSearchInput): VoicesSearch => ({
         q: typeof search.q === "string" ? search.q.trim() : "",
         sort:
@@ -98,6 +106,7 @@ export const voicesRoute = createRoute({
 const submitRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/submit",
+    pendingComponent: SubmitPageSkeleton,
     loader: async ({ context }) => {
         const viewer =
             await context.queryClient.ensureQueryData(viewerQueryOptions);
@@ -120,6 +129,7 @@ const submitRoute = createRoute({
 const profileRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/profile",
+    pendingComponent: ProfilePageSkeleton,
     loader: ({ context }) =>
         context.queryClient.ensureQueryData(profileQueryOptions),
 }).lazy(() =>

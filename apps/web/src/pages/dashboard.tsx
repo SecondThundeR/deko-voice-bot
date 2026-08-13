@@ -43,7 +43,7 @@ export function DashboardPage() {
     ];
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex animate-in flex-col gap-4 fade-in-0 duration-150 motion-reduce:animate-none">
             <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {cards.map(({ title, value, icon: Icon }) => (
                     <Card

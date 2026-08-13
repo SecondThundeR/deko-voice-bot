@@ -293,7 +293,7 @@ export function ProfilePage() {
         );
 
     return (
-        <div className="flex flex-1 flex-col gap-4">
+        <div className="flex flex-1 animate-in flex-col gap-4 fade-in-0 duration-150 motion-reduce:animate-none">
             <TelegramGreeting />
             {content}
         </div>

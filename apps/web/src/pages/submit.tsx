@@ -7,6 +7,7 @@ import {
 import { FileAudioIcon, ShieldCheckIcon } from "lucide-react";
 import { lazy, type SubmitEvent, Suspense, useState } from "react";
 import { toast } from "sonner";
+import { AdminSubmissionsSkeleton } from "@/components/page-skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +32,6 @@ import {
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
 import {
@@ -64,14 +64,19 @@ function statusVariant(status: AdminSubmission["status"]) {
 
 export function SubmitPage() {
     const viewer = useSuspenseQuery(viewerQueryOptions);
-    if (viewer.data?.isAdmin) {
-        return (
-            <Suspense fallback={<Skeleton className="h-72" />}>
-                <AdminSubmissions />
-            </Suspense>
-        );
-    }
-    return <UserSubmissions hasConsent={viewer.data?.hasConsent === true} />;
+    const content = viewer.data?.isAdmin ? (
+        <Suspense fallback={<AdminSubmissionsSkeleton />}>
+            <AdminSubmissions />
+        </Suspense>
+    ) : (
+        <UserSubmissions hasConsent={viewer.data?.hasConsent === true} />
+    );
+
+    return (
+        <div className="flex flex-1 animate-in flex-col fade-in-0 duration-150 motion-reduce:animate-none">
+            {content}
+        </div>
+    );
 }
 
 function UserSubmissions({ hasConsent }: { hasConsent: boolean }) {

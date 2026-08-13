@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { AdminVoiceButtonSkeleton } from "@/components/page-skeletons";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -37,7 +38,6 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
@@ -177,7 +177,7 @@ export function VoicesPage() {
     const items = voices.data?.pages.flatMap((page) => page.items) ?? [];
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex animate-in flex-col gap-4 fade-in-0 duration-150 motion-reduce:animate-none">
             <div className="flex gap-1">
                 <Field>
                     <InputGroup>
@@ -207,7 +207,7 @@ export function VoicesPage() {
                     </InputGroup>
                 </Field>
                 {viewer.data?.isAdmin ? (
-                    <Suspense fallback={<Skeleton className="h-8 w-24" />}>
+                    <Suspense fallback={<AdminVoiceButtonSkeleton />}>
                         <AdminVoiceForm />
                     </Suspense>
                 ) : null}
