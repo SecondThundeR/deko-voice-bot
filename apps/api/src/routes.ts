@@ -468,7 +468,7 @@ export const routes = new Hono<ApiEnv>()
             favoritesUserId,
             limit: limit + 1,
             offset,
-            orderFavoritesFirst: c.req.query("sort") === "favorites",
+            onlyFavorites: c.req.query("sort") === "favorites",
             orderUsesFirst: c.req.query("sort") === "popularity",
             query,
         });

@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
 
 import { db } from "../db.ts";
 import {
@@ -27,6 +27,7 @@ type GetVoicesPageOptions = {
     favoritesUserId?: SelectUser["userId"];
     limit: number;
     offset: number;
+    onlyFavorites?: boolean;
     orderFavoritesFirst?: boolean;
     orderUsesFirst?: boolean;
     query?: SelectVoice["voiceTitle"];
@@ -60,6 +61,7 @@ export async function getVoicesPage({
     favoritesUserId,
     limit,
     offset,
+    onlyFavorites = false,
     orderFavoritesFirst = false,
     orderUsesFirst = false,
     query,
@@ -75,6 +77,8 @@ export async function getVoicesPage({
     const similarityOrder = query
         ? desc(sql`word_similarity(${query}, ${voicesTable.voiceTitle})`)
         : undefined;
+
+    if (onlyFavorites && !favoritesUserId) return [];
 
     if (!favoritesUserId) {
         return db
@@ -114,7 +118,14 @@ export async function getVoicesPage({
                 eq(usersFavoritesTable.userId, favoritesUserId),
             ),
         )
-        .where(filters)
+        .where(
+            and(
+                filters,
+                onlyFavorites
+                    ? isNotNull(usersFavoritesTable.voiceId)
+                    : undefined,
+            ),
+        )
         .orderBy(
             ...(orderFavoritesFirst
                 ? [desc(sql`${usersFavoritesTable.voiceId} is not null`)]

@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3Icon, ListMusicIcon, UploadIcon } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTelegram, useTelegramBackButton } from "@/hooks/use-telegram";
 import { api } from "@/lib/api";
@@ -17,20 +16,19 @@ export function AppShell() {
     const viewer = useQuery({ queryKey: ["viewer"], queryFn: api.viewer });
     const location = useLocation();
     const navigate = useNavigate();
+    const activeLink = links.find(({ to }) => to === location.pathname);
+    const pageTitle =
+        activeLink?.to === "/submit" && viewer.data?.isAdmin
+            ? "Заявки"
+            : (activeLink?.label ?? "Deko Voice Bot");
     useTelegramBackButton(location.pathname !== "/", () => navigate(-1));
 
     return (
         <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-[max(5.5rem,var(--tg-content-safe-area-inset-bottom,0px))]">
             <header className="flex flex-col gap-1 py-4">
-                <div className="flex items-center gap-2">
-                    <h1 className="font-heading text-xl font-semibold">
-                        Deko Voice Bot
-                    </h1>
-                    <Badge variant="secondary">Beta</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                    Реплики, статистика и новые предложения
-                </p>
+                <h1 className="font-heading text-xl font-semibold">
+                    {pageTitle}
+                </h1>
             </header>
             <main className="flex flex-1 flex-col">
                 <Outlet />

@@ -12,6 +12,7 @@ import {
     PlusIcon,
     SearchIcon,
     SendIcon,
+    XIcon,
 } from "lucide-react";
 import { type SubmitEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -61,6 +62,12 @@ import {
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupInput,
+} from "@/components/ui/input-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -181,17 +188,32 @@ export function VoicesPage() {
         <div className="flex flex-col gap-4">
             {viewer.data?.isAdmin ? <AdminVoiceForm /> : null}
             <Field>
-                <FieldLabel htmlFor="voice-search">Поиск</FieldLabel>
-                <div className="relative">
-                    <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
+                <InputGroup>
+                    <InputGroupAddon>
+                        <SearchIcon />
+                    </InputGroupAddon>
+                    <InputGroupInput
                         id="voice-search"
+                        aria-label="Поиск реплик"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        className="pl-8"
                         placeholder="Название реплики"
                     />
-                </div>
+                    {search ? (
+                        <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                                size="icon-xs"
+                                aria-label="Очистить поиск"
+                                onClick={() => {
+                                    setSearch("");
+                                    setQuery("");
+                                }}
+                            >
+                                <XIcon />
+                            </InputGroupButton>
+                        </InputGroupAddon>
+                    ) : null}
+                </InputGroup>
             </Field>
             <Tabs
                 value={sort}
@@ -220,15 +242,27 @@ export function VoicesPage() {
                 <Empty>
                     <EmptyHeader>
                         <EmptyMedia variant="icon">
-                            {query ? <SearchIcon /> : <AudioLinesIcon />}
+                            {query ? (
+                                <SearchIcon />
+                            ) : sort === "favorites" ? (
+                                <HeartIcon />
+                            ) : (
+                                <AudioLinesIcon />
+                            )}
                         </EmptyMedia>
                         <EmptyTitle>
-                            {query ? "Ничего не найдено" : "Реплик пока нет"}
+                            {query
+                                ? "Ничего не найдено"
+                                : sort === "favorites"
+                                  ? "В избранном пока ничего нет"
+                                  : "Реплик пока нет"}
                         </EmptyTitle>
                         <EmptyDescription>
                             {query
                                 ? "Попробуйте изменить запрос"
-                                : "Здесь появятся реплики после добавления в каталог"}
+                                : sort === "favorites"
+                                  ? "Добавляйте реплики в избранное с помощью кнопки-сердца"
+                                  : "Здесь появятся реплики после добавления в каталог"}
                         </EmptyDescription>
                     </EmptyHeader>
                 </Empty>
