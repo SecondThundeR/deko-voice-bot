@@ -8,6 +8,10 @@ type TelegramDocumentMessage = {
         file_id: string;
         file_unique_id: string;
     };
+    audio?: {
+        file_id: string;
+        file_unique_id: string;
+    };
 };
 
 type TelegramVoiceMessage = {
@@ -91,13 +95,13 @@ export async function sendSubmissionToModeration(input: {
         "sendDocument",
         body,
     );
-    if (!message.document)
-        throw new Error("Telegram omitted submission document");
+    const sourceFile = message.document ?? message.audio;
+    if (!sourceFile) throw new Error("Telegram omitted submission file");
     return {
         sourceChatId: message.chat.id,
         sourceMessageId: message.message_id,
-        sourceFileId: message.document.file_id,
-        sourceFileUniqueId: message.document.file_unique_id,
+        sourceFileId: sourceFile.file_id,
+        sourceFileUniqueId: sourceFile.file_unique_id,
     };
 }
 

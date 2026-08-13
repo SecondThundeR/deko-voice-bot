@@ -177,9 +177,9 @@ function ActiveProfile({ profile }: { profile: ActiveUserProfile }) {
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground">
-                        При исключении имя, username, счётчик, время последней
-                        отправки и избранное будут удалены без возможности
-                        восстановления.
+                        При исключении полное имя, имя пользователя, счётчик отправленных реплик, время последней
+                        отправки и избранные реплики будут удалены без возможности
+                        восстановления
                     </p>
                 </CardContent>
                 <CardFooter>
@@ -207,7 +207,7 @@ function ActiveProfile({ profile }: { profile: ActiveUserProfile }) {
                         <AlertDialogDescription>
                             Профиль, статистика использования и избранное будут
                             очищены. При повторном включении сбор начнётся с
-                            нуля.
+                            нуля
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

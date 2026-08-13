@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, lt, ne, sql } from "drizzle-orm";
 
 import { db } from "../db.ts";
 import {
@@ -23,8 +23,14 @@ export async function createVoiceSubmission(input: {
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1_000);
         const [quota] = await tx
             .select({
-                recent: sql<number>`cast(count(*) filter (where ${voiceSubmissionsTable.createdAt} > ${oneDayAgo} and ${voiceSubmissionsTable.status} <> 'failed') as int)`,
-                unresolved: sql<number>`cast(count(*) filter (where ${voiceSubmissionsTable.status} in ('uploading', 'pending', 'processing')) as int)`,
+                recent: sql<number>`cast(count(*) filter (where ${and(
+                    gt(voiceSubmissionsTable.createdAt, oneDayAgo),
+                    ne(voiceSubmissionsTable.status, "failed"),
+                )}) as int)`,
+                unresolved: sql<number>`cast(count(*) filter (where ${inArray(
+                    voiceSubmissionsTable.status,
+                    ["uploading", "pending", "processing"],
+                )}) as int)`,
             })
             .from(voiceSubmissionsTable)
             .where(

@@ -5,7 +5,9 @@ process.env.BOT_TOKEN = "123456:test-token";
 process.env.VOICE_MODERATION_CHAT_ID = "-1001234567890";
 
 const originalFetch = globalThis.fetch;
-const { prepareVoiceMessage } = await import("./telegram.ts");
+const { prepareVoiceMessage, sendSubmissionToModeration } = await import(
+    "./telegram.ts"
+);
 
 afterEach(() => {
     globalThis.fetch = originalFetch;
@@ -46,4 +48,51 @@ describe("prepareVoiceMessage", () => {
             { id: "prepared-id", expiration_date: 1_800_000_000 },
         );
     });
+});
+
+describe("sendSubmissionToModeration", () => {
+    for (const attachmentType of ["document", "audio"] as const) {
+        it(`accepts the uploaded MP3 as ${attachmentType}`, async () => {
+            globalThis.fetch = async (input, init) => {
+                assert.equal(
+                    String(input),
+                    "https://api.telegram.org/bot123456:test-token/sendDocument",
+                );
+                assert.equal(init?.method, "POST");
+                assert.ok(init?.body instanceof FormData);
+                assert.equal(init.body.get("chat_id"), "-1001234567890");
+                const document = init.body.get("document");
+                assert.ok(document instanceof File);
+                assert.equal(document.name, "submission-id.mp3");
+                return Response.json({
+                    ok: true,
+                    result: {
+                        message_id: 123,
+                        chat: { id: -1001234567890 },
+                        [attachmentType]: {
+                            file_id: "telegram-file-id",
+                            file_unique_id: "telegram-unique-id",
+                        },
+                    },
+                });
+            };
+
+            assert.deepEqual(
+                await sendSubmissionToModeration({
+                    id: "submission-id",
+                    title: "Приветствие",
+                    userId: 42,
+                    file: new File(["ID3"], "greeting.mp3", {
+                        type: "audio/mpeg",
+                    }),
+                }),
+                {
+                    sourceChatId: -1001234567890,
+                    sourceMessageId: 123,
+                    sourceFileId: "telegram-file-id",
+                    sourceFileUniqueId: "telegram-unique-id",
+                },
+            );
+        });
+    }
 });
