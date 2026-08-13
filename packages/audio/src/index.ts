@@ -1,5 +1,6 @@
-import { type ExecFileException, execFile } from "node:child_process";
+import { type ExecException, execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -14,42 +15,79 @@ export type AudioTrim = {
 };
 
 const execFilePromise = promisify(execFile);
+const require = createRequire(import.meta.url);
+const ffmpegStatic = require("ffmpeg-static") as string | null;
+const ffprobeStatic = require("@derhuerst/ffprobe-static") as string | null;
 const FFMPEG_CHECK_TIMEOUT_MS = 10_000;
 const FFMPEG_CONVERSION_TIMEOUT_MS = 2 * 60 * 1_000;
 const FFMPEG_MAX_OUTPUT_BYTES = 256 * 1_024;
-let canRunCache: boolean | null = null;
+const executableCache = new Map<string, Promise<string>>();
 
 function errorMessage(error: unknown) {
     if (
         error instanceof Error &&
         "stderr" in error &&
-        typeof (error as ExecFileException & { stderr?: unknown }).stderr ===
+        typeof (error as ExecException & { stderr?: unknown }).stderr ===
             "string"
     ) {
         return (
-            (error as ExecFileException & { stderr: string }).stderr.trim() ||
+            (error as ExecException & { stderr: string }).stderr.trim() ||
             error.message
         );
     }
     return error instanceof Error ? error.message : "Unknown error occurred";
 }
 
-export async function getFFMPEGStatus() {
-    if (canRunCache !== null) return canRunCache;
-    try {
-        await execFilePromise("ffmpeg", ["-version"], {
-            timeout: FFMPEG_CHECK_TIMEOUT_MS,
-        });
-        canRunCache = true;
-    } catch {
-        canRunCache = false;
+async function resolveExecutable(
+    name: "ffmpeg" | "ffprobe",
+    override: string | undefined,
+    packaged: string | null,
+) {
+    const candidates = [...new Set([override, name, packaged])].filter(
+        (candidate): candidate is string => Boolean(candidate),
+    );
+    for (const candidate of candidates) {
+        try {
+            await execFilePromise(candidate, ["-version"], {
+                timeout: FFMPEG_CHECK_TIMEOUT_MS,
+            });
+            return candidate;
+        } catch {
+            // Try the next configured, system, or packaged executable.
+        }
     }
-    return canRunCache;
+    throw new Error(`${name} executable is unavailable`);
+}
+
+function getExecutable(name: "ffmpeg" | "ffprobe") {
+    let executable = executableCache.get(name);
+    if (!executable) {
+        executable =
+            name === "ffmpeg"
+                ? resolveExecutable(name, process.env.FFMPEG_BIN, ffmpegStatic)
+                : resolveExecutable(
+                      name,
+                      process.env.FFPROBE_BIN,
+                      ffprobeStatic,
+                  );
+        executableCache.set(name, executable);
+    }
+    return executable;
+}
+
+export async function getFFMPEGStatus() {
+    try {
+        await Promise.all([getExecutable("ffmpeg"), getExecutable("ffprobe")]);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 export async function getAudioDurationMs(filename: string) {
+    const ffprobe = await getExecutable("ffprobe");
     const { stdout } = await execFilePromise(
-        "ffprobe",
+        ffprobe,
         [
             "-v",
             "error",
@@ -76,6 +114,12 @@ export async function convertMP3ToOGGOpus(
     outputFilename: string,
     trim: AudioTrim = {},
 ): Promise<ConvertResult> {
+    let ffmpeg: string;
+    try {
+        ffmpeg = await getExecutable("ffmpeg");
+    } catch (error) {
+        return { status: false, error: errorMessage(error) };
+    }
     const startMs = trim.startMs ?? 0;
     const args = ["-hide_banner", "-nostdin", "-loglevel", "error", "-y"];
     if (startMs > 0) args.push("-ss", (startMs / 1_000).toFixed(3));
@@ -86,7 +130,7 @@ export async function convertMP3ToOGGOpus(
     args.push("-vn", "-ac", "1", "-c:a", "libopus", outputFilename);
 
     try {
-        await execFilePromise("ffmpeg", args, {
+        await execFilePromise(ffmpeg, args, {
             killSignal: "SIGKILL",
             maxBuffer: FFMPEG_MAX_OUTPUT_BYTES,
             timeout: FFMPEG_CONVERSION_TIMEOUT_MS,

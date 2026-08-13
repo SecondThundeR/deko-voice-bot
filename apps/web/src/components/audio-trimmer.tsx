@@ -75,6 +75,8 @@ export function AudioTrimmer({ onChange, src }: AudioTrimmerProps) {
             const roundedEnd = Math.round(end * 1_000);
             setStartMs(roundedStart);
             setEndMs(roundedEnd);
+            instance.pause();
+            instance.setTime(start);
             onChangeRef.current({
                 startMs: roundedStart,
                 endMs:
@@ -128,10 +130,12 @@ export function AudioTrimmer({ onChange, src }: AudioTrimmerProps) {
         }
         setStartMs(nextStartMs);
         setEndMs(nextEndMs);
+        wavesurfer.current?.pause();
         region.current?.setOptions({
             start: nextStartMs / 1_000,
             end: nextEndMs / 1_000,
         });
+        wavesurfer.current?.setTime(nextStartMs / 1_000);
         onChangeRef.current({
             startMs: nextStartMs,
             endMs:
@@ -222,8 +226,17 @@ export function AudioTrimmer({ onChange, src }: AudioTrimmerProps) {
                         variant="outline"
                         disabled={!isReady}
                         onClick={() => {
-                            if (isPlaying) wavesurfer.current?.pause();
-                            else region.current?.play(true);
+                            const instance = wavesurfer.current;
+                            const selection = region.current;
+                            if (!instance || !selection) return;
+                            if (instance.isPlaying()) instance.pause();
+                            else {
+                                instance.setTime(selection.start);
+                                void instance.play(
+                                    selection.start,
+                                    selection.end,
+                                );
+                            }
                         }}
                     >
                         {isPlaying ? (

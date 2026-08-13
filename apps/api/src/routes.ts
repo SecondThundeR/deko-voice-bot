@@ -44,6 +44,7 @@ import {
     deleteTelegramMessage,
     editTelegramCaption,
     getTelegramFile,
+    prepareVoiceMessage,
     sendSubmissionToModeration,
     sendTelegramMessage,
 } from "./telegram.ts";
@@ -503,6 +504,18 @@ export const routes = new Hono<ApiEnv>()
                     response.headers.get("content-type") || "audio/ogg",
             },
         });
+    })
+    .post("/voices/:voiceId/share", async (c) => {
+        const voice = await getVoiceById(c.req.param("voiceId"));
+        if (!voice)
+            throw new HttpError(404, "VOICE_NOT_FOUND", "Реплика не найдена");
+        const prepared = await prepareVoiceMessage({
+            userId: c.var.user.id,
+            voiceId: voice.voiceId,
+            title: voice.voiceTitle,
+            fileId: voice.fileId,
+        });
+        return c.json({ id: prepared.id });
     })
     .put("/voices/:voiceId/favorite", async (c) => {
         await requireConsent(c.var.user.id);

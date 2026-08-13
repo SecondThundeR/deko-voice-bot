@@ -14,7 +14,9 @@ catalog:
   valibot: 1.4.2
 
 allowBuilds:
+  '@derhuerst/ffprobe-static': true
   esbuild: true
+  ffmpeg-static: true
 overrides:
   esbuild@<=0.24.2: ^0.28.1
 minimumReleaseAgeExclude:

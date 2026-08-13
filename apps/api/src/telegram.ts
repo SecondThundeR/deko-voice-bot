@@ -25,6 +25,11 @@ type TelegramResponse<T> = {
     description?: string;
 };
 
+type PreparedInlineMessage = {
+    id: string;
+    expiration_date: number;
+};
+
 async function telegramRequest<T>(method: string, body?: FormData) {
     const response = await fetch(
         `https://api.telegram.org/bot${config.botToken}/${method}`,
@@ -105,6 +110,32 @@ export async function getTelegramFile(fileId: string) {
     return fetch(
         `https://api.telegram.org/file/bot${config.botToken}/${result.file_path}`,
         { signal: AbortSignal.timeout(30_000) },
+    );
+}
+
+export async function prepareVoiceMessage(input: {
+    userId: number;
+    voiceId: string;
+    title: string;
+    fileId: string;
+}) {
+    const body = new FormData();
+    body.set("user_id", String(input.userId));
+    body.set(
+        "result",
+        JSON.stringify({
+            type: "voice",
+            id: input.voiceId,
+            voice_file_id: input.fileId,
+            title: input.title,
+        }),
+    );
+    body.set("allow_user_chats", "true");
+    body.set("allow_group_chats", "true");
+    body.set("allow_channel_chats", "true");
+    return telegramRequest<PreparedInlineMessage>(
+        "savePreparedInlineMessage",
+        body,
     );
 }
 

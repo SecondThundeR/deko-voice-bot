@@ -1,5 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
+
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -31,7 +32,10 @@ const buttonVariants = cva(
                 "icon-lg": "size-8 [&_svg:not([class*='size-'])]:size-4",
             },
         },
-        defaultVariants: { variant: "default", size: "default" },
+        defaultVariants: {
+            variant: "default",
+            size: "default",
+        },
     },
 );
 

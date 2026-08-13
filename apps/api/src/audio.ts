@@ -33,6 +33,27 @@ export function parseTrimInput(input: {
     return { startMs, endMs };
 }
 
+export function normalizeTrimForDuration(
+    trim: TrimInput,
+    durationMs: number,
+): TrimInput {
+    if (
+        trim.startMs >= durationMs ||
+        durationMs - trim.startMs < 100 ||
+        (trim.endMs !== null && trim.endMs > durationMs + 25)
+    ) {
+        throw new HttpError(
+            400,
+            "INVALID_TRIM",
+            "Границы обрезки выходят за длительность файла",
+        );
+    }
+    return {
+        ...trim,
+        endMs: trim.endMs === null ? null : Math.min(trim.endMs, durationMs),
+    };
+}
+
 export async function convertAndSendVoice(input: {
     bytes: Uint8Array;
     caption: string;
@@ -48,24 +69,7 @@ export async function convertAndSendVoice(input: {
                 "Не удалось прочитать длительность MP3-файла",
             );
         });
-        if (
-            input.trim.startMs >= durationMs ||
-            durationMs - input.trim.startMs < 100 ||
-            (input.trim.endMs !== null && input.trim.endMs > durationMs + 25)
-        ) {
-            throw new HttpError(
-                400,
-                "INVALID_TRIM",
-                "Границы обрезки выходят за длительность файла",
-            );
-        }
-        const normalizedTrim = {
-            ...input.trim,
-            endMs:
-                input.trim.endMs === null
-                    ? null
-                    : Math.min(input.trim.endMs, durationMs),
-        };
+        const normalizedTrim = normalizeTrimForDuration(input.trim, durationMs);
         const converted = await convertMP3ToOGGOpus(
             paths.input,
             paths.output,

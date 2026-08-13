@@ -32,7 +32,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     && apt-get install -y --no-install-recommends postgresql-client-18 \
     && apt-get purge -y --auto-remove curl gnupg \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=mwader/static-ffmpeg:8.1.2 /ffmpeg /ffprobe /usr/local/bin/
 COPY --from=build --chown=node:node /repo/node_modules /repo/node_modules
 COPY --from=build --chown=node:node /repo/apps/bot/node_modules /repo/apps/bot/node_modules
 COPY --from=build --chown=node:node /repo/apps/bot/dist /repo/apps/bot/dist

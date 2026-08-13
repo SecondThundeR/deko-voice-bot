@@ -77,6 +77,10 @@ export const api = {
             method: favorite ? "PUT" : "DELETE",
         }),
     audio: (voiceId: string) => apiBlob(`/voices/${voiceId}/audio`),
+    prepareVoiceShare: (voiceId: string) =>
+        apiFetch<{ id: string }>(`/voices/${voiceId}/share`, {
+            method: "POST",
+        }),
     submissions: () => apiFetch<Submission[]>("/submissions"),
     submit: (form: FormData) =>
         apiFetch<Submission>("/submissions", { method: "POST", body: form }),

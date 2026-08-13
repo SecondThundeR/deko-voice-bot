@@ -272,7 +272,7 @@ function AdminSubmissions() {
 
     return (
         <div className="flex flex-col gap-4">
-            <Alert className="max-w-md border-yellow-200 bg-yellow-50 text-yellow-900 dark:border-yellow-900 dark:bg-yellow-950 dark:text-yellow-50">
+            <Alert className="max-w-full border-yellow-200 bg-yellow-50 text-yellow-900 dark:border-yellow-900 dark:bg-yellow-950 dark:text-yellow-50">
                 <AlertTriangleIcon />
                 <AlertTitle>Внимание</AlertTitle>
                 <AlertDescription>

@@ -21,7 +21,6 @@ RUN pnpm --filter @deko-voice-bot/api build
 
 FROM base AS release
 ENV NODE_ENV=production
-COPY --from=mwader/static-ffmpeg:8.1.2 /ffmpeg /ffprobe /usr/local/bin/
 COPY --from=build --chown=node:node /repo/node_modules /repo/node_modules
 COPY --from=build --chown=node:node /repo/apps/api/node_modules /repo/apps/api/node_modules
 COPY --from=build --chown=node:node /repo/apps/api/dist /repo/apps/api/dist
