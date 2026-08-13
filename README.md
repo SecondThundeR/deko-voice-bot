@@ -54,9 +54,9 @@ Mini App открывается из `/start`, меню чата и настро
 - `VOICE_MODERATION_CHAT_ID` — ID приватной группы/супергруппы модераторов;
 - `ADMIN_IDS` — Telegram ID пользователей, которым разрешены модерация и полные лидерборды.
 
-API использует `BOT_TOKEN`, `DATABASE_URL`, `ADMIN_IDS`, `VOICE_MODERATION_CHAT_ID`, `PORT`, `LOG_LEVEL` и `LOG_FORMAT`. Web-сервис использует runtime-переменные `PORT` и `API_UPSTREAM`; Nginx проксирует `/api` к приватному Railway-адресу API, поэтому отдельный публичный API-домен и CORS не требуются
+API использует `BOT_TOKEN`, `DATABASE_URL`, `ADMIN_IDS`, `VOICE_MODERATION_CHAT_ID`, `PORT`, `LOG_LEVEL` и `LOG_FORMAT`. Web-сервис использует runtime-переменные `PORT` и `API_URL`; Nginx проксирует `/api` к приватному Railway-адресу API, поэтому отдельный публичный API-домен и CORS не требуются
 
-Для Railway создайте три сервиса с корнем репозитория и Dockerfile `apps/bot/Dockerfile`, `apps/api/Dockerfile` и `apps/web/Dockerfile`. Для web задайте `API_UPSTREAM` в виде `http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}`. Миграции выполняются один раз командой `pnpm db:migrate` перед развёртыванием приложений. После первого релиза настройте в BotFather Main Mini App на тот же `WEB_APP_URL`
+Для Railway создайте три сервиса с корнем репозитория и Dockerfile `apps/bot/Dockerfile`, `apps/api/Dockerfile` и `apps/web/Dockerfile`. Для web задайте `API_URL` в виде `http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}`. Миграции выполняются один раз командой `pnpm db:migrate` перед развёртыванием приложений. После первого релиза настройте в BotFather Main Mini App на тот же `WEB_APP_URL`
 
 ## Как работает бот
 

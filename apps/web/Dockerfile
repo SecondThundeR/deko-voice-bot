@@ -17,6 +17,6 @@ FROM nginx:1.29-alpine-slim AS release
 RUN apk add --no-cache gettext
 COPY --from=build /repo/apps/web/dist /usr/share/nginx/html
 COPY apps/web/nginx.conf.template /etc/nginx/templates/default.conf.template
-ENV PORT=3001 API_UPSTREAM=http://api:3000
+ENV PORT=3001 API_URL=http://api:3000
 EXPOSE 3001
-CMD ["/bin/sh", "-c", "envsubst '$PORT $API_UPSTREAM' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "envsubst '$PORT $API_URL' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
