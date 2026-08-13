@@ -84,7 +84,7 @@ export function DashboardPageSkeleton() {
 export function AdminVoiceButtonSkeleton() {
     return (
         <Skeleton
-            className="h-7 w-[5.25rem] shrink-0"
+            className="h-7 w-21 shrink-0"
             role="status"
             aria-label="Загрузка кнопки добавления"
         />
@@ -101,7 +101,7 @@ function VoiceCardSkeleton() {
                 </CardAction>
             </CardHeader>
             <CardContent className="flex gap-2">
-                <Skeleton className="h-7 w-[5.5rem]" />
+                <Skeleton className="h-7 w-22" />
                 <Skeleton className="h-7 w-24" />
             </CardContent>
         </Card>

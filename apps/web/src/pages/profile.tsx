@@ -158,7 +158,7 @@ function ActiveProfile({ profile }: { profile: ActiveUserProfile }) {
                                     <dt className="text-muted-foreground">
                                         {label}
                                     </dt>
-                                    <dd className="max-w-[60%] break-words text-right font-medium">
+                                    <dd className="max-w-[60%] wrap-break-word text-right font-medium">
                                         {value}
                                     </dd>
                                 </div>
