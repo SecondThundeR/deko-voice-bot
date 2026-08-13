@@ -8,6 +8,13 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import {
+    Empty,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 
@@ -64,9 +71,12 @@ export function DashboardPage() {
         <div className="flex flex-col gap-4">
             <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {cards.map(({ title, value, icon: Icon }) => (
-                    <Card key={title}>
+                    <Card
+                        key={title}
+                        className="last:col-span-2 sm:last:col-span-1"
+                    >
                         <CardHeader>
-                            <Icon />
+                            <Icon className="size-5" />
                             <CardDescription>{title}</CardDescription>
                             <CardTitle>{formatNumber(value)}</CardTitle>
                         </CardHeader>
@@ -76,32 +86,43 @@ export function DashboardPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Самые активные</CardTitle>
-                    <CardDescription>
-                        Имена скрыты для обычных пользователей
-                    </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
-                    {leaderboards.data.mostUsedUsers.map((user) => (
-                        <div
-                            key={
-                                user.visibility === "full"
-                                    ? `${user.username}-${user.fullname}`
-                                    : user.displayName
-                            }
-                            className="flex items-center justify-between gap-3"
-                        >
-                            <span className="truncate">
-                                {user.visibility === "full"
-                                    ? user.username
-                                        ? `@${user.username}`
-                                        : user.fullname || "Пользователь"
-                                    : user.displayName}
-                            </span>
-                            <span className="font-medium">
-                                {formatNumber(user.usesAmount)}
-                            </span>
-                        </div>
-                    ))}
+                    {leaderboards.data.mostUsedUsers.length === 0 ? (
+                        <Empty className="min-h-28 p-4">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <UsersIcon />
+                                </EmptyMedia>
+                                <EmptyTitle>Пока нет активности</EmptyTitle>
+                                <EmptyDescription>
+                                    Здесь появятся самые активные пользователи
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
+                    ) : (
+                        leaderboards.data.mostUsedUsers.map((user) => (
+                            <div
+                                key={
+                                    user.visibility === "full"
+                                        ? `${user.username}-${user.fullname}`
+                                        : user.displayName
+                                }
+                                className="flex items-center justify-between gap-3"
+                            >
+                                <span className="truncate">
+                                    {user.visibility === "full"
+                                        ? user.username
+                                            ? `@${user.username}`
+                                            : user.fullname || "Пользователь"
+                                        : user.displayName}
+                                </span>
+                                <span className="font-medium">
+                                    {formatNumber(user.usesAmount)}
+                                </span>
+                            </div>
+                        ))
+                    )}
                 </CardContent>
             </Card>
             <Card>
@@ -109,17 +130,34 @@ export function DashboardPage() {
                     <CardTitle>Популярные реплики</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
-                    {leaderboards.data.mostUsedVoices.map((voice) => (
-                        <div
-                            key={voice.voiceTitle}
-                            className="flex items-center justify-between gap-3"
-                        >
-                            <span className="truncate">{voice.voiceTitle}</span>
-                            <span className="font-medium">
-                                {formatNumber(voice.usesAmount)}
-                            </span>
-                        </div>
-                    ))}
+                    {leaderboards.data.mostUsedVoices.length === 0 ? (
+                        <Empty className="min-h-28 p-4">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <AudioLinesIcon />
+                                </EmptyMedia>
+                                <EmptyTitle>Реплик пока нет</EmptyTitle>
+                                <EmptyDescription>
+                                    Здесь появятся реплики, которые отправляют
+                                    чаще всего
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
+                    ) : (
+                        leaderboards.data.mostUsedVoices.map((voice) => (
+                            <div
+                                key={voice.voiceTitle}
+                                className="flex items-center justify-between gap-3"
+                            >
+                                <span className="truncate">
+                                    {voice.voiceTitle}
+                                </span>
+                                <span className="font-medium">
+                                    {formatNumber(voice.usesAmount)}
+                                </span>
+                            </div>
+                        ))
+                    )}
                 </CardContent>
             </Card>
         </div>

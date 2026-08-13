@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
         ],
         resolve: { alias: { "@": path.resolve(import.meta.dirname, "src") } },
         server: {
+            allowedHosts: [".trycloudflare.com"],
             port: Number(env.PORT) || 3001,
             proxy: {
                 "/api": {

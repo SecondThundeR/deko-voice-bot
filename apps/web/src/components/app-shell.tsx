@@ -1,5 +1,6 @@
 import { BarChart3Icon, ListMusicIcon, UploadIcon } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTelegram, useTelegramBackButton } from "@/hooks/use-telegram";
 
@@ -16,11 +17,14 @@ export function AppShell() {
     useTelegramBackButton(location.pathname !== "/", () => navigate(-1));
 
     return (
-        <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 pt-[max(1rem,var(--tg-content-safe-area-inset-top,0px))] pb-[max(5.5rem,var(--tg-content-safe-area-inset-bottom,0px))]">
+        <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-[max(5.5rem,var(--tg-content-safe-area-inset-bottom,0px))]">
             <header className="flex flex-col gap-1 py-4">
-                <h1 className="font-heading text-xl font-semibold">
-                    Deko Voice Bot
-                </h1>
+                <div className="flex items-center gap-2">
+                    <h1 className="font-heading text-xl font-semibold">
+                        Deko Voice Bot
+                    </h1>
+                    <Badge variant="secondary">Beta</Badge>
+                </div>
                 <p className="text-sm text-muted-foreground">
                     Реплики, статистика и новые предложения
                 </p>

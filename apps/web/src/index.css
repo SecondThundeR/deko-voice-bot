@@ -6,13 +6,43 @@
 @custom-variant dark (&:is(.dark *));
 
 html,
-body,
-#root {
-    min-height: 100%;
+body {
+    height: 100%;
+    margin: 0;
 }
 
-body {
-    margin: 0;
+#root {
+    padding-top: max(
+        0px,
+        calc(
+            var(--tg-content-safe-area-inset-top, 0px) +
+            var(--tg-safe-area-inset-top, 0px)
+        )
+    );
+    padding-left: max(
+        0px,
+        calc(
+            var(--tg-content-safe-area-inset-left, 0px) +
+            var(--tg-safe-area-inset-left, 0px)
+        )
+    );
+    padding-right: max(
+        0px,
+        calc(
+            var(--tg-content-safe-area-inset-right, 0px) +
+            var(--tg-safe-area-inset-right, 0px)
+        )
+    );
+    padding-bottom: max(
+        0px,
+        calc(
+            var(--tg-content-safe-area-inset-bottom, 0px) +
+            var(--tg-safe-area-inset-bottom, 0px)
+        )
+    );
+    min-height: var(--tg-viewport-height, 100vh);
+    display: flex;
+    flex-direction: column;
 }
 
 @theme inline {

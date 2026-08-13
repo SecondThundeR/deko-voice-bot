@@ -4,6 +4,7 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 import {
+    AudioLinesIcon,
     HeartIcon,
     PauseIcon,
     PlayIcon,
@@ -108,7 +109,7 @@ export function VoicesPage() {
             <Field>
                 <FieldLabel htmlFor="voice-search">Поиск</FieldLabel>
                 <div className="relative">
-                    <SearchIcon className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-muted-foreground" />
+                    <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         id="voice-search"
                         value={search}
@@ -145,11 +146,15 @@ export function VoicesPage() {
                 <Empty>
                     <EmptyHeader>
                         <EmptyMedia variant="icon">
-                            <SearchIcon />
+                            {query ? <SearchIcon /> : <AudioLinesIcon />}
                         </EmptyMedia>
-                        <EmptyTitle>Ничего не найдено</EmptyTitle>
+                        <EmptyTitle>
+                            {query ? "Ничего не найдено" : "Реплик пока нет"}
+                        </EmptyTitle>
                         <EmptyDescription>
-                            Попробуйте изменить запрос
+                            {query
+                                ? "Попробуйте изменить запрос"
+                                : "Здесь появятся реплики после добавления в каталог"}
                         </EmptyDescription>
                     </EmptyHeader>
                 </Empty>

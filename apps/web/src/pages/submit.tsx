@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileAudioIcon, ShieldCheckIcon } from "lucide-react";
 import { type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +11,14 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import {
     Field,
     FieldDescription,
@@ -75,16 +82,21 @@ export function SubmitPage() {
 
     if (!viewer.data?.hasConsent) {
         return (
-            <Alert>
-                <ShieldCheckIcon />
-                <AlertTitle>Нужно согласие</AlertTitle>
-                <AlertDescription>
-                    Для заявок и избранного мы сохраняем ваш Telegram ID,
-                    профиль и историю действий. Просматривать каталог и
-                    статистику можно без этого.
-                </AlertDescription>
-                <div className="mt-3">
+            <Empty className="flex-1">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <ShieldCheckIcon />
+                    </EmptyMedia>
+                    <EmptyTitle>Нужно согласие</EmptyTitle>
+                    <EmptyDescription>
+                        Для заявок и избранного мы сохраняем ваш Telegram ID,
+                        профиль и историю действий. Просматривать каталог и
+                        статистику можно без этого.
+                    </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
                     <Button
+                        className="w-full"
                         onClick={() => consent.mutate()}
                         disabled={consent.isPending}
                     >
@@ -93,8 +105,8 @@ export function SubmitPage() {
                         ) : null}
                         Подтвердить согласие
                     </Button>
-                </div>
-            </Alert>
+                </EmptyContent>
+            </Empty>
         );
     }
 
