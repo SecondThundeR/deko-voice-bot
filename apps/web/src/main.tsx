@@ -16,6 +16,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { initializeTelegram, WebApp } from "@/lib/telegram";
 import { DashboardPage } from "@/pages/dashboard";
+import { ProfilePage } from "@/pages/profile";
 import { SubmitPage } from "@/pages/submit";
 import { VoicesPage } from "@/pages/voices";
 
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
             { index: true, Component: DashboardPage },
             { path: "voices", Component: VoicesPage },
             { path: "submit", Component: SubmitPage },
+            { path: "profile", Component: ProfilePage },
         ],
     },
 ]);

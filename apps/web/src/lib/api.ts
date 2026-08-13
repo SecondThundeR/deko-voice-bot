@@ -5,6 +5,7 @@ import type {
     Leaderboards,
     Stats,
     Submission,
+    UserProfile,
     Viewer,
     VoicesPage,
 } from "@deko-voice-bot/contracts";
@@ -56,7 +57,10 @@ async function apiBlob(path: string) {
 
 export const api = {
     viewer: () => apiFetch<Viewer>("/me"),
+    profile: () => apiFetch<UserProfile>("/me/profile"),
     consent: () => apiFetch<{ ok: true }>("/me/consent", { method: "PUT" }),
+    revokeConsent: () =>
+        apiFetch<{ ok: true }>("/me/consent", { method: "DELETE" }),
     stats: () => apiFetch<Stats>("/stats"),
     leaderboards: () => apiFetch<Leaderboards>("/leaderboards"),
     voices: (

@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3Icon, ListMusicIcon, UploadIcon } from "lucide-react";
+import {
+    BarChart3Icon,
+    ListMusicIcon,
+    UploadIcon,
+    UserRoundIcon,
+} from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useTelegram, useTelegramBackButton } from "@/hooks/use-telegram";
@@ -9,6 +14,7 @@ const links = [
     { to: "/", label: "Статистика", icon: BarChart3Icon },
     { to: "/voices", label: "Реплики", icon: ListMusicIcon },
     { to: "/submit", label: "Предложить", icon: UploadIcon },
+    { to: "/profile", label: "Профиль", icon: UserRoundIcon },
 ] as const;
 
 export function AppShell() {

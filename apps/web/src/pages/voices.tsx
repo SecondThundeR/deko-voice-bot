@@ -20,22 +20,11 @@ import {
     type AudioSelection,
     LazyAudioTrimmer,
 } from "@/components/lazy-audio-trimmer";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
     Card,
     CardAction,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
@@ -73,6 +62,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 import { WebApp } from "@/lib/telegram";
+import { cn } from "@/lib/utils";
 
 export function VoicesPage() {
     const [search, setSearch] = useState("");
@@ -186,35 +176,37 @@ export function VoicesPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            {viewer.data?.isAdmin ? <AdminVoiceForm /> : null}
-            <Field>
-                <InputGroup>
-                    <InputGroupAddon>
-                        <SearchIcon />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                        id="voice-search"
-                        aria-label="Поиск реплик"
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Название реплики"
-                    />
-                    {search ? (
-                        <InputGroupAddon align="inline-end">
-                            <InputGroupButton
-                                size="icon-xs"
-                                aria-label="Очистить поиск"
-                                onClick={() => {
-                                    setSearch("");
-                                    setQuery("");
-                                }}
-                            >
-                                <XIcon />
-                            </InputGroupButton>
+            <div className="flex gap-1">
+                <Field>
+                    <InputGroup>
+                        <InputGroupAddon>
+                            <SearchIcon />
                         </InputGroupAddon>
-                    ) : null}
-                </InputGroup>
-            </Field>
+                        <InputGroupInput
+                            id="voice-search"
+                            aria-label="Поиск реплик"
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Название реплики"
+                        />
+                        {search ? (
+                            <InputGroupAddon align="inline-end">
+                                <InputGroupButton
+                                    size="icon-xs"
+                                    aria-label="Очистить поиск"
+                                    onClick={() => {
+                                        setSearch("");
+                                        setQuery("");
+                                    }}
+                                >
+                                    <XIcon />
+                                </InputGroupButton>
+                            </InputGroupAddon>
+                        ) : null}
+                    </InputGroup>
+                </Field>
+                {viewer.data?.isAdmin ? <AdminVoiceForm /> : null}
+            </div>
             <Tabs
                 value={sort}
                 onValueChange={(value) =>
@@ -373,23 +365,21 @@ function AdminVoiceForm() {
         setFileInputKey((key) => key + 1);
     }
 
-    function closeAndReset() {
-        setIsDiscardOpen(false);
-        resetForm();
+    function closeDialog() {
         setIsOpen(false);
     }
 
     function requestClose() {
         if (add.isPending) return;
         if (hasData) setIsDiscardOpen(true);
-        else closeAndReset();
+        else closeDialog();
     }
 
     const add = useMutation({
         mutationFn: api.addVoice,
         onSuccess: () => {
             toast.success("Реплика добавлена");
-            closeAndReset();
+            closeDialog();
             queryClient.invalidateQueries({ queryKey: ["voices"] });
         },
         onError: (error) => toast.error(error.message),
@@ -433,141 +423,153 @@ function AdminVoiceForm() {
                 if (open) setIsOpen(true);
                 else {
                     details.cancel();
-                    requestClose();
+                    if (isDiscardOpen) setIsDiscardOpen(false);
+                    else requestClose();
+                }
+            }}
+            onOpenChangeComplete={(open) => {
+                if (!open) {
+                    setIsDiscardOpen(false);
+                    resetForm();
                 }
             }}
         >
-            <Card>
-                <CardHeader>
-                    <CardTitle>Добавить реплику</CardTitle>
-                    <CardDescription>
-                        Прямая публикация в каталог без пользовательской заявки
-                    </CardDescription>
-                    <CardAction>
-                        <DialogTrigger
-                            render={<Button size="sm" variant="outline" />}
-                        >
-                            <PlusIcon data-icon="inline-start" />
-                            Добавить
-                        </DialogTrigger>
-                    </CardAction>
-                </CardHeader>
-            </Card>
+            <DialogTrigger>
+                <Button variant="outline">
+                    <PlusIcon data-icon="inline-start" /> Добавить
+                </Button>
+            </DialogTrigger>
             <DialogContent
-                className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg"
-                showCloseButton={!add.isPending}
+                className={cn(
+                    "max-h-[calc(100dvh-2rem)] overflow-y-auto",
+                    isDiscardOpen ? "sm:max-w-sm" : "sm:max-w-lg",
+                )}
+                showCloseButton={!add.isPending && !isDiscardOpen}
             >
-                <DialogHeader>
-                    <DialogTitle>Добавить реплику</DialogTitle>
-                    <DialogDescription>
-                        Реплика будет опубликована напрямую в каталоге без
-                        пользовательской заявки
-                    </DialogDescription>
-                </DialogHeader>
-                <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                    <FieldGroup>
-                        <Field>
-                            <FieldLabel htmlFor="admin-voice-id">
-                                ID реплики
-                            </FieldLabel>
-                            <Input
-                                id="admin-voice-id"
-                                value={voiceId}
-                                minLength={1}
-                                maxLength={64}
-                                pattern="[A-Za-z0-9_-]+"
-                                required
+                <div className="contents" hidden={isDiscardOpen}>
+                    <DialogHeader>
+                        <DialogTitle>Добавить реплику</DialogTitle>
+                        <DialogDescription>
+                            Реплика будет опубликована напрямую в каталоге без
+                            пользовательской заявки
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form
+                        className="flex flex-col gap-4"
+                        onSubmit={handleSubmit}
+                    >
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel htmlFor="admin-voice-id">
+                                    ID реплики
+                                </FieldLabel>
+                                <Input
+                                    id="admin-voice-id"
+                                    value={voiceId}
+                                    minLength={1}
+                                    maxLength={64}
+                                    pattern="[A-Za-z0-9_-]+"
+                                    required
+                                    disabled={add.isPending}
+                                    onChange={(event) =>
+                                        setVoiceId(event.target.value)
+                                    }
+                                />
+                                <FieldDescription>
+                                    Латинские буквы, цифры, дефис и
+                                    подчёркивание
+                                </FieldDescription>
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="admin-voice-title">
+                                    Название
+                                </FieldLabel>
+                                <Input
+                                    id="admin-voice-title"
+                                    value={title}
+                                    minLength={1}
+                                    maxLength={128}
+                                    required
+                                    disabled={add.isPending}
+                                    onChange={(event) =>
+                                        setTitle(event.target.value)
+                                    }
+                                />
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="admin-voice-file">
+                                    MP3-файл
+                                </FieldLabel>
+                                <Input
+                                    key={fileInputKey}
+                                    id="admin-voice-file"
+                                    type="file"
+                                    accept="audio/mpeg,.mp3"
+                                    required
+                                    disabled={add.isPending}
+                                    onChange={(event) =>
+                                        handleFile(event.target.files?.[0])
+                                    }
+                                />
+                            </Field>
+                            {audioUrl ? (
+                                <LazyAudioTrimmer
+                                    src={audioUrl}
+                                    onChange={setSelection}
+                                />
+                            ) : null}
+                        </FieldGroup>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
                                 disabled={add.isPending}
-                                onChange={(event) =>
-                                    setVoiceId(event.target.value)
-                                }
-                            />
-                            <FieldDescription>
-                                Латинские буквы, цифры, дефис и подчёркивание
-                            </FieldDescription>
-                        </Field>
-                        <Field>
-                            <FieldLabel htmlFor="admin-voice-title">
-                                Название
-                            </FieldLabel>
-                            <Input
-                                id="admin-voice-title"
-                                value={title}
-                                minLength={1}
-                                maxLength={128}
-                                required
-                                disabled={add.isPending}
-                                onChange={(event) =>
-                                    setTitle(event.target.value)
-                                }
-                            />
-                        </Field>
-                        <Field>
-                            <FieldLabel htmlFor="admin-voice-file">
-                                MP3-файл
-                            </FieldLabel>
-                            <Input
-                                key={fileInputKey}
-                                id="admin-voice-file"
-                                type="file"
-                                accept="audio/mpeg,.mp3"
-                                required
-                                disabled={add.isPending}
-                                onChange={(event) =>
-                                    handleFile(event.target.files?.[0])
-                                }
-                            />
-                        </Field>
-                        {audioUrl ? (
-                            <LazyAudioTrimmer
-                                src={audioUrl}
-                                onChange={setSelection}
-                            />
-                        ) : null}
-                    </FieldGroup>
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            disabled={add.isPending}
-                            onClick={requestClose}
-                        >
-                            Отмена
-                        </Button>
-                        <Button type="submit" disabled={add.isPending || !file}>
-                            {add.isPending ? (
-                                <Spinner data-icon="inline-start" />
-                            ) : (
-                                <PlusIcon data-icon="inline-start" />
-                            )}
-                            Добавить в каталог
-                        </Button>
-                    </DialogFooter>
-                </form>
+                                onClick={requestClose}
+                            >
+                                Отмена
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={add.isPending || !file}
+                            >
+                                {add.isPending ? (
+                                    <Spinner data-icon="inline-start" />
+                                ) : (
+                                    <PlusIcon data-icon="inline-start" />
+                                )}
+                                Добавить в каталог
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </div>
+                {isDiscardOpen ? (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>Закрыть форму добавления?</DialogTitle>
+                            <DialogDescription>
+                                Введённые данные и выбранный файл будут удалены.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                autoFocus
+                                onClick={() => setIsDiscardOpen(false)}
+                            >
+                                Продолжить редактирование
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={closeDialog}
+                            >
+                                Закрыть и удалить данные
+                            </Button>
+                        </DialogFooter>
+                    </>
+                ) : null}
             </DialogContent>
-            <AlertDialog open={isDiscardOpen} onOpenChange={setIsDiscardOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>
-                            Закрыть форму добавления?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Введённые данные и выбранный файл будут удалены.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>
-                            Продолжить редактирование
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
-                            onClick={closeAndReset}
-                        >
-                            Закрыть и удалить данные
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </Dialog>
     );
 }

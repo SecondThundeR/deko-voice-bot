@@ -22,6 +22,20 @@ export const viewerSchema = v.object({
     hasConsent: v.boolean(),
 });
 
+export const userProfileSchema = v.variant("status", [
+    v.object({
+        status: v.literal("active"),
+        userId: v.pipe(v.number(), v.safeInteger(), v.minValue(1)),
+        fullname: v.nullable(v.string()),
+        username: v.nullable(v.string()),
+        usesAmount: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+        lastUsedAt: v.nullable(
+            v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
+        ),
+    }),
+    v.object({ status: v.literal("excluded") }),
+]);
+
 export const statsSchema = v.object({
     allUsedUsers: v.number(),
     allIgnoredUsers: v.number(),
@@ -119,6 +133,7 @@ export const adminSubmissionsPageSchema = v.object({
 
 export type ApiError = v.InferOutput<typeof apiErrorSchema>;
 export type Viewer = v.InferOutput<typeof viewerSchema>;
+export type UserProfile = v.InferOutput<typeof userProfileSchema>;
 export type Stats = v.InferOutput<typeof statsSchema>;
 export type Leaderboards = v.InferOutput<typeof leaderboardsSchema>;
 export type Voice = v.InferOutput<typeof voiceSchema>;

@@ -21,6 +21,7 @@ import {
     updateVoiceSubmissionTitle,
 } from "@deko-voice-bot/database/queries/submissions.js";
 import {
+    getUserData,
     getUserIsIgnoredStatus,
     optInUser,
     optOutUser,
@@ -40,6 +41,7 @@ import { bodyLimit } from "hono/body-limit";
 import { convertAndSendVoice, parseTrimInput } from "./audio.ts";
 import { HttpError } from "./errors.ts";
 import { maskName } from "./privacy.ts";
+import { toUserProfile } from "./profile.ts";
 import {
     deleteTelegramMessage,
     editTelegramCaption,
@@ -118,6 +120,10 @@ export const routes = new Hono<ApiEnv>()
             isAdmin: c.var.isAdmin,
             hasConsent: consent,
         });
+    })
+    .get("/me/profile", async (c) => {
+        const user = await getUserData(c.var.user.id);
+        return c.json(toUserProfile(user));
     })
     .put("/me/consent", async (c) => {
         const user = c.var.user;
