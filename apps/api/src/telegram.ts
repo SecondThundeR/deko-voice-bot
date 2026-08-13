@@ -1,9 +1,19 @@
+import { readFile } from "node:fs/promises";
 import { config } from "./config.ts";
 
 type TelegramDocumentMessage = {
     message_id: number;
     chat: { id: number };
     document?: {
+        file_id: string;
+        file_unique_id: string;
+    };
+};
+
+type TelegramVoiceMessage = {
+    message_id: number;
+    chat: { id: number };
+    voice?: {
         file_id: string;
         file_unique_id: string;
     };
@@ -96,4 +106,55 @@ export async function getTelegramFile(fileId: string) {
         `https://api.telegram.org/file/bot${config.botToken}/${result.file_path}`,
         { signal: AbortSignal.timeout(30_000) },
     );
+}
+
+export async function sendVoiceToModeration(input: {
+    caption: string;
+    filename: string;
+}) {
+    const body = new FormData();
+    body.set("chat_id", String(config.moderationChatId));
+    body.set("caption", input.caption);
+    body.set(
+        "voice",
+        new Blob([await readFile(input.filename)], { type: "audio/ogg" }),
+        "voice.ogg",
+    );
+    const message = await telegramRequest<TelegramVoiceMessage>(
+        "sendVoice",
+        body,
+    );
+    if (!message.voice) throw new Error("Telegram omitted voice data");
+    return {
+        chatId: message.chat.id,
+        messageId: message.message_id,
+        fileId: message.voice.file_id,
+        fileUniqueId: message.voice.file_unique_id,
+    };
+}
+
+export async function deleteTelegramMessage(chatId: number, messageId: number) {
+    const body = new FormData();
+    body.set("chat_id", String(chatId));
+    body.set("message_id", String(messageId));
+    await telegramRequest<boolean>("deleteMessage", body);
+}
+
+export async function editTelegramCaption(
+    chatId: number,
+    messageId: number,
+    caption: string,
+) {
+    const body = new FormData();
+    body.set("chat_id", String(chatId));
+    body.set("message_id", String(messageId));
+    body.set("caption", caption);
+    await telegramRequest<TelegramDocumentMessage>("editMessageCaption", body);
+}
+
+export async function sendTelegramMessage(chatId: number, text: string) {
+    const body = new FormData();
+    body.set("chat_id", String(chatId));
+    body.set("text", text);
+    await telegramRequest<unknown>("sendMessage", body);
 }

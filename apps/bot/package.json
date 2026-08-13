@@ -21,6 +21,7 @@
         "queue:replay": "node ./scripts/queue-replay.ts"
     },
     "dependencies": {
+        "@deko-voice-bot/audio": "workspace:*",
         "@deko-voice-bot/config": "workspace:*",
         "@deko-voice-bot/contracts": "workspace:*",
         "@deko-voice-bot/database": "workspace:*",

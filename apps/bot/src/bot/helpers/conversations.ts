@@ -1,9 +1,12 @@
 import { unlink } from "node:fs/promises";
+import {
+    convertMP3ToOGGOpus,
+    createVoiceTempFilePaths,
+} from "@deko-voice-bot/audio";
 import type { Conversation } from "@grammyjs/conversations";
 import { InputFile } from "grammy";
 import type { Context, ConversationContext } from "#root/bot/context.js";
 import { downloadTelegramFileToPath } from "./api.ts";
-import { convertMP3ToOGGOpus, createVoiceTempFilePaths } from "./general.ts";
 
 type SendConvertedVoiceResult =
     | {

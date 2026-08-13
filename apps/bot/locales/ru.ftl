@@ -176,7 +176,7 @@ donate-invoice-description = Поддержка проекта на { NUMBER($am
 donate-success = Большое спасибо за пожертвование в размере { NUMBER($amount, useGrouping: 0) } ⭐!
 donate-error =
     Не удалось создать запрос на пожертвование. Попробуйте ещё раз
-    <blockquote>Если вы указывали произвольную сумму, попробуйте выбрать другое значение.</blockquote>
+    <blockquote>Если вы указывали произвольную сумму, попробуйте выбрать другое значение</blockquote>
 
 donate-command-description = Поддержать бота, отправив звёзды
 donate-25-button = 25 ⭐

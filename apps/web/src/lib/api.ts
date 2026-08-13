@@ -1,4 +1,6 @@
 import type {
+    AdminSubmissionBucket,
+    AdminSubmissionsPage,
     ApiError,
     Leaderboards,
     Stats,
@@ -35,6 +37,23 @@ export async function apiFetch<T>(path: string, init?: RequestInit) {
     return response.json() as Promise<T>;
 }
 
+async function apiBlob(path: string) {
+    const headers = new Headers();
+    if (WebApp?.initData)
+        headers.set("authorization", `tma ${WebApp.initData}`);
+    const response = await fetch(`/api/v1${path}`, { headers });
+    if (!response.ok) {
+        const body = (await response
+            .json()
+            .catch(() => null)) as ApiError | null;
+        throw new ApiRequestError(
+            body?.error.code || "REQUEST_FAILED",
+            body?.error.message || "Не удалось загрузить файл",
+        );
+    }
+    return URL.createObjectURL(await response.blob());
+}
+
 export const api = {
     viewer: () => apiFetch<Viewer>("/me"),
     consent: () => apiFetch<{ ok: true }>("/me/consent", { method: "PUT" }),
@@ -57,17 +76,48 @@ export const api = {
         apiFetch<{ ok: true }>(`/voices/${voiceId}/favorite`, {
             method: favorite ? "PUT" : "DELETE",
         }),
-    audio: async (voiceId: string) => {
-        const headers = new Headers();
-        if (WebApp?.initData)
-            headers.set("authorization", `tma ${WebApp.initData}`);
-        const response = await fetch(`/api/v1/voices/${voiceId}/audio`, {
-            headers,
-        });
-        if (!response.ok) throw new Error("Не удалось загрузить аудио");
-        return URL.createObjectURL(await response.blob());
-    },
+    audio: (voiceId: string) => apiBlob(`/voices/${voiceId}/audio`),
     submissions: () => apiFetch<Submission[]>("/submissions"),
     submit: (form: FormData) =>
         apiFetch<Submission>("/submissions", { method: "POST", body: form }),
+    adminSubmissions: (bucket: AdminSubmissionBucket, offset: number) => {
+        const params = new URLSearchParams({
+            bucket,
+            limit: "20",
+            offset: String(offset),
+        });
+        return apiFetch<AdminSubmissionsPage>(`/admin/submissions?${params}`);
+    },
+    submissionAudio: (id: string) => apiBlob(`/admin/submissions/${id}/audio`),
+    updateSubmission: (id: string, title: string) =>
+        apiFetch<Submission>(`/admin/submissions/${id}`, {
+            method: "PATCH",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ title }),
+        }),
+    approveSubmission: (
+        id: string,
+        input: {
+            voiceId: string;
+            title: string;
+            startMs: number;
+            endMs: number | null;
+        },
+    ) =>
+        apiFetch<Submission>(`/admin/submissions/${id}/approve`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(input),
+        }),
+    rejectSubmission: (id: string, reason: string) =>
+        apiFetch<Submission>(`/admin/submissions/${id}/reject`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ reason }),
+        }),
+    addVoice: (form: FormData) =>
+        apiFetch<{ ok: true; voiceId: string }>("/admin/voices", {
+            method: "POST",
+            body: form,
+        }),
 };

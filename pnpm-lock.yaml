@@ -53,6 +53,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@deko-voice-bot/audio':
+        specifier: workspace:*
+        version: link:../../packages/audio
       '@deko-voice-bot/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -87,6 +90,9 @@ importers:
 
   apps/bot:
     dependencies:
+      '@deko-voice-bot/audio':
+        specifier: workspace:*
+        version: link:../../packages/audio
       '@deko-voice-bot/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -208,6 +214,9 @@ importers:
       tw-animate-css:
         specifier: 1.4.0
         version: 1.4.0
+      wavesurfer.js:
+        specifier: 7.12.11
+        version: 7.12.11
     devDependencies:
       '@babel/core':
         specifier: 8.0.1
@@ -239,6 +248,12 @@ importers:
       vite:
         specifier: 8.2.1
         version: 8.2.1(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)
+
+  packages/audio:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.2.0
 
   packages/config:
     dependencies:
@@ -3397,6 +3412,9 @@ packages:
       yaml:
         optional: true
 
+  wavesurfer.js@7.12.11:
+    resolution: {integrity: sha512-Sx0yZIz7jRJ9J9p7UL+pl9y0UQBB6UN/XNo+R7Gy4tCR5xZI9jMyA0dnt1R8TMVSQ4LZ10SeB2HJYQ+dV2dPSA==}
+
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -6035,6 +6053,8 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.7.0
       tsx: 4.22.4
+
+  wavesurfer.js@7.12.11: {}
 
   webidl-conversions@3.0.1: {}
 

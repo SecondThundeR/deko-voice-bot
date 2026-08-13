@@ -94,6 +94,29 @@ export const submissionSchema = v.object({
 
 export const submissionsSchema = v.array(submissionSchema);
 
+export const adminSubmissionBucketSchema = v.picklist(["queue", "history"]);
+
+export const adminSubmissionSchema = v.object({
+    id: v.string(),
+    title: v.string(),
+    status: submissionStatusSchema,
+    rejectionReason: v.nullable(v.string()),
+    approvedVoiceId: v.nullable(v.string()),
+    createdAt: v.string(),
+    finalizedAt: v.nullable(v.string()),
+    moderatorUserId: v.nullable(v.number()),
+    submitter: v.object({
+        id: v.number(),
+        fullname: v.nullable(v.string()),
+        username: v.nullable(v.string()),
+    }),
+});
+
+export const adminSubmissionsPageSchema = v.object({
+    items: v.array(adminSubmissionSchema),
+    nextOffset: v.nullable(v.number()),
+});
+
 export type ApiError = v.InferOutput<typeof apiErrorSchema>;
 export type Viewer = v.InferOutput<typeof viewerSchema>;
 export type Stats = v.InferOutput<typeof statsSchema>;
@@ -102,3 +125,10 @@ export type Voice = v.InferOutput<typeof voiceSchema>;
 export type VoicesPage = v.InferOutput<typeof voicesPageSchema>;
 export type Submission = v.InferOutput<typeof submissionSchema>;
 export type SubmissionStatus = v.InferOutput<typeof submissionStatusSchema>;
+export type AdminSubmissionBucket = v.InferOutput<
+    typeof adminSubmissionBucketSchema
+>;
+export type AdminSubmission = v.InferOutput<typeof adminSubmissionSchema>;
+export type AdminSubmissionsPage = v.InferOutput<
+    typeof adminSubmissionsPageSchema
+>;

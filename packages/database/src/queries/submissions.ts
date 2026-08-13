@@ -1,12 +1,15 @@
-import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
 
 import { db } from "../db.ts";
 import {
     type InsertVoice,
     type SelectVoiceSubmission,
+    usersTable,
     voiceSubmissionsTable,
     voicesTable,
 } from "../schema.ts";
+
+type AdminSubmissionBucket = "queue" | "history";
 
 export async function createVoiceSubmission(input: {
     id: string;
@@ -91,6 +94,39 @@ export async function getUserVoiceSubmissions(userId: number) {
         .orderBy(desc(voiceSubmissionsTable.createdAt));
 }
 
+export async function getAdminVoiceSubmissions(input: {
+    bucket: AdminSubmissionBucket;
+    limit: number;
+    offset: number;
+}) {
+    const statuses =
+        input.bucket === "queue"
+            ? (["uploading", "pending", "processing", "failed"] as const)
+            : (["approved", "rejected"] as const);
+    return db
+        .select({
+            submission: voiceSubmissionsTable,
+            submitter: {
+                id: usersTable.userId,
+                fullname: usersTable.fullname,
+                username: usersTable.username,
+            },
+        })
+        .from(voiceSubmissionsTable)
+        .innerJoin(
+            usersTable,
+            eq(usersTable.userId, voiceSubmissionsTable.submitterUserId),
+        )
+        .where(inArray(voiceSubmissionsTable.status, statuses))
+        .orderBy(
+            input.bucket === "queue"
+                ? asc(voiceSubmissionsTable.createdAt)
+                : desc(voiceSubmissionsTable.finalizedAt),
+        )
+        .limit(input.limit)
+        .offset(input.offset);
+}
+
 export async function updateVoiceSubmissionTitle(id: string, title: string) {
     const [submission] = await db
         .update(voiceSubmissionsTable)
@@ -98,7 +134,7 @@ export async function updateVoiceSubmissionTitle(id: string, title: string) {
         .where(
             and(
                 eq(voiceSubmissionsTable.id, id),
-                eq(voiceSubmissionsTable.status, "pending"),
+                inArray(voiceSubmissionsTable.status, ["pending", "failed"]),
             ),
         )
         .returning();
@@ -108,10 +144,16 @@ export async function updateVoiceSubmissionTitle(id: string, title: string) {
 export async function claimVoiceSubmission(
     id: string,
     moderatorUserId: number,
+    title?: string,
 ) {
     const [submission] = await db
         .update(voiceSubmissionsTable)
-        .set({ status: "processing", moderatorUserId, updatedAt: new Date() })
+        .set({
+            status: "processing",
+            moderatorUserId,
+            ...(title === undefined ? {} : { title }),
+            updatedAt: new Date(),
+        })
         .where(
             and(
                 eq(voiceSubmissionsTable.id, id),
@@ -216,5 +258,15 @@ export function toSubmissionDto(submission: SelectVoiceSubmission) {
         approvedVoiceId: submission.approvedVoiceId,
         createdAt: submission.createdAt.toISOString(),
         finalizedAt: submission.finalizedAt?.toISOString() ?? null,
+    };
+}
+
+export function toAdminSubmissionDto(
+    row: Awaited<ReturnType<typeof getAdminVoiceSubmissions>>[number],
+) {
+    return {
+        ...toSubmissionDto(row.submission),
+        moderatorUserId: row.submission.moderatorUserId,
+        submitter: row.submitter,
     };
 }

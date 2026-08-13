@@ -1,8 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
 import { BarChart3Icon, ListMusicIcon, UploadIcon } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTelegram, useTelegramBackButton } from "@/hooks/use-telegram";
+import { api } from "@/lib/api";
 
 const links = [
     { to: "/", label: "Статистика", icon: BarChart3Icon },
@@ -12,6 +14,7 @@ const links = [
 
 export function AppShell() {
     useTelegram();
+    const viewer = useQuery({ queryKey: ["viewer"], queryFn: api.viewer });
     const location = useLocation();
     const navigate = useNavigate();
     useTelegramBackButton(location.pathname !== "/", () => navigate(-1));
@@ -45,7 +48,9 @@ export function AppShell() {
                             className="h-auto flex-1 flex-col py-2"
                         >
                             <Icon data-icon="inline-start" />
-                            {label}
+                            {to === "/submit" && viewer.data?.isAdmin
+                                ? "Заявки"
+                                : label}
                         </Button>
                     ))}
                 </div>

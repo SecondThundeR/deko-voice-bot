@@ -10,6 +10,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc turbo.json ./
 COPY apps/api/package.json apps/api/
 COPY apps/bot/package.json apps/bot/
 COPY apps/web/package.json apps/web/
+COPY packages/audio/package.json packages/audio/
 COPY packages/config/package.json packages/config/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/database/package.json packages/database/
@@ -20,6 +21,7 @@ RUN pnpm --filter @deko-voice-bot/api build
 
 FROM base AS release
 ENV NODE_ENV=production
+COPY --from=mwader/static-ffmpeg:8.1.2 /ffmpeg /ffprobe /usr/local/bin/
 COPY --from=build --chown=node:node /repo/node_modules /repo/node_modules
 COPY --from=build --chown=node:node /repo/apps/api/node_modules /repo/apps/api/node_modules
 COPY --from=build --chown=node:node /repo/apps/api/dist /repo/apps/api/dist

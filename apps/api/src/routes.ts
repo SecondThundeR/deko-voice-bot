@@ -6,11 +6,19 @@ import {
 } from "@deko-voice-bot/contracts";
 import { getFullStats } from "@deko-voice-bot/database/queries/stats.js";
 import {
+    approveVoiceSubmission,
+    claimVoiceSubmission,
     createVoiceSubmission,
+    getAdminVoiceSubmissions,
     getUserVoiceSubmissions,
+    getVoiceSubmission,
     markVoiceSubmissionFailed,
     markVoiceSubmissionPending,
+    rejectVoiceSubmission,
+    releaseVoiceSubmission,
+    toAdminSubmissionDto,
     toSubmissionDto,
+    updateVoiceSubmissionTitle,
 } from "@deko-voice-bot/database/queries/submissions.js";
 import {
     getUserIsIgnoredStatus,
@@ -22,14 +30,23 @@ import {
     deleteUserFavorite,
 } from "@deko-voice-bot/database/queries/users-favorites.js";
 import {
+    addVoice,
     getVoiceById,
     getVoicesPage,
+    isValidVoiceId,
 } from "@deko-voice-bot/database/queries/voices.js";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { convertAndSendVoice, parseTrimInput } from "./audio.ts";
 import { HttpError } from "./errors.ts";
 import { maskName } from "./privacy.ts";
-import { getTelegramFile, sendSubmissionToModeration } from "./telegram.ts";
+import {
+    deleteTelegramMessage,
+    editTelegramCaption,
+    getTelegramFile,
+    sendSubmissionToModeration,
+    sendTelegramMessage,
+} from "./telegram.ts";
 import type { ApiEnv } from "./types.ts";
 
 function fullname(user: ApiEnv["Variables"]["user"]) {
@@ -45,6 +62,37 @@ function validateMp3(file: File, bytes: Uint8Array) {
         file.size <= MAX_SUBMISSION_FILE_BYTES &&
         (hasId3 || hasFrame)
     );
+}
+
+function requireAdmin(isAdmin: boolean) {
+    if (!isAdmin) {
+        throw new HttpError(403, "ADMIN_REQUIRED", "Доступно только админам");
+    }
+}
+
+function validateTitle(value: unknown) {
+    const title = String(value ?? "").trim();
+    if (title.length < 1 || title.length > 128) {
+        throw new HttpError(
+            400,
+            "INVALID_TITLE",
+            "Название должно содержать от 1 до 128 символов",
+        );
+    }
+    return title;
+}
+
+function moderationCaption(submission: {
+    id: string;
+    submitterUserId: number;
+    title: string;
+}) {
+    return [
+        "Новая заявка на реплику",
+        `Название: ${submission.title}`,
+        `Автор: ${submission.submitterUserId}`,
+        `ID: ${submission.id}`,
+    ].join("\n");
 }
 
 async function requireConsent(userId: number) {
@@ -116,6 +164,294 @@ export const routes = new Hono<ApiEnv>()
             mostUsedVoices: mostUsedVoicesStats,
         });
     })
+    .get("/admin/submissions", async (c) => {
+        requireAdmin(c.var.isAdmin);
+        const bucket =
+            c.req.query("bucket") === "history" ? "history" : "queue";
+        const offset = Math.max(0, Number(c.req.query("offset")) || 0);
+        const limit = Math.min(
+            50,
+            Math.max(1, Number(c.req.query("limit")) || 20),
+        );
+        const rows = await getAdminVoiceSubmissions({
+            bucket,
+            limit: limit + 1,
+            offset,
+        });
+        return c.json({
+            items: rows.slice(0, limit).map(toAdminSubmissionDto),
+            nextOffset: rows.length > limit ? offset + limit : null,
+        });
+    })
+    .get("/admin/submissions/:id/audio", async (c) => {
+        requireAdmin(c.var.isAdmin);
+        const submission = await getVoiceSubmission(c.req.param("id"));
+        if (!submission?.sourceFileId) {
+            throw new HttpError(
+                404,
+                "SUBMISSION_AUDIO_NOT_FOUND",
+                "Исходный файл заявки не найден",
+            );
+        }
+        const response = await getTelegramFile(submission.sourceFileId);
+        if (!response.ok || !response.body) {
+            throw new HttpError(
+                503,
+                "TELEGRAM_UNAVAILABLE",
+                "Не удалось загрузить аудио заявки",
+            );
+        }
+        return new Response(response.body, {
+            headers: {
+                "cache-control": "private, max-age=60",
+                "content-type": "audio/mpeg",
+            },
+        });
+    })
+    .patch("/admin/submissions/:id", async (c) => {
+        requireAdmin(c.var.isAdmin);
+        const body = await c.req
+            .json<{ title?: unknown }>()
+            .catch((): { title?: unknown } => ({}));
+        const title = validateTitle(body.title);
+        const submission = await updateVoiceSubmissionTitle(
+            c.req.param("id"),
+            title,
+        );
+        if (!submission) {
+            throw new HttpError(
+                409,
+                "SUBMISSION_NOT_EDITABLE",
+                "Заявка уже обрабатывается или завершена",
+            );
+        }
+        if (submission.sourceChatId && submission.sourceMessageId) {
+            await editTelegramCaption(
+                submission.sourceChatId,
+                submission.sourceMessageId,
+                moderationCaption(submission),
+            ).catch(() => {});
+        }
+        return c.json(toSubmissionDto(submission));
+    })
+    .post("/admin/submissions/:id/reject", async (c) => {
+        requireAdmin(c.var.isAdmin);
+        const body = await c.req
+            .json<{ reason?: unknown }>()
+            .catch((): { reason?: unknown } => ({}));
+        const reason = String(body.reason ?? "").trim();
+        if (reason.length > 512) {
+            throw new HttpError(
+                400,
+                "INVALID_REJECTION_REASON",
+                "Причина отклонения не должна превышать 512 символов",
+            );
+        }
+        const submission = await rejectVoiceSubmission(
+            c.req.param("id"),
+            c.var.user.id,
+            reason || undefined,
+        );
+        if (!submission) {
+            throw new HttpError(
+                409,
+                "SUBMISSION_NOT_ACTIONABLE",
+                "Заявка уже обрабатывается или завершена",
+            );
+        }
+        if (submission.sourceChatId && submission.sourceMessageId) {
+            await deleteTelegramMessage(
+                submission.sourceChatId,
+                submission.sourceMessageId,
+            ).catch(() => {});
+        }
+        await sendTelegramMessage(
+            submission.submitterUserId,
+            `Ваша заявка «${submission.title}» отклонена.${reason ? ` Причина: ${reason}` : ""}`,
+        ).catch(() => {});
+        return c.json(toSubmissionDto(submission));
+    })
+    .post("/admin/submissions/:id/approve", async (c) => {
+        requireAdmin(c.var.isAdmin);
+        const body = await c.req
+            .json<{
+                voiceId?: unknown;
+                title?: unknown;
+                startMs?: unknown;
+                endMs?: unknown;
+            }>()
+            .catch(
+                (): {
+                    voiceId?: unknown;
+                    title?: unknown;
+                    startMs?: unknown;
+                    endMs?: unknown;
+                } => ({}),
+            );
+        const title = validateTitle(body.title);
+        const voiceId = String(body.voiceId ?? "").trim();
+        if (!isValidVoiceId(voiceId)) {
+            throw new HttpError(
+                400,
+                "INVALID_VOICE_ID",
+                "ID должен содержать от 1 до 64 латинских букв, цифр, _ или -",
+            );
+        }
+        const trim = parseTrimInput(body);
+        const claimed = await claimVoiceSubmission(
+            c.req.param("id"),
+            c.var.user.id,
+            title,
+        );
+        if (!claimed) {
+            throw new HttpError(
+                409,
+                "SUBMISSION_NOT_ACTIONABLE",
+                "Заявка уже обрабатывается или завершена",
+            );
+        }
+
+        let sent: Awaited<ReturnType<typeof convertAndSendVoice>> | undefined;
+        try {
+            if (!claimed.sourceFileId) {
+                throw new HttpError(
+                    404,
+                    "SUBMISSION_AUDIO_NOT_FOUND",
+                    "Исходный файл заявки не найден",
+                );
+            }
+            const source = await getTelegramFile(claimed.sourceFileId);
+            if (!source.ok) {
+                throw new HttpError(
+                    503,
+                    "TELEGRAM_UNAVAILABLE",
+                    "Не удалось загрузить аудио заявки",
+                );
+            }
+            sent = await convertAndSendVoice({
+                bytes: new Uint8Array(await source.arrayBuffer()),
+                caption: `Одобрено: ${title}`,
+                trim,
+            });
+            const approved = await approveVoiceSubmission(claimed.id, {
+                voiceId,
+                voiceTitle: title,
+                fileId: sent.fileId,
+                fileUniqueId: sent.fileUniqueId,
+            });
+            if (!approved) {
+                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
+                    () => {},
+                );
+                throw new HttpError(
+                    409,
+                    "VOICE_CONFLICT",
+                    "Реплика с таким ID или файлом уже существует",
+                );
+            }
+            if (claimed.sourceChatId && claimed.sourceMessageId) {
+                await deleteTelegramMessage(
+                    claimed.sourceChatId,
+                    claimed.sourceMessageId,
+                ).catch(() => {});
+            }
+            await sendTelegramMessage(
+                claimed.submitterUserId,
+                `Ваша заявка «${title}» одобрена и добавлена в каталог`,
+            ).catch(() => {});
+            return c.json(toSubmissionDto(approved));
+        } catch (error) {
+            if (sent) {
+                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
+                    () => {},
+                );
+            }
+            await releaseVoiceSubmission(claimed.id);
+            throw error;
+        }
+    })
+    .post(
+        "/admin/voices",
+        bodyLimit({
+            maxSize: MAX_SUBMISSION_FILE_BYTES + 64 * 1024,
+            onError: (c) =>
+                c.json(
+                    {
+                        error: {
+                            code: "FILE_TOO_LARGE",
+                            message: "Файл превышает 20 МБ",
+                            requestId: c.var.requestId,
+                        },
+                    },
+                    413,
+                ),
+        }),
+        async (c) => {
+            requireAdmin(c.var.isAdmin);
+            const form = await c.req.formData();
+            const title = validateTitle(form.get("title"));
+            const voiceId = String(form.get("voiceId") ?? "").trim();
+            if (!isValidVoiceId(voiceId)) {
+                throw new HttpError(
+                    400,
+                    "INVALID_VOICE_ID",
+                    "ID должен содержать от 1 до 64 латинских букв, цифр, _ или -",
+                );
+            }
+            if (await getVoiceById(voiceId)) {
+                throw new HttpError(
+                    409,
+                    "VOICE_CONFLICT",
+                    "Реплика с таким ID уже существует",
+                );
+            }
+            const file = form.get("file");
+            if (!(file instanceof File)) {
+                throw new HttpError(400, "INVALID_FILE", "Выберите MP3-файл");
+            }
+            const signature = new Uint8Array(
+                await file.slice(0, 3).arrayBuffer(),
+            );
+            if (!validateMp3(file, signature)) {
+                throw new HttpError(
+                    400,
+                    "INVALID_FILE",
+                    "Поддерживаются MP3-файлы размером до 20 МБ",
+                );
+            }
+            const trim = parseTrimInput({
+                startMs: form.get("startMs"),
+                endMs: form.get("endMs"),
+            });
+            const sent = await convertAndSendVoice({
+                bytes: new Uint8Array(await file.arrayBuffer()),
+                caption: `Добавлено администратором: ${title}`,
+                trim,
+            });
+            const added = await addVoice({
+                voiceId,
+                voiceTitle: title,
+                fileId: sent.fileId,
+                fileUniqueId: sent.fileUniqueId,
+            }).catch(async (error) => {
+                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
+                    () => {},
+                );
+                throw error;
+            });
+            if (!added) {
+                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
+                    () => {},
+                );
+                throw new HttpError(
+                    409,
+                    "VOICE_CONFLICT",
+                    "Реплика с таким ID или файлом уже существует",
+                );
+            }
+            return c.json({ ok: true as const, voiceId }, 201);
+        },
+    )
     .get("/voices", async (c) => {
         const query = c.req.query("query")?.trim();
         const offset = Math.max(0, Number(c.req.query("offset")) || 0);

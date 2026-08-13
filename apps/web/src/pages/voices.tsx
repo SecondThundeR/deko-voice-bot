@@ -1,6 +1,7 @@
 import {
     useInfiniteQuery,
     useMutation,
+    useQuery,
     useQueryClient,
 } from "@tanstack/react-query";
 import {
@@ -8,16 +9,22 @@ import {
     HeartIcon,
     PauseIcon,
     PlayIcon,
+    PlusIcon,
     SearchIcon,
     SendIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { type SubmitEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import {
+    type AudioSelection,
+    LazyAudioTrimmer,
+} from "@/components/lazy-audio-trimmer";
 import { Button } from "@/components/ui/button";
 import {
     Card,
     CardAction,
     CardContent,
+    CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
@@ -28,9 +35,15 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty";
-import { Field, FieldLabel } from "@/components/ui/field";
+import {
+    Field,
+    FieldDescription,
+    FieldGroup,
+    FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 import { WebApp } from "@/lib/telegram";
@@ -46,6 +59,7 @@ export function VoicesPage() {
         null,
     );
     const queryClient = useQueryClient();
+    const viewer = useQuery({ queryKey: ["viewer"], queryFn: api.viewer });
 
     useEffect(() => {
         const timeout = setTimeout(() => setQuery(search.trim()), 250);
@@ -106,6 +120,7 @@ export function VoicesPage() {
 
     return (
         <div className="flex flex-col gap-4">
+            {viewer.data?.isAdmin ? <AdminVoiceForm /> : null}
             <Field>
                 <FieldLabel htmlFor="voice-search">Поиск</FieldLabel>
                 <div className="relative">
@@ -229,5 +244,167 @@ export function VoicesPage() {
                 </Button>
             ) : null}
         </div>
+    );
+}
+
+function AdminVoiceForm() {
+    const queryClient = useQueryClient();
+    const [isOpen, setIsOpen] = useState(false);
+    const [voiceId, setVoiceId] = useState("");
+    const [title, setTitle] = useState("");
+    const [file, setFile] = useState<File>();
+    const [audioUrl, setAudioUrl] = useState<string | null>();
+    const audioUrlRef = useRef<string>(null);
+    const [fileInputKey, setFileInputKey] = useState(0);
+    const [selection, setSelection] = useState<AudioSelection>({
+        startMs: 0,
+        endMs: null,
+    });
+    const add = useMutation({
+        mutationFn: api.addVoice,
+        onSuccess: () => {
+            toast.success("Реплика добавлена");
+            setVoiceId("");
+            setTitle("");
+            setFile(undefined);
+            if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+            audioUrlRef.current = null;
+            setAudioUrl(undefined);
+            setSelection({ startMs: 0, endMs: null });
+            setFileInputKey((key) => key + 1);
+            setIsOpen(false);
+            queryClient.invalidateQueries({ queryKey: ["voices"] });
+        },
+        onError: (error) => toast.error(error.message),
+    });
+
+    useEffect(
+        () => () => {
+            if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+        },
+        [],
+    );
+
+    function handleFile(nextFile?: File) {
+        setFile(nextFile);
+        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+        const nextUrl = nextFile ? URL.createObjectURL(nextFile) : null;
+        audioUrlRef.current = nextUrl;
+        setAudioUrl(nextUrl);
+        setSelection({ startMs: 0, endMs: null });
+    }
+
+    function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!file) return toast.error("Выберите MP3-файл");
+        const form = new FormData();
+        form.set("voiceId", voiceId);
+        form.set("title", title);
+        form.set("file", file);
+        form.set("startMs", String(selection.startMs));
+        form.set(
+            "endMs",
+            selection.endMs === null ? "" : String(selection.endMs),
+        );
+        add.mutate(form);
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Добавить реплику</CardTitle>
+                <CardDescription>
+                    Прямая публикация в каталог без пользовательской заявки
+                </CardDescription>
+                <CardAction>
+                    <Button
+                        size="sm"
+                        variant={isOpen ? "ghost" : "outline"}
+                        onClick={() => setIsOpen((value) => !value)}
+                    >
+                        <PlusIcon data-icon="inline-start" />
+                        {isOpen ? "Закрыть" : "Добавить"}
+                    </Button>
+                </CardAction>
+            </CardHeader>
+            {isOpen ? (
+                <CardContent>
+                    <form onSubmit={handleSubmit}>
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel htmlFor="admin-voice-id">
+                                    ID реплики
+                                </FieldLabel>
+                                <Input
+                                    id="admin-voice-id"
+                                    value={voiceId}
+                                    minLength={1}
+                                    maxLength={64}
+                                    pattern="[A-Za-z0-9_-]+"
+                                    required
+                                    disabled={add.isPending}
+                                    onChange={(event) =>
+                                        setVoiceId(event.target.value)
+                                    }
+                                />
+                                <FieldDescription>
+                                    Латинские буквы, цифры, дефис и
+                                    подчёркивание
+                                </FieldDescription>
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="admin-voice-title">
+                                    Название
+                                </FieldLabel>
+                                <Input
+                                    id="admin-voice-title"
+                                    value={title}
+                                    minLength={1}
+                                    maxLength={128}
+                                    required
+                                    disabled={add.isPending}
+                                    onChange={(event) =>
+                                        setTitle(event.target.value)
+                                    }
+                                />
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="admin-voice-file">
+                                    MP3-файл
+                                </FieldLabel>
+                                <Input
+                                    key={fileInputKey}
+                                    id="admin-voice-file"
+                                    type="file"
+                                    accept="audio/mpeg,.mp3"
+                                    required
+                                    disabled={add.isPending}
+                                    onChange={(event) =>
+                                        handleFile(event.target.files?.[0])
+                                    }
+                                />
+                            </Field>
+                            {audioUrl ? (
+                                <LazyAudioTrimmer
+                                    src={audioUrl}
+                                    onChange={setSelection}
+                                />
+                            ) : null}
+                            <Button
+                                type="submit"
+                                disabled={add.isPending || !file}
+                            >
+                                {add.isPending ? (
+                                    <Spinner data-icon="inline-start" />
+                                ) : (
+                                    <PlusIcon data-icon="inline-start" />
+                                )}
+                                Добавить в каталог
+                            </Button>
+                        </FieldGroup>
+                    </form>
+                </CardContent>
+            ) : null}
+        </Card>
     );
 }

@@ -50,7 +50,7 @@ function Root() {
                         </EmptyMedia>
                         <EmptyTitle>Доступ запрещён</EmptyTitle>
                         <EmptyDescription>
-                            Откройте приложение через Deko Voice Bot в Telegram.
+                            Откройте приложение через Deko Voice Bot в Telegram
                         </EmptyDescription>
                     </EmptyHeader>
                 </Empty>

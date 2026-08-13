@@ -5,14 +5,14 @@ import { maskName } from "./privacy.ts";
 
 describe("maskName", () => {
     it("keeps only the initial of every name part", () => {
-        assert.equal(maskName("Иван Петров"), "И•••• П•••••");
+        assert.equal(maskName("Иван Петров"), "И**** П*****");
     });
 
     it("does not reveal the length of short names", () => {
-        assert.equal(maskName("Ли"), "Л••••");
+        assert.equal(maskName("Ли"), "Л****");
     });
 
     it("uses a neutral fallback for absent names", () => {
-        assert.equal(maskName(null), "П•••••••••••");
+        assert.equal(maskName(null), "П***********");
     });
 });

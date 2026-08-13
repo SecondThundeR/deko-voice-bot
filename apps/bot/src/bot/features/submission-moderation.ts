@@ -1,4 +1,8 @@
 import { unlink } from "node:fs/promises";
+import {
+    convertMP3ToOGGOpus,
+    createVoiceTempFilePaths,
+} from "@deko-voice-bot/audio";
 import { SUBMISSION_RETENTION_DAYS } from "@deko-voice-bot/contracts";
 import { databaseUrl } from "@deko-voice-bot/database/env.js";
 import {
@@ -15,10 +19,6 @@ import { withBackupAdvisoryLock } from "#root/backup/lock.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { downloadTelegramFileToPath } from "#root/bot/helpers/api.js";
-import {
-    convertMP3ToOGGOpus,
-    createVoiceTempFilePaths,
-} from "#root/bot/helpers/general.js";
 
 const actionPattern = /^submission:(approve|edit|reject):([0-9a-f-]{36})$/;
 const editPromptPattern = /^Новое название для заявки ([0-9a-f-]{36}):$/;
@@ -126,7 +126,7 @@ admin.callbackQuery(actionPattern, async (ctx) => {
         await notifyUser(
             ctx,
             claimed.submitterUserId,
-            `Ваша заявка «${claimed.title}» одобрена и добавлена в каталог.`,
+            `Ваша заявка «${claimed.title}» одобрена и добавлена в каталог`,
         );
     } catch (error) {
         await releaseVoiceSubmission(id);
@@ -139,7 +139,7 @@ admin.callbackQuery(actionPattern, async (ctx) => {
                 error instanceof Error ? error.message : "Unknown error",
         });
         await ctx.reply(
-            "Не удалось обработать заявку. Её можно повторить кнопкой одобрения.",
+            "Не удалось обработать заявку. Её можно повторить кнопкой одобрения",
         );
     } finally {
         await Promise.allSettled([unlink(paths.input), unlink(paths.output)]);
@@ -154,14 +154,14 @@ admin.on("message:text", async (ctx, next) => {
     if (editMatch) {
         const title = ctx.msg.text.trim();
         if (!title || title.length > 128) {
-            return ctx.reply("Название должно содержать от 1 до 128 символов.");
+            return ctx.reply("Название должно содержать от 1 до 128 символов");
         }
         const submission = await updateVoiceSubmissionTitle(
             editMatch[1],
             title,
         );
         if (!submission)
-            return ctx.reply("Заявка уже обрабатывается или завершена.");
+            return ctx.reply("Заявка уже обрабатывается или завершена");
         if (submission.sourceChatId && submission.sourceMessageId) {
             await ctx.api.editMessageCaption(
                 submission.sourceChatId,
@@ -169,7 +169,7 @@ admin.on("message:text", async (ctx, next) => {
                 { caption: moderationCaption(submission) },
             );
         }
-        return ctx.reply("Название обновлено.");
+        return ctx.reply("Название обновлено");
     }
 
     const rejectMatch = prompt.match(rejectPromptPattern);
@@ -177,14 +177,14 @@ admin.on("message:text", async (ctx, next) => {
         const reason =
             ctx.msg.text.trim() === "/skip" ? undefined : ctx.msg.text.trim();
         if (reason && reason.length > 512)
-            return ctx.reply("Причина слишком длинная.");
+            return ctx.reply("Причина слишком длинная");
         const submission = await rejectVoiceSubmission(
             rejectMatch[1],
             ctx.from.id,
             reason,
         );
         if (!submission)
-            return ctx.reply("Заявка уже обрабатывается или завершена.");
+            return ctx.reply("Заявка уже обрабатывается или завершена");
         if (submission.sourceChatId && submission.sourceMessageId) {
             await ctx.api
                 .deleteMessage(
@@ -198,7 +198,7 @@ admin.on("message:text", async (ctx, next) => {
             submission.submitterUserId,
             `Ваша заявка «${submission.title}» отклонена.${reason ? ` Причина: ${reason}` : ""}`,
         );
-        return ctx.reply("Заявка отклонена.");
+        return ctx.reply("Заявка отклонена");
     }
     return next();
 });

@@ -1,8 +1,8 @@
+import { getFFMPEGStatus } from "@deko-voice-bot/audio";
 import { Composer } from "grammy";
 import type { Context } from "#root/bot/context.js";
 import { NEW_VOICES_CONVERSATION } from "#root/bot/conversations/new-voices.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
-import { getFFMPEGStatus } from "#root/bot/helpers/general.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 
 const composer = new Composer<Context>();
