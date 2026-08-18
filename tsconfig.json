@@ -7,7 +7,6 @@
         { "path": "./packages/metrics" },
         { "path": "./apps/bot" },
         { "path": "./apps/api" },
-        { "path": "./apps/worker" },
         { "path": "./apps/web" }
     ]
 }

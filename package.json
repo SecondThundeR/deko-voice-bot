@@ -18,7 +18,6 @@
         "format": "turbo run format",
         "start:bot": "pnpm --filter @deko-voice-bot/bot start",
         "start:api": "pnpm --filter @deko-voice-bot/api start",
-        "start:worker": "pnpm --filter @deko-voice-bot/worker start",
         "backup:crypto": "pnpm --filter @deko-voice-bot/bot backup:crypto",
         "queue:replay": "pnpm --filter @deko-voice-bot/bot queue:replay",
         "db:generate": "pnpm --filter @deko-voice-bot/database db:generate",
