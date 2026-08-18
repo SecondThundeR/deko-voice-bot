@@ -24,7 +24,8 @@
 apps/
 ├── bot/       # grammY-бот, Telegram webhook, backup/import и модерация
 ├── api/       # Hono API для Telegram Mini App
-└── web/       # React + Vite Mini App, production-сборка для Nginx
+├── web/       # React + Vite Mini App, production-сборка для Nginx
+└── worker/    # обработчик outbox-задач базы данных
 packages/
 ├── config/             # общая загрузка и проверка окружения
 ├── contracts/          # общие API-типы и Valibot-схемы
@@ -54,11 +55,11 @@ Mini App открывается из `/start`, меню чата и настро
 - `VOICE_MODERATION_CHAT_ID` — ID приватной группы/супергруппы модераторов;
 - `ADMIN_IDS` — Telegram ID пользователей, которым разрешены модерация и полные лидерборды.
 
-API использует `BOT_TOKEN`, `DATABASE_URL`, `ADMIN_IDS`, `VOICE_MODERATION_CHAT_ID`, `PORT`, `LOG_LEVEL` и `LOG_FORMAT`. Web-сервис использует runtime-переменные `PORT` и `API_URL`; Nginx проксирует `/api` к приватному Railway-адресу API, поэтому отдельный публичный API-домен и CORS не требуются
+API использует `BOT_TOKEN`, `DATABASE_URL`, `ADMIN_IDS`, `VOICE_MODERATION_CHAT_ID`, `PORT`, `LOG_LEVEL` и `LOG_FORMAT`. Worker использует `DATABASE_URL`, `LOG_LEVEL`, `LOG_FORMAT`, `WORKER_POLL_INTERVAL_MS` и `WORKER_LEASE_MS`; пока он обрабатывает только служебные `outbox.noop.v1` задачи. Web-сервис использует runtime-переменные `PORT` и `API_URL`; Nginx проксирует `/api` к приватному Railway-адресу API, поэтому отдельный публичный API-домен и CORS не требуются
 
 Для обработки аудио приложение ищет FFmpeg и FFprobe в следующем порядке: пути из `FFMPEG_BIN` и `FFPROBE_BIN`, системные команды, затем бинарники из npm-пакетов. В Docker-образах по умолчанию используются пакетные бинарники
 
-Для Railway создайте три сервиса с корнем репозитория и Dockerfile `apps/bot/Dockerfile`, `apps/api/Dockerfile` и `apps/web/Dockerfile`. Для web задайте `API_URL` в виде `http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}`. Миграции выполняются один раз командой `pnpm db:migrate` перед развёртыванием приложений. После первого релиза настройте в BotFather Main Mini App на тот же `WEB_APP_URL`
+Для Railway создайте четыре сервиса с корнем репозитория и Dockerfile `apps/bot/Dockerfile`, `apps/api/Dockerfile`, `apps/worker/Dockerfile` и `apps/web/Dockerfile`. Для web задайте `API_URL` в виде `http://${{api.RAILWAY_PRIVATE_DOMAIN}}:${{api.PORT}}`. Миграции выполняются один раз командой `pnpm db:migrate` перед развёртыванием приложений. После первого релиза настройте в BotFather Main Mini App на тот же `WEB_APP_URL`
 
 ## Как работает бот
 

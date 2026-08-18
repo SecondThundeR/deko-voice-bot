@@ -18,15 +18,15 @@ COPY packages/database/package.json packages/database/
 COPY packages/typescript-config/package.json packages/typescript-config/
 RUN pnpm install --frozen-lockfile
 COPY . .
-RUN pnpm --filter @deko-voice-bot/api build
+RUN pnpm --filter @deko-voice-bot/worker build
 
 FROM base AS release
 ENV NODE_ENV=production
 COPY --from=build --chown=node:node /repo/node_modules /repo/node_modules
-COPY --from=build --chown=node:node /repo/apps/api/node_modules /repo/apps/api/node_modules
-COPY --from=build --chown=node:node /repo/apps/api/dist /repo/apps/api/dist
-COPY --from=build --chown=node:node /repo/apps/api/package.json /repo/apps/api/package.json
+COPY --from=build --chown=node:node /repo/apps/worker/node_modules /repo/apps/worker/node_modules
+COPY --from=build --chown=node:node /repo/apps/worker/dist /repo/apps/worker/dist
+COPY --from=build --chown=node:node /repo/apps/worker/package.json /repo/apps/worker/package.json
 COPY --from=build --chown=node:node /repo/packages /repo/packages
-WORKDIR /repo/apps/api
+WORKDIR /repo/apps/worker
 USER node
 ENTRYPOINT ["node", "./dist/index.mjs"]

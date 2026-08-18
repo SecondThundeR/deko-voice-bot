@@ -5,6 +5,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc turbo.json ./
 COPY apps/api/package.json apps/api/
 COPY apps/bot/package.json apps/bot/
 COPY apps/web/package.json apps/web/
+COPY apps/worker/package.json apps/worker/
 COPY packages/audio/package.json packages/audio/
 COPY packages/config/package.json packages/config/
 COPY packages/contracts/package.json packages/contracts/
