@@ -13,6 +13,7 @@ function createPorts(
 ) {
     const calls = {
         claim: 0,
+        extend: [] as Array<{ id: string; owner: string; leaseMs: number }>,
         complete: [] as Array<{ id: string; owner: string }>,
         fail: [] as Array<{ id: string; owner: string; error: string }>,
         retry: [] as Array<{ id: string; owner: string; error: string }>,
@@ -25,12 +26,19 @@ function createPorts(
         },
         async complete(input) {
             calls.complete.push(input);
+            return { id: input.id };
+        },
+        async extend(input) {
+            calls.extend.push(input);
+            return { id: input.id };
         },
         async fail(input) {
             calls.fail.push(input);
+            return { id: input.id };
         },
         async retry(input) {
             calls.retry.push(input);
+            return { id: input.id };
         },
         logger: {
             info() {},
@@ -42,11 +50,14 @@ function createPorts(
     return { calls, ports };
 }
 
-function createTestWorker(ports: WorkerPorts) {
+function createTestWorker(
+    ports: WorkerPorts,
+    options: Partial<{ leaseMs: number; pollIntervalMs: number }> = {},
+) {
     return createWorker(ports, {
         owner,
-        leaseMs: 60_000,
-        pollIntervalMs: 60_000,
+        leaseMs: options.leaseMs ?? 60_000,
+        pollIntervalMs: options.pollIntervalMs ?? 60_000,
     });
 }
 
@@ -138,6 +149,57 @@ describe("outbox worker", () => {
         assert.deepEqual(calls.complete, []);
         assert.deepEqual(calls.fail, []);
         assert.deepEqual(calls.retry, []);
+    });
+
+    it("does not record completion when its lease has been lost", async () => {
+        const warnings: string[] = [];
+        const completionAttempts: string[] = [];
+        const { calls, ports } = createPorts(
+            [{ id: "lost", job_type: OUTBOX_NOOP_JOB_TYPE, payload: {} }],
+            {
+                async complete() {
+                    completionAttempts.push("lost");
+                    return null;
+                },
+                logger: {
+                    info() {},
+                    warn(_bindings, message) {
+                        warnings.push(message ?? "");
+                    },
+                    error() {},
+                },
+            },
+        );
+
+        await createTestWorker(ports).processOne();
+
+        assert.deepEqual(calls.complete, []);
+        assert.deepEqual(completionAttempts, ["lost"]);
+        assert.match(warnings.join("\n"), /lease was lost/);
+    });
+
+    it("extends the lease while a handler is still running", async () => {
+        let releaseHandler: (() => void) | undefined;
+        const { calls, ports } = createPorts(
+            [{ id: "heartbeat", job_type: OUTBOX_NOOP_JOB_TYPE, payload: {} }],
+            {
+                async handleNoop() {
+                    await new Promise<void>((resolve) => {
+                        releaseHandler = resolve;
+                    });
+                },
+            },
+        );
+        const processing = createTestWorker(ports, {
+            leaseMs: 10,
+        }).processOne();
+
+        await new Promise((resolve) => setTimeout(resolve, 15));
+        releaseHandler?.();
+        await processing;
+
+        assert.ok(calls.extend.length >= 1);
+        assert.deepEqual(calls.complete, [{ id: "heartbeat", owner }]);
     });
 
     it("stops claiming and drains an in-flight job on shutdown", async () => {

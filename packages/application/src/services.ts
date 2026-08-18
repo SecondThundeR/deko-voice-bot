@@ -275,6 +275,7 @@ export class ModerationService {
             });
             if (!approved) {
                 await this.compensate(sent, "delete_conflicting_voice");
+                sent = undefined;
                 throw new ApplicationError(
                     409,
                     "VOICE_CONFLICT",

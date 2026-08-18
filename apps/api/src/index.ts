@@ -2,7 +2,10 @@ import { closeDatabaseConnection } from "@deko-voice-bot/database/db.js";
 import { serve } from "@hono/node-server";
 import { createApp } from "./app.ts";
 import { config } from "./config/index.ts";
-import { runtimeDependencies } from "./dependencies/runtime.ts";
+import {
+    closeRuntimeDependencies,
+    runtimeDependencies,
+} from "./dependencies/runtime.ts";
 import { logger } from "./observability/logger.ts";
 
 const app = createApp(runtimeDependencies);
@@ -17,7 +20,10 @@ async function shutdown() {
     if (shuttingDown) return;
     shuttingDown = true;
     runtimeDependencies.readiness.setDraining?.(true);
-    server.close();
+    await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+    });
+    await closeRuntimeDependencies();
     await closeDatabaseConnection();
 }
 

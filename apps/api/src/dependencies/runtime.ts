@@ -31,6 +31,10 @@ const rateLimiter = redis
     ? new RedisRateLimiter(redis)
     : new InMemoryRateLimiter();
 
+export async function closeRuntimeDependencies() {
+    if (redis) redis.disconnect();
+}
+
 const metricsToken =
     config.metricsEnabled && config.metricsToken.length >= 32
         ? config.metricsToken

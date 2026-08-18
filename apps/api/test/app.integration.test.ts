@@ -253,4 +253,18 @@ describe("operational HTTP policy", () => {
             assert.equal(response.status, 200);
         }
     });
+    it("uses the strict policy for costly submission uploads", async () => {
+        const { app } = createPolicyApp();
+        for (let i = 0; i < 10; i++) {
+            await app.request("/api/v1/submissions", {
+                method: "POST",
+                headers: { "x-test-user": "42" },
+            });
+        }
+        const response = await app.request("/api/v1/submissions", {
+            method: "POST",
+            headers: { "x-test-user": "42" },
+        });
+        assert.equal(response.status, 429);
+    });
 });

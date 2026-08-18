@@ -8,9 +8,9 @@ const DEFAULT: RateLimitPolicy = { limit: 120, windowMs: 60_000 };
 const STRICT: RateLimitPolicy = { limit: 10, windowMs: 60_000 };
 
 function policy(c: { req: { path: string; method: string } }) {
-    return c.req.path.includes("/uploads") ||
-        (c.req.path.includes("/admin") &&
-            !["GET", "HEAD", "OPTIONS"].includes(c.req.method))
+    const isMutation = !["GET", "HEAD", "OPTIONS"].includes(c.req.method);
+    return isMutation &&
+        (c.req.path.endsWith("/submissions") || c.req.path.includes("/admin"))
         ? STRICT
         : DEFAULT;
 }

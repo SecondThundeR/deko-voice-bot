@@ -173,7 +173,11 @@ export async function claimVoiceSubmission(
 export async function releaseVoiceSubmission(id: string) {
     await db
         .update(voiceSubmissionsTable)
-        .set({ status: "failed", updatedAt: new Date() })
+        .set({
+            status: "failed",
+            finalizedAt: new Date(),
+            updatedAt: new Date(),
+        })
         .where(
             and(
                 eq(voiceSubmissionsTable.id, id),

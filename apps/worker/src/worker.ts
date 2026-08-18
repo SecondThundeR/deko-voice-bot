@@ -22,17 +22,25 @@ export type WorkerPorts = {
         limit: 1;
         leaseMs: number;
     }) => Promise<ClaimedOutboxJob[]>;
-    complete: (input: { id: string; owner: string }) => Promise<unknown>;
+    complete: (input: {
+        id: string;
+        owner: string;
+    }) => Promise<{ id: string } | null>;
+    extend: (input: {
+        id: string;
+        owner: string;
+        leaseMs: number;
+    }) => Promise<{ id: string } | null>;
     fail: (input: {
         id: string;
         owner: string;
         error: string;
-    }) => Promise<unknown>;
+    }) => Promise<{ id: string } | null>;
     retry: (input: {
         id: string;
         owner: string;
         error: string;
-    }) => Promise<unknown>;
+    }) => Promise<{ id: string } | null>;
     logger: WorkerLogger;
     metrics?: WorkerMetrics;
     handleNoop?: (job: ClaimedOutboxJob) => Promise<void>;
@@ -73,6 +81,45 @@ export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
                 durationMs: Date.now() - started,
             });
 
+        let leaseLost = false;
+        let heartbeatInFlight: Promise<void> | undefined;
+        const heartbeat = setInterval(
+            () => {
+                if (heartbeatInFlight) return;
+                heartbeatInFlight = ports
+                    .extend({
+                        id: job.id,
+                        owner: options.owner,
+                        leaseMs: options.leaseMs,
+                    })
+                    .then((extended) => {
+                        if (extended) return;
+                        leaseLost = true;
+                        ports.logger.warn(
+                            { jobId: job.id },
+                            "Outbox lease was lost while processing job",
+                        );
+                    })
+                    .catch((error: unknown) => {
+                        leaseLost = true;
+                        ports.logger.warn(
+                            { jobId: job.id, error: errorMessage(error) },
+                            "Outbox lease heartbeat failed",
+                        );
+                    })
+                    .finally(() => {
+                        heartbeatInFlight = undefined;
+                    });
+            },
+            Math.max(1, Math.floor(options.leaseMs / 2)),
+        );
+        heartbeat.unref();
+
+        async function stopHeartbeat() {
+            clearInterval(heartbeat);
+            await heartbeatInFlight;
+        }
+
         try {
             validateOutboxJob({
                 jobType: job.job_type,
@@ -84,12 +131,18 @@ export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
                 { jobId: job.id, error: message },
                 "Invalid outbox job",
             );
-            await ports.fail({
+            await stopHeartbeat();
+            const failed = await ports.fail({
                 id: job.id,
                 owner: options.owner,
                 error: message,
             });
-            record("failed");
+            if (failed) record("failed");
+            else
+                ports.logger.warn(
+                    { jobId: job.id },
+                    "Outbox lease was lost before job could be failed",
+                );
             return true;
         }
 
@@ -106,21 +159,38 @@ export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
                 { jobId: job.id, error: message },
                 "Outbox job will retry",
             );
-            await ports.retry({
+            await stopHeartbeat();
+            if (leaseLost) return true;
+            const retried = await ports.retry({
                 id: job.id,
                 owner: options.owner,
                 error: message,
             });
-            record("retry");
+            if (retried) record("retry");
+            else
+                ports.logger.warn(
+                    { jobId: job.id },
+                    "Outbox lease was lost before job could be retried",
+                );
             return true;
         }
 
+        await stopHeartbeat();
+        if (leaseLost) return true;
         ports.logger.info(
             { jobId: job.id, jobType: job.job_type },
             "Completed noop outbox job",
         );
-        await ports.complete({ id: job.id, owner: options.owner });
-        record("completed");
+        const completed = await ports.complete({
+            id: job.id,
+            owner: options.owner,
+        });
+        if (completed) record("completed");
+        else
+            ports.logger.warn(
+                { jobId: job.id },
+                "Outbox lease was lost before job could be completed",
+            );
         return true;
     }
 

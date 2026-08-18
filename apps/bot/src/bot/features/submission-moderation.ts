@@ -19,6 +19,7 @@ import { withBackupAdvisoryLock } from "#root/backup/lock.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { downloadTelegramFileToPath } from "#root/bot/helpers/api.js";
+import { escapeHTML } from "#root/bot/helpers/html.js";
 
 const actionPattern = /^submission:(approve|edit|reject):([0-9a-f-]{36})$/;
 const editPromptPattern = /^Новое название для заявки ([0-9a-f-]{36}):$/;
@@ -34,7 +35,7 @@ function moderationCaption(submission: {
 }) {
     return [
         "Новая заявка на реплику",
-        `Название: ${submission.title}`,
+        `Название: ${escapeHTML(submission.title)}`,
         `Автор: ${submission.submitterUserId}`,
         `ID: ${submission.id}`,
     ].join("\n");
@@ -91,6 +92,7 @@ admin.callbackQuery(actionPattern, async (ctx) => {
     }
 
     const paths = createVoiceTempFilePaths();
+    let sentMessageId: number | undefined;
     try {
         const file = await ctx.api.getFile(claimed.sourceFileId);
         if (!file.file_path) throw new Error("Telegram file path is missing");
@@ -106,8 +108,9 @@ admin.callbackQuery(actionPattern, async (ctx) => {
         const sent = await ctx.api.sendVoice(
             claimed.sourceChatId,
             new InputFile(paths.output),
-            { caption: `Одобрено: ${claimed.title}` },
+            { caption: `Одобрено: ${escapeHTML(claimed.title)}` },
         );
+        sentMessageId = sent.message_id;
         const approved = await approveVoiceSubmission(id, {
             voiceId: id,
             voiceTitle: claimed.title,
@@ -129,6 +132,11 @@ admin.callbackQuery(actionPattern, async (ctx) => {
             `Ваша заявка «${claimed.title}» одобрена и добавлена в каталог`,
         );
     } catch (error) {
+        if (sentMessageId !== undefined) {
+            await ctx.api
+                .deleteMessage(claimed.sourceChatId, sentMessageId)
+                .catch(() => {});
+        }
         await releaseVoiceSubmission(id);
         ctx.logger.error({
             msg: "Voice submission approval failed",
@@ -196,7 +204,7 @@ admin.on("message:text", async (ctx, next) => {
         await notifyUser(
             ctx,
             submission.submitterUserId,
-            `Ваша заявка «${submission.title}» отклонена.${reason ? ` Причина: ${reason}` : ""}`,
+            `Ваша заявка «${escapeHTML(submission.title)}» отклонена.${reason ? ` Причина: ${escapeHTML(reason)}` : ""}`,
         );
         return ctx.reply("Заявка отклонена");
     }

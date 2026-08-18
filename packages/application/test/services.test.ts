@@ -117,10 +117,7 @@ describe("ModerationService", () => {
                 error instanceof ApplicationError &&
                 error.code === "VOICE_CONFLICT",
         );
-        assert.deepEqual(deleted, [
-            [3, 4],
-            [3, 4],
-        ]);
+        assert.deepEqual(deleted, [[3, 4]]);
         assert.deepEqual(released, [submission.id]);
     });
 });

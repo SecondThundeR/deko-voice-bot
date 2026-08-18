@@ -161,6 +161,30 @@ export async function completeOutboxJob(input: { id: string; owner: string }) {
     return rows[0] ?? null;
 }
 
+/** Extends an active lease so a long-running handler is not reclaimed mid-flight. */
+export async function extendOutboxJobLease(input: {
+    id: string;
+    owner: string;
+    leaseMs?: number;
+}) {
+    assertOwner(input.owner);
+    const leaseMs = input.leaseMs ?? OUTBOX_DEFAULT_LEASE_MS;
+    assertPositiveSafeInteger(leaseMs, "leaseMs");
+    const rows = await db.execute<OutboxJob>(sql`
+        update bot_runtime.outbox
+        set
+            lease_expires_at = now() + ${leaseMs} * interval '1 millisecond',
+            updated_at = now()
+        where
+            id = ${input.id}::uuid
+            and status = 'processing'
+            and lease_owner = ${input.owner}
+            and lease_expires_at > now()
+        returning *
+    `);
+    return rows[0] ?? null;
+}
+
 /** Releases a job for bounded exponential retry, or fails it after its final attempt. */
 export async function retryOutboxJob(input: {
     id: string;
