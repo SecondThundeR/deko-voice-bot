@@ -5,10 +5,15 @@ import { HttpError } from "../errors.ts";
 import { parsePagination } from "../pagination.ts";
 import type { ApiEnv } from "../types.ts";
 import {
+    parseOptionalJsonBody,
+    parseRejectionReason,
+    parseTitle,
+    parseVoiceId,
+} from "../validation.ts";
+import {
     bestEffortTelegram,
     moderationCaption,
     requireAdmin,
-    validateTitle,
 } from "./helpers.ts";
 
 export function createAdminModerationRoutes(
@@ -64,10 +69,8 @@ export function createAdminModerationRoutes(
         })
         .patch("/admin/submissions/:id", async (c) => {
             requireAdmin(c.var.isAdmin);
-            const body = await c.req
-                .json<{ title?: unknown }>()
-                .catch((): { title?: unknown } => ({}));
-            const title = validateTitle(body.title);
+            const body = await parseOptionalJsonBody(c.req.raw);
+            const title = parseTitle(body.title);
             const submission = await deps.database(() =>
                 deps.updateVoiceSubmissionTitle(c.req.param("id"), title),
             );
@@ -95,16 +98,8 @@ export function createAdminModerationRoutes(
         })
         .post("/admin/submissions/:id/reject", async (c) => {
             requireAdmin(c.var.isAdmin);
-            const body = await c.req
-                .json<{ reason?: unknown }>()
-                .catch((): { reason?: unknown } => ({}));
-            const reason = String(body.reason ?? "").trim();
-            if (reason.length > 512)
-                throw new HttpError(
-                    400,
-                    "INVALID_REJECTION_REASON",
-                    "Причина отклонения не должна превышать 512 символов",
-                );
+            const body = await parseOptionalJsonBody(c.req.raw);
+            const reason = parseRejectionReason(body.reason);
             const submission = await deps.database(() =>
                 deps.rejectVoiceSubmission(
                     c.req.param("id"),
@@ -145,29 +140,9 @@ export function createAdminModerationRoutes(
         })
         .post("/admin/submissions/:id/approve", async (c) => {
             requireAdmin(c.var.isAdmin);
-            const body = await c.req
-                .json<{
-                    voiceId?: unknown;
-                    title?: unknown;
-                    startMs?: unknown;
-                    endMs?: unknown;
-                }>()
-                .catch(
-                    (): {
-                        voiceId?: unknown;
-                        title?: unknown;
-                        startMs?: unknown;
-                        endMs?: unknown;
-                    } => ({}),
-                );
-            const title = validateTitle(body.title);
-            const voiceId = String(body.voiceId ?? "").trim();
-            if (!deps.isValidVoiceId(voiceId))
-                throw new HttpError(
-                    400,
-                    "INVALID_VOICE_ID",
-                    "ID должен содержать от 1 до 64 латинских букв, цифр, _ или -",
-                );
+            const body = await parseOptionalJsonBody(c.req.raw);
+            const title = parseTitle(body.title);
+            const voiceId = parseVoiceId(body.voiceId);
             const trim = parseTrimInput(body);
             const claimed = await deps.database(() =>
                 deps.claimVoiceSubmission(

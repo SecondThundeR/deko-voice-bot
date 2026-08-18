@@ -1,10 +1,8 @@
-import { DatabaseMaintenanceError } from "@deko-voice-bot/database/traffic.js";
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
 import type { ApiDependencies } from "./dependencies.ts";
-import { HttpError } from "./errors.ts";
+import { HttpError, TelegramError } from "./errors.ts";
 import { createRoutes } from "./routes.ts";
-import { TelegramError } from "./telegram.ts";
 import type { ApiEnv } from "./types.ts";
 
 export function createApp(deps: ApiDependencies) {
@@ -26,7 +24,10 @@ export function createApp(deps: ApiDependencies) {
         ),
     );
     app.onError((error, c) => {
-        if (error instanceof DatabaseMaintenanceError) {
+        if (
+            error instanceof Error &&
+            error.name === "DatabaseMaintenanceError"
+        ) {
             c.header("retry-after", "30");
             return c.json(
                 {

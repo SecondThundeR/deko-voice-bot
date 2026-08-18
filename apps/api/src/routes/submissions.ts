@@ -8,6 +8,7 @@ import { bodyLimit } from "hono/body-limit";
 import type { SubmissionRouteDependencies } from "../dependencies.ts";
 import { HttpError } from "../errors.ts";
 import type { ApiEnv } from "../types.ts";
+import { parseTitle } from "../validation.ts";
 import { requireConsent } from "./helpers.ts";
 
 export function createSubmissionRoutes(deps: SubmissionRouteDependencies) {
@@ -41,14 +42,8 @@ export function createSubmissionRoutes(deps: SubmissionRouteDependencies) {
             async (c) => {
                 await requireConsent(deps, c.var.user.id);
                 const form = await c.req.formData();
-                const title = String(form.get("title") || "").trim();
+                const title = parseTitle(form.get("title"));
                 const file = form.get("file");
-                if (title.length < 1 || title.length > 128)
-                    throw new HttpError(
-                        400,
-                        "INVALID_TITLE",
-                        "Название должно содержать от 1 до 128 символов",
-                    );
                 if (!(file instanceof File))
                     throw new HttpError(
                         400,

@@ -5,6 +5,7 @@ import { parseTrimInput } from "../audio.ts";
 import type { AdminUploadRouteDependencies } from "../dependencies.ts";
 import { HttpError } from "../errors.ts";
 import type { ApiEnv } from "../types.ts";
+import { parseVoiceId } from "../validation.ts";
 import {
     bestEffortTelegram,
     fullname,
@@ -33,13 +34,7 @@ export function createAdminUploadRoutes(deps: AdminUploadRouteDependencies) {
             requireAdmin(c.var.isAdmin);
             const form = await c.req.formData();
             const title = validateTitle(form.get("title"));
-            const voiceId = String(form.get("voiceId") ?? "").trim();
-            if (!deps.isValidVoiceId(voiceId))
-                throw new HttpError(
-                    400,
-                    "INVALID_VOICE_ID",
-                    "ID должен содержать от 1 до 64 латинских букв, цифр, _ или -",
-                );
+            const voiceId = parseVoiceId(form.get("voiceId"));
             if (await deps.database(() => deps.getVoiceById(voiceId)))
                 throw new HttpError(
                     409,

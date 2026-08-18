@@ -1,3 +1,22 @@
+export class TelegramError extends Error {
+    readonly operation: string;
+    readonly upstreamStatus: number | undefined;
+    readonly retryable: boolean;
+
+    constructor(
+        operation: string,
+        upstreamStatus: number | undefined,
+        retryable: boolean,
+        message: string,
+    ) {
+        super(message);
+        this.name = "TelegramError";
+        this.operation = operation;
+        this.upstreamStatus = upstreamStatus;
+        this.retryable = retryable;
+    }
+}
+
 export class HttpError extends Error {
     readonly status: 400 | 401 | 403 | 404 | 409 | 413 | 429 | 503;
     readonly code: string;

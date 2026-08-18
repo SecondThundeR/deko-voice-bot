@@ -26,7 +26,6 @@ export interface ApiDependencies extends DatabaseTraffic {
     addVoice: typeof import("@deko-voice-bot/database/queries/voices.js").addVoice;
     getVoiceById: typeof import("@deko-voice-bot/database/queries/voices.js").getVoiceById;
     getVoicesPage: typeof import("@deko-voice-bot/database/queries/voices.js").getVoicesPage;
-    isValidVoiceId: typeof import("@deko-voice-bot/database/queries/voices.js").isValidVoiceId;
     getFullStats: typeof import("@deko-voice-bot/database/queries/stats.js").getFullStats;
     approveVoiceSubmission: typeof import("@deko-voice-bot/database/queries/submissions.js").approveVoiceSubmission;
     claimVoiceSubmission: typeof import("@deko-voice-bot/database/queries/submissions.js").claimVoiceSubmission;
@@ -71,7 +70,6 @@ export type AdminModerationRouteDependencies = Pick<
     | "getAdminVoiceSubmissions"
     | "getTelegramFile"
     | "getVoiceSubmission"
-    | "isValidVoiceId"
     | "rejectVoiceSubmission"
     | "releaseVoiceSubmission"
     | "sendTelegramMessage"
@@ -87,7 +85,6 @@ export type AdminUploadRouteDependencies = Pick<
     | "database"
     | "deleteTelegramMessage"
     | "getVoiceById"
-    | "isValidVoiceId"
     | "logger"
     | "validateMp3Upload"
 >;

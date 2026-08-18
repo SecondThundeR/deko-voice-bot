@@ -1,6 +1,7 @@
 import type { DatabaseTraffic } from "../dependencies.ts";
 import { HttpError } from "../errors.ts";
 import type { ApiEnv } from "../types.ts";
+import { parseTitle } from "../validation.ts";
 
 export function fullname(user: ApiEnv["Variables"]["user"]) {
     return [user.first_name, user.last_name].filter(Boolean).join(" ");
@@ -31,16 +32,7 @@ export function requireAdmin(isAdmin: boolean) {
         throw new HttpError(403, "ADMIN_REQUIRED", "Доступно только админам");
 }
 
-export function validateTitle(value: unknown) {
-    const title = String(value ?? "").trim();
-    if (title.length < 1 || title.length > 128)
-        throw new HttpError(
-            400,
-            "INVALID_TITLE",
-            "Название должно содержать от 1 до 128 символов",
-        );
-    return title;
-}
+export const validateTitle = parseTitle;
 
 export function moderationCaption(submission: {
     id: string;

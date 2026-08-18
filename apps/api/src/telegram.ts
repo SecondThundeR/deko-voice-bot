@@ -1,24 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { config } from "./config.ts";
+import { TelegramError } from "./errors.ts";
 
-export class TelegramError extends Error {
-    readonly operation: string;
-    readonly upstreamStatus: number | undefined;
-    readonly retryable: boolean;
-
-    constructor(
-        operation: string,
-        upstreamStatus: number | undefined,
-        retryable: boolean,
-        message: string,
-    ) {
-        super(message);
-        this.name = "TelegramError";
-        this.operation = operation;
-        this.upstreamStatus = upstreamStatus;
-        this.retryable = retryable;
-    }
-}
+export { TelegramError } from "./errors.ts";
 
 type TelegramDocumentMessage = {
     message_id: number;

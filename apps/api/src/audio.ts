@@ -7,33 +7,10 @@ import {
 } from "@deko-voice-bot/audio";
 import { MAX_SUBMISSION_FILE_BYTES } from "@deko-voice-bot/contracts";
 import { HttpError } from "./errors.ts";
-import { sendVoiceToModeration } from "./telegram.ts";
+
+export { parseTrimInput } from "./validation.ts";
 
 export type TrimInput = { startMs: number; endMs: number | null };
-
-export function parseTrimInput(input: {
-    startMs?: unknown;
-    endMs?: unknown;
-}): TrimInput {
-    const startMs = Number(input.startMs ?? 0);
-    const endMs =
-        input.endMs === null || input.endMs === undefined || input.endMs === ""
-            ? null
-            : Number(input.endMs);
-    if (
-        !Number.isSafeInteger(startMs) ||
-        startMs < 0 ||
-        (endMs !== null &&
-            (!Number.isSafeInteger(endMs) || endMs - startMs < 100))
-    ) {
-        throw new HttpError(
-            400,
-            "INVALID_TRIM",
-            "Выберите корректный фрагмент длительностью не менее 0,1 секунды",
-        );
-    }
-    return { startMs, endMs };
-}
 
 export async function validateMp3Upload(file: File) {
     if (file.size < 1 || file.size > MAX_SUBMISSION_FILE_BYTES) {
@@ -108,6 +85,7 @@ export async function convertAndSendVoice(input: {
                 "Не удалось обработать аудиофайл",
             );
         }
+        const { sendVoiceToModeration } = await import("./telegram.ts");
         return await sendVoiceToModeration({
             caption: input.caption,
             filename: paths.output,
