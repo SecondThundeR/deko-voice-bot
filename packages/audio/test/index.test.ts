@@ -10,7 +10,7 @@ import {
     convertMP3ToOGGOpus,
     getAudioDurationMs,
     getFFMPEGStatus,
-} from "./index.ts";
+} from "../src/index.ts";
 
 const execFilePromise = promisify(execFile);
 const require = createRequire(import.meta.url);

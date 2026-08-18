@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { parseDonationAmount } from "./api.ts";
+import { parseDonationAmount } from "../../../src/bot/helpers/api.ts";
 
 describe("parseDonationAmount", () => {
     it("parses positive integer amounts", () => {

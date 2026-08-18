@@ -9,7 +9,7 @@ import {
     CURRENT_SCHEMA_VERSION,
     packBackup,
     unpackBackup,
-} from "./manifest.ts";
+} from "../../src/backup/manifest.ts";
 
 const tempDirectories: string[] = [];
 

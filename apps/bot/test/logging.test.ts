@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { getSafeErrorInfo } from "./logging.ts";
+import { getSafeErrorInfo } from "../src/logging.ts";
 
 describe("getSafeErrorInfo", () => {
     it("keeps useful error details while redacting identifiers", () => {

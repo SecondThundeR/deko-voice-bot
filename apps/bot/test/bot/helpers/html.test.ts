@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { escapeHTML } from "./html.ts";
+import { escapeHTML } from "../../../src/bot/helpers/html.ts";
 
 test("escapeHTML escapes Telegram HTML control characters", () => {
     assert.equal(

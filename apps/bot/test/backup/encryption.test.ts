@@ -9,7 +9,7 @@ import {
     decryptBackupFile,
     encryptBackupFile,
     parseBackupEncryptionKey,
-} from "./encryption.ts";
+} from "../../src/backup/encryption.ts";
 
 const tempDirectories: string[] = [];
 

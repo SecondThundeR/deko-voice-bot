@@ -7,7 +7,7 @@ process.env.BACKUP_ENCRYPTION_KEY = Buffer.alloc(32).toString("base64");
 process.env.NODE_ENV = "development";
 delete process.env.REDIS_URL;
 
-const { createConfig } = await import("./config.ts");
+const { createConfig } = await import("../src/config.ts");
 
 const baseConfig = {
     backupEncryptionKey: Buffer.alloc(32).toString("base64"),

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { afterEach, describe, it } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
 
-import { ImportSessionStore } from "./import-sessions.ts";
+import { ImportSessionStore } from "../../../src/bot/store/import-sessions.ts";
 
 const tempDirectories: string[] = [];
 

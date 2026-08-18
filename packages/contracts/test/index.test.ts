@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import * as v from "valibot";
-import { userProfileSchema } from "./index.ts";
+import { userProfileSchema } from "../src/index.ts";
 
 describe("userProfileSchema", () => {
     it("accepts active and excluded profiles", () => {

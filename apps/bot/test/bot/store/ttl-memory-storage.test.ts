@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
 
-import { createTtlMemoryStorage } from "./ttl-memory-storage.ts";
+import { createTtlMemoryStorage } from "../../../src/bot/store/ttl-memory-storage.ts";
 
 describe("TTL memory storage", () => {
     it("stores values until their TTL expires", async () => {
