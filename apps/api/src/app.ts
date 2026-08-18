@@ -31,7 +31,7 @@ export function createApp(deps: ApiDependencies) {
     app.use(secureHeaders);
     app.use(cors(deps.corsOrigins ?? []));
     app.use(requestLogging(deps));
-    app.use(ipRateLimit(deps));
+    if (deps.ipRateLimitEnabled ?? true) app.use(ipRateLimit(deps));
     app.get("/health", (c) => c.json({ status: true, version: "3.10.0" }));
     app.get("/ready", async (c) => {
         try {

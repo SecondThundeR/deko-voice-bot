@@ -44,6 +44,7 @@ if (config.metricsEnabled && !metricsToken)
 export const runtimeDependencies: ApiDependencies = {
     database: withDatabaseTraffic,
     corsOrigins: config.corsOrigins,
+    ipRateLimitEnabled: config.ipRateLimitEnabled,
     metrics: createApiMetrics(),
     metricsToken,
     rateLimiter,

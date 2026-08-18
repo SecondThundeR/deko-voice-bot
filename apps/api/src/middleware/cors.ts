@@ -5,7 +5,7 @@ import type { ApiEnv } from "../types.ts";
 export function cors(origins: readonly string[]) {
     return createMiddleware<ApiEnv>(async (c, next) => {
         const origin = c.req.header("origin");
-        if (origin) {
+        if (origin && origins.length > 0) {
             if (!origins.includes(origin))
                 throw new HttpError(
                     403,

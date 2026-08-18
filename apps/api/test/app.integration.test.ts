@@ -97,17 +97,29 @@ describe("API route integration", () => {
     });
 });
 
-function createPolicyApp(ready = true) {
+function createPolicyApp({
+    corsOrigins = ["https://mini.example"],
+    ipRateLimitEnabled,
+    ready = true,
+}: {
+    corsOrigins?: readonly string[];
+    ipRateLimitEnabled?: boolean;
+    ready?: boolean;
+} = {}) {
     const logs: Array<Record<string, unknown>> = [];
     const deps = {
         telegramAuth: createMiddleware<ApiEnv>(async (c, next) => {
-            c.set("user", { id: 9, first_name: "Rate" });
+            c.set("user", {
+                id: Number(c.req.header("x-test-user") ?? 9),
+                first_name: "Rate",
+            });
             c.set("isAdmin", false);
             await next();
         }),
         database: <T>(operation: () => Promise<T>) => operation(),
         readiness: { isReady: async () => ready },
-        corsOrigins: ["https://mini.example"],
+        corsOrigins,
+        ipRateLimitEnabled,
         rateLimiter: new InMemoryRateLimiter(),
         logger: {
             info: (data: Record<string, unknown>) => logs.push(data),
@@ -115,6 +127,7 @@ function createPolicyApp(ready = true) {
             error: () => {},
         },
         getUserData: async () => null,
+        getUserIsIgnoredStatus: async () => false,
     } as unknown as ApiDependencies;
     return { app: createApp(deps), logs };
 }
@@ -174,7 +187,8 @@ describe("operational HTTP policy", () => {
             200,
         );
         assert.equal(
-            (await createPolicyApp(false).app.request("/ready")).status,
+            (await createPolicyApp({ ready: false }).app.request("/ready"))
+                .status,
             503,
         );
     });
@@ -199,14 +213,23 @@ describe("operational HTTP policy", () => {
             403,
         );
     });
-    it("limits requests and logs no raw query values", async () => {
+    it("does not reject origin-bearing same-origin proxy requests without an allowlist", async () => {
+        const { app } = createPolicyApp({ corsOrigins: [] });
+        const response = await app.request("/api/v1/me", {
+            headers: { origin: "https://mini.example" },
+        });
+
+        assert.equal(response.status, 200);
+        assert.equal(response.headers.get("access-control-allow-origin"), null);
+    });
+    it("limits a shared socket address and logs no raw query values", async () => {
         const { app, logs } = createPolicyApp();
         for (let i = 0; i < 120; i++)
             await app.request("/api/v1/me?token=secret", {
-                headers: { "x-real-ip": "127.0.0.1" },
+                headers: { "x-test-user": String(i + 1) },
             });
         const response = await app.request("/api/v1/me?token=secret", {
-            headers: { "x-real-ip": "127.0.0.1" },
+            headers: { "x-test-user": "121" },
         });
         assert.equal(response.status, 429);
         assert.ok(response.headers.get("retry-after"));
@@ -220,5 +243,14 @@ describe("operational HTTP policy", () => {
             logs.some((entry) => JSON.stringify(entry).includes("secret")),
             false,
         );
+    });
+    it("disables socket-IP limiting behind a proxy while retaining per-user limits", async () => {
+        const { app } = createPolicyApp({ ipRateLimitEnabled: false });
+        for (let i = 0; i < 121; i++) {
+            const response = await app.request("/api/v1/me", {
+                headers: { "x-test-user": String(i + 1) },
+            });
+            assert.equal(response.status, 200);
+        }
     });
 });

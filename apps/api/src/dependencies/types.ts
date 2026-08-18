@@ -26,6 +26,8 @@ export interface ApiDependencies extends DatabaseTraffic {
         setDraining?(draining: boolean): void;
     };
     corsOrigins?: readonly string[];
+    /** Enable only when the API receives the actual client socket address. */
+    ipRateLimitEnabled?: boolean;
     metrics?: ApiMetrics;
     metricsToken?: string;
     rateLimiter: RateLimiter;

@@ -45,6 +45,10 @@ const schema = v.object({
         ),
         "",
     ),
+    ipRateLimitEnabled: v.pipe(
+        v.optional(v.picklist(["true", "false"]), "false"),
+        v.transform((value) => value === "true"),
+    ),
     rateLimitBackend: v.optional(v.picklist(["memory", "redis"]), "memory"),
     redisUrl: v.optional(
         v.union([v.pipe(v.string(), v.url()), v.literal("")]),
@@ -61,6 +65,7 @@ export const config = parseEnvironment(schema, {
     metricsEnabled: process.env.API_METRICS_ENABLED,
     metricsToken: process.env.API_METRICS_TOKEN,
     corsOrigins: process.env.API_CORS_ORIGINS,
+    ipRateLimitEnabled: process.env.API_IP_RATE_LIMIT_ENABLED,
     rateLimitBackend: process.env.API_RATE_LIMIT_BACKEND,
     redisUrl: process.env.REDIS_URL,
     logLevel: process.env.LOG_LEVEL,
