@@ -22,6 +22,11 @@ const schema = v.object({
     ),
     logLevel: logLevelSchema,
     logFormat: v.optional(v.picklist(["pretty", "json"]), "pretty"),
+    metricsEnabled: v.pipe(
+        v.optional(v.picklist(["true", "false"]), "false"),
+        v.transform((value) => value === "true"),
+    ),
+    metricsToken: v.optional(v.string(), ""),
     corsOrigins: v.optional(
         v.pipe(
             v.string(),
@@ -53,6 +58,8 @@ export const config = parseEnvironment(schema, {
     adminIds: process.env.ADMIN_IDS,
     botToken: process.env.BOT_TOKEN,
     logFormat: process.env.LOG_FORMAT,
+    metricsEnabled: process.env.API_METRICS_ENABLED,
+    metricsToken: process.env.API_METRICS_TOKEN,
     corsOrigins: process.env.API_CORS_ORIGINS,
     rateLimitBackend: process.env.API_RATE_LIMIT_BACKEND,
     redisUrl: process.env.REDIS_URL,

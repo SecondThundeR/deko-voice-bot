@@ -13,6 +13,10 @@ function policy(c: { req: { path: string; method: string } }) {
         ? STRICT
         : DEFAULT;
 }
+
+function isStrictPolicy(value: RateLimitPolicy) {
+    return value === STRICT;
+}
 export const secureHeaders = createMiddleware<ApiEnv>(async (c, next) => {
     await next();
     c.header("x-content-type-options", "nosniff");
@@ -50,13 +54,20 @@ export function requestLogging(deps: ApiDependencies) {
     return createMiddleware<ApiEnv>(async (c, next) => {
         const started = Date.now();
         await next();
+        const latencyMs = Date.now() - started;
+        deps.metrics?.request({
+            method: c.req.method,
+            route: c.req.routePath,
+            status: c.res.status,
+            durationMs: latencyMs,
+        });
         deps.logger.info?.(
             {
                 method: c.req.method,
                 route: c.req.routePath || c.req.path,
                 status: c.res.status,
                 requestId: c.var.requestId,
-                latencyMs: Date.now() - started,
+                latencyMs,
             },
             "API request",
         );
@@ -71,10 +82,16 @@ export function ipRateLimit(deps: ApiDependencies) {
             incoming?: { socket?: { remoteAddress?: string } };
         };
         const ip = incoming.incoming?.socket?.remoteAddress ?? "unknown";
+        const selectedPolicy = policy(c);
         const result = await deps.rateLimiter.consume(
             `api:ip:${ip}`,
-            policy(c),
+            selectedPolicy,
         );
+        deps.metrics?.rateLimit({
+            scope: "ip",
+            allowed: result.allowed,
+            strict: isStrictPolicy(selectedPolicy),
+        });
         if (!result.allowed) {
             c.header("retry-after", String(result.retryAfterSeconds));
             throw new HttpError(429, "RATE_LIMITED", "Слишком много запросов");
@@ -84,10 +101,16 @@ export function ipRateLimit(deps: ApiDependencies) {
 }
 export function userRateLimit(deps: ApiDependencies) {
     return createMiddleware<ApiEnv>(async (c, next) => {
+        const selectedPolicy = policy(c);
         const result = await deps.rateLimiter.consume(
             `api:user:${c.var.user.id}`,
-            policy(c),
+            selectedPolicy,
         );
+        deps.metrics?.rateLimit({
+            scope: "user",
+            allowed: result.allowed,
+            strict: isStrictPolicy(selectedPolicy),
+        });
         if (!result.allowed) {
             c.header("retry-after", String(result.retryAfterSeconds));
             throw new HttpError(429, "RATE_LIMITED", "Слишком много запросов");

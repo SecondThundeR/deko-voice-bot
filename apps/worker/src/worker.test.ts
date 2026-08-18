@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { OUTBOX_NOOP_JOB_TYPE } from "@deko-voice-bot/database/queries/outbox-helpers.js";
+import { createWorkerMetrics } from "./metrics.ts";
 import { createWorker, type WorkerPorts } from "./worker.ts";
 
 const owner = "test-worker";
@@ -101,6 +102,32 @@ describe("outbox worker", () => {
             { id: "retry", owner, error: "temporary failure" },
         ]);
         assert.deepEqual(calls.complete, []);
+    });
+
+    it("records bounded outcome and retry metrics", async () => {
+        const metrics = createWorkerMetrics();
+        const { ports } = createPorts(
+            [{ id: "retry", job_type: OUTBOX_NOOP_JOB_TYPE, payload: {} }],
+            {
+                metrics,
+                async handleNoop() {
+                    throw new Error("contains secret user title");
+                },
+            },
+        );
+
+        await createTestWorker(ports).processOne();
+
+        const rendered = metrics.render();
+        assert.match(
+            rendered,
+            /deko_worker_jobs_total\{job_type="outbox.noop.v1",outcome="retry"\} 1/,
+        );
+        assert.match(
+            rendered,
+            /deko_worker_job_retries_total\{job_type="outbox.noop.v1"\} 1/,
+        );
+        assert.equal(rendered.includes("secret"), false);
     });
 
     it("does nothing when no job is claimed", async () => {

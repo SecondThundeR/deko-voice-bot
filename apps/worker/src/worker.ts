@@ -2,6 +2,7 @@ import {
     OUTBOX_NOOP_JOB_TYPE,
     validateOutboxJob,
 } from "@deko-voice-bot/database/queries/outbox-helpers.js";
+import { createWorkerMetrics, type WorkerMetrics } from "./metrics.ts";
 
 export type ClaimedOutboxJob = {
     id: string;
@@ -33,6 +34,7 @@ export type WorkerPorts = {
         error: string;
     }) => Promise<unknown>;
     logger: WorkerLogger;
+    metrics?: WorkerMetrics;
     handleNoop?: (job: ClaimedOutboxJob) => Promise<void>;
 };
 
@@ -48,6 +50,7 @@ function errorMessage(error: unknown) {
 
 /** A single-concurrency outbox loop with injectable persistence and handler ports. */
 export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
+    const metrics = ports.metrics ?? createWorkerMetrics();
     let stopping = false;
     let running: Promise<void> | undefined;
     let wakePoll: (() => void) | undefined;
@@ -61,6 +64,14 @@ export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
             leaseMs: options.leaseMs,
         });
         if (!job) return false;
+
+        const started = Date.now();
+        const record = (outcome: "completed" | "failed" | "retry") =>
+            metrics.record({
+                jobType: job.job_type,
+                outcome,
+                durationMs: Date.now() - started,
+            });
 
         try {
             validateOutboxJob({
@@ -78,6 +89,7 @@ export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
                 owner: options.owner,
                 error: message,
             });
+            record("failed");
             return true;
         }
 
@@ -99,6 +111,7 @@ export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
                 owner: options.owner,
                 error: message,
             });
+            record("retry");
             return true;
         }
 
@@ -107,6 +120,7 @@ export function createWorker(ports: WorkerPorts, options: WorkerOptions) {
             "Completed noop outbox job",
         );
         await ports.complete({ id: job.id, owner: options.owner });
+        record("completed");
         return true;
     }
 

@@ -13,6 +13,7 @@ import { telegramAuth } from "./auth.ts";
 import { config } from "./config.ts";
 import type { ApiDependencies } from "./dependencies.ts";
 import { logger } from "./logger.ts";
+import { createApiMetrics } from "./metrics.ts";
 import { InMemoryRateLimiter, RedisRateLimiter } from "./rate-limit.ts";
 import * as telegram from "./telegram.ts";
 
@@ -30,9 +31,21 @@ const rateLimiter = redis
     ? new RedisRateLimiter(redis)
     : new InMemoryRateLimiter();
 
+const metricsToken =
+    config.metricsEnabled && config.metricsToken.length >= 32
+        ? config.metricsToken
+        : undefined;
+if (config.metricsEnabled && !metricsToken)
+    logger.warn(
+        {},
+        "API metrics disabled: API_METRICS_TOKEN must contain at least 32 characters",
+    );
+
 export const runtimeDependencies: ApiDependencies = {
     database: withDatabaseTraffic,
     corsOrigins: config.corsOrigins,
+    metrics: createApiMetrics(),
+    metricsToken,
     rateLimiter,
     readiness: {
         setDraining(value) {

@@ -23,6 +23,7 @@
         "@deko-voice-bot/config": "workspace:*",
         "@deko-voice-bot/contracts": "workspace:*",
         "@deko-voice-bot/database": "workspace:*",
+        "@deko-voice-bot/metrics": "workspace:*",
         "@hono/node-server": "catalog:",
         "hono": "catalog:",
         "ioredis": "6.0.0",

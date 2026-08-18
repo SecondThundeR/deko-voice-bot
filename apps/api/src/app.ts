@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { ApplicationError } from "@deko-voice-bot/application";
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
@@ -14,6 +15,16 @@ import { InMemoryRateLimiter } from "./rate-limit.ts";
 import { createRoutes } from "./routes.ts";
 import type { ApiEnv } from "./types.ts";
 
+function hasValidMetricsToken(
+    requestToken: string | undefined,
+    configuredToken: string,
+) {
+    if (!requestToken?.startsWith("Bearer ")) return false;
+    const token = Buffer.from(requestToken.slice("Bearer ".length));
+    const expected = Buffer.from(configuredToken);
+    return token.length === expected.length && timingSafeEqual(token, expected);
+}
+
 export function createApp(deps: ApiDependencies) {
     // Defaults keep isolated route tests deterministic; production supplies explicit runtime dependencies.
     deps.rateLimiter ??= new InMemoryRateLimiter();
@@ -25,11 +36,33 @@ export function createApp(deps: ApiDependencies) {
     app.use(requestLogging(deps));
     app.use(ipRateLimit(deps));
     app.get("/health", (c) => c.json({ status: true, version: "3.10.0" }));
-    app.get("/ready", async (c) =>
-        (await deps.readiness.isReady())
-            ? c.json({ status: true })
-            : c.json({ status: false }, 503),
-    );
+    app.get("/ready", async (c) => {
+        try {
+            if (await deps.readiness.isReady()) return c.json({ status: true });
+        } catch {
+            // A dependency exception is a failed readiness check, not an API error.
+        }
+        deps.metrics?.readinessFailure();
+        return c.json({ status: false }, 503);
+    });
+    const metrics = deps.metrics;
+    const metricsToken = deps.metricsToken;
+    if (metrics && metricsToken && metricsToken.length >= 32) {
+        app.get("/metrics", (c) => {
+            if (
+                !hasValidMetricsToken(
+                    c.req.header("authorization"),
+                    metricsToken,
+                )
+            )
+                return c.body(null, 401);
+            c.header(
+                "content-type",
+                "text/plain; version=0.0.4; charset=utf-8",
+            );
+            return c.body(metrics.render());
+        });
+    }
     app.use("/api/v1/*", deps.telegramAuth);
     app.use("/api/v1/*", userRateLimit(deps));
     app.route("/api/v1", createRoutes(deps));
@@ -63,6 +96,11 @@ export function createApp(deps: ApiDependencies) {
             );
         }
         if (error instanceof TelegramError) {
+            deps.metrics?.telegramFailure({
+                operation: error.operation,
+                status: error.upstreamStatus,
+                retryable: error.retryable,
+            });
             deps.logger.warn(
                 {
                     requestId: c.var.requestId,

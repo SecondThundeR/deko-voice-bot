@@ -68,6 +68,9 @@ importers:
       '@deko-voice-bot/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@deko-voice-bot/metrics':
+        specifier: workspace:*
+        version: link:../../packages/metrics
       '@hono/node-server':
         specifier: 'catalog:'
         version: 2.1.0(hono@4.13.2)
@@ -266,6 +269,9 @@ importers:
       '@deko-voice-bot/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@deko-voice-bot/metrics':
+        specifier: workspace:*
+        version: link:../../packages/metrics
       pino:
         specifier: 'catalog:'
         version: 10.3.1
@@ -344,6 +350,12 @@ importers:
       drizzle-kit:
         specifier: 0.31.10
         version: 0.31.10
+
+  packages/metrics:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.2.0
 
   packages/typescript-config: {}
 

@@ -4,6 +4,7 @@ import { createMiddleware } from "hono/factory";
 import { createApp } from "./app.ts";
 import type { ApiDependencies } from "./dependencies.ts";
 import { HttpError, TelegramError } from "./errors.ts";
+import { createApiMetrics } from "./metrics.ts";
 import { InMemoryRateLimiter } from "./rate-limit.ts";
 import type { ApiEnv } from "./types.ts";
 
@@ -117,6 +118,55 @@ function createPolicyApp(ready = true) {
     } as unknown as ApiDependencies;
     return { app: createApp(deps), logs };
 }
+describe("Prometheus metrics", () => {
+    it("does not register metrics unless a protected configuration is provided", async () => {
+        const { app } = createPolicyApp();
+        assert.equal((await app.request("/metrics")).status, 404);
+    });
+
+    it("requires the configured bearer token for the metrics route", async () => {
+        const metrics = createApiMetrics();
+        const deps = {
+            telegramAuth: createMiddleware<ApiEnv>(async (_c, next) => next()),
+            database: <T>(operation: () => Promise<T>) => operation(),
+            logger: { info: () => {}, warn: () => {}, error: () => {} },
+            metrics,
+            metricsToken: "a-secure-test-token-with-at-least-32-characters",
+        } as unknown as ApiDependencies;
+        const app = createApp(deps);
+        assert.equal((await app.request("/metrics")).status, 401);
+        const response = await app.request("/metrics", {
+            headers: {
+                authorization:
+                    "Bearer a-secure-test-token-with-at-least-32-characters",
+            },
+        });
+        assert.equal(response.status, 200);
+        assert.match(response.headers.get("content-type") ?? "", /text\/plain/);
+    });
+
+    it("redacts raw paths, queries, and Telegram failure details from labels", () => {
+        const metrics = createApiMetrics();
+        metrics.request({
+            method: "GET",
+            route: "/api/v1/voices/123?token=secret&title=private-title&userId=77",
+            status: 200,
+            durationMs: 3,
+        });
+        metrics.telegramFailure({
+            operation: "https://api.telegram.org/botsecret/sendMessage",
+            status: 500,
+            retryable: true,
+        });
+        const rendered = metrics.render();
+        assert.match(rendered, /route="unmatched"/);
+        assert.match(rendered, /operation="other"/);
+        assert.equal(rendered.includes("secret"), false);
+        assert.equal(rendered.includes("private-title"), false);
+        assert.equal(rendered.includes("123?"), false);
+    });
+});
+
 describe("operational HTTP policy", () => {
     it("keeps liveness public and exposes dependency readiness", async () => {
         assert.equal(

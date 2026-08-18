@@ -4,8 +4,10 @@
         { "path": "./packages/config" },
         { "path": "./packages/contracts" },
         { "path": "./packages/database" },
+        { "path": "./packages/metrics" },
         { "path": "./apps/bot" },
         { "path": "./apps/api" },
+        { "path": "./apps/worker" },
         { "path": "./apps/web" }
     ]
 }
