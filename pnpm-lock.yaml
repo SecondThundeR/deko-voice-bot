@@ -53,6 +53,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@deko-voice-bot/application':
+        specifier: workspace:*
+        version: link:../../packages/application
       '@deko-voice-bot/audio':
         specifier: workspace:*
         version: link:../../packages/audio
@@ -254,6 +257,16 @@ importers:
       vite:
         specifier: 8.2.1
         version: 8.2.1(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)
+
+  packages/application:
+    dependencies:
+      '@deko-voice-bot/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.2.0
 
   packages/audio:
     dependencies:

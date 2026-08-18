@@ -1,0 +1,24 @@
+{
+    "name": "@deko-voice-bot/application",
+    "version": "3.10.0",
+    "private": true,
+    "type": "module",
+    "sideEffects": false,
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "dependencies": {
+        "@deko-voice-bot/contracts": "workspace:*"
+    },
+    "scripts": {
+        "build": "tsc --noEmit",
+        "test": "node --test",
+        "typecheck": "tsc",
+        "lint": "biome check",
+        "lint:write": "biome check --write",
+        "format": "biome format --write ."
+    },
+    "devDependencies": {
+        "@types/node": "catalog:"
+    }
+}

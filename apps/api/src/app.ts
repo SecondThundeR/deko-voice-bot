@@ -1,3 +1,4 @@
+import { ApplicationError } from "@deko-voice-bot/application";
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
 import type { ApiDependencies } from "./dependencies.ts";
@@ -82,7 +83,7 @@ export function createApp(deps: ApiDependencies) {
                 503,
             );
         }
-        if (error instanceof HttpError)
+        if (error instanceof HttpError || error instanceof ApplicationError)
             return c.json(
                 {
                     error: {

@@ -1,3 +1,7 @@
+import {
+    type ModerationPorts,
+    ModerationService,
+} from "@deko-voice-bot/application";
 import { Hono } from "hono";
 import { parseTrimInput } from "../audio.ts";
 import type { AdminModerationRouteDependencies } from "../dependencies.ts";
@@ -15,6 +19,37 @@ import {
     moderationCaption,
     requireAdmin,
 } from "./helpers.ts";
+
+function moderationService(
+    deps: AdminModerationRouteDependencies,
+    requestId: string,
+) {
+    const ports: ModerationPorts = {
+        claim: (id, moderatorUserId, title) =>
+            deps.database(() =>
+                deps.claimVoiceSubmission(id, moderatorUserId, title),
+            ),
+        approve: (id, voice) =>
+            deps.database(() => deps.approveVoiceSubmission(id, voice)),
+        release: (id) => deps.database(() => deps.releaseVoiceSubmission(id)),
+        getFile: (fileId) => deps.getTelegramFile(fileId),
+        convertAndSend: (input) => deps.convertAndSendVoice(input),
+        deleteMessage: (chatId, messageId) =>
+            deps.deleteTelegramMessage(chatId, messageId),
+        sendMessage: (userId, text) => deps.sendTelegramMessage(userId, text),
+        warn: (action, error) =>
+            deps.logger.warn(
+                {
+                    requestId,
+                    action,
+                    error:
+                        error instanceof Error ? error.message : String(error),
+                },
+                "Best-effort Telegram action failed",
+            ),
+    };
+    return new ModerationService(ports);
+}
 
 export function createAdminModerationRoutes(
     deps: AdminModerationRouteDependencies,
@@ -144,108 +179,20 @@ export function createAdminModerationRoutes(
             const title = parseTitle(body.title);
             const voiceId = parseVoiceId(body.voiceId);
             const trim = parseTrimInput(body);
-            const claimed = await deps.database(() =>
-                deps.claimVoiceSubmission(
-                    c.req.param("id"),
-                    c.var.user.id,
-                    title,
+            const { approved } = await moderationService(
+                deps,
+                c.var.requestId,
+            ).approve({
+                id: c.req.param("id"),
+                moderatorUserId: c.var.user.id,
+                title,
+                voiceId,
+                trim,
+            });
+            return c.json(
+                deps.toSubmissionDto(
+                    approved as Parameters<typeof deps.toSubmissionDto>[0],
                 ),
             );
-            if (!claimed)
-                throw new HttpError(
-                    409,
-                    "SUBMISSION_NOT_ACTIONABLE",
-                    "Заявка уже обрабатывается или завершена",
-                );
-            let sent:
-                | Awaited<ReturnType<typeof deps.convertAndSendVoice>>
-                | undefined;
-            try {
-                if (!claimed.sourceFileId)
-                    throw new HttpError(
-                        404,
-                        "SUBMISSION_AUDIO_NOT_FOUND",
-                        "Исходный файл заявки не найден",
-                    );
-                const source = await deps.getTelegramFile(claimed.sourceFileId);
-                if (!source.ok)
-                    throw new HttpError(
-                        503,
-                        "TELEGRAM_UNAVAILABLE",
-                        "Не удалось загрузить аудио заявки",
-                    );
-                const converted = await deps.convertAndSendVoice({
-                    bytes: new Uint8Array(await source.arrayBuffer()),
-                    caption: `Одобрено: ${title}`,
-                    trim,
-                });
-                sent = converted;
-                const approved = await deps.database(() =>
-                    deps.approveVoiceSubmission(claimed.id, {
-                        voiceId,
-                        voiceTitle: title,
-                        fileId: converted.fileId,
-                        fileUniqueId: converted.fileUniqueId,
-                    }),
-                );
-                if (!approved) {
-                    await bestEffortTelegram(
-                        deps.logger,
-                        c.var.requestId,
-                        "delete_conflicting_voice",
-                        () =>
-                            deps.deleteTelegramMessage(
-                                converted.chatId,
-                                converted.messageId,
-                            ),
-                    );
-                    throw new HttpError(
-                        409,
-                        "VOICE_CONFLICT",
-                        "Реплика с таким ID или файлом уже существует",
-                    );
-                }
-                const sourceChatId = claimed.sourceChatId;
-                const sourceMessageId = claimed.sourceMessageId;
-                if (sourceChatId && sourceMessageId)
-                    await bestEffortTelegram(
-                        deps.logger,
-                        c.var.requestId,
-                        "delete_approved_submission",
-                        () =>
-                            deps.deleteTelegramMessage(
-                                sourceChatId,
-                                sourceMessageId,
-                            ),
-                    );
-                await bestEffortTelegram(
-                    deps.logger,
-                    c.var.requestId,
-                    "notify_submission_approval",
-                    () =>
-                        deps.sendTelegramMessage(
-                            claimed.submitterUserId,
-                            `Ваша заявка «${title}» одобрена и добавлена в каталог`,
-                        ),
-                );
-                return c.json(deps.toSubmissionDto(approved));
-            } catch (error) {
-                const sentVoice = sent;
-                if (sentVoice)
-                    await bestEffortTelegram(
-                        deps.logger,
-                        c.var.requestId,
-                        "compensate_approved_voice",
-                        () =>
-                            deps.deleteTelegramMessage(
-                                sentVoice.chatId,
-                                sentVoice.messageId,
-                            ),
-                    );
-                await deps.database(() =>
-                    deps.releaseVoiceSubmission(claimed.id),
-                );
-                throw error;
-            }
         });
 }

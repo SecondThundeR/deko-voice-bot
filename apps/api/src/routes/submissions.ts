@@ -1,8 +1,8 @@
 import {
-    MAX_SUBMISSION_FILE_BYTES,
-    SUBMISSION_DAILY_LIMIT,
-    SUBMISSION_PENDING_LIMIT,
-} from "@deko-voice-bot/contracts";
+    type SubmissionPorts,
+    SubmissionService,
+} from "@deko-voice-bot/application";
+import { MAX_SUBMISSION_FILE_BYTES } from "@deko-voice-bot/contracts";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { SubmissionRouteDependencies } from "../dependencies.ts";
@@ -11,16 +11,38 @@ import type { ApiEnv } from "../types.ts";
 import { parseTitle } from "../validation.ts";
 import { requireConsent } from "./helpers.ts";
 
+function submissionService(deps: SubmissionRouteDependencies) {
+    const ports: SubmissionPorts = {
+        createSubmission: (input) =>
+            deps.database(() => deps.createVoiceSubmission(input)),
+        markPending: (id, source) =>
+            deps.database(() => deps.markVoiceSubmissionPending(id, source)),
+        markFailed: (id) =>
+            deps.database(() => deps.markVoiceSubmissionFailed(id)),
+        listForUser: (userId) =>
+            deps.database(() => deps.getUserVoiceSubmissions(userId)),
+        sendToModeration: (input) =>
+            deps.sendSubmissionToModeration({
+                ...input,
+                file: input.file as File,
+            }),
+    };
+    return new SubmissionService(ports);
+}
+
 export function createSubmissionRoutes(deps: SubmissionRouteDependencies) {
+    const service = submissionService(deps);
     return new Hono<ApiEnv>()
         .get("/submissions", async (c) => {
             await requireConsent(deps, c.var.user.id);
             return c.json(
-                (
-                    await deps.database(() =>
-                        deps.getUserVoiceSubmissions(c.var.user.id),
-                    )
-                ).map(deps.toSubmissionDto),
+                (await service.list(c.var.user.id)).map((submission) =>
+                    deps.toSubmissionDto(
+                        submission as Parameters<
+                            typeof deps.toSubmissionDto
+                        >[0],
+                    ),
+                ),
             );
         })
         .post(
@@ -44,48 +66,28 @@ export function createSubmissionRoutes(deps: SubmissionRouteDependencies) {
                 const form = await c.req.formData();
                 const title = parseTitle(form.get("title"));
                 const file = form.get("file");
-                if (!(file instanceof File))
+                if (!(file instanceof File)) {
                     throw new HttpError(
                         400,
                         "INVALID_FILE",
                         "Выберите MP3-файл",
                     );
-                await deps.validateMp3Upload(file);
-                const id = deps.randomUUID();
-                const submission = await deps.database(() =>
-                    deps.createVoiceSubmission({
-                        id,
-                        submitterUserId: c.var.user.id,
-                        title,
-                    }),
-                );
-                if (!submission)
-                    throw new HttpError(
-                        429,
-                        "SUBMISSION_LIMIT",
-                        `Можно отправить не более ${SUBMISSION_DAILY_LIMIT} заявок за сутки и иметь не более ${SUBMISSION_PENDING_LIMIT} незавершённых`,
-                    );
-                try {
-                    const source = await deps.sendSubmissionToModeration({
-                        id,
-                        title,
-                        userId: c.var.user.id,
-                        file,
-                    });
-                    const pending = await deps.database(() =>
-                        deps.markVoiceSubmissionPending(id, source),
-                    );
-                    if (!pending)
-                        throw new Error(
-                            "Submission state changed while uploading",
-                        );
-                    return c.json(deps.toSubmissionDto(pending), 201);
-                } catch (error) {
-                    await deps.database(() =>
-                        deps.markVoiceSubmissionFailed(id),
-                    );
-                    throw error;
                 }
+                await deps.validateMp3Upload(file);
+                const submission = await service.submit({
+                    id: deps.randomUUID(),
+                    userId: c.var.user.id,
+                    title,
+                    file,
+                });
+                return c.json(
+                    deps.toSubmissionDto(
+                        submission as Parameters<
+                            typeof deps.toSubmissionDto
+                        >[0],
+                    ),
+                    201,
+                );
             },
         );
 }

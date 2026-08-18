@@ -18,6 +18,7 @@
         "format": "biome format --write ."
     },
     "dependencies": {
+        "@deko-voice-bot/application": "workspace:*",
         "@deko-voice-bot/audio": "workspace:*",
         "@deko-voice-bot/config": "workspace:*",
         "@deko-voice-bot/contracts": "workspace:*",
