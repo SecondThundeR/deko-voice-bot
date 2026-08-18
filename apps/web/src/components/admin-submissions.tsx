@@ -235,12 +235,7 @@ function ModerationEditor({
                 title,
                 ...selection,
             }),
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: queryKeys.voices.all,
-            });
-            await finish("Заявка одобрена");
-        },
+        onSuccess: () => finish("Заявка одобрена"),
         onError: (error) => toast.error(error.message),
     });
     const reject = useMutation({

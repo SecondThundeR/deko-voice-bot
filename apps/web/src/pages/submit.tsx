@@ -89,9 +89,8 @@ function ConsentPrompt() {
                 </EmptyMedia>
                 <EmptyTitle>Нужно согласие</EmptyTitle>
                 <EmptyDescription>
-                    Для заявок и избранного мы сохраняем ваш Telegram ID,
-                    профиль и историю действий. Просматривать каталог и
-                    статистику можно без этого
+                    Для заявок мы сохраняем ваш Telegram ID, профиль и историю
+                    действий
                 </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>

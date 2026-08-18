@@ -2,12 +2,8 @@ import type {
     AdminSubmissionBucket,
     AdminSubmissionsPage,
     ApiError,
-    Leaderboards,
-    Stats,
     Submission,
-    UserProfile,
     Viewer,
-    VoicesPage,
 } from "@deko-voice-bot/contracts";
 import { WebApp } from "./telegram";
 
@@ -57,34 +53,7 @@ async function apiBlob(path: string) {
 
 export const api = {
     viewer: () => apiFetch<Viewer>("/me"),
-    profile: () => apiFetch<UserProfile>("/me/profile"),
     consent: () => apiFetch<{ ok: true }>("/me/consent", { method: "PUT" }),
-    revokeConsent: () =>
-        apiFetch<{ ok: true }>("/me/consent", { method: "DELETE" }),
-    stats: () => apiFetch<Stats>("/stats"),
-    leaderboards: () => apiFetch<Leaderboards>("/leaderboards"),
-    voices: (
-        query: string,
-        sort: "title" | "popularity" | "favorites",
-        offset: number,
-    ) => {
-        const params = new URLSearchParams({
-            query,
-            sort,
-            limit: "30",
-            offset: String(offset),
-        });
-        return apiFetch<VoicesPage>(`/voices?${params}`);
-    },
-    favorite: (voiceId: string, favorite: boolean) =>
-        apiFetch<{ ok: true }>(`/voices/${voiceId}/favorite`, {
-            method: favorite ? "PUT" : "DELETE",
-        }),
-    audio: (voiceId: string) => apiBlob(`/voices/${voiceId}/audio`),
-    prepareVoiceShare: (voiceId: string) =>
-        apiFetch<{ id: string }>(`/voices/${voiceId}/share`, {
-            method: "POST",
-        }),
     submissions: () => apiFetch<Submission[]>("/submissions"),
     submit: (form: FormData) =>
         apiFetch<Submission>("/submissions", { method: "POST", body: form }),
@@ -122,10 +91,5 @@ export const api = {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ reason }),
-        }),
-    addVoice: (form: FormData) =>
-        apiFetch<{ ok: true; voiceId: string }>("/admin/voices", {
-            method: "POST",
-            body: form,
         }),
 };
