@@ -9,7 +9,6 @@
         "build:analyze": "ANALYZE=true vite build && node scripts/check-bundle.mjs",
         "check:bundle": "node scripts/check-bundle.mjs",
         "preview": "vite preview",
-        "test": "node --test",
         "typecheck": "tsc -p tsconfig.app.json",
         "lint": "biome check",
         "lint:write": "biome check --write",

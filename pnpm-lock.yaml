@@ -102,9 +102,6 @@ importers:
       '@deko-voice-bot/audio':
         specifier: workspace:*
         version: link:../../packages/audio
-      '@deko-voice-bot/config':
-        specifier: workspace:*
-        version: link:../../packages/config
       '@deko-voice-bot/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -295,10 +292,6 @@ importers:
         version: 26.2.0
 
   packages/contracts:
-    dependencies:
-      valibot:
-        specifier: 'catalog:'
-        version: 1.4.2(typescript@7.0.2)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -306,6 +299,9 @@ importers:
 
   packages/database:
     dependencies:
+      '@deko-voice-bot/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(postgres@3.4.9)

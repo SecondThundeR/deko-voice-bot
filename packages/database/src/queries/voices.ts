@@ -1,3 +1,4 @@
+import { VOICE_ID_PATTERN } from "@deko-voice-bot/contracts";
 import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
 
 import { db } from "../db.ts";
@@ -10,7 +11,6 @@ import {
 } from "../schema.ts";
 
 const VOICE_TITLE_SIMILARITY_THRESHOLD = 0.2;
-export const VOICE_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
 export function isValidVoiceId(voiceId: string) {
     return VOICE_ID_PATTERN.test(voiceId);

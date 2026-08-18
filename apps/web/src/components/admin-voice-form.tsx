@@ -1,3 +1,7 @@
+import {
+    VOICE_ID_MAX_LENGTH,
+    VOICE_TITLE_MAX_LENGTH,
+} from "@deko-voice-bot/contracts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { type SubmitEvent, useEffect, useRef, useState } from "react";
@@ -158,7 +162,7 @@ export function AdminVoiceForm() {
                                     id="admin-voice-id"
                                     value={voiceId}
                                     minLength={1}
-                                    maxLength={64}
+                                    maxLength={VOICE_ID_MAX_LENGTH}
                                     pattern="[A-Za-z0-9_-]+"
                                     required
                                     disabled={add.isPending}
@@ -179,7 +183,7 @@ export function AdminVoiceForm() {
                                     id="admin-voice-title"
                                     value={title}
                                     minLength={1}
-                                    maxLength={128}
+                                    maxLength={VOICE_TITLE_MAX_LENGTH}
                                     required
                                     disabled={add.isPending}
                                     onChange={(event) =>

@@ -7,8 +7,7 @@ import {
 } from "@deko-voice-bot/audio";
 import { MAX_SUBMISSION_FILE_BYTES } from "@deko-voice-bot/contracts";
 import { HttpError } from "../http/errors.ts";
-
-export { parseTrimInput } from "../http/validation.ts";
+import { sendVoiceToModeration } from "./telegram.ts";
 
 export type TrimInput = { startMs: number; endMs: number | null };
 
@@ -85,7 +84,6 @@ export async function convertAndSendVoice(input: {
                 "Не удалось обработать аудиофайл",
             );
         }
-        const { sendVoiceToModeration } = await import("./telegram.ts");
         return await sendVoiceToModeration({
             caption: input.caption,
             filename: paths.output,

@@ -2,7 +2,7 @@ import { Composer } from "grammy";
 import type { Context } from "#root/bot/context.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 
-export const composer = new Composer<Context>();
+const composer = new Composer<Context>();
 
 const feature = composer.chatType("private");
 

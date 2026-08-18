@@ -4,8 +4,7 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { AdminUploadRouteDependencies } from "../dependencies/types.ts";
 import { HttpError } from "../http/errors.ts";
-import { parseVoiceId } from "../http/validation.ts";
-import { parseTrimInput } from "../integrations/audio.ts";
+import { parseTrimInput, parseVoiceId } from "../http/validation.ts";
 import type { ApiEnv } from "../types.ts";
 import { fullname, requireAdmin, validateTitle } from "./helpers.ts";
 

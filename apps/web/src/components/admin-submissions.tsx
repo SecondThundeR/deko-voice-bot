@@ -3,6 +3,11 @@ import type {
     AdminSubmissionBucket,
 } from "@deko-voice-bot/contracts";
 import {
+    SUBMISSION_REJECTION_REASON_MAX_LENGTH,
+    VOICE_ID_MAX_LENGTH,
+    VOICE_TITLE_MAX_LENGTH,
+} from "@deko-voice-bot/contracts";
+import {
     useMutation,
     useQuery,
     useQueryClient,
@@ -45,21 +50,10 @@ import {
     queryKeys,
     submissionAudioQueryOptions,
 } from "@/lib/queries";
-
-const statusLabels = {
-    uploading: "Загрузка",
-    pending: "На проверке",
-    processing: "Обработка",
-    approved: "Одобрено",
-    rejected: "Отклонено",
-    failed: "Ошибка",
-} as const;
-
-function statusVariant(status: AdminSubmission["status"]) {
-    if (status === "rejected" || status === "failed") return "destructive";
-    if (status === "approved") return "default";
-    return "secondary";
-}
+import {
+    submissionStatusLabels,
+    submissionStatusVariant,
+} from "@/lib/submissions";
 
 function formatDate(value: string) {
     return new Intl.DateTimeFormat("ru", {
@@ -164,8 +158,8 @@ function SubmissionCard({
                     {author} · {formatDate(item.createdAt)}
                 </CardDescription>
                 <CardAction>
-                    <Badge variant={statusVariant(item.status)}>
-                        {statusLabels[item.status]}
+                    <Badge variant={submissionStatusVariant(item.status)}>
+                        {submissionStatusLabels[item.status]}
                     </Badge>
                 </CardAction>
             </CardHeader>
@@ -268,7 +262,7 @@ function ModerationEditor({
                         id={`submission-title-${item.id}`}
                         value={title}
                         minLength={1}
-                        maxLength={128}
+                        maxLength={VOICE_TITLE_MAX_LENGTH}
                         disabled={pending}
                         onChange={(event) => setTitle(event.target.value)}
                     />
@@ -280,7 +274,7 @@ function ModerationEditor({
                     <Input
                         id={`submission-id-${item.id}`}
                         value={voiceId}
-                        maxLength={64}
+                        maxLength={VOICE_ID_MAX_LENGTH}
                         pattern="[A-Za-z0-9_-]+"
                         disabled={pending}
                         onChange={(event) => setVoiceId(event.target.value)}
@@ -314,7 +308,7 @@ function ModerationEditor({
                 <Textarea
                     id={`rejection-reason-${item.id}`}
                     value={reason}
-                    maxLength={512}
+                    maxLength={SUBMISSION_REJECTION_REASON_MAX_LENGTH}
                     placeholder="Необязательно"
                     disabled={pending}
                     onChange={(event) => setReason(event.target.value)}

@@ -1,33 +1,11 @@
-import { setTimeout as delay } from "node:timers/promises";
-
 import { and, eq } from "drizzle-orm";
 
 import { db } from "../db.ts";
+import { retryDatabaseOperation } from "../retry.ts";
 import { paymentsTable, usersTable } from "../schema.ts";
 
 type Payment = typeof paymentsTable.$inferSelect;
 type ChargeId = Payment["telegramPaymentChargeId"];
-
-const RETRY_DELAYS_MS = [0, 100, 300] as const;
-const TRANSIENT_SQLSTATES = new Set([
-    "40001",
-    "40P01",
-    "55P03",
-    "57014",
-    "08000",
-    "08003",
-    "08006",
-]);
-
-function isTransientDatabaseError(error: unknown) {
-    return (
-        !!error &&
-        typeof error === "object" &&
-        "code" in error &&
-        typeof error.code === "string" &&
-        TRANSIENT_SQLSTATES.has(error.code)
-    );
-}
 
 interface InsertPaymentOptions {
     amount: Payment["amount"];
@@ -37,28 +15,7 @@ interface InsertPaymentOptions {
 }
 
 export async function insertPayment(payment: InsertPaymentOptions) {
-    await retryPaymentWrite(() => insertPaymentOnce(payment));
-}
-
-async function retryPaymentWrite<T>(operation: () => Promise<T>) {
-    for (const [attempt, retryDelayMs] of RETRY_DELAYS_MS.entries()) {
-        if (retryDelayMs > 0) {
-            await delay(retryDelayMs);
-        }
-
-        try {
-            return await operation();
-        } catch (error) {
-            if (
-                attempt === RETRY_DELAYS_MS.length - 1 ||
-                !isTransientDatabaseError(error)
-            ) {
-                throw error;
-            }
-        }
-    }
-
-    throw new Error("Payment database retry loop exhausted unexpectedly");
+    await retryDatabaseOperation(() => insertPaymentOnce(payment));
 }
 
 async function insertPaymentOnce(payment: InsertPaymentOptions) {
@@ -105,7 +62,7 @@ export async function claimPaymentForRefund(chargeId: ChargeId) {
 }
 
 export async function releasePaymentRefundClaim(chargeId: ChargeId) {
-    await retryPaymentWrite(() =>
+    await retryDatabaseOperation(() =>
         db
             .update(paymentsTable)
             .set({ status: "paid", refundStartedAt: null })
@@ -119,7 +76,7 @@ export async function releasePaymentRefundClaim(chargeId: ChargeId) {
 }
 
 export async function markPaymentAsRefunded(chargeId: ChargeId) {
-    return retryPaymentWrite(() => markPaymentAsRefundedOnce(chargeId));
+    return retryDatabaseOperation(() => markPaymentAsRefundedOnce(chargeId));
 }
 
 async function markPaymentAsRefundedOnce(chargeId: ChargeId) {

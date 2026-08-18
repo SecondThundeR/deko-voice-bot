@@ -1,4 +1,4 @@
-import type { AdminSubmission } from "@deko-voice-bot/contracts";
+import { VOICE_TITLE_MAX_LENGTH } from "@deko-voice-bot/contracts";
 import {
     useMutation,
     useQueryClient,
@@ -39,6 +39,10 @@ import {
     submissionsQueryOptions,
     viewerQueryOptions,
 } from "@/lib/queries";
+import {
+    submissionStatusLabels,
+    submissionStatusVariant,
+} from "@/lib/submissions";
 import { WebApp } from "@/lib/telegram";
 
 const AdminSubmissions = lazy(() =>
@@ -46,21 +50,6 @@ const AdminSubmissions = lazy(() =>
         default: module.AdminSubmissions,
     })),
 );
-
-const statusLabels = {
-    uploading: "Загрузка",
-    pending: "На проверке",
-    processing: "Обработка",
-    approved: "Одобрено",
-    rejected: "Отклонено",
-    failed: "Ошибка",
-} as const;
-
-function statusVariant(status: AdminSubmission["status"]) {
-    if (status === "rejected" || status === "failed") return "destructive";
-    if (status === "approved") return "default";
-    return "secondary";
-}
 
 export function SubmitPage() {
     const viewer = useSuspenseQuery(viewerQueryOptions);
@@ -176,7 +165,7 @@ function ConsentedUserSubmissions() {
                                         setTitle(event.target.value)
                                     }
                                     minLength={1}
-                                    maxLength={128}
+                                    maxLength={VOICE_TITLE_MAX_LENGTH}
                                     required
                                 />
                             </Field>
@@ -230,8 +219,10 @@ function ConsentedUserSubmissions() {
                                     </span>
                                 ) : null}
                             </div>
-                            <Badge variant={statusVariant(item.status)}>
-                                {statusLabels[item.status]}
+                            <Badge
+                                variant={submissionStatusVariant(item.status)}
+                            >
+                                {submissionStatusLabels[item.status]}
                             </Badge>
                         </div>
                     ))}

@@ -14,7 +14,7 @@ const UPDATE_CONVERSATIONS = [
     UPDATE_VOICE_TITLE_CONVERSATION,
 ];
 
-export const composer = new Composer<Context>();
+const composer = new Composer<Context>();
 
 const feature = composer.chatType("private");
 

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { PublicRouteDependencies } from "../dependencies/types.ts";
 import { HttpError } from "../http/errors.ts";
-import { parsePagination, parseVoiceSearchQuery } from "../http/pagination.ts";
+import { parsePagination, parseVoiceSearchQuery } from "../http/validation.ts";
 import type { ApiEnv } from "../types.ts";
 import { requireConsent } from "./helpers.ts";
 

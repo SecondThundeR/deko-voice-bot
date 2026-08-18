@@ -1,38 +1,44 @@
+import {
+    SUBMISSION_REJECTION_REASON_MAX_LENGTH,
+    VOICE_ID_MAX_LENGTH,
+    VOICE_ID_PATTERN,
+    VOICE_TITLE_MAX_LENGTH,
+} from "@deko-voice-bot/contracts";
 import * as v from "valibot";
 import { HttpError } from "./errors.ts";
 
 const normalizeString = (value: unknown) => String(value ?? "").trim();
 
-export const titleSchema = v.pipe(
+const titleSchema = v.pipe(
     v.unknown(),
     v.transform(normalizeString),
     v.minLength(1),
-    v.maxLength(128),
+    v.maxLength(VOICE_TITLE_MAX_LENGTH),
 );
-export const voiceIdSchema = v.pipe(
+const voiceIdSchema = v.pipe(
     v.unknown(),
     v.transform(normalizeString),
-    v.regex(/^[A-Za-z0-9_-]{1,64}$/),
+    v.regex(VOICE_ID_PATTERN),
 );
-export const paginationIntegerSchema = v.pipe(
+const paginationIntegerSchema = v.pipe(
     v.string(),
     v.regex(/^(?:0|[1-9]\d*)$/),
     v.transform(Number),
     v.safeInteger(),
 );
-export const searchQuerySchema = v.optional(
+const searchQuerySchema = v.optional(
     v.pipe(
         v.string(),
         v.transform((value) => value.trim()),
-        v.maxLength(128),
+        v.maxLength(VOICE_TITLE_MAX_LENGTH),
     ),
 );
-export const rejectionReasonSchema = v.pipe(
+const rejectionReasonSchema = v.pipe(
     v.unknown(),
     v.transform(normalizeString),
-    v.maxLength(512),
+    v.maxLength(SUBMISSION_REJECTION_REASON_MAX_LENGTH),
 );
-export const trimInputSchema = v.object({
+const trimInputSchema = v.object({
     startMs: v.optional(v.unknown()),
     endMs: v.optional(v.unknown()),
 });
@@ -51,7 +57,7 @@ export function parseTitle(value: unknown) {
         new HttpError(
             400,
             "INVALID_TITLE",
-            "Название должно содержать от 1 до 128 символов",
+            `Название должно содержать от 1 до ${VOICE_TITLE_MAX_LENGTH} символов`,
         ),
     );
 }
@@ -62,7 +68,7 @@ export function parseVoiceId(value: unknown) {
         new HttpError(
             400,
             "INVALID_VOICE_ID",
-            "ID должен содержать от 1 до 64 латинских букв, цифр, _ или -",
+            `ID должен содержать от 1 до ${VOICE_ID_MAX_LENGTH} латинских букв, цифр, _ или -`,
         ),
     );
 }
@@ -102,7 +108,7 @@ export function parseVoiceSearchQuery(value: string | undefined) {
         new HttpError(
             400,
             "INVALID_SEARCH_QUERY",
-            "Поисковый запрос не должен превышать 128 символов",
+            `Поисковый запрос не должен превышать ${VOICE_TITLE_MAX_LENGTH} символов`,
         ),
     );
 }
@@ -113,7 +119,7 @@ export function parseRejectionReason(value: unknown) {
         new HttpError(
             400,
             "INVALID_REJECTION_REASON",
-            "Причина отклонения не должна превышать 512 символов",
+            `Причина отклонения не должна превышать ${SUBMISSION_REJECTION_REASON_MAX_LENGTH} символов`,
         ),
     );
 }

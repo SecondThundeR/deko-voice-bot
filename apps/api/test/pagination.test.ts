@@ -5,7 +5,7 @@ import { HttpError } from "../src/http/errors.ts";
 import {
     parsePagination,
     parseVoiceSearchQuery,
-} from "../src/http/pagination.ts";
+} from "../src/http/validation.ts";
 
 describe("parsePagination", () => {
     it("uses bounded defaults and accepts safe integer values", () => {

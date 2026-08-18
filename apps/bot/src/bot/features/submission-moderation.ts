@@ -3,7 +3,11 @@ import {
     convertMP3ToOGGOpus,
     createVoiceTempFilePaths,
 } from "@deko-voice-bot/audio";
-import { SUBMISSION_RETENTION_DAYS } from "@deko-voice-bot/contracts";
+import {
+    SUBMISSION_REJECTION_REASON_MAX_LENGTH,
+    SUBMISSION_RETENTION_DAYS,
+    VOICE_TITLE_MAX_LENGTH,
+} from "@deko-voice-bot/contracts";
 import { databaseUrl } from "@deko-voice-bot/database/env.js";
 import {
     approveVoiceSubmission,
@@ -161,8 +165,10 @@ admin.on("message:text", async (ctx, next) => {
     const editMatch = prompt.match(editPromptPattern);
     if (editMatch) {
         const title = ctx.msg.text.trim();
-        if (!title || title.length > 128) {
-            return ctx.reply("Название должно содержать от 1 до 128 символов");
+        if (!title || title.length > VOICE_TITLE_MAX_LENGTH) {
+            return ctx.reply(
+                `Название должно содержать от 1 до ${VOICE_TITLE_MAX_LENGTH} символов`,
+            );
         }
         const submission = await updateVoiceSubmissionTitle(
             editMatch[1],
@@ -184,7 +190,7 @@ admin.on("message:text", async (ctx, next) => {
     if (rejectMatch) {
         const reason =
             ctx.msg.text.trim() === "/skip" ? undefined : ctx.msg.text.trim();
-        if (reason && reason.length > 512)
+        if (reason && reason.length > SUBMISSION_REJECTION_REASON_MAX_LENGTH)
             return ctx.reply("Причина слишком длинная");
         const submission = await rejectVoiceSubmission(
             rejectMatch[1],

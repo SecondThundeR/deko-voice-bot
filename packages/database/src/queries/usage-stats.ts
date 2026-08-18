@@ -1,8 +1,7 @@
-import { setTimeout as delay } from "node:timers/promises";
-
 import { sql } from "drizzle-orm";
 
 import { db } from "../db.ts";
+import { retryDatabaseOperation } from "../retry.ts";
 import {
     type InsertUser,
     processedUsageUpdatesTable,
@@ -10,27 +9,6 @@ import {
     usersTable,
     voicesTable,
 } from "../schema.ts";
-
-const RETRY_DELAYS_MS = [0, 100, 300] as const;
-const TRANSIENT_SQLSTATES = new Set([
-    "40001",
-    "40P01",
-    "55P03",
-    "57014",
-    "08000",
-    "08003",
-    "08006",
-]);
-
-function isTransientDatabaseError(error: unknown) {
-    return (
-        !!error &&
-        typeof error === "object" &&
-        "code" in error &&
-        typeof error.code === "string" &&
-        TRANSIENT_SQLSTATES.has(error.code)
-    );
-}
 
 type UserDetails = Omit<InsertUser, "isIgnored" | "usesAmount" | "lastUsedAt">;
 
@@ -49,17 +27,9 @@ export async function recordUsage({
     user,
     voiceId,
 }: RecordUsageOptions) {
-    for (const [attempt, retryDelayMs] of RETRY_DELAYS_MS.entries()) {
-        if (retryDelayMs > 0) {
-            await delay(retryDelayMs);
-        }
-
-        try {
-            await recordUsageOnce({ updateId, user, voiceId });
-            return;
-        } catch (error) {
-            const isLastAttempt = attempt === RETRY_DELAYS_MS.length - 1;
-
+    await retryDatabaseOperation(
+        () => recordUsageOnce({ updateId, user, voiceId }),
+        (error, attempt, isLastAttempt) => {
             logger?.warn({
                 msg: isLastAttempt
                     ? "Failed to record usage"
@@ -72,12 +42,8 @@ export async function recordUsage({
                 updateId,
                 voiceId,
             });
-
-            if (isLastAttempt || !isTransientDatabaseError(error)) {
-                throw error;
-            }
-        }
-    }
+        },
+    );
 }
 
 async function recordUsageOnce({

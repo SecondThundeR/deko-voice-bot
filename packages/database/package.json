@@ -20,6 +20,7 @@
         "db:check": "drizzle-kit check --dialect=postgresql --out=./src/migrations"
     },
     "dependencies": {
+        "@deko-voice-bot/contracts": "workspace:*",
         "drizzle-orm": "catalog:",
         "postgres": "catalog:",
         "valibot": "catalog:"

@@ -2,5 +2,9 @@
     "name": "@deko-voice-bot/typescript-config",
     "version": "3.10.0",
     "private": true,
-    "files": ["base.json", "node.json", "react.json"]
+    "files": [
+        "base.json",
+        "node.json",
+        "react.json"
+    ]
 }

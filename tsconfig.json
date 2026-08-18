@@ -1,6 +1,8 @@
 {
     "files": [],
     "references": [
+        { "path": "./packages/application" },
+        { "path": "./packages/audio" },
         { "path": "./packages/config" },
         { "path": "./packages/contracts" },
         { "path": "./packages/database" },

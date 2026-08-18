@@ -1,149 +1,102 @@
-import * as v from "valibot";
-
 export const MAX_SUBMISSION_FILE_BYTES = 20 * 1024 * 1024;
 export const SUBMISSION_RETENTION_DAYS = 90;
 export const SUBMISSION_DAILY_LIMIT = 3;
 export const SUBMISSION_PENDING_LIMIT = 3;
+export const VOICE_ID_MAX_LENGTH = 64;
+export const VOICE_TITLE_MAX_LENGTH = 128;
+export const SUBMISSION_REJECTION_REASON_MAX_LENGTH = 512;
+export const VOICE_ID_PATTERN = new RegExp(
+    `^[A-Za-z0-9_-]{1,${VOICE_ID_MAX_LENGTH}}$`,
+);
 
-export const apiErrorSchema = v.object({
-    error: v.object({
-        code: v.string(),
-        message: v.string(),
-        requestId: v.optional(v.string()),
-    }),
-});
+export type ApiError = {
+    error: { code: string; message: string; requestId?: string };
+};
 
-export const viewerSchema = v.object({
-    id: v.pipe(v.number(), v.safeInteger(), v.minValue(1)),
-    firstName: v.string(),
-    lastName: v.optional(v.string()),
-    username: v.optional(v.string()),
-    isAdmin: v.boolean(),
-    hasConsent: v.boolean(),
-});
+export type Viewer = {
+    id: number;
+    firstName: string;
+    lastName?: string;
+    username?: string;
+    isAdmin: boolean;
+    hasConsent: boolean;
+};
 
-export const userProfileSchema = v.variant("status", [
-    v.object({
-        status: v.literal("active"),
-        userId: v.pipe(v.number(), v.safeInteger(), v.minValue(1)),
-        fullname: v.nullable(v.string()),
-        username: v.nullable(v.string()),
-        usesAmount: v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
-        lastUsedAt: v.nullable(
-            v.pipe(v.number(), v.safeInteger(), v.minValue(0)),
-        ),
-    }),
-    v.object({ status: v.literal("excluded") }),
-]);
+export type UserProfile =
+    | {
+          status: "active";
+          userId: number;
+          fullname: string | null;
+          username: string | null;
+          usesAmount: number;
+          lastUsedAt: number | null;
+      }
+    | { status: "excluded" };
 
-export const statsSchema = v.object({
-    allUsedUsers: v.number(),
-    allIgnoredUsers: v.number(),
-    allMAUUsers: v.number(),
-    allInactiveUsers: v.number(),
-    allUsedVoices: v.number(),
-});
+export type Stats = {
+    allUsedUsers: number;
+    allIgnoredUsers: number;
+    allMAUUsers: number;
+    allInactiveUsers: number;
+    allUsedVoices: number;
+};
 
-export const publicLeaderboardUserSchema = v.object({
-    visibility: v.literal("masked"),
-    displayName: v.string(),
-    usesAmount: v.number(),
-    lastUsedAt: v.nullable(v.number()),
-});
+export type LeaderboardUser =
+    | {
+          visibility: "masked";
+          displayName: string;
+          usesAmount: number;
+          lastUsedAt: number | null;
+      }
+    | {
+          visibility: "full";
+          fullname: string | null;
+          username: string | null;
+          usesAmount: number;
+          lastUsedAt: number | null;
+      };
 
-export const adminLeaderboardUserSchema = v.object({
-    visibility: v.literal("full"),
-    fullname: v.nullable(v.string()),
-    username: v.nullable(v.string()),
-    usesAmount: v.number(),
-    lastUsedAt: v.nullable(v.number()),
-});
+export type Leaderboards = {
+    mostUsedUsers: LeaderboardUser[];
+    lastUsedUsers: LeaderboardUser[];
+    mostUsedVoices: Array<{ voiceTitle: string; usesAmount: number }>;
+};
 
-export const leaderboardUserSchema = v.variant("visibility", [
-    publicLeaderboardUserSchema,
-    adminLeaderboardUserSchema,
-]);
+export type Voice = {
+    voiceId: string;
+    voiceTitle: string;
+    usesAmount: number;
+    isFavorite: boolean;
+};
 
-export const leaderboardVoiceSchema = v.object({
-    voiceTitle: v.string(),
-    usesAmount: v.number(),
-});
+export type VoicesPage = { items: Voice[]; nextOffset: number | null };
 
-export const leaderboardsSchema = v.object({
-    mostUsedUsers: v.array(leaderboardUserSchema),
-    lastUsedUsers: v.array(leaderboardUserSchema),
-    mostUsedVoices: v.array(leaderboardVoiceSchema),
-});
+export type SubmissionStatus =
+    | "uploading"
+    | "pending"
+    | "processing"
+    | "approved"
+    | "rejected"
+    | "failed";
 
-export const voiceSchema = v.object({
-    voiceId: v.string(),
-    voiceTitle: v.string(),
-    usesAmount: v.number(),
-    isFavorite: v.boolean(),
-});
+export type Submission = {
+    id: string;
+    title: string;
+    status: SubmissionStatus;
+    rejectionReason: string | null;
+    approvedVoiceId: string | null;
+    createdAt: string;
+    finalizedAt: string | null;
+};
 
-export const voicesPageSchema = v.object({
-    items: v.array(voiceSchema),
-    nextOffset: v.nullable(v.number()),
-});
+export type AdminSubmissionBucket = "queue" | "history";
 
-export const submissionStatusSchema = v.picklist([
-    "uploading",
-    "pending",
-    "processing",
-    "approved",
-    "rejected",
-    "failed",
-]);
+export type AdminSubmission = Submission & {
+    moderatorUserId: number | null;
+    submitter: { id: number; fullname: string | null; username: string | null };
+};
 
-export const submissionSchema = v.object({
-    id: v.string(),
-    title: v.string(),
-    status: submissionStatusSchema,
-    rejectionReason: v.nullable(v.string()),
-    approvedVoiceId: v.nullable(v.string()),
-    createdAt: v.string(),
-    finalizedAt: v.nullable(v.string()),
-});
-
-export const submissionsSchema = v.array(submissionSchema);
-
-export const adminSubmissionBucketSchema = v.picklist(["queue", "history"]);
-
-export const adminSubmissionSchema = v.object({
-    id: v.string(),
-    title: v.string(),
-    status: submissionStatusSchema,
-    rejectionReason: v.nullable(v.string()),
-    approvedVoiceId: v.nullable(v.string()),
-    createdAt: v.string(),
-    finalizedAt: v.nullable(v.string()),
-    moderatorUserId: v.nullable(v.number()),
-    submitter: v.object({
-        id: v.number(),
-        fullname: v.nullable(v.string()),
-        username: v.nullable(v.string()),
-    }),
-});
-
-export const adminSubmissionsPageSchema = v.object({
-    items: v.array(adminSubmissionSchema),
-    nextOffset: v.nullable(v.number()),
-});
-
-export type ApiError = v.InferOutput<typeof apiErrorSchema>;
-export type Viewer = v.InferOutput<typeof viewerSchema>;
-export type UserProfile = v.InferOutput<typeof userProfileSchema>;
-export type Stats = v.InferOutput<typeof statsSchema>;
-export type Leaderboards = v.InferOutput<typeof leaderboardsSchema>;
-export type Voice = v.InferOutput<typeof voiceSchema>;
-export type VoicesPage = v.InferOutput<typeof voicesPageSchema>;
-export type Submission = v.InferOutput<typeof submissionSchema>;
-export type SubmissionStatus = v.InferOutput<typeof submissionStatusSchema>;
-export type AdminSubmissionBucket = v.InferOutput<
-    typeof adminSubmissionBucketSchema
->;
-export type AdminSubmission = v.InferOutput<typeof adminSubmissionSchema>;
-export type AdminSubmissionsPage = v.InferOutput<
-    typeof adminSubmissionsPageSchema
->;
+export type AdminSubmissionsPage = {
+    items: AdminSubmission[];
+    nextOffset: number | null;
+};

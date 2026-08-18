@@ -5,14 +5,14 @@ import {
 import { Hono } from "hono";
 import type { AdminModerationRouteDependencies } from "../dependencies/types.ts";
 import { HttpError } from "../http/errors.ts";
-import { parsePagination } from "../http/pagination.ts";
 import {
     parseOptionalJsonBody,
+    parsePagination,
     parseRejectionReason,
     parseTitle,
+    parseTrimInput,
     parseVoiceId,
 } from "../http/validation.ts";
-import { parseTrimInput } from "../integrations/audio.ts";
 import type { ApiEnv } from "../types.ts";
 import {
     bestEffortTelegram,

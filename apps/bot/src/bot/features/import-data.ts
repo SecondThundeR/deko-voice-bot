@@ -46,7 +46,7 @@ import { clearBotSessionState } from "#root/redis.js";
 
 const IMPORT_CALLBACK = /^import:(confirm|cancel):([0-9a-f-]{36})$/;
 
-export const composer = new Composer<Context>();
+const composer = new Composer<Context>();
 const feature = composer.chatType("private").filter(isAdmin);
 
 function getImportSessionTtlMs(ctx: Context) {

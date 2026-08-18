@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
+import { TelegramError } from "../src/http/errors.ts";
 
 process.env.BOT_TOKEN = "123456:test-token";
 process.env.VOICE_MODERATION_CHAT_ID = "-1001234567890";
 
 const originalFetch = globalThis.fetch;
-const { TelegramError, prepareVoiceMessage, sendSubmissionToModeration } =
-    await import("../src/integrations/telegram.ts");
+const { prepareVoiceMessage, sendSubmissionToModeration } = await import(
+    "../src/integrations/telegram.ts"
+);
 
 afterEach(() => {
     globalThis.fetch = originalFetch;

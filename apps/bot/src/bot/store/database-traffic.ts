@@ -13,10 +13,6 @@ function notifyDrainWaiters() {
     drainWaiters.clear();
 }
 
-export function isDatabaseImportMaintenanceActive() {
-    return isImportMaintenanceActive;
-}
-
 export function databaseTrafficGatekeep(): Middleware<Context> {
     return async (ctx, next) => {
         if (isImportMaintenanceActive) {

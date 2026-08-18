@@ -11,7 +11,7 @@ import type {
 } from "@deko-voice-bot/contracts";
 import { WebApp } from "./telegram";
 
-export class ApiRequestError extends Error {
+class ApiRequestError extends Error {
     readonly code: string;
 
     constructor(code: string, message: string) {
@@ -21,7 +21,7 @@ export class ApiRequestError extends Error {
     }
 }
 
-export async function apiFetch<T>(path: string, init?: RequestInit) {
+async function apiFetch<T>(path: string, init?: RequestInit) {
     const headers = new Headers(init?.headers);
     if (WebApp?.initData)
         headers.set("authorization", `tma ${WebApp.initData}`);

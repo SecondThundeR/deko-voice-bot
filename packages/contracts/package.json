@@ -9,14 +9,10 @@
     },
     "scripts": {
         "build": "tsc --noEmit",
-        "test": "node --test",
         "typecheck": "tsc",
         "lint": "biome check",
         "lint:write": "biome check --write",
         "format": "biome format --write ."
-    },
-    "dependencies": {
-        "valibot": "catalog:"
     },
     "devDependencies": {
         "@types/node": "catalog:"

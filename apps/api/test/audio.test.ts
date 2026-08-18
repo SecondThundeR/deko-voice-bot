@@ -4,9 +4,10 @@ import { describe, it } from "node:test";
 process.env.BOT_TOKEN = "123456:test-token";
 process.env.VOICE_MODERATION_CHAT_ID = "-1001234567890";
 
-const { normalizeTrimForDuration, parseTrimInput } = await import(
+const { normalizeTrimForDuration } = await import(
     "../src/integrations/audio.ts"
 );
+const { parseTrimInput } = await import("../src/http/validation.ts");
 
 describe("parseTrimInput", () => {
     it("uses the complete file when the end is omitted", () => {
