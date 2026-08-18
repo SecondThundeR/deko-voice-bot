@@ -1,21 +1,18 @@
 import { DatabaseMaintenanceError } from "@deko-voice-bot/database/traffic.js";
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
-import { telegramAuth } from "./auth.ts";
+import type { ApiDependencies } from "./dependencies.ts";
 import { HttpError } from "./errors.ts";
-import { logger } from "./logger.ts";
-import { routes } from "./routes.ts";
+import { createRoutes } from "./routes.ts";
 import { TelegramError } from "./telegram.ts";
 import type { ApiEnv } from "./types.ts";
 
-export function createApp() {
+export function createApp(deps: ApiDependencies) {
     const app = new Hono<ApiEnv>();
-
     app.use(requestId());
     app.get("/health", (c) => c.json({ status: true, version: "3.10.0" }));
-    app.use("/api/v1/*", telegramAuth);
-    app.route("/api/v1", routes);
-
+    app.use("/api/v1/*", deps.telegramAuth);
+    app.route("/api/v1", createRoutes(deps));
     app.notFound((c) =>
         c.json(
             {
@@ -43,7 +40,7 @@ export function createApp() {
             );
         }
         if (error instanceof TelegramError) {
-            logger.warn(
+            deps.logger.warn(
                 {
                     requestId: c.var.requestId,
                     operation: error.operation,
@@ -63,7 +60,7 @@ export function createApp() {
                 503,
             );
         }
-        if (error instanceof HttpError) {
+        if (error instanceof HttpError)
             return c.json(
                 {
                     error: {
@@ -74,10 +71,9 @@ export function createApp() {
                 },
                 error.status,
             );
-        }
         const unexpected =
             error instanceof Error ? error : new Error(String(error));
-        logger.error(
+        deps.logger.error(
             {
                 errorType: unexpected.constructor.name,
                 requestId: c.var.requestId,

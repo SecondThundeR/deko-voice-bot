@@ -1,93 +1,96 @@
-import { randomUUID } from "node:crypto";
 import {
     MAX_SUBMISSION_FILE_BYTES,
     SUBMISSION_DAILY_LIMIT,
     SUBMISSION_PENDING_LIMIT,
 } from "@deko-voice-bot/contracts";
-import {
-    createVoiceSubmission,
-    getUserVoiceSubmissions,
-    markVoiceSubmissionFailed,
-    markVoiceSubmissionPending,
-    toSubmissionDto,
-} from "@deko-voice-bot/database/queries/submissions.js";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { validateMp3Upload } from "../audio.ts";
+import type { SubmissionRouteDependencies } from "../dependencies.ts";
 import { HttpError } from "../errors.ts";
-import { sendSubmissionToModeration } from "../telegram.ts";
 import type { ApiEnv } from "../types.ts";
-import { database, requireConsent } from "./helpers.ts";
+import { requireConsent } from "./helpers.ts";
 
-export const submissionRoutes = new Hono<ApiEnv>()
-    .get("/submissions", async (c) => {
-        await requireConsent(c.var.user.id);
-        const submissions = await database(() =>
-            getUserVoiceSubmissions(c.var.user.id),
-        );
-        return c.json(submissions.map(toSubmissionDto));
-    })
-    .post(
-        "/submissions",
-        bodyLimit({
-            maxSize: MAX_SUBMISSION_FILE_BYTES + 64 * 1024,
-            onError: (c) =>
-                c.json(
-                    {
-                        error: {
-                            code: "FILE_TOO_LARGE",
-                            message: "Файл превышает 20 МБ",
-                            requestId: c.var.requestId,
-                        },
-                    },
-                    413,
-                ),
-        }),
-        async (c) => {
-            await requireConsent(c.var.user.id);
-            const form = await c.req.formData();
-            const title = String(form.get("title") || "").trim();
-            const file = form.get("file");
-            if (title.length < 1 || title.length > 128)
-                throw new HttpError(
-                    400,
-                    "INVALID_TITLE",
-                    "Название должно содержать от 1 до 128 символов",
-                );
-            if (!(file instanceof File))
-                throw new HttpError(400, "INVALID_FILE", "Выберите MP3-файл");
-            await validateMp3Upload(file);
-            const id = randomUUID();
-            const submission = await database(() =>
-                createVoiceSubmission({
-                    id,
-                    submitterUserId: c.var.user.id,
-                    title,
-                }),
+export function createSubmissionRoutes(deps: SubmissionRouteDependencies) {
+    return new Hono<ApiEnv>()
+        .get("/submissions", async (c) => {
+            await requireConsent(deps, c.var.user.id);
+            return c.json(
+                (
+                    await deps.database(() =>
+                        deps.getUserVoiceSubmissions(c.var.user.id),
+                    )
+                ).map(deps.toSubmissionDto),
             );
-            if (!submission) {
-                throw new HttpError(
-                    429,
-                    "SUBMISSION_LIMIT",
-                    `Можно отправить не более ${SUBMISSION_DAILY_LIMIT} заявок за сутки и иметь не более ${SUBMISSION_PENDING_LIMIT} незавершённых`,
+        })
+        .post(
+            "/submissions",
+            bodyLimit({
+                maxSize: MAX_SUBMISSION_FILE_BYTES + 64 * 1024,
+                onError: (c) =>
+                    c.json(
+                        {
+                            error: {
+                                code: "FILE_TOO_LARGE",
+                                message: "Файл превышает 20 МБ",
+                                requestId: c.var.requestId,
+                            },
+                        },
+                        413,
+                    ),
+            }),
+            async (c) => {
+                await requireConsent(deps, c.var.user.id);
+                const form = await c.req.formData();
+                const title = String(form.get("title") || "").trim();
+                const file = form.get("file");
+                if (title.length < 1 || title.length > 128)
+                    throw new HttpError(
+                        400,
+                        "INVALID_TITLE",
+                        "Название должно содержать от 1 до 128 символов",
+                    );
+                if (!(file instanceof File))
+                    throw new HttpError(
+                        400,
+                        "INVALID_FILE",
+                        "Выберите MP3-файл",
+                    );
+                await deps.validateMp3Upload(file);
+                const id = deps.randomUUID();
+                const submission = await deps.database(() =>
+                    deps.createVoiceSubmission({
+                        id,
+                        submitterUserId: c.var.user.id,
+                        title,
+                    }),
                 );
-            }
-            try {
-                const source = await sendSubmissionToModeration({
-                    id,
-                    title,
-                    userId: c.var.user.id,
-                    file,
-                });
-                const pending = await database(() =>
-                    markVoiceSubmissionPending(id, source),
-                );
-                if (!pending)
-                    throw new Error("Submission state changed while uploading");
-                return c.json(toSubmissionDto(pending), 201);
-            } catch (error) {
-                await database(() => markVoiceSubmissionFailed(id));
-                throw error;
-            }
-        },
-    );
+                if (!submission)
+                    throw new HttpError(
+                        429,
+                        "SUBMISSION_LIMIT",
+                        `Можно отправить не более ${SUBMISSION_DAILY_LIMIT} заявок за сутки и иметь не более ${SUBMISSION_PENDING_LIMIT} незавершённых`,
+                    );
+                try {
+                    const source = await deps.sendSubmissionToModeration({
+                        id,
+                        title,
+                        userId: c.var.user.id,
+                        file,
+                    });
+                    const pending = await deps.database(() =>
+                        deps.markVoiceSubmissionPending(id, source),
+                    );
+                    if (!pending)
+                        throw new Error(
+                            "Submission state changed while uploading",
+                        );
+                    return c.json(deps.toSubmissionDto(pending), 201);
+                } catch (error) {
+                    await deps.database(() =>
+                        deps.markVoiceSubmissionFailed(id),
+                    );
+                    throw error;
+                }
+            },
+        );
+}

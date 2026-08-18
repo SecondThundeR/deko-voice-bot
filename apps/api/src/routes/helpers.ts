@@ -1,17 +1,13 @@
-import { getUserIsIgnoredStatus } from "@deko-voice-bot/database/queries/users.js";
-import { withDatabaseTraffic } from "@deko-voice-bot/database/traffic.js";
+import type { DatabaseTraffic } from "../dependencies.ts";
 import { HttpError } from "../errors.ts";
-import { logger } from "../logger.ts";
 import type { ApiEnv } from "../types.ts";
-
-export const database = <T>(operation: () => Promise<T>) =>
-    withDatabaseTraffic(operation);
 
 export function fullname(user: ApiEnv["Variables"]["user"]) {
     return [user.first_name, user.last_name].filter(Boolean).join(" ");
 }
 
 export async function bestEffortTelegram(
+    logger: { warn: (object: object, message?: string) => void },
     requestId: string,
     action: string,
     operation: () => Promise<unknown>,
@@ -31,20 +27,18 @@ export async function bestEffortTelegram(
 }
 
 export function requireAdmin(isAdmin: boolean) {
-    if (!isAdmin) {
+    if (!isAdmin)
         throw new HttpError(403, "ADMIN_REQUIRED", "Доступно только админам");
-    }
 }
 
 export function validateTitle(value: unknown) {
     const title = String(value ?? "").trim();
-    if (title.length < 1 || title.length > 128) {
+    if (title.length < 1 || title.length > 128)
         throw new HttpError(
             400,
             "INVALID_TITLE",
             "Название должно содержать от 1 до 128 символов",
         );
-    }
     return title;
 }
 
@@ -61,7 +55,15 @@ export function moderationCaption(submission: {
     ].join("\n");
 }
 
-export async function requireConsent(userId: number) {
+export async function requireConsent(
+    {
+        database,
+        getUserIsIgnoredStatus,
+    }: DatabaseTraffic & {
+        getUserIsIgnoredStatus(userId: number): Promise<boolean | null>;
+    },
+    userId: number,
+) {
     if ((await database(() => getUserIsIgnoredStatus(userId))) !== false) {
         throw new HttpError(
             403,

@@ -1,16 +1,19 @@
 import { Hono } from "hono";
-import { accountRoutes } from "./routes/account.ts";
-import { adminModerationRoutes } from "./routes/admin-moderation.ts";
-import { adminUploadRoutes } from "./routes/admin-uploads.ts";
-import { publicRoutes } from "./routes/public.ts";
-import { statsRoutes } from "./routes/stats.ts";
-import { submissionRoutes } from "./routes/submissions.ts";
+import type { ApiDependencies } from "./dependencies.ts";
+import { createAccountRoutes } from "./routes/account.ts";
+import { createAdminModerationRoutes } from "./routes/admin-moderation.ts";
+import { createAdminUploadRoutes } from "./routes/admin-uploads.ts";
+import { createPublicRoutes } from "./routes/public.ts";
+import { createStatsRoutes } from "./routes/stats.ts";
+import { createSubmissionRoutes } from "./routes/submissions.ts";
 import type { ApiEnv } from "./types.ts";
 
-export const routes = new Hono<ApiEnv>()
-    .route("/", accountRoutes)
-    .route("/", statsRoutes)
-    .route("/", adminModerationRoutes)
-    .route("/", adminUploadRoutes)
-    .route("/", publicRoutes)
-    .route("/", submissionRoutes);
+export function createRoutes(deps: ApiDependencies) {
+    return new Hono<ApiEnv>()
+        .route("/", createAccountRoutes(deps))
+        .route("/", createStatsRoutes(deps))
+        .route("/", createAdminModerationRoutes(deps))
+        .route("/", createAdminUploadRoutes(deps))
+        .route("/", createPublicRoutes(deps))
+        .route("/", createSubmissionRoutes(deps));
+}

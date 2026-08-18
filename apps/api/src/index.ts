@@ -3,8 +3,9 @@ import { serve } from "@hono/node-server";
 import { createApp } from "./app.ts";
 import { config } from "./config.ts";
 import { logger } from "./logger.ts";
+import { runtimeDependencies } from "./runtime-dependencies.ts";
 
-const app = createApp();
+const app = createApp(runtimeDependencies);
 
 const server = serve(
     { fetch: app.fetch, hostname: "0.0.0.0", port: config.port },
