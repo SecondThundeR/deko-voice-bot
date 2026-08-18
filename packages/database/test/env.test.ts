@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { parseDatabaseUrl } from "./database-url.ts";
+import { parseDatabaseUrl } from "../src/database-url.ts";
 
 describe("parseDatabaseUrl", () => {
     it("accepts PostgreSQL connection URLs", () => {

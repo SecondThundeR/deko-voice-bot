@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { OUTBOX_NOOP_JOB_TYPE } from "@deko-voice-bot/database/queries/outbox-helpers.js";
-import { createWorkerMetrics } from "./metrics.ts";
-import { createWorker, type WorkerPorts } from "./worker.ts";
+import { createWorkerMetrics } from "../src/metrics.ts";
+import { createWorker, type WorkerPorts } from "../src/worker.ts";
 
 const owner = "test-worker";
 

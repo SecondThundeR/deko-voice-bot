@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { maskName } from "./privacy.ts";
+import { maskName } from "../src/privacy.ts";
 
 describe("maskName", () => {
     it("keeps only the initial of every name part", () => {

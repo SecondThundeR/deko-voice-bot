@@ -6,7 +6,7 @@ import {
     ModerationService,
     type Submission,
     SubmissionService,
-} from "./services.ts";
+} from "../src/services.ts";
 
 const submission: Submission = {
     id: "submission-1",

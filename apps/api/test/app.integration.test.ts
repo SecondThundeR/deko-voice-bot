@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createMiddleware } from "hono/factory";
-import { createApp } from "./app.ts";
-import type { ApiDependencies } from "./dependencies.ts";
-import { HttpError, TelegramError } from "./errors.ts";
-import { createApiMetrics } from "./metrics.ts";
-import { InMemoryRateLimiter } from "./rate-limit.ts";
-import type { ApiEnv } from "./types.ts";
+import { createApp } from "../src/app.ts";
+import type { ApiDependencies } from "../src/dependencies.ts";
+import { HttpError, TelegramError } from "../src/errors.ts";
+import { createApiMetrics } from "../src/metrics.ts";
+import { InMemoryRateLimiter } from "../src/rate-limit.ts";
+import type { ApiEnv } from "../src/types.ts";
 
 type ErrorResponse = { error: { code: string; requestId?: string } };
 

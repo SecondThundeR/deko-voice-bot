@@ -7,7 +7,7 @@ import {
     OUTBOX_BACKOFF_MAX_MS,
     OUTBOX_NOOP_JOB_TYPE,
     validateOutboxJob,
-} from "./outbox-helpers.ts";
+} from "../src/queries/outbox-helpers.ts";
 
 describe("validateOutboxJob", () => {
     it("accepts only the initial noop job with an empty payload", () => {

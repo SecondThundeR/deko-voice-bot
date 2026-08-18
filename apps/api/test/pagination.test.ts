@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { HttpError } from "./errors.ts";
-import { parsePagination, parseVoiceSearchQuery } from "./pagination.ts";
+import { HttpError } from "../src/errors.ts";
+import { parsePagination, parseVoiceSearchQuery } from "../src/pagination.ts";
 
 describe("parsePagination", () => {
     it("uses bounded defaults and accepts safe integer values", () => {
