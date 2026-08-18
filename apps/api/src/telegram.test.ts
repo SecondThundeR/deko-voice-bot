@@ -5,9 +5,8 @@ process.env.BOT_TOKEN = "123456:test-token";
 process.env.VOICE_MODERATION_CHAT_ID = "-1001234567890";
 
 const originalFetch = globalThis.fetch;
-const { prepareVoiceMessage, sendSubmissionToModeration } = await import(
-    "./telegram.ts"
-);
+const { TelegramError, prepareVoiceMessage, sendSubmissionToModeration } =
+    await import("./telegram.ts");
 
 afterEach(() => {
     globalThis.fetch = originalFetch;
@@ -46,6 +45,30 @@ describe("prepareVoiceMessage", () => {
                 fileId: "telegram-file-id",
             }),
             { id: "prepared-id", expiration_date: 1_800_000_000 },
+        );
+    });
+});
+
+describe("Telegram errors", () => {
+    it("exposes upstream failure details without returning a generic error", async () => {
+        globalThis.fetch = async () =>
+            Response.json(
+                { ok: false, description: "Too Many Requests" },
+                { status: 429 },
+            );
+
+        await assert.rejects(
+            prepareVoiceMessage({
+                userId: 42,
+                voiceId: "greeting",
+                title: "Приветствие",
+                fileId: "telegram-file-id",
+            }),
+            (error: unknown) =>
+                error instanceof TelegramError &&
+                error.operation === "savePreparedInlineMessage" &&
+                error.upstreamStatus === 429 &&
+                error.retryable,
         );
     });
 });

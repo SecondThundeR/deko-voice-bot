@@ -84,17 +84,19 @@ export async function getFFMPEGStatus() {
     }
 }
 
-export async function getAudioDurationMs(filename: string) {
+export async function inspectMp3(filename: string) {
     const ffprobe = await getExecutable("ffprobe");
     const { stdout } = await execFilePromise(
         ffprobe,
         [
             "-v",
             "error",
+            "-select_streams",
+            "a:0",
             "-show_entries",
-            "format=duration",
+            "format=duration:stream=codec_name",
             "-of",
-            "default=noprint_wrappers=1:nokey=1",
+            "json",
             filename,
         ],
         {
@@ -102,11 +104,23 @@ export async function getAudioDurationMs(filename: string) {
             timeout: FFMPEG_CHECK_TIMEOUT_MS,
         },
     );
-    const durationMs = Math.round(Number(stdout.trim()) * 1_000);
-    if (!Number.isSafeInteger(durationMs) || durationMs <= 0) {
-        throw new Error("Unable to determine audio duration");
+    const result = JSON.parse(stdout) as {
+        format?: { duration?: string };
+        streams?: Array<{ codec_name?: string }>;
+    };
+    const durationMs = Math.round(Number(result.format?.duration) * 1_000);
+    if (
+        result.streams?.[0]?.codec_name !== "mp3" ||
+        !Number.isSafeInteger(durationMs) ||
+        durationMs <= 0
+    ) {
+        throw new Error("File is not a readable MP3 audio stream");
     }
-    return durationMs;
+    return { durationMs };
+}
+
+export async function getAudioDurationMs(filename: string) {
+    return (await inspectMp3(filename)).durationMs;
 }
 
 export async function convertMP3ToOGGOpus(

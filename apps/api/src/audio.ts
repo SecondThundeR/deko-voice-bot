@@ -3,7 +3,9 @@ import {
     convertMP3ToOGGOpus,
     createVoiceTempFilePaths,
     getAudioDurationMs,
+    inspectMp3,
 } from "@deko-voice-bot/audio";
+import { MAX_SUBMISSION_FILE_BYTES } from "@deko-voice-bot/contracts";
 import { HttpError } from "./errors.ts";
 import { sendVoiceToModeration } from "./telegram.ts";
 
@@ -31,6 +33,30 @@ export function parseTrimInput(input: {
         );
     }
     return { startMs, endMs };
+}
+
+export async function validateMp3Upload(file: File) {
+    if (file.size < 1 || file.size > MAX_SUBMISSION_FILE_BYTES) {
+        throw new HttpError(
+            400,
+            "INVALID_FILE",
+            "Поддерживаются MP3-файлы размером до 20 МБ",
+        );
+    }
+    const paths = createVoiceTempFilePaths();
+    try {
+        await writeFile(paths.input, new Uint8Array(await file.arrayBuffer()));
+        await inspectMp3(paths.input);
+    } catch (error) {
+        if (error instanceof HttpError) throw error;
+        throw new HttpError(
+            400,
+            "INVALID_FILE",
+            "Не удалось прочитать MP3-файл",
+        );
+    } finally {
+        await unlink(paths.input).catch(() => {});
+    }
 }
 
 export function normalizeTrimForDuration(

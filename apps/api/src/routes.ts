@@ -36,10 +36,17 @@ import {
     getVoicesPage,
     isValidVoiceId,
 } from "@deko-voice-bot/database/queries/voices.js";
+import { withDatabaseTraffic } from "@deko-voice-bot/database/traffic.js";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { convertAndSendVoice, parseTrimInput } from "./audio.ts";
+import {
+    convertAndSendVoice,
+    parseTrimInput,
+    validateMp3Upload,
+} from "./audio.ts";
 import { HttpError } from "./errors.ts";
+import { logger } from "./logger.ts";
+import { parsePagination, parseVoiceSearchQuery } from "./pagination.ts";
 import { maskName } from "./privacy.ts";
 import { toUserProfile } from "./profile.ts";
 import {
@@ -52,19 +59,30 @@ import {
 } from "./telegram.ts";
 import type { ApiEnv } from "./types.ts";
 
+const database = <T>(operation: () => Promise<T>) =>
+    withDatabaseTraffic(operation);
+
 function fullname(user: ApiEnv["Variables"]["user"]) {
     return [user.first_name, user.last_name].filter(Boolean).join(" ");
 }
 
-function validateMp3(file: File, bytes: Uint8Array) {
-    const hasId3 = bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33;
-    const hasFrame = bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0;
-    return (
-        file.type === "audio/mpeg" &&
-        file.size > 0 &&
-        file.size <= MAX_SUBMISSION_FILE_BYTES &&
-        (hasId3 || hasFrame)
-    );
+async function bestEffortTelegram(
+    requestId: string,
+    action: string,
+    operation: () => Promise<unknown>,
+) {
+    try {
+        await operation();
+    } catch (error) {
+        logger.warn(
+            {
+                requestId,
+                action,
+                error: error instanceof Error ? error.message : String(error),
+            },
+            "Best-effort Telegram action failed",
+        );
+    }
 }
 
 function requireAdmin(isAdmin: boolean) {
@@ -99,7 +117,7 @@ function moderationCaption(submission: {
 }
 
 async function requireConsent(userId: number) {
-    if ((await getUserIsIgnoredStatus(userId)) !== false) {
+    if ((await database(() => getUserIsIgnoredStatus(userId))) !== false) {
         throw new HttpError(
             403,
             "CONSENT_REQUIRED",
@@ -111,7 +129,8 @@ async function requireConsent(userId: number) {
 export const routes = new Hono<ApiEnv>()
     .get("/me", async (c) => {
         const user = c.var.user;
-        const consent = (await getUserIsIgnoredStatus(user.id)) === false;
+        const consent =
+            (await database(() => getUserIsIgnoredStatus(user.id))) === false;
         return c.json({
             id: user.id,
             firstName: user.first_name,
@@ -122,20 +141,22 @@ export const routes = new Hono<ApiEnv>()
         });
     })
     .get("/me/profile", async (c) => {
-        const user = await getUserData(c.var.user.id);
+        const user = await database(() => getUserData(c.var.user.id));
         return c.json(toUserProfile(user));
     })
     .put("/me/consent", async (c) => {
         const user = c.var.user;
-        await optInUser({
-            userId: user.id,
-            fullname: fullname(user),
-            username: user.username ?? null,
-        });
+        await database(() =>
+            optInUser({
+                userId: user.id,
+                fullname: fullname(user),
+                username: user.username ?? null,
+            }),
+        );
         return c.json({ ok: true });
     })
     .delete("/me/consent", async (c) => {
-        await optOutUser(c.var.user.id);
+        await database(() => optOutUser(c.var.user.id));
         return c.json({ ok: true });
     })
     .get("/stats", async (c) => {
@@ -144,12 +165,12 @@ export const routes = new Hono<ApiEnv>()
             lastUsedUsersStats,
             mostUsedVoicesStats,
             ...stats
-        } = await getFullStats();
+        } = await database(() => getFullStats());
         return c.json(stats);
     })
     .get("/leaderboards", async (c) => {
         const { mostUsedUsersStats, lastUsedUsersStats, mostUsedVoicesStats } =
-            await getFullStats();
+            await database(() => getFullStats());
         const mapUser = (user: (typeof mostUsedUsersStats)[number]) =>
             c.var.isAdmin
                 ? {
@@ -175,16 +196,17 @@ export const routes = new Hono<ApiEnv>()
         requireAdmin(c.var.isAdmin);
         const bucket =
             c.req.query("bucket") === "history" ? "history" : "queue";
-        const offset = Math.max(0, Number(c.req.query("offset")) || 0);
-        const limit = Math.min(
-            50,
-            Math.max(1, Number(c.req.query("limit")) || 20),
-        );
-        const rows = await getAdminVoiceSubmissions({
-            bucket,
-            limit: limit + 1,
-            offset,
+        const { offset, limit } = parsePagination({
+            offset: c.req.query("offset"),
+            limit: c.req.query("limit"),
         });
+        const rows = await database(() =>
+            getAdminVoiceSubmissions({
+                bucket,
+                limit: limit + 1,
+                offset,
+            }),
+        );
         return c.json({
             items: rows.slice(0, limit).map(toAdminSubmissionDto),
             nextOffset: rows.length > limit ? offset + limit : null,
@@ -192,7 +214,9 @@ export const routes = new Hono<ApiEnv>()
     })
     .get("/admin/submissions/:id/audio", async (c) => {
         requireAdmin(c.var.isAdmin);
-        const submission = await getVoiceSubmission(c.req.param("id"));
+        const submission = await database(() =>
+            getVoiceSubmission(c.req.param("id")),
+        );
         if (!submission?.sourceFileId) {
             throw new HttpError(
                 404,
@@ -221,9 +245,8 @@ export const routes = new Hono<ApiEnv>()
             .json<{ title?: unknown }>()
             .catch((): { title?: unknown } => ({}));
         const title = validateTitle(body.title);
-        const submission = await updateVoiceSubmissionTitle(
-            c.req.param("id"),
-            title,
+        const submission = await database(() =>
+            updateVoiceSubmissionTitle(c.req.param("id"), title),
         );
         if (!submission) {
             throw new HttpError(
@@ -232,12 +255,19 @@ export const routes = new Hono<ApiEnv>()
                 "Заявка уже обрабатывается или завершена",
             );
         }
-        if (submission.sourceChatId && submission.sourceMessageId) {
-            await editTelegramCaption(
-                submission.sourceChatId,
-                submission.sourceMessageId,
-                moderationCaption(submission),
-            ).catch(() => {});
+        const sourceChatId = submission.sourceChatId;
+        const sourceMessageId = submission.sourceMessageId;
+        if (sourceChatId && sourceMessageId) {
+            await bestEffortTelegram(
+                c.var.requestId,
+                "edit_submission_caption",
+                () =>
+                    editTelegramCaption(
+                        sourceChatId,
+                        sourceMessageId,
+                        moderationCaption(submission),
+                    ),
+            );
         }
         return c.json(toSubmissionDto(submission));
     })
@@ -254,10 +284,12 @@ export const routes = new Hono<ApiEnv>()
                 "Причина отклонения не должна превышать 512 символов",
             );
         }
-        const submission = await rejectVoiceSubmission(
-            c.req.param("id"),
-            c.var.user.id,
-            reason || undefined,
+        const submission = await database(() =>
+            rejectVoiceSubmission(
+                c.req.param("id"),
+                c.var.user.id,
+                reason || undefined,
+            ),
         );
         if (!submission) {
             throw new HttpError(
@@ -266,16 +298,24 @@ export const routes = new Hono<ApiEnv>()
                 "Заявка уже обрабатывается или завершена",
             );
         }
-        if (submission.sourceChatId && submission.sourceMessageId) {
-            await deleteTelegramMessage(
-                submission.sourceChatId,
-                submission.sourceMessageId,
-            ).catch(() => {});
+        const sourceChatId = submission.sourceChatId;
+        const sourceMessageId = submission.sourceMessageId;
+        if (sourceChatId && sourceMessageId) {
+            await bestEffortTelegram(
+                c.var.requestId,
+                "delete_rejected_submission",
+                () => deleteTelegramMessage(sourceChatId, sourceMessageId),
+            );
         }
-        await sendTelegramMessage(
-            submission.submitterUserId,
-            `Ваша заявка «${submission.title}» отклонена.${reason ? ` Причина: ${reason}` : ""}`,
-        ).catch(() => {});
+        await bestEffortTelegram(
+            c.var.requestId,
+            "notify_submission_rejection",
+            () =>
+                sendTelegramMessage(
+                    submission.submitterUserId,
+                    `Ваша заявка «${submission.title}» отклонена.${reason ? ` Причина: ${reason}` : ""}`,
+                ),
+        );
         return c.json(toSubmissionDto(submission));
     })
     .post("/admin/submissions/:id/approve", async (c) => {
@@ -305,10 +345,8 @@ export const routes = new Hono<ApiEnv>()
             );
         }
         const trim = parseTrimInput(body);
-        const claimed = await claimVoiceSubmission(
-            c.req.param("id"),
-            c.var.user.id,
-            title,
+        const claimed = await database(() =>
+            claimVoiceSubmission(c.req.param("id"), c.var.user.id, title),
         );
         if (!claimed) {
             throw new HttpError(
@@ -335,20 +373,29 @@ export const routes = new Hono<ApiEnv>()
                     "Не удалось загрузить аудио заявки",
                 );
             }
-            sent = await convertAndSendVoice({
+            const converted = await convertAndSendVoice({
                 bytes: new Uint8Array(await source.arrayBuffer()),
                 caption: `Одобрено: ${title}`,
                 trim,
             });
-            const approved = await approveVoiceSubmission(claimed.id, {
-                voiceId,
-                voiceTitle: title,
-                fileId: sent.fileId,
-                fileUniqueId: sent.fileUniqueId,
-            });
+            sent = converted;
+            const approved = await database(() =>
+                approveVoiceSubmission(claimed.id, {
+                    voiceId,
+                    voiceTitle: title,
+                    fileId: converted.fileId,
+                    fileUniqueId: converted.fileUniqueId,
+                }),
+            );
             if (!approved) {
-                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
-                    () => {},
+                await bestEffortTelegram(
+                    c.var.requestId,
+                    "delete_conflicting_voice",
+                    () =>
+                        deleteTelegramMessage(
+                            converted.chatId,
+                            converted.messageId,
+                        ),
                 );
                 throw new HttpError(
                     409,
@@ -356,24 +403,39 @@ export const routes = new Hono<ApiEnv>()
                     "Реплика с таким ID или файлом уже существует",
                 );
             }
-            if (claimed.sourceChatId && claimed.sourceMessageId) {
-                await deleteTelegramMessage(
-                    claimed.sourceChatId,
-                    claimed.sourceMessageId,
-                ).catch(() => {});
-            }
-            await sendTelegramMessage(
-                claimed.submitterUserId,
-                `Ваша заявка «${title}» одобрена и добавлена в каталог`,
-            ).catch(() => {});
-            return c.json(toSubmissionDto(approved));
-        } catch (error) {
-            if (sent) {
-                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
-                    () => {},
+            const sourceChatId = claimed.sourceChatId;
+            const sourceMessageId = claimed.sourceMessageId;
+            if (sourceChatId && sourceMessageId) {
+                await bestEffortTelegram(
+                    c.var.requestId,
+                    "delete_approved_submission",
+                    () => deleteTelegramMessage(sourceChatId, sourceMessageId),
                 );
             }
-            await releaseVoiceSubmission(claimed.id);
+            await bestEffortTelegram(
+                c.var.requestId,
+                "notify_submission_approval",
+                () =>
+                    sendTelegramMessage(
+                        claimed.submitterUserId,
+                        `Ваша заявка «${title}» одобрена и добавлена в каталог`,
+                    ),
+            );
+            return c.json(toSubmissionDto(approved));
+        } catch (error) {
+            const sentVoice = sent;
+            if (sentVoice) {
+                await bestEffortTelegram(
+                    c.var.requestId,
+                    "compensate_approved_voice",
+                    () =>
+                        deleteTelegramMessage(
+                            sentVoice.chatId,
+                            sentVoice.messageId,
+                        ),
+                );
+            }
+            await database(() => releaseVoiceSubmission(claimed.id));
             throw error;
         }
     })
@@ -405,7 +467,7 @@ export const routes = new Hono<ApiEnv>()
                     "ID должен содержать от 1 до 64 латинских букв, цифр, _ или -",
                 );
             }
-            if (await getVoiceById(voiceId)) {
+            if (await database(() => getVoiceById(voiceId))) {
                 throw new HttpError(
                     409,
                     "VOICE_CONFLICT",
@@ -416,16 +478,7 @@ export const routes = new Hono<ApiEnv>()
             if (!(file instanceof File)) {
                 throw new HttpError(400, "INVALID_FILE", "Выберите MP3-файл");
             }
-            const signature = new Uint8Array(
-                await file.slice(0, 3).arrayBuffer(),
-            );
-            if (!validateMp3(file, signature)) {
-                throw new HttpError(
-                    400,
-                    "INVALID_FILE",
-                    "Поддерживаются MP3-файлы размером до 20 МБ",
-                );
-            }
+            await validateMp3Upload(file);
             const trim = parseTrimInput({
                 startMs: form.get("startMs"),
                 endMs: form.get("endMs"),
@@ -442,20 +495,26 @@ export const routes = new Hono<ApiEnv>()
                 ].join("\n"),
                 trim,
             });
-            const added = await addVoice({
-                voiceId,
-                voiceTitle: title,
-                fileId: sent.fileId,
-                fileUniqueId: sent.fileUniqueId,
-            }).catch(async (error) => {
-                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
-                    () => {},
+            const added = await database(() =>
+                addVoice({
+                    voiceId,
+                    voiceTitle: title,
+                    fileId: sent.fileId,
+                    fileUniqueId: sent.fileUniqueId,
+                }),
+            ).catch(async (error) => {
+                await bestEffortTelegram(
+                    c.var.requestId,
+                    "compensate_admin_voice",
+                    () => deleteTelegramMessage(sent.chatId, sent.messageId),
                 );
                 throw error;
             });
             if (!added) {
-                await deleteTelegramMessage(sent.chatId, sent.messageId).catch(
-                    () => {},
+                await bestEffortTelegram(
+                    c.var.requestId,
+                    "delete_conflicting_admin_voice",
+                    () => deleteTelegramMessage(sent.chatId, sent.messageId),
                 );
                 throw new HttpError(
                     409,
@@ -467,24 +526,26 @@ export const routes = new Hono<ApiEnv>()
         },
     )
     .get("/voices", async (c) => {
-        const query = c.req.query("query")?.trim();
-        const offset = Math.max(0, Number(c.req.query("offset")) || 0);
-        const limit = Math.min(
-            50,
-            Math.max(1, Number(c.req.query("limit")) || 20),
-        );
+        const query = parseVoiceSearchQuery(c.req.query("query"));
+        const { offset, limit } = parsePagination({
+            offset: c.req.query("offset"),
+            limit: c.req.query("limit"),
+        });
         const favoritesUserId =
-            (await getUserIsIgnoredStatus(c.var.user.id)) === false
+            (await database(() => getUserIsIgnoredStatus(c.var.user.id))) ===
+            false
                 ? c.var.user.id
                 : undefined;
-        const items = await getVoicesPage({
-            favoritesUserId,
-            limit: limit + 1,
-            offset,
-            onlyFavorites: c.req.query("sort") === "favorites",
-            orderUsesFirst: c.req.query("sort") === "popularity",
-            query,
-        });
+        const items = await database(() =>
+            getVoicesPage({
+                favoritesUserId,
+                limit: limit + 1,
+                offset,
+                onlyFavorites: c.req.query("sort") === "favorites",
+                orderUsesFirst: c.req.query("sort") === "popularity",
+                query,
+            }),
+        );
         return c.json({
             items: items
                 .slice(0, limit)
@@ -499,7 +560,9 @@ export const routes = new Hono<ApiEnv>()
         });
     })
     .get("/voices/:voiceId/audio", async (c) => {
-        const voice = await getVoiceById(c.req.param("voiceId"));
+        const voice = await database(() =>
+            getVoiceById(c.req.param("voiceId")),
+        );
         if (!voice)
             throw new HttpError(404, "VOICE_NOT_FOUND", "Реплика не найдена");
         const response = await getTelegramFile(voice.fileId);
@@ -519,7 +582,9 @@ export const routes = new Hono<ApiEnv>()
         });
     })
     .post("/voices/:voiceId/share", async (c) => {
-        const voice = await getVoiceById(c.req.param("voiceId"));
+        const voice = await database(() =>
+            getVoiceById(c.req.param("voiceId")),
+        );
         if (!voice)
             throw new HttpError(404, "VOICE_NOT_FOUND", "Реплика не найдена");
         const prepared = await prepareVoiceMessage({
@@ -532,10 +597,12 @@ export const routes = new Hono<ApiEnv>()
     })
     .put("/voices/:voiceId/favorite", async (c) => {
         await requireConsent(c.var.user.id);
-        const added = await addUserFavorite({
-            userId: c.var.user.id,
-            voiceId: c.req.param("voiceId"),
-        });
+        const added = await database(() =>
+            addUserFavorite({
+                userId: c.var.user.id,
+                voiceId: c.req.param("voiceId"),
+            }),
+        );
         if (!added)
             throw new HttpError(
                 404,
@@ -546,15 +613,19 @@ export const routes = new Hono<ApiEnv>()
     })
     .delete("/voices/:voiceId/favorite", async (c) => {
         await requireConsent(c.var.user.id);
-        await deleteUserFavorite({
-            userId: c.var.user.id,
-            voiceId: c.req.param("voiceId"),
-        });
+        await database(() =>
+            deleteUserFavorite({
+                userId: c.var.user.id,
+                voiceId: c.req.param("voiceId"),
+            }),
+        );
         return c.json({ ok: true });
     })
     .get("/submissions", async (c) => {
         await requireConsent(c.var.user.id);
-        const submissions = await getUserVoiceSubmissions(c.var.user.id);
+        const submissions = await database(() =>
+            getUserVoiceSubmissions(c.var.user.id),
+        );
         return c.json(submissions.map(toSubmissionDto));
     })
     .post(
@@ -588,22 +659,15 @@ export const routes = new Hono<ApiEnv>()
             if (!(file instanceof File)) {
                 throw new HttpError(400, "INVALID_FILE", "Выберите MP3-файл");
             }
-            const signature = new Uint8Array(
-                await file.slice(0, 3).arrayBuffer(),
-            );
-            if (!validateMp3(file, signature)) {
-                throw new HttpError(
-                    400,
-                    "INVALID_FILE",
-                    "Поддерживаются MP3-файлы размером до 20 МБ",
-                );
-            }
+            await validateMp3Upload(file);
             const id = randomUUID();
-            const submission = await createVoiceSubmission({
-                id,
-                submitterUserId: c.var.user.id,
-                title,
-            });
+            const submission = await database(() =>
+                createVoiceSubmission({
+                    id,
+                    submitterUserId: c.var.user.id,
+                    title,
+                }),
+            );
             if (!submission) {
                 throw new HttpError(
                     429,
@@ -618,12 +682,14 @@ export const routes = new Hono<ApiEnv>()
                     userId: c.var.user.id,
                     file,
                 });
-                const pending = await markVoiceSubmissionPending(id, source);
+                const pending = await database(() =>
+                    markVoiceSubmissionPending(id, source),
+                );
                 if (!pending)
                     throw new Error("Submission state changed while uploading");
                 return c.json(toSubmissionDto(pending), 201);
             } catch (error) {
-                await markVoiceSubmissionFailed(id);
+                await database(() => markVoiceSubmissionFailed(id));
                 throw error;
             }
         },
