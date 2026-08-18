@@ -5,8 +5,12 @@ import {
     useSuspenseQuery,
 } from "@tanstack/react-query";
 import { FileAudioIcon, ShieldCheckIcon } from "lucide-react";
-import { lazy, type SubmitEvent, Suspense, useState } from "react";
+import { lazy, type SubmitEvent, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+    type AudioSelection,
+    LazyAudioTrimmer,
+} from "@/components/lazy-audio-trimmer";
 import { AdminSubmissionsSkeleton } from "@/components/page-skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -114,11 +118,24 @@ function ConsentedUserSubmissions() {
     const submissions = useSuspenseQuery(submissionsQueryOptions);
     const [title, setTitle] = useState("");
     const [file, setFile] = useState<File>();
+    const [audioUrl, setAudioUrl] = useState<string>();
+    const [selection, setSelection] = useState<AudioSelection>({
+        startMs: 0,
+        endMs: null,
+    });
+    useEffect(() => {
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        setAudioUrl(url);
+        setSelection({ startMs: 0, endMs: null });
+        return () => URL.revokeObjectURL(url);
+    }, [file]);
     const submit = useMutation({
         mutationFn: api.submit,
         onSuccess: () => {
             setTitle("");
             setFile(undefined);
+            setAudioUrl(undefined);
             toast.success("Заявка отправлена");
             queryClient.invalidateQueries({
                 queryKey: queryKeys.submissions,
@@ -134,6 +151,9 @@ function ConsentedUserSubmissions() {
             const form = new FormData();
             form.set("title", title);
             form.set("file", file);
+            form.set("startMs", String(selection.startMs));
+            if (selection.endMs !== null)
+                form.set("endMs", String(selection.endMs));
             submit.mutate(form);
         };
         if (WebApp?.requestWriteAccess) WebApp.requestWriteAccess(() => send());
@@ -186,6 +206,12 @@ function ConsentedUserSubmissions() {
                                     модератора
                                 </FieldDescription>
                             </Field>
+                            {audioUrl ? (
+                                <LazyAudioTrimmer
+                                    src={audioUrl}
+                                    onChange={setSelection}
+                                />
+                            ) : null}
                             <Button type="submit" disabled={submit.isPending}>
                                 {submit.isPending ? (
                                     <Spinner data-icon="inline-start" />

@@ -7,7 +7,7 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { SubmissionRouteDependencies } from "../dependencies/types.ts";
 import { HttpError } from "../http/errors.ts";
-import { parseTitle } from "../http/validation.ts";
+import { parseTitle, parseTrimInput } from "../http/validation.ts";
 import type { ApiEnv } from "../types.ts";
 import { requireConsent } from "./helpers.ts";
 
@@ -65,6 +65,10 @@ export function createSubmissionRoutes(deps: SubmissionRouteDependencies) {
                 await requireConsent(deps, c.var.user.id);
                 const form = await c.req.formData();
                 const title = parseTitle(form.get("title"));
+                const trim = parseTrimInput({
+                    startMs: form.get("startMs"),
+                    endMs: form.get("endMs"),
+                });
                 const file = form.get("file");
                 if (!(file instanceof File)) {
                     throw new HttpError(
@@ -79,6 +83,7 @@ export function createSubmissionRoutes(deps: SubmissionRouteDependencies) {
                     userId: c.var.user.id,
                     title,
                     file,
+                    trim,
                 });
                 return c.json(
                     deps.toSubmissionDto(

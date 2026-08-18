@@ -195,8 +195,8 @@ function ModerationEditor({
     const [voiceId, setVoiceId] = useState(item.id);
     const [reason, setReason] = useState("");
     const [selection, setSelection] = useState<AudioSelection>({
-        startMs: 0,
-        endMs: null,
+        startMs: item.requestedTrim.startMs,
+        endMs: item.requestedTrim.endMs,
     });
     const audio = useQuery(submissionAudioQueryOptions(item.id));
     const audioUrlRef = useRef<string | undefined>(undefined);

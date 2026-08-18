@@ -21,7 +21,16 @@ describe("SubmissionService", () => {
     it("creates, sends, and marks a submission pending", async () => {
         const calls: string[] = [];
         const service = new SubmissionService({
-            createSubmission: async () => ({ ...submission }),
+            createSubmission: async (input) => {
+                assert.deepEqual(input, {
+                    id: submission.id,
+                    submitterUserId: 7,
+                    title: "Hello",
+                    requestedTrimStartMs: 250,
+                    requestedTrimEndMs: 1_000,
+                });
+                return { ...submission };
+            },
             sendToModeration: async () => {
                 calls.push("send");
                 return {
@@ -45,6 +54,7 @@ describe("SubmissionService", () => {
             userId: 7,
             title: "Hello",
             file: { arrayBuffer: async () => new ArrayBuffer(0) },
+            trim: { startMs: 250, endMs: 1_000 },
         });
         assert.equal(result.id, submission.id);
         assert.deepEqual(calls, ["send", "pending"]);

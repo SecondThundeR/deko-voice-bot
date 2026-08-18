@@ -15,6 +15,8 @@ export async function createVoiceSubmission(input: {
     id: string;
     submitterUserId: number;
     title: string;
+    requestedTrimStartMs: number;
+    requestedTrimEndMs: number | null;
 }) {
     return db.transaction(async (tx) => {
         await tx.execute(
@@ -266,6 +268,10 @@ export function toSubmissionDto(submission: SelectVoiceSubmission) {
         status: submission.status,
         rejectionReason: submission.rejectionReason,
         approvedVoiceId: submission.approvedVoiceId,
+        requestedTrim: {
+            startMs: submission.requestedTrimStartMs,
+            endMs: submission.requestedTrimEndMs,
+        },
         createdAt: submission.createdAt.toISOString(),
         finalizedAt: submission.finalizedAt?.toISOString() ?? null,
     };

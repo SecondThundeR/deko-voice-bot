@@ -153,6 +153,8 @@ export const voiceSubmissionsTable = pgTable(
         sourceFileUniqueId: t.varchar({ length: FILE_UNIQUE_ID_LENGTH }),
         sourceChatId: t.bigint({ mode: "number" }),
         sourceMessageId: t.integer(),
+        requestedTrimStartMs: t.integer().notNull().default(0),
+        requestedTrimEndMs: t.integer(),
         status: voiceSubmissionStatusEnum().notNull().default("uploading"),
         moderatorUserId: t.bigint({ mode: "number" }),
         rejectionReason: t.varchar({ length: 512 }),

@@ -85,6 +85,7 @@ export type Submission = {
     status: SubmissionStatus;
     rejectionReason: string | null;
     approvedVoiceId: string | null;
+    requestedTrim: { startMs: number; endMs: number | null };
     createdAt: string;
     finalizedAt: string | null;
 };

@@ -51,6 +51,8 @@ export interface SubmissionPorts {
         id: string;
         submitterUserId: number;
         title: string;
+        requestedTrimStartMs: number;
+        requestedTrimEndMs: number | null;
     }): Promise<Submission | null>;
     markPending(
         id: string,
@@ -82,11 +84,14 @@ export class SubmissionService {
         userId: number;
         title: string;
         file: UploadFile;
+        trim: TrimInput;
     }) {
         const submission = await this.ports.createSubmission({
             id: input.id,
             submitterUserId: input.userId,
             title: input.title,
+            requestedTrimStartMs: input.trim.startMs,
+            requestedTrimEndMs: input.trim.endMs,
         });
         if (!submission) {
             throw new ApplicationError(
