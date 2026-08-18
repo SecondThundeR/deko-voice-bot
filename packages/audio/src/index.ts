@@ -120,7 +120,28 @@ export async function inspectMp3(filename: string) {
 }
 
 export async function getAudioDurationMs(filename: string) {
-    return (await inspectMp3(filename)).durationMs;
+    const ffprobe = await getExecutable("ffprobe");
+    const { stdout } = await execFilePromise(
+        ffprobe,
+        [
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            filename,
+        ],
+        {
+            maxBuffer: FFMPEG_MAX_OUTPUT_BYTES,
+            timeout: FFMPEG_CHECK_TIMEOUT_MS,
+        },
+    );
+    const durationMs = Math.round(Number(stdout.trim()) * 1_000);
+    if (!Number.isSafeInteger(durationMs) || durationMs <= 0) {
+        throw new Error("Unable to determine audio duration");
+    }
+    return durationMs;
 }
 
 export async function convertMP3ToOGGOpus(
