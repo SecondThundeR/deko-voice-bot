@@ -1,7 +1,7 @@
-import type { DatabaseTraffic } from "../dependencies.ts";
-import { HttpError } from "../errors.ts";
+import type { DatabaseTraffic } from "../dependencies/types.ts";
+import { HttpError } from "../http/errors.ts";
+import { parseTitle } from "../http/validation.ts";
 import type { ApiEnv } from "../types.ts";
-import { parseTitle } from "../validation.ts";
 
 export function fullname(user: ApiEnv["Variables"]["user"]) {
     return [user.first_name, user.last_name].filter(Boolean).join(" ");

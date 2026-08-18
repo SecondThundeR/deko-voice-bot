@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import type { AccountRouteDependencies } from "../dependencies.ts";
-import { toUserProfile } from "../profile.ts";
+import type { AccountRouteDependencies } from "../dependencies/types.ts";
+import { toUserProfile } from "../domain/profile.ts";
 import type { ApiEnv } from "../types.ts";
 import { fullname } from "./helpers.ts";
 

@@ -5,10 +5,10 @@ import {
 import { MAX_SUBMISSION_FILE_BYTES } from "@deko-voice-bot/contracts";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import type { SubmissionRouteDependencies } from "../dependencies.ts";
-import { HttpError } from "../errors.ts";
+import type { SubmissionRouteDependencies } from "../dependencies/types.ts";
+import { HttpError } from "../http/errors.ts";
+import { parseTitle } from "../http/validation.ts";
 import type { ApiEnv } from "../types.ts";
-import { parseTitle } from "../validation.ts";
 import { requireConsent } from "./helpers.ts";
 
 function submissionService(deps: SubmissionRouteDependencies) {

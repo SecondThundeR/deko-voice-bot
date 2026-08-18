@@ -2,17 +2,14 @@ import { timingSafeEqual } from "node:crypto";
 import { ApplicationError } from "@deko-voice-bot/application";
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
-import type { ApiDependencies } from "./dependencies.ts";
-import { HttpError, TelegramError } from "./errors.ts";
-import {
-    cors,
-    ipRateLimit,
-    requestLogging,
-    secureHeaders,
-    userRateLimit,
-} from "./middlewares.ts";
+import type { ApiDependencies } from "./dependencies/types.ts";
+import { HttpError, TelegramError } from "./http/errors.ts";
+import { cors } from "./middleware/cors.ts";
+import { requestLogging } from "./middleware/logging.ts";
+import { ipRateLimit, userRateLimit } from "./middleware/rate-limit.ts";
+import { secureHeaders } from "./middleware/security.ts";
 import { InMemoryRateLimiter } from "./rate-limit.ts";
-import { createRoutes } from "./routes.ts";
+import { createRoutes } from "./routes/index.ts";
 import type { ApiEnv } from "./types.ts";
 
 function hasValidMetricsToken(

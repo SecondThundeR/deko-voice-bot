@@ -1,8 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createMiddleware } from "hono/factory";
 import * as v from "valibot";
-import { config } from "./config.ts";
-import { HttpError } from "./errors.ts";
+import { config } from "./config/index.ts";
+import { HttpError } from "./http/errors.ts";
 import type { ApiEnv, TelegramUser } from "./types.ts";
 
 const MAX_AGE_SECONDS = 24 * 60 * 60;

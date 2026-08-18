@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
-import { config } from "./config.ts";
-import { TelegramError } from "./errors.ts";
+import { config } from "../config/index.ts";
+import { TelegramError } from "../http/errors.ts";
 
-export { TelegramError } from "./errors.ts";
+export { TelegramError } from "../http/errors.ts";
 
 type TelegramDocumentMessage = {
     message_id: number;

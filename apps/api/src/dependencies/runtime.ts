@@ -8,14 +8,14 @@ import * as favorites from "@deko-voice-bot/database/queries/users-favorites.js"
 import * as voices from "@deko-voice-bot/database/queries/voices.js";
 import { withDatabaseTraffic } from "@deko-voice-bot/database/traffic.js";
 import { Redis } from "ioredis";
-import * as audio from "./audio.ts";
-import { telegramAuth } from "./auth.ts";
-import { config } from "./config.ts";
-import type { ApiDependencies } from "./dependencies.ts";
-import { logger } from "./logger.ts";
-import { createApiMetrics } from "./metrics.ts";
-import { InMemoryRateLimiter, RedisRateLimiter } from "./rate-limit.ts";
-import * as telegram from "./telegram.ts";
+import { telegramAuth } from "../auth.ts";
+import { config } from "../config/index.ts";
+import * as audio from "../integrations/audio.ts";
+import * as telegram from "../integrations/telegram.ts";
+import { logger } from "../observability/logger.ts";
+import { createApiMetrics } from "../observability/metrics.ts";
+import { InMemoryRateLimiter, RedisRateLimiter } from "../rate-limit.ts";
+import type { ApiDependencies } from "./types.ts";
 
 let draining = false;
 const redis =

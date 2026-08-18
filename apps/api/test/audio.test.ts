@@ -5,7 +5,7 @@ process.env.BOT_TOKEN = "123456:test-token";
 process.env.VOICE_MODERATION_CHAT_ID = "-1001234567890";
 
 const { normalizeTrimForDuration, parseTrimInput } = await import(
-    "../src/audio.ts"
+    "../src/integrations/audio.ts"
 );
 
 describe("parseTrimInput", () => {

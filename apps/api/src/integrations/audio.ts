@@ -6,9 +6,9 @@ import {
     inspectMp3,
 } from "@deko-voice-bot/audio";
 import { MAX_SUBMISSION_FILE_BYTES } from "@deko-voice-bot/contracts";
-import { HttpError } from "./errors.ts";
+import { HttpError } from "../http/errors.ts";
 
-export { parseTrimInput } from "./validation.ts";
+export { parseTrimInput } from "../http/validation.ts";
 
 export type TrimInput = { startMs: number; endMs: number | null };
 

@@ -2,11 +2,11 @@ import { type CatalogPorts, CatalogService } from "@deko-voice-bot/application";
 import { MAX_SUBMISSION_FILE_BYTES } from "@deko-voice-bot/contracts";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { parseTrimInput } from "../audio.ts";
-import type { AdminUploadRouteDependencies } from "../dependencies.ts";
-import { HttpError } from "../errors.ts";
+import type { AdminUploadRouteDependencies } from "../dependencies/types.ts";
+import { HttpError } from "../http/errors.ts";
+import { parseVoiceId } from "../http/validation.ts";
+import { parseTrimInput } from "../integrations/audio.ts";
 import type { ApiEnv } from "../types.ts";
-import { parseVoiceId } from "../validation.ts";
 import { fullname, requireAdmin, validateTitle } from "./helpers.ts";
 
 function catalogService(deps: AdminUploadRouteDependencies, requestId: string) {

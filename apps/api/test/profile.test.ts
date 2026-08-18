@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { toUserProfile } from "../src/profile.ts";
+import { toUserProfile } from "../src/domain/profile.ts";
 
 describe("toUserProfile", () => {
     it("returns all stored fields for an active profile", () => {

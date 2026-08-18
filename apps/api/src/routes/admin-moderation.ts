@@ -3,17 +3,17 @@ import {
     ModerationService,
 } from "@deko-voice-bot/application";
 import { Hono } from "hono";
-import { parseTrimInput } from "../audio.ts";
-import type { AdminModerationRouteDependencies } from "../dependencies.ts";
-import { HttpError } from "../errors.ts";
-import { parsePagination } from "../pagination.ts";
-import type { ApiEnv } from "../types.ts";
+import type { AdminModerationRouteDependencies } from "../dependencies/types.ts";
+import { HttpError } from "../http/errors.ts";
+import { parsePagination } from "../http/pagination.ts";
 import {
     parseOptionalJsonBody,
     parseRejectionReason,
     parseTitle,
     parseVoiceId,
-} from "../validation.ts";
+} from "../http/validation.ts";
+import { parseTrimInput } from "../integrations/audio.ts";
+import type { ApiEnv } from "../types.ts";
 import {
     bestEffortTelegram,
     moderationCaption,

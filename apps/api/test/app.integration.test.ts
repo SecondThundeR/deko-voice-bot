@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createMiddleware } from "hono/factory";
 import { createApp } from "../src/app.ts";
-import type { ApiDependencies } from "../src/dependencies.ts";
-import { HttpError, TelegramError } from "../src/errors.ts";
-import { createApiMetrics } from "../src/metrics.ts";
+import type { ApiDependencies } from "../src/dependencies/types.ts";
+import { HttpError, TelegramError } from "../src/http/errors.ts";
+import { createApiMetrics } from "../src/observability/metrics.ts";
 import { InMemoryRateLimiter } from "../src/rate-limit.ts";
 import type { ApiEnv } from "../src/types.ts";
 

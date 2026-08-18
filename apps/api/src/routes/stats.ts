@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import type { StatsRouteDependencies } from "../dependencies.ts";
-import { maskName } from "../privacy.ts";
+import type { StatsRouteDependencies } from "../dependencies/types.ts";
+import { maskName } from "../domain/privacy.ts";
 import type { ApiEnv } from "../types.ts";
 
 export function createStatsRoutes(deps: StatsRouteDependencies) {

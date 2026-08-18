@@ -1,9 +1,9 @@
 import { closeDatabaseConnection } from "@deko-voice-bot/database/db.js";
 import { serve } from "@hono/node-server";
 import { createApp } from "./app.ts";
-import { config } from "./config.ts";
-import { logger } from "./logger.ts";
-import { runtimeDependencies } from "./runtime-dependencies.ts";
+import { config } from "./config/index.ts";
+import { runtimeDependencies } from "./dependencies/runtime.ts";
+import { logger } from "./observability/logger.ts";
 
 const app = createApp(runtimeDependencies);
 

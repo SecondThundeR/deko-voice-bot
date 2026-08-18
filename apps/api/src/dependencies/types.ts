@@ -1,8 +1,8 @@
-import type { convertAndSendVoice, validateMp3Upload } from "./audio.ts";
-import type { telegramAuth } from "./auth.ts";
-import type { logger } from "./logger.ts";
-import type { ApiMetrics } from "./metrics.ts";
-import type { RateLimiter } from "./rate-limit.ts";
+import type { telegramAuth } from "../auth.ts";
+import type {
+    convertAndSendVoice,
+    validateMp3Upload,
+} from "../integrations/audio.ts";
 import type {
     deleteTelegramMessage,
     editTelegramCaption,
@@ -10,7 +10,10 @@ import type {
     prepareVoiceMessage,
     sendSubmissionToModeration,
     sendTelegramMessage,
-} from "./telegram.ts";
+} from "../integrations/telegram.ts";
+import type { logger } from "../observability/logger.ts";
+import type { ApiMetrics } from "../observability/metrics.ts";
+import type { RateLimiter } from "../rate-limit.ts";
 
 export interface DatabaseTraffic {
     database<T>(operation: () => Promise<T>): Promise<T>;

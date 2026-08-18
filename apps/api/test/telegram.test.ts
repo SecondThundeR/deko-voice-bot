@@ -6,7 +6,7 @@ process.env.VOICE_MODERATION_CHAT_ID = "-1001234567890";
 
 const originalFetch = globalThis.fetch;
 const { TelegramError, prepareVoiceMessage, sendSubmissionToModeration } =
-    await import("../src/telegram.ts");
+    await import("../src/integrations/telegram.ts");
 
 afterEach(() => {
     globalThis.fetch = originalFetch;
