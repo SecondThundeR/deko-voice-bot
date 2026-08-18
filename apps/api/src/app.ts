@@ -2,14 +2,35 @@ import { Hono } from "hono";
 import { requestId } from "hono/request-id";
 import type { ApiDependencies } from "./dependencies.ts";
 import { HttpError, TelegramError } from "./errors.ts";
+import {
+    cors,
+    ipRateLimit,
+    requestLogging,
+    secureHeaders,
+    userRateLimit,
+} from "./middlewares.ts";
+import { InMemoryRateLimiter } from "./rate-limit.ts";
 import { createRoutes } from "./routes.ts";
 import type { ApiEnv } from "./types.ts";
 
 export function createApp(deps: ApiDependencies) {
+    // Defaults keep isolated route tests deterministic; production supplies explicit runtime dependencies.
+    deps.rateLimiter ??= new InMemoryRateLimiter();
+    deps.readiness ??= { isReady: async () => true };
     const app = new Hono<ApiEnv>();
     app.use(requestId());
+    app.use(secureHeaders);
+    app.use(cors(deps.corsOrigins ?? []));
+    app.use(requestLogging(deps));
+    app.use(ipRateLimit(deps));
     app.get("/health", (c) => c.json({ status: true, version: "3.10.0" }));
+    app.get("/ready", async (c) =>
+        (await deps.readiness.isReady())
+            ? c.json({ status: true })
+            : c.json({ status: false }, 503),
+    );
     app.use("/api/v1/*", deps.telegramAuth);
+    app.use("/api/v1/*", userRateLimit(deps));
     app.route("/api/v1", createRoutes(deps));
     app.notFound((c) =>
         c.json(

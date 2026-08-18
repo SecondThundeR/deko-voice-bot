@@ -16,6 +16,7 @@ let shuttingDown = false;
 async function shutdown() {
     if (shuttingDown) return;
     shuttingDown = true;
+    runtimeDependencies.readiness.setDraining?.(true);
     server.close();
     await closeDatabaseConnection();
 }

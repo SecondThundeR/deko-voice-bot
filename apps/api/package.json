@@ -24,6 +24,7 @@
         "@deko-voice-bot/database": "workspace:*",
         "@hono/node-server": "catalog:",
         "hono": "catalog:",
+        "ioredis": "6.0.0",
         "pino": "catalog:",
         "pino-pretty": "catalog:",
         "valibot": "catalog:"

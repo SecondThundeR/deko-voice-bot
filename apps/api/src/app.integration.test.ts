@@ -4,6 +4,7 @@ import { createMiddleware } from "hono/factory";
 import { createApp } from "./app.ts";
 import type { ApiDependencies } from "./dependencies.ts";
 import { HttpError, TelegramError } from "./errors.ts";
+import { InMemoryRateLimiter } from "./rate-limit.ts";
 import type { ApiEnv } from "./types.ts";
 
 type ErrorResponse = { error: { code: string; requestId?: string } };
@@ -92,5 +93,82 @@ describe("API route integration", () => {
             isAdmin: true,
             hasConsent: true,
         });
+    });
+});
+
+function createPolicyApp(ready = true) {
+    const logs: Array<Record<string, unknown>> = [];
+    const deps = {
+        telegramAuth: createMiddleware<ApiEnv>(async (c, next) => {
+            c.set("user", { id: 9, first_name: "Rate" });
+            c.set("isAdmin", false);
+            await next();
+        }),
+        database: <T>(operation: () => Promise<T>) => operation(),
+        readiness: { isReady: async () => ready },
+        corsOrigins: ["https://mini.example"],
+        rateLimiter: new InMemoryRateLimiter(),
+        logger: {
+            info: (data: Record<string, unknown>) => logs.push(data),
+            warn: () => {},
+            error: () => {},
+        },
+        getUserData: async () => null,
+    } as unknown as ApiDependencies;
+    return { app: createApp(deps), logs };
+}
+describe("operational HTTP policy", () => {
+    it("keeps liveness public and exposes dependency readiness", async () => {
+        assert.equal(
+            (await createPolicyApp().app.request("/health")).status,
+            200,
+        );
+        assert.equal(
+            (await createPolicyApp(false).app.request("/ready")).status,
+            503,
+        );
+    });
+    it("applies secure headers and strict CORS including preflight", async () => {
+        const { app } = createPolicyApp();
+        const allowed = await app.request("/api/v1/me", {
+            method: "OPTIONS",
+            headers: { origin: "https://mini.example" },
+        });
+        assert.equal(allowed.status, 204);
+        assert.equal(
+            allowed.headers.get("access-control-allow-origin"),
+            "https://mini.example",
+        );
+        assert.equal(allowed.headers.get("x-frame-options"), "DENY");
+        assert.equal(
+            (
+                await app.request("/health", {
+                    headers: { origin: "https://evil.example" },
+                })
+            ).status,
+            403,
+        );
+    });
+    it("limits requests and logs no raw query values", async () => {
+        const { app, logs } = createPolicyApp();
+        for (let i = 0; i < 120; i++)
+            await app.request("/api/v1/me?token=secret", {
+                headers: { "x-real-ip": "127.0.0.1" },
+            });
+        const response = await app.request("/api/v1/me?token=secret", {
+            headers: { "x-real-ip": "127.0.0.1" },
+        });
+        assert.equal(response.status, 429);
+        assert.ok(response.headers.get("retry-after"));
+        assert.equal(
+            ((await response.json()) as ErrorResponse).error.code,
+            "RATE_LIMITED",
+        );
+        assert.equal(logs[0].method, "GET");
+        assert.equal(typeof logs[0].requestId, "string");
+        assert.equal(
+            logs.some((entry) => JSON.stringify(entry).includes("secret")),
+            false,
+        );
     });
 });

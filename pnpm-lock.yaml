@@ -71,6 +71,9 @@ importers:
       hono:
         specifier: 'catalog:'
         version: 4.13.2
+      ioredis:
+        specifier: 6.0.0
+        version: 6.0.0
       pino:
         specifier: 'catalog:'
         version: 10.3.1

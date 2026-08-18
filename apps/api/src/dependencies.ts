@@ -1,6 +1,7 @@
 import type { convertAndSendVoice, validateMp3Upload } from "./audio.ts";
 import type { telegramAuth } from "./auth.ts";
 import type { logger } from "./logger.ts";
+import type { RateLimiter } from "./rate-limit.ts";
 import type {
     deleteTelegramMessage,
     editTelegramCaption,
@@ -15,7 +16,13 @@ export interface DatabaseTraffic {
 }
 
 export interface ApiDependencies extends DatabaseTraffic {
-    logger: Pick<typeof logger, "warn" | "error">;
+    logger: Pick<typeof logger, "info" | "warn" | "error">;
+    readiness: {
+        isReady(): Promise<boolean>;
+        setDraining?(draining: boolean): void;
+    };
+    corsOrigins?: readonly string[];
+    rateLimiter: RateLimiter;
     telegramAuth: typeof telegramAuth;
     getUserData: typeof import("@deko-voice-bot/database/queries/users.js").getUserData;
     getUserIsIgnoredStatus: typeof import("@deko-voice-bot/database/queries/users.js").getUserIsIgnoredStatus;
