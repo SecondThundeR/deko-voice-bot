@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: August 12, 2026
+Last updated: August 19, 2026
 
 This Privacy Policy explains how the Deko Voice Bot for Telegram (the "Bot"), operated by Uladzislau Hramyka in Belarus (the "Service Provider"), collects, uses, stores, and shares information. The Bot is provided free of charge and on an "AS IS" basis. Optional donations are processed through Telegram Stars.
 
@@ -37,9 +37,7 @@ Telegram sends the Bot the information contained in updates needed to handle you
 
 Most message and query content is processed only to provide the requested feature and is not stored in the Bot's main database. However:
 
-- temporary session and conversation data is kept in production Redis for up to 24 hours after the latest session write;
-- webhook updates are durably queued in PostgreSQL while pending or failed; successfully processed payloads are deleted immediately, leaving a minimal duplicate marker for up to 7 days, and remaining queued payloads expire after 7 days;
-- Telegram update identifiers and their processing times are stored to prevent the same usage event from being counted more than once; these records are not directly linked to a user profile in the Bot's database; and
+- temporary session and conversation data is kept in the Bot process memory for up to 24 hours after the latest session write and is discarded when the process restarts; and
 - operational logs record technical events such as the Telegram update identifier and type, handler name, Bot API method and payload field names (but not payload values), voice and file identifiers from the Bot's non-user voice catalog, processing time, and sanitized error type, code, message, and stack trace. Error details are automatically redacted for common user and chat identifiers, Telegram usernames, email addresses, bot tokens, payment and file identifiers, and home-directory names. Message contents, inline search text, Telegram profile fields, user and chat identifiers, payment payloads, complete Telegram updates, and Bot API payload values are not intentionally written to application logs.
 
 Application logs created by versions of the Bot deployed before August 12, 2026 may contain more detailed Telegram updates, Bot API payloads, or error details. Those legacy logs remain subject to the hosting provider's configured retention and deletion controls.
@@ -70,7 +68,7 @@ You can opt out of usage analytics by sending `/optout` in a private chat with t
 - deletes your favorites; and
 - prevents future inline-send activity from updating your personal usage profile or including you in identified user rankings while you remain opted out.
 
-To remember and honor your choice, the Bot retains your Telegram user ID together with an opt-out flag. This record may still contribute to aggregate statistics, such as the total number of users who opted out, but your cleared profile and activity are not shown in individual statistics. Therefore, `/optout` does not delete every record containing your Telegram user ID. Payment records are also retained after opt-out as part of the Bot's complete payment history and for refunds, dispute handling, security, and compliance obligations. Technical logs, Telegram update identifiers, and copies in existing manually created exports are not deleted by the `/optout` command.
+To remember and honor your choice, the Bot retains your Telegram user ID together with an opt-out flag. This record may still contribute to aggregate statistics, such as the total number of users who opted out, but your cleared profile and activity are not shown in individual statistics. Therefore, `/optout` does not delete every record containing your Telegram user ID. Payment records are also retained after opt-out as part of the Bot's complete payment history and for refunds, dispute handling, security, and compliance obligations. Technical logs and copies in existing manually created exports are not deleted by the `/optout` command.
 
 You can opt back in by sending `/optin` in a private chat. This restores collection of your profile and usage statistics from that point forward; the previously cleared statistics and favorites are not restored by the Bot.
 
@@ -86,9 +84,8 @@ To request access to other personal information held by the Service Provider, co
 
 - Active usage profiles and favorites are retained while the Bot operates, unless you opt out or request deletion.
 - The Telegram user ID and opt-out flag are retained for as long as necessary to honor the opt-out choice.
-- Production Redis session and conversation data expires within 24 hours after the latest session write.
+- In-memory session and conversation data expires within 24 hours after the latest session write and is discarded when the Bot process restarts.
 - Payment records are retained indefinitely as the Bot's complete payment and refund history.
-- Webhook and usage duplicate markers expire automatically after 7 days. Successfully handled webhook payloads are deleted immediately; pending and failed payloads are deleted after 7 days.
 - Railway service logs are retained for 7 days under the Service Provider's current Hobby plan. Railway audit logs are retained for 48 hours.
 - Point-in-time recovery is not currently enabled. Administrative database export files may be created manually. Exports are authenticated and encrypted before being sent through Telegram, and temporary plaintext and encrypted files are deleted from the Bot host after the operation. The encrypted copy delivered through Telegram remains subject to Telegram's storage and retention controls.
 

@@ -36,17 +36,6 @@ const baseConfigSchema = v.object({
         ),
         "[]",
     ),
-    redisUrl: v.optional(
-        v.pipe(
-            v.string(),
-            v.url(),
-            v.check(
-                (value) =>
-                    ["redis:", "rediss:"].includes(new URL(value).protocol),
-                "Must use the redis:// or rediss:// protocol",
-            ),
-        ),
-    ),
     backupEncryptionKey: v.pipe(
         v.string(),
         v.regex(/^[A-Za-z0-9+/]{43}=$/, "Must be 32 bytes encoded as base64"),
@@ -100,13 +89,6 @@ const rawConfigSchema = v.variant("botMode", [
 
 const configSchema = v.pipe(
     rawConfigSchema,
-    v.forward(
-        v.check(
-            (input) => input.nodeEnv !== "production" || !!input.redisUrl,
-            "REDIS_URL is required in production",
-        ),
-        ["redisUrl"],
-    ),
     v.transform(({ logFormat, useDebug, ...input }) => ({
         ...input,
         isDebug: useDebug,
@@ -138,7 +120,6 @@ const CONFIG_KEY_TO_ENVIRONMENT_VARIABLE = {
     logFormat: "LOG_FORMAT",
     logLevel: "LOG_LEVEL",
     nodeEnv: "NODE_ENV",
-    redisUrl: "REDIS_URL",
     serverHost: "SERVER_HOST",
     serverPort: "SERVER_PORT",
     useDebug: "USE_DEBUG",
@@ -178,7 +159,6 @@ export function createConfigFromEnvironment(environment: Environment) {
             logFormat: environment.LOG_FORMAT,
             logLevel: environment.LOG_LEVEL,
             nodeEnv: environment.NODE_ENV,
-            redisUrl: environment.REDIS_URL,
             serverHost: environment.SERVER_HOST,
             serverPort: environment.SERVER_PORT,
             useDebug: environment.USE_DEBUG,

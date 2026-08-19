@@ -11,12 +11,10 @@ import { config, type PollingConfig, type WebhookConfig } from "./config.ts";
 import { createLifecycle } from "./lifecycle.ts";
 import { logger } from "./logger.ts";
 import { getSafeErrorInfo } from "./logging.ts";
-import { checkRedisConnection, closeRedisConnection } from "./redis.ts";
 import { createServer, createServerManager } from "./server/index.ts";
 
 const lifecycle = createLifecycle(logger);
 lifecycle.onShutdown(closeDatabaseConnection);
-lifecycle.onShutdown(closeRedisConnection);
 lifecycle.onShutdown(() => databaseImportCoordinator.waitForIdle());
 
 async function startPolling(config: PollingConfig) {
@@ -80,18 +78,8 @@ async function startWebhook(config: WebhookConfig) {
 }
 
 try {
-    const [, isRedisConnected] = await Promise.all([
-        checkDatabaseConnection(),
-        checkRedisConnection(),
-    ]);
+    await checkDatabaseConnection();
     logger.info({ msg: "Database connection established" });
-    if (isRedisConnected) {
-        logger.info({ msg: "Redis connection established" });
-    } else {
-        logger.warn({
-            msg: "REDIS_URL is not configured; using in-memory session storage",
-        });
-    }
 
     if (config.botMode === "webhook") {
         await startWebhook(config);

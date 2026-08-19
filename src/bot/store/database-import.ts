@@ -19,7 +19,6 @@ import {
 import type { Context } from "#root/bot/context.js";
 import type { Logger } from "#root/logger.js";
 import { getSafeErrorInfo } from "#root/logging.js";
-import { clearBotSessionState } from "#root/redis.js";
 import {
     beginDatabaseImportMaintenance,
     endDatabaseImportMaintenance,
@@ -29,6 +28,7 @@ import {
     importSessions,
 } from "./import-sessions.ts";
 import { setCachedMaintenanceFeatureFlag } from "./maintenance.ts";
+import { clearBotSessionState } from "./session-state.ts";
 
 type ImportMessages = {
     completed: string;
@@ -120,7 +120,7 @@ export class DatabaseImportCoordinator {
                 });
                 setCachedMaintenanceFeatureFlag(null);
                 await validateRestoredDatabase(databaseUrl);
-                await clearBotSessionState();
+                clearBotSessionState();
                 await importSessions.clear();
             });
 

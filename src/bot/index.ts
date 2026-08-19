@@ -1,18 +1,12 @@
 import { autoChatAction } from "@grammyjs/auto-chat-action";
-import {
-    type ConversationData,
-    conversations,
-    type VersionedState,
-} from "@grammyjs/conversations";
+import { conversations } from "@grammyjs/conversations";
 import { hydrate } from "@grammyjs/hydrate";
 import { hydrateReply, parseMode } from "@grammyjs/parse-mode";
 import { sequentialize } from "@grammyjs/runner";
-import { RedisAdapter } from "@grammyjs/storage-redis";
 import { type BotConfig, Bot as TelegramBot } from "grammy";
 import type { Config } from "#root/config.js";
 import type { Logger } from "#root/logger.js";
-import { redis } from "#root/redis.js";
-import type { Context, SessionData } from "./context.ts";
+import type { Context } from "./context.ts";
 import { donateConversation } from "./conversations/donate.ts";
 import { newVoicesConversation } from "./conversations/new-voices.ts";
 import { updateVoiceFileConversation } from "./conversations/update-voice-file.ts";
@@ -50,14 +44,7 @@ import { maintenanceGatekeep } from "./middlewares/maintenance-gatekeep.ts";
 import { session } from "./middlewares/session.ts";
 import { updateLogger } from "./middlewares/update-logger.ts";
 import { databaseTrafficGatekeep } from "./store/database-traffic.ts";
-import {
-    createTtlMemoryStorage,
-    createTtlVersionedMemoryStorage,
-} from "./store/ttl-memory-storage.ts";
-
-const SESSION_TTL_SECONDS = 24 * 60 * 60;
-const SESSION_TTL_MS = SESSION_TTL_SECONDS * 1_000;
-const STORAGE_CLEANUP_INTERVAL_MS = 60 * 60 * 1_000;
+import { conversationStorage, sessionStorage } from "./store/session-state.ts";
 
 interface Dependencies {
     config: Config;
@@ -87,25 +74,6 @@ export function createBot(
     botConfig?: BotConfig<Context>,
 ) {
     const { config, logger } = dependencies;
-    const sessionStorage = redis
-        ? new RedisAdapter<SessionData>({
-              instance: redis,
-              ttl: SESSION_TTL_SECONDS,
-          })
-        : createTtlMemoryStorage<SessionData>({
-              cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
-              ttlMs: SESSION_TTL_MS,
-          });
-    const conversationStorage = redis
-        ? new RedisAdapter<VersionedState<ConversationData>>({
-              instance: redis,
-              ttl: SESSION_TTL_SECONDS,
-          })
-        : createTtlVersionedMemoryStorage<ConversationData>({
-              cleanupIntervalMs: STORAGE_CLEANUP_INTERVAL_MS,
-              ttlMs: SESSION_TTL_MS,
-          });
-
     const bot = new TelegramBot<Context>(token, botConfig);
 
     bot.use(async (ctx, next) => {

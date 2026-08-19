@@ -5,8 +5,8 @@ import type { Context } from "#root/bot/context.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { extractUserDetails } from "#root/bot/helpers/user.js";
 import { getVoiceQueriesPage } from "#root/bot/helpers/voices.js";
+import { consumeInlineQueryToken } from "#root/bot/store/inline-rate-limit.js";
 import { getSafeErrorInfo } from "#root/logging.js";
-import { consumeInlineQueryToken } from "#root/redis.js";
 
 const composer = new Composer<Context>();
 const MAX_INLINE_QUERY_OFFSET = 1000;
@@ -27,7 +27,7 @@ composer.on(
 
 composer.on("inline_query", logHandle("inline-query"), async (ctx) => {
     const userID = ctx.from.id;
-    if (!(await consumeInlineQueryToken(userID))) {
+    if (!consumeInlineQueryToken(userID)) {
         await ctx.answerInlineQuery([], { cache_time: 1, is_personal: true });
         return;
     }

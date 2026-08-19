@@ -19,7 +19,7 @@ export function logHandle(id: string): Middleware<Context> {
         const startedAt = performance.now();
         await next();
 
-        ctx.logger.info({
+        ctx.logger.debug({
             msg: "Handler completed",
             handler: id,
             durationMs: performance.now() - startedAt,

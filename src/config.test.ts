@@ -5,7 +5,6 @@ process.env.BOT_MODE = "polling";
 process.env.BOT_TOKEN = "123456:test-token";
 process.env.BACKUP_ENCRYPTION_KEY = Buffer.alloc(32).toString("base64");
 process.env.NODE_ENV = "development";
-delete process.env.REDIS_URL;
 
 const { createConfig, createConfigFromEnvironment } = await import(
     "./config.ts"
@@ -102,42 +101,12 @@ describe("createConfig", () => {
         }
     });
 
-    it("accepts only Redis connection URLs", () => {
-        assert.equal(
-            createConfig({ ...baseConfig, redisUrl: "rediss://redis:6379" })
-                .redisUrl,
-            "rediss://redis:6379",
-        );
-        for (const redisUrl of ["https://redis:6379", "not-a-url"]) {
-            assert.throws(() => createConfig({ ...baseConfig, redisUrl }));
-        }
-    });
-
-    it("allows in-memory sessions only in development", () => {
-        assert.equal(createConfig(baseConfig).redisUrl, undefined);
-        assert.throws(() =>
-            createConfig({
-                ...baseConfig,
-                nodeEnv: "production",
-            }),
-        );
-        assert.equal(
-            createConfig({
-                ...baseConfig,
-                nodeEnv: "production",
-                redisUrl: "redis://redis:6379",
-            }).redisUrl,
-            "redis://redis:6379",
-        );
-    });
-
     it("uses human-readable logs in development and JSON in production", () => {
         assert.equal(createConfig(baseConfig).logFormat, "pretty");
         assert.equal(
             createConfig({
                 ...baseConfig,
                 nodeEnv: "production",
-                redisUrl: "redis://redis:6379",
             }).logFormat,
             "json",
         );
@@ -146,7 +115,6 @@ describe("createConfig", () => {
                 ...baseConfig,
                 logFormat: "pretty",
                 nodeEnv: "production",
-                redisUrl: "redis://redis:6379",
             }).logFormat,
             "pretty",
         );

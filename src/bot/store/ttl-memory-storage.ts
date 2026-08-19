@@ -11,22 +11,26 @@ type StorageEntry<T> = {
     value: T;
 };
 
+type ClearableStorage = {
+    clear: () => void;
+};
+
 export function createTtlMemoryStorage<T>(
     options: TtlMemoryStorageOptions,
-): StorageAdapter<T> {
+): StorageAdapter<T> & ClearableStorage {
     return createBaseTtlMemoryStorage<T>(options);
 }
 
 export function createTtlVersionedMemoryStorage<T>(
     options: TtlMemoryStorageOptions,
-): VersionedStateStorage<string, T> {
+): VersionedStateStorage<string, T> & ClearableStorage {
     return createBaseTtlMemoryStorage(options);
 }
 
 function createBaseTtlMemoryStorage<T>({
     cleanupIntervalMs,
     ttlMs,
-}: TtlMemoryStorageOptions): StorageAdapter<T> {
+}: TtlMemoryStorageOptions): StorageAdapter<T> & ClearableStorage {
     const storage = new Map<string, StorageEntry<T>>();
     const cleanupMs = cleanupIntervalMs ?? ttlMs;
 
@@ -46,6 +50,9 @@ function createBaseTtlMemoryStorage<T>({
     cleanupInterval.unref?.();
 
     return {
+        clear: () => {
+            storage.clear();
+        },
         delete: (key) => {
             storage.delete(key);
         },
