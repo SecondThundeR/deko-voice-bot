@@ -12,6 +12,12 @@ declare global {
             BACKUP_ENCRYPTION_KEY: string;
             BACKUP_MAX_SIZE_MB?: string;
             IMPORT_SESSION_TTL_MINUTES?: string;
+            OPERATIONS_URL: string;
+            OPERATIONS_TOKEN: string;
+            OPERATIONS_HOST?: string;
+            OPERATIONS_PORT?: string;
+            OPERATIONS_IMPORT_TTL_MINUTES?: string;
+            OPERATIONS_VOICE_MAX_SIZE_MB?: string;
             ADMIN_IDS?: string;
             LOG_LEVEL?:
                 | "trace"

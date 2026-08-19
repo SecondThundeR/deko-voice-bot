@@ -1,0 +1,36 @@
+services:
+  operations:
+    build:
+      context: .
+      dockerfile: apps/operations/Dockerfile
+    env_file: .env
+    environment:
+      OPERATIONS_HOST: 0.0.0.0
+      OPERATIONS_PORT: 3003
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - --input-type=module
+        - --eval
+        - const response = await fetch("http://127.0.0.1:3003/"); if (!response.ok) process.exit(1)
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: apps/bot/Dockerfile
+    env_file: .env
+    environment:
+      OPERATIONS_URL: http://operations:3003
+      SERVER_HOST: 0.0.0.0
+    depends_on:
+      operations:
+        condition: service_healthy
+    ports:
+      - "${SERVER_PORT:-3002}:${SERVER_PORT:-3002}"
+    restart: unless-stopped

@@ -3,7 +3,7 @@ dist
 .git
 .DS_Store
 .vscode
-Dockerfile
+**/Dockerfile
 .dockerignore
 README.md
 .env

@@ -1,0 +1,14 @@
+{
+    "name": "@deko-voice-bot/backup",
+    "version": "1.0.0",
+    "type": "module",
+    "private": true,
+    "exports": "./src/index.ts",
+    "scripts": {
+        "crypto": "node ./scripts/crypto.ts"
+    },
+    "dependencies": {
+        "@deko-voice-bot/shared": "workspace:*",
+        "postgres": "3.4.9"
+    }
+}

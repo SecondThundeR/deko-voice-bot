@@ -18,15 +18,9 @@
         "noUnusedParameters": true,
         "types": ["node"],
         "paths": {
-            "#root/*": ["./src/*"],
-            "#drizzle/*": ["./drizzle/*"]
+            "#root/*": ["./apps/bot/src/*"],
+            "#drizzle/*": ["./apps/bot/drizzle/*"]
         }
     },
-    "include": [
-        "src/**/*",
-        "drizzle/**/*.ts",
-        "drizzle.config.ts",
-        "tsdown.config.ts",
-        "env.d.ts"
-    ]
+    "include": ["apps/**/*.ts", "packages/**/*.ts", "env.d.ts"]
 }

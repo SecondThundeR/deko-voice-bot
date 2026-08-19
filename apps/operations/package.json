@@ -1,0 +1,21 @@
+{
+    "name": "@deko-voice-bot/operations",
+    "version": "1.0.0",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "build": "tsdown --config tsdown.config.ts",
+        "dev": "NODE_ENV=development node --watch ./src/main.ts",
+        "start": "NODE_ENV=production node ./dist/main.mjs"
+    },
+    "dependencies": {
+        "@deko-voice-bot/backup": "workspace:*",
+        "@deko-voice-bot/operations-contract": "workspace:*",
+        "@deko-voice-bot/shared": "workspace:*",
+        "@hono/node-server": "2.1.0",
+        "hono": "4.13.1",
+        "pino": "10.3.1",
+        "postgres": "3.4.9",
+        "valibot": "1.4.2"
+    }
+}

@@ -1,0 +1,21 @@
+import { getSafeErrorInfo } from "@deko-voice-bot/shared";
+import type { CallbackWithContext, Context } from "#root/bot/context.js";
+import { closeMenuExceptionHandler } from "#root/bot/helpers/menu.js";
+
+export async function genericCloseHandler(
+    ctx: Context,
+    onClose?: CallbackWithContext,
+) {
+    try {
+        await ctx.deleteMessage();
+        onClose?.(ctx);
+    } catch (error: unknown) {
+        ctx.logger.error({
+            msg: "Failed to close menu",
+            ...getSafeErrorInfo(error),
+        });
+        return closeMenuExceptionHandler(ctx);
+    } finally {
+        await ctx.callbackQuery?.answer();
+    }
+}

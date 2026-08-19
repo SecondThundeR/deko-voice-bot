@@ -26,5 +26,5 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
-      - run: pnpm exec drizzle-kit check --dialect=postgresql --out=./drizzle/migrations
+      - run: pnpm exec drizzle-kit check --dialect=postgresql --out=./apps/bot/drizzle/migrations
       - run: pnpm audit --prod
