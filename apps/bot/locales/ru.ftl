@@ -7,11 +7,11 @@ general-unknown-error = Неизвестная ошибка
 commands-updated = Команды обновлены
 
 # $botUsername (String) — имя бота с символом @
-start-message = Чтобы отправить фразу дЕко (или декО?) или найти ту самую нужную, введите в любом другом чате мою юзерку { $botUsername } или нажмите кнопку ниже
+start-message = Чтобы отправить фразу "дЕко" (или "декО"?), введите мою юзерку { $botUsername } в любом другом чате. Можно также нажать кнопку ниже
 start-button = Начать использование
 start-command-description = Получить информацию о боте
 
-privacy-message = Информация о политике приватности бота доступна по <a href="https://github.com/SecondThundeR/deko-voice-bot/blob/main/PRIVACY_POLICY.md">ссылке</a>
+privacy-message = Информация о политике конфиденциальности бота доступна по <a href="https://github.com/SecondThundeR/deko-voice-bot/blob/main/PRIVACY_POLICY.md">ссылке</a>.
 privacy-command-description = Получить информацию о политике приватности
 
 # Все переменные ниже имеют тип Number
@@ -25,11 +25,6 @@ stats-command-description = Получить общую статистику и�
 
 # $mostUsedUsers, $lastUsedUsers и $mostUsedVoices — готовые локализованные списки
 full-stats-message =
-    Всего пользователей бота: { NUMBER($allUsedUsers, useGrouping: 0) } (без аналитики: { NUMBER($allIgnoredUsers, useGrouping: 0) })
-    Всего активных пользователей за месяц: { NUMBER($allMAUUsers, useGrouping: 0) }
-    Всего пользователей, которые не использовали бота больше месяца: { NUMBER($allInactiveUsers, useGrouping: 0) }
-    Всего отправленных реплик: { NUMBER($allUsedVoices, useGrouping: 0) }
-
     Топ-5 активных пользователей:
     { $mostUsedUsers }
 
@@ -72,7 +67,7 @@ my-data-not-found =
     Чтобы участвовать в статистике, используйте команду /optin
 
 my-data-header =
-    Для полной прозрачности ниже приведена вся информация, которая хранится о вас:
+    Ниже приведена вся информация, которая хранится о вас:
 
 my-data-user-id = - Ваш Telegram ID: <code>{ NUMBER($userId, useGrouping: 0) }</code>
 my-data-full-name = - Ваше полное имя в Telegram: { $fullName }
@@ -105,12 +100,12 @@ opt-out-failed =
 
 opt-out-command-description = Удалить свои данные из статистики
 
-maintenance-command-description = Перевести бота в режим технических работ
-maintenance-inline-unavailable = Сейчас бот находится в режиме технических работ, поэтому получить реплику пока нельзя. Это может занять от нескольких минут до пары часов
-maintenance-chat-unavailable = Сейчас бот находится в режиме технических работ, поэтому команды пока недоступны. Это может занять от нескольких минут до пары часов
-maintenance-enabled = Режим технических работ включён
-maintenance-disabled = Режим технических работ отключён
-maintenance-inline-button = Выполняются технические работы!
+maintenance-command-description = Перевести бота на техническое обслуживание
+maintenance-inline-unavailable = Бот сейчас на техническом обслуживании, поэтому получить реплику нельзя. Это может занять от нескольких минут до пары часов.
+maintenance-chat-unavailable = Бот сейчас на техническом обслуживании, поэтому команды недоступны. Это может занять от нескольких минут до пары часов.
+maintenance-enabled = Техническое обслуживание включено
+maintenance-disabled = Техническое обслуживание завершено
+maintenance-inline-button = Идёт техническое обслуживание
 
 favorites-header = Выберите реплики, которые хотите добавить в избранное. Они будут показаны в начале списка
 favorites-no-data = Нет реплик, которые можно добавить в избранное
@@ -119,7 +114,7 @@ favorites-opted-out = К сожалению, добавлять реплики �
 
     P. S. После удаления данных добавление избранных реплик не имеет смысла: этот режим предполагает полную анонимность и отказ от хранения любых связанных с пользователем данных
 
-favorites-update-failed = Не удалось обработать запрос!
+favorites-update-failed = Не удалось обработать запрос
 favorites-update-started = Избранные реплики обновляются
 favorites-command-description = Управлять списком избранных реплик
 
@@ -177,14 +172,14 @@ donate-error =
     Не удалось создать запрос на пожертвование. Попробуйте ещё раз
     <blockquote>Если вы указывали произвольную сумму, попробуйте выбрать другое значение.</blockquote>
 
-donate-command-description = Поддержать бота, отправив звёзды
+donate-command-description = Поддержать бота звёздами
 donate-25-button = 25 ⭐
 donate-50-button = 50 ⭐
 donate-100-button = 100 ⭐
 donate-200-button = 200 ⭐
 donate-custom-button = Другая сумма
 
-refund-command-description = Отменить пожертвование по его идентификатору
+refund-command-description = Вернуть платеж по его идентификатору
 refund-id-required = Укажите ID платежа для возврата. Например: <code>/refund &lt;charge_id&gt;</code>
 refund-not-found = Платёж с указанным ID не найден
 refund-in-progress = Возврат платежа с указанным ID уже выполняется

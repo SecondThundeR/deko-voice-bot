@@ -14,7 +14,13 @@ feature.command("fullstats", logHandle("command-fullstats"), async (ctx) => {
     const locale = await ctx.i18n.getLocale();
     const statsMessageData = getFullStatsData(statsData, ctx.t, locale);
 
-    return ctx.reply(ctx.t("full-stats-message", statsMessageData));
+    return ctx.reply(
+        [
+            statsMessageData.basicStatsMessage,
+            "",
+            ctx.t("full-stats-message", statsMessageData),
+        ].join("\n"),
+    );
 });
 
 export { composer as fullStatsFeature };

@@ -58,7 +58,7 @@ export function getFullStatsData(
     const noData = translate("stats-no-data");
 
     return {
-        ...basicStats,
+        basicStatsMessage: translate("stats-message", basicStats),
         mostUsedUsers: mostUsedUsers || noData,
         lastUsedUsers: lastUsedUsers || noData,
         mostUsedVoices: mostUsedVoices || noData,
