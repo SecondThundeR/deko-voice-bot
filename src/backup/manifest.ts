@@ -7,7 +7,11 @@ import { BackupError } from "./errors.ts";
 const PACKAGE_MAGIC = Buffer.from("DEKOPKG2", "ascii");
 const MAX_MANIFEST_BYTES = 16 * 1024;
 export const BACKUP_FORMAT_VERSION = 2;
-export const CURRENT_SCHEMA_VERSION = "0016_runtime_inbox_and_invariants";
+export const CURRENT_SCHEMA_VERSION = "0017_simplify_runtime";
+const RESTORABLE_SCHEMA_VERSIONS = [
+    CURRENT_SCHEMA_VERSION,
+    "0016_runtime_inbox_and_invariants",
+] as const;
 
 export type BackupManifest = {
     createdAt: string;
@@ -72,7 +76,9 @@ export async function unpackBackup(packagePath: string, dumpPath: string) {
         ) as Partial<BackupManifest>;
         if (
             manifest.formatVersion !== BACKUP_FORMAT_VERSION ||
-            manifest.schemaVersion !== CURRENT_SCHEMA_VERSION ||
+            !RESTORABLE_SCHEMA_VERSIONS.some(
+                (schemaVersion) => schemaVersion === manifest.schemaVersion,
+            ) ||
             typeof manifest.createdAt !== "string" ||
             !Number.isFinite(Date.parse(manifest.createdAt))
         ) {

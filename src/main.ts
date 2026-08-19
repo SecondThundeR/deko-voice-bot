@@ -4,18 +4,20 @@ import {
     closeDatabaseConnection,
 } from "#drizzle/db.js";
 
+import { BOT_ALLOWED_UPDATES } from "./bot/constants/updates.ts";
 import { createBot } from "./bot/index.ts";
+import { databaseImportCoordinator } from "./bot/store/database-import.ts";
 import { config, type PollingConfig, type WebhookConfig } from "./config.ts";
 import { createLifecycle } from "./lifecycle.ts";
 import { logger } from "./logger.ts";
 import { getSafeErrorInfo } from "./logging.ts";
 import { checkRedisConnection, closeRedisConnection } from "./redis.ts";
 import { createServer, createServerManager } from "./server/index.ts";
-import { createWebhookInbox, startWebhookWorkers } from "./webhook/inbox.ts";
 
 const lifecycle = createLifecycle(logger);
 lifecycle.onShutdown(closeDatabaseConnection);
 lifecycle.onShutdown(closeRedisConnection);
+lifecycle.onShutdown(() => databaseImportCoordinator.waitForIdle());
 
 async function startPolling(config: PollingConfig) {
     const bot = createBot(config.botToken, {
@@ -27,8 +29,11 @@ async function startPolling(config: PollingConfig) {
     const runner = run(bot, {
         runner: {
             fetch: {
-                allowed_updates: config.botAllowedUpdates,
+                allowed_updates: BOT_ALLOWED_UPDATES,
             },
+        },
+        sink: {
+            concurrency: 16,
         },
     });
     lifecycle.onShutdown(() => runner.stop());
@@ -44,11 +49,9 @@ async function startWebhook(config: WebhookConfig) {
         config,
         logger,
     });
-    const inbox = createWebhookInbox();
     const server = createServer({
         bot,
         config,
-        inbox,
         logger,
     });
     const serverManager = createServerManager(server, {
@@ -58,9 +61,6 @@ async function startWebhook(config: WebhookConfig) {
 
     // to prevent receiving updates before the bot is ready
     await bot.init();
-    const stopWorkers = startWebhookWorkers(inbox, bot, logger);
-    lifecycle.onShutdown(() => inbox.close());
-    lifecycle.onShutdown(stopWorkers);
     const info = await serverManager.start();
     lifecycle.onShutdown(() => serverManager.stop());
     logger.info({
@@ -69,7 +69,8 @@ async function startWebhook(config: WebhookConfig) {
     });
 
     await bot.api.setWebhook(config.botWebhook, {
-        allowed_updates: config.botAllowedUpdates,
+        allowed_updates: BOT_ALLOWED_UPDATES,
+        max_connections: 10,
         secret_token: config.botWebhookSecret,
     });
     logger.info({

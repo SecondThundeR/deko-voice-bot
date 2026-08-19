@@ -120,6 +120,13 @@
       "when": 1786531200000,
       "tag": "0016_runtime_inbox_and_invariants",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1787137746828,
+      "tag": "0017_simplify_runtime",
+      "breakpoints": true
     }
   ]
 }

@@ -1,9 +1,7 @@
 import { createDatabaseDump, hashFile } from "./database.ts";
 import { encryptBackupFile } from "./encryption.ts";
 import { packBackup } from "./manifest.ts";
-import type { createBackupTempPaths } from "./paths.ts";
-
-type BackupTempPaths = ReturnType<typeof createBackupTempPaths>;
+import type { BackupTempPaths } from "./paths.ts";
 
 type CreateEncryptedDatabaseBackupOptions = {
     databaseUrl: string;

@@ -1,4 +1,3 @@
-import { API_CONSTANTS } from "grammy";
 import * as v from "valibot";
 import { loadEnvironmentFile } from "./environment.ts";
 
@@ -26,17 +25,9 @@ const baseConfigSchema = v.object({
         ),
         "info",
     ),
-    logFormat: v.optional(v.picklist(["pretty", "json"]), "pretty"),
+    logFormat: v.optional(v.picklist(["pretty", "json"])),
     logColorize: v.optional(v.pipe(v.string(), v.parseJson(), v.boolean())),
     botToken: v.pipe(v.string(), v.regex(/^\d+:[\w-]+$/, "Invalid token")),
-    botAllowedUpdates: v.optional(
-        v.pipe(
-            v.string(),
-            v.parseJson(),
-            v.array(v.picklist(API_CONSTANTS.ALL_UPDATE_TYPES)),
-        ),
-        "[]",
-    ),
     adminIds: v.optional(
         v.pipe(
             v.string(),
@@ -116,9 +107,11 @@ const configSchema = v.pipe(
         ),
         ["redisUrl"],
     ),
-    v.transform(({ useDebug, ...input }) => ({
+    v.transform(({ logFormat, useDebug, ...input }) => ({
         ...input,
         isDebug: useDebug,
+        logFormat:
+            logFormat ?? (input.nodeEnv === "production" ? "json" : "pretty"),
     })),
 );
 
@@ -136,7 +129,6 @@ const CONFIG_KEY_TO_ENVIRONMENT_VARIABLE = {
     adminIds: "ADMIN_IDS",
     backupEncryptionKey: "BACKUP_ENCRYPTION_KEY",
     backupMaxSizeMb: "BACKUP_MAX_SIZE_MB",
-    botAllowedUpdates: "BOT_ALLOWED_UPDATES",
     botMode: "BOT_MODE",
     botToken: "BOT_TOKEN",
     botWebhook: "BOT_WEBHOOK",
@@ -177,7 +169,6 @@ export function createConfigFromEnvironment(environment: Environment) {
             adminIds: environment.ADMIN_IDS,
             backupEncryptionKey: environment.BACKUP_ENCRYPTION_KEY,
             backupMaxSizeMb: environment.BACKUP_MAX_SIZE_MB,
-            botAllowedUpdates: environment.BOT_ALLOWED_UPDATES,
             botMode: environment.BOT_MODE,
             botToken: environment.BOT_TOKEN,
             botWebhook: environment.BOT_WEBHOOK,

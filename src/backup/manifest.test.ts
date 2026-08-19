@@ -56,4 +56,47 @@ describe("backup manifest", () => {
             code: "BACKUP_SCHEMA_MISMATCH",
         });
     });
+
+    it("keeps backups from the immediately preceding schema restorable", async () => {
+        const target = await paths();
+        await writeFile(target.dump, "previous schema dump");
+        await packBackup(target.dump, target.package);
+
+        const packageBytes = await readFile(target.package);
+        const magicLength = Buffer.byteLength("DEKOPKG2");
+        const headerLength = magicLength + 4;
+        const manifestLength = packageBytes.readUInt32BE(magicLength);
+        const manifest = JSON.parse(
+            packageBytes
+                .subarray(headerLength, headerLength + manifestLength)
+                .toString("utf8"),
+        );
+        manifest.schemaVersion = "0016_runtime_inbox_and_invariants";
+
+        const encodedManifest = Buffer.from(JSON.stringify(manifest), "utf8");
+        const header = Buffer.alloc(headerLength);
+        packageBytes.copy(header, 0, 0, magicLength);
+        header.writeUInt32BE(encodedManifest.length, magicLength);
+        await writeFile(
+            target.package,
+            Buffer.concat([
+                header,
+                encodedManifest,
+                packageBytes.subarray(headerLength + manifestLength),
+            ]),
+        );
+
+        const restoredManifest = await unpackBackup(
+            target.package,
+            target.output,
+        );
+        assert.equal(
+            restoredManifest.schemaVersion,
+            "0016_runtime_inbox_and_invariants",
+        );
+        assert.equal(
+            await readFile(target.output, "utf8"),
+            "previous schema dump",
+        );
+    });
 });

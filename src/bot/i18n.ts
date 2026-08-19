@@ -16,7 +16,7 @@ export const i18n = new I18n<Context>({
     globalTranslationContext: (ctx) => ({
         botUsername: escapeHTML(`@${ctx.me.username}`),
     }),
-    useSession: true,
+    useSession: false,
     fluentBundleOptions: {
         useIsolating: false,
     },

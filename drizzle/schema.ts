@@ -97,14 +97,6 @@ export const usersFavoritesTable = pgTable(
 
 export type InsertUserFavorites = typeof usersFavoritesTable.$inferInsert;
 
-export const processedUsageUpdatesTable = pgTable(
-    "processed_usage_updates",
-    (t) => ({
-        updateId: t.bigint({ mode: "number" }).primaryKey(),
-        processedAt: t.timestamp({ withTimezone: true }).defaultNow().notNull(),
-    }),
-);
-
 export const paymentStatusEnum = pgEnum("payment_status", [
     "paid",
     "refund_pending",

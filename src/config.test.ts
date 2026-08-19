@@ -130,4 +130,25 @@ describe("createConfig", () => {
             "redis://redis:6379",
         );
     });
+
+    it("uses human-readable logs in development and JSON in production", () => {
+        assert.equal(createConfig(baseConfig).logFormat, "pretty");
+        assert.equal(
+            createConfig({
+                ...baseConfig,
+                nodeEnv: "production",
+                redisUrl: "redis://redis:6379",
+            }).logFormat,
+            "json",
+        );
+        assert.equal(
+            createConfig({
+                ...baseConfig,
+                logFormat: "pretty",
+                nodeEnv: "production",
+                redisUrl: "redis://redis:6379",
+            }).logFormat,
+            "pretty",
+        );
+    });
 });

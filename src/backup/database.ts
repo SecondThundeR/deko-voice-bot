@@ -10,7 +10,6 @@ const DATABASE_UTILITY_TIMEOUT_MS = 5 * 60_000;
 const REQUIRED_TABLES = [
     "feature_flags",
     "payments",
-    "processed_usage_updates",
     "users",
     "users_favorites",
     "voices",
@@ -175,6 +174,16 @@ export async function restoreDatabaseDump(
         connection.env,
     );
     assertSuccessfulProcess(result, "pg_restore");
+}
+
+export async function normalizeRestoredDatabase(databaseUrl: string) {
+    const client = postgres(databaseUrl, { max: 1 });
+
+    try {
+        await client`drop table if exists processed_usage_updates`;
+    } finally {
+        await client.end({ timeout: 5 });
+    }
 }
 
 export async function validateRestoredDatabase(databaseUrl: string) {

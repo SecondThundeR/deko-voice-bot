@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { unlink } from "node:fs/promises";
+import type { BackupTempPaths } from "#root/backup/paths.js";
+import { removeBackupTempPaths } from "#root/backup/paths.js";
 
 type SessionKey = `${number}:${number}`;
 
@@ -9,8 +10,7 @@ type AwaitingFileSession = {
 
 type AwaitingConfirmationSession = {
     stage: "awaiting-confirmation";
-    dumpPath: string;
-    encryptedPath: string;
+    paths: BackupTempPaths;
     sha256: string;
     size: number;
 };
@@ -22,6 +22,11 @@ export type ImportSession = {
     expiresAt: number;
 } & (AwaitingFileSession | AwaitingConfirmationSession);
 
+export type ConfirmedImportSession = Extract<
+    ImportSession,
+    { stage: "awaiting-confirmation" }
+>;
+
 function getSessionKey(userId: number, chatId: number): SessionKey {
     return `${userId}:${chatId}`;
 }
@@ -31,10 +36,7 @@ async function cleanupSessionFiles(session: ImportSession) {
         return;
     }
 
-    await Promise.allSettled([
-        unlink(session.dumpPath),
-        unlink(session.encryptedPath),
-    ]);
+    await removeBackupTempPaths(session.paths);
 }
 
 export class ImportSessionStore {

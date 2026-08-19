@@ -3,7 +3,12 @@ import postgres from "postgres";
 
 import { databaseUrl } from "./env.ts";
 
-let client = postgres(databaseUrl);
+const databaseOptions = {
+    idle_timeout: 20,
+    max: 5,
+} as const;
+
+let client = postgres(databaseUrl, databaseOptions);
 
 export let db = drizzle({
     client,
@@ -20,9 +25,13 @@ export async function closeDatabaseConnection() {
     await client.end({ timeout: 5 });
 }
 
-export async function resetDatabaseConnection() {
+export async function withDatabaseDisconnected<T>(operation: () => Promise<T>) {
     await closeDatabaseConnection();
-    client = postgres(databaseUrl);
-    db = drizzle({ client, casing: "snake_case", logger: false });
-    await checkDatabaseConnection();
+    try {
+        return await operation();
+    } finally {
+        client = postgres(databaseUrl, databaseOptions);
+        db = drizzle({ client, casing: "snake_case", logger: false });
+        await checkDatabaseConnection();
+    }
 }

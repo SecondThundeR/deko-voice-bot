@@ -1,24 +1,21 @@
 import assert from "node:assert/strict";
-import { access, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { access, rm, writeFile } from "node:fs/promises";
 import { afterEach, describe, it } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
 
+import { createBackupTempPaths } from "#root/backup/paths.js";
 import { ImportSessionStore } from "./import-sessions.ts";
 
 const tempDirectories: string[] = [];
 
 async function createSessionFiles() {
-    const directory = await mkdtemp(join(tmpdir(), "deko-import-test-"));
-    tempDirectories.push(directory);
-    const dumpPath = join(directory, "restore.dump");
-    const encryptedPath = join(directory, "restore.dump.enc");
+    const paths = await createBackupTempPaths("deko-import-test");
+    tempDirectories.push(paths.directory);
     await Promise.all([
-        writeFile(dumpPath, "dump"),
-        writeFile(encryptedPath, "encrypted"),
+        writeFile(paths.dump, "dump"),
+        writeFile(paths.encrypted, "encrypted"),
     ]);
-    return { dumpPath, encryptedPath };
+    return paths;
 }
 
 afterEach(async () => {
@@ -48,7 +45,7 @@ describe("ImportSessionStore", () => {
 
         const paths = await createSessionFiles();
         store.addAwaitingConfirmation(awaitingFile, {
-            ...paths,
+            paths,
             sha256: "abc",
             size: 42,
         });
@@ -79,14 +76,14 @@ describe("ImportSessionStore", () => {
         assert.ok(awaitingFile);
         const paths = await createSessionFiles();
         store.addAwaitingConfirmation(awaitingFile, {
-            ...paths,
+            paths,
             sha256: "abc",
             size: 42,
         });
 
         assert.equal(await store.cancel(10, 20), true);
-        await assert.rejects(access(paths.dumpPath));
-        await assert.rejects(access(paths.encryptedPath));
+        await assert.rejects(access(paths.dump));
+        await assert.rejects(access(paths.encrypted));
     });
 
     it("expires sessions and deletes temporary files", async () => {
@@ -96,7 +93,7 @@ describe("ImportSessionStore", () => {
         assert.ok(awaitingFile);
         const paths = await createSessionFiles();
         store.addAwaitingConfirmation(awaitingFile, {
-            ...paths,
+            paths,
             sha256: "abc",
             size: 42,
         });
@@ -104,7 +101,7 @@ describe("ImportSessionStore", () => {
         await delay(30);
 
         assert.equal(store.get(10, 20), null);
-        await assert.rejects(access(paths.dumpPath));
-        await assert.rejects(access(paths.encryptedPath));
+        await assert.rejects(access(paths.dump));
+        await assert.rejects(access(paths.encrypted));
     });
 });

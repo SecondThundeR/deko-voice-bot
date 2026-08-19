@@ -1,43 +1,24 @@
-import { randomUUID } from "node:crypto";
 import { stat, unlink } from "node:fs/promises";
-import { Composer, InlineKeyboard, InputFile } from "grammy";
-import {
-    closeDatabaseConnection,
-    resetDatabaseConnection,
-} from "#drizzle/db.js";
-import { databaseUrl } from "#drizzle/env.js";
+import { Composer, InlineKeyboard } from "grammy";
 
-import { createEncryptedDatabaseBackup } from "#root/backup/create.js";
-import {
-    hashFile,
-    restoreDatabaseDump,
-    validateDatabaseDump,
-    validateRestoredDatabase,
-} from "#root/backup/database.js";
+import { hashFile, validateDatabaseDump } from "#root/backup/database.js";
 import {
     decryptBackupFile,
     ENCRYPTED_BACKUP_EXTENSION,
     parseBackupEncryptionKey,
 } from "#root/backup/encryption.js";
-import { BackupOperationBusyError } from "#root/backup/errors.js";
-import { withBackupAdvisoryLock } from "#root/backup/lock.js";
 import { unpackBackup } from "#root/backup/manifest.js";
 import {
     createBackupTempPaths,
-    createDatedBackupFileName,
+    removeBackupTempPaths,
 } from "#root/backup/paths.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { downloadTelegramFileToPath } from "#root/bot/helpers/api.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
-import {
-    beginDatabaseImportMaintenance,
-    endDatabaseImportMaintenance,
-} from "#root/bot/store/database-traffic.js";
+import { databaseImportCoordinator } from "#root/bot/store/database-import.js";
 import { importSessions } from "#root/bot/store/import-sessions.js";
-import { setCachedMaintenanceFeatureFlag } from "#root/bot/store/maintenance.js";
 import { getSafeErrorInfo } from "#root/logging.js";
-import { clearBotSessionState } from "#root/redis.js";
 
 const IMPORT_CALLBACK = /^import:(confirm|cancel):([0-9a-f-]{36})$/;
 
@@ -97,7 +78,7 @@ feature.on(
             return ctx.reply(ctx.t("import-session-expired"));
         }
 
-        const paths = createBackupTempPaths("restore");
+        const paths = await createBackupTempPaths("restore");
 
         try {
             const statusMessage = await ctx.reply(ctx.t("import-validating"));
@@ -135,8 +116,7 @@ feature.on(
             importSessions.addAwaitingConfirmation(
                 session,
                 {
-                    dumpPath: paths.dump,
-                    encryptedPath: paths.encrypted,
+                    paths,
                     sha256,
                     size: fileStats.size,
                 },
@@ -161,11 +141,7 @@ feature.on(
             );
         } catch (error: unknown) {
             await importSessions.cancel(ctx.from.id, ctx.chat.id);
-            await Promise.allSettled([
-                unlink(paths.dump),
-                unlink(paths.package),
-                unlink(paths.encrypted),
-            ]);
+            await removeBackupTempPaths(paths);
             ctx.logger.warn({
                 msg: "Database import file validation failed",
                 operationId: session.operationId,
@@ -201,98 +177,37 @@ feature.callbackQuery(
             });
         });
         if (action === "cancel") {
-            await Promise.allSettled([
-                unlink(session.dumpPath),
-                unlink(session.encryptedPath),
-            ]);
+            await removeBackupTempPaths(session.paths);
             return ctx.editMessageText(ctx.t("import-cancelled"));
         }
 
-        const runtimeOperationId = randomUUID();
-        const emergencyPaths = createBackupTempPaths("pre-import");
-        let maintenanceStarted = false;
-        let applicationDatabaseClosed = false;
-
-        try {
-            await ctx.editMessageText(ctx.t("import-preparing"));
-            maintenanceStarted = await beginDatabaseImportMaintenance();
-            if (!maintenanceStarted) {
-                throw new BackupOperationBusyError();
-            }
-
-            const encryptionKey = parseBackupEncryptionKey(
-                ctx.config.backupEncryptionKey,
-            );
-            await withBackupAdvisoryLock(databaseUrl, async () => {
-                const emergencySha256 = await createEncryptedDatabaseBackup({
-                    databaseUrl,
-                    encryptionKey,
-                    paths: emergencyPaths,
-                });
-
-                await ctx.replyWithDocument(
-                    new InputFile(
-                        emergencyPaths.encrypted,
-                        createDatedBackupFileName("pre-import"),
-                    ),
-                    {
-                        caption: ctx.t("import-emergency-backup", {
-                            sha256: emergencySha256,
-                        }),
-                    },
-                );
-
-                applicationDatabaseClosed = true;
-                await closeDatabaseConnection();
-                await restoreDatabaseDump(databaseUrl, session.dumpPath);
-                await resetDatabaseConnection();
-                applicationDatabaseClosed = false;
-                setCachedMaintenanceFeatureFlag(null);
-                await validateRestoredDatabase(databaseUrl);
-                await clearBotSessionState();
-                await importSessions.clear();
-            });
-
-            ctx.logger.info({
-                msg: "Database import completed",
-                operationId: runtimeOperationId,
-                sourceSha256: session.sha256,
-                sourceSize: session.size,
-            });
-            return ctx.reply(ctx.t("import-completed"));
-        } catch (error: unknown) {
-            if (applicationDatabaseClosed) {
-                await resetDatabaseConnection().catch((reconnectError) => {
-                    ctx.logger.error({
-                        msg: "Database reconnect after failed import failed",
-                        ...getSafeErrorInfo(reconnectError),
-                    });
-                });
-            }
-            ctx.logger.error({
-                msg: "Database import failed",
-                operationId: runtimeOperationId,
-                sourceSha256: session.sha256,
-                sourceSize: session.size,
-                ...getSafeErrorInfo(error),
-            });
-            return ctx.reply(
+        const started = databaseImportCoordinator.start({
+            api: ctx.api,
+            chatId: ctx.chat.id,
+            encryptionKey: ctx.config.backupEncryptionKey,
+            logger: ctx.logger,
+            messageId: ctx.callbackQuery.message?.message_id,
+            messages: {
+                completed: ctx.t("import-completed"),
+                emergencyBackup: (sha256) =>
+                    ctx.t("import-emergency-backup", { sha256 }),
+                error: ctx.t("import-error", {
+                    operationId: session.operationId,
+                }),
+                preparing: ctx.t("import-preparing"),
+            },
+            session,
+        });
+        if (!started) {
+            await removeBackupTempPaths(session.paths);
+            return ctx.editMessageText(
                 ctx.t("import-error", {
-                    operationId: runtimeOperationId,
+                    operationId: session.operationId,
                 }),
             );
-        } finally {
-            if (maintenanceStarted) {
-                endDatabaseImportMaintenance();
-            }
-            await Promise.allSettled([
-                unlink(session.dumpPath),
-                unlink(session.encryptedPath),
-                unlink(emergencyPaths.dump),
-                unlink(emergencyPaths.package),
-                unlink(emergencyPaths.encrypted),
-            ]);
         }
+
+        return;
     },
 );
 

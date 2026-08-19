@@ -19,10 +19,8 @@ composer.on(
         const userDetails = extractUserDetails(from);
 
         await recordUsage({
-            updateId: ctx.update.update_id,
             user: userDetails,
             voiceId,
-            logger: ctx.logger,
         });
     },
 );

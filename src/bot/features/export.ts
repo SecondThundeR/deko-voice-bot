@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { unlink } from "node:fs/promises";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
 import { databaseUrl } from "#drizzle/env.js";
@@ -10,6 +9,7 @@ import { withBackupAdvisoryLock } from "#root/backup/lock.js";
 import {
     createBackupTempPaths,
     createDatedBackupFileName,
+    removeBackupTempPaths,
 } from "#root/backup/paths.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
@@ -26,7 +26,7 @@ feature.command(
     async (ctx) => {
         const operationId = randomUUID();
         const fileName = createDatedBackupFileName("backup");
-        const paths = createBackupTempPaths("export");
+        const paths = await createBackupTempPaths("export");
 
         try {
             const encryptionKey = parseBackupEncryptionKey(
@@ -61,11 +61,7 @@ feature.command(
             });
             return ctx.reply(ctx.t("export-unknown-error", { operationId }));
         } finally {
-            await Promise.allSettled([
-                unlink(paths.dump),
-                unlink(paths.package),
-                unlink(paths.encrypted),
-            ]);
+            await removeBackupTempPaths(paths);
         }
     },
 );

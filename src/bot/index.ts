@@ -130,14 +130,16 @@ export function createBot(
     protectedBot.use(autoChatAction(bot.api));
     protectedBot.use(hydrateReply);
     protectedBot.use(hydrate());
+    protectedBot.use(i18n);
+    protectedBot.use(databaseTrafficGatekeep());
+    protectedBot.use(maintenanceGatekeep());
+    protectedBot.use(inlineQueryFeature);
     protectedBot.use(
         session({
             getSessionKey: (ctx) => getPrefixedSessionKey("session", ctx),
             storage: sessionStorage,
         }),
     );
-    protectedBot.use(i18n);
-    protectedBot.use(databaseTrafficGatekeep());
     protectedBot.use(
         conversations({
             plugins: [i18n],
@@ -149,8 +151,6 @@ export function createBot(
             },
         }),
     );
-    protectedBot.use(maintenanceGatekeep());
-    protectedBot.use(inlineQueryFeature);
     protectedBot.use(cancelFeature);
     protectedBot.use(newVoicesConversation());
     protectedBot.use(updateVoiceFileConversation());

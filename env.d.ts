@@ -4,7 +4,6 @@ declare global {
             NODE_ENV?: "development" | "production";
             BOT_TOKEN: string;
             BOT_MODE?: "polling" | "webhook";
-            BOT_ALLOWED_UPDATES?: string;
             BOT_WEBHOOK?: string;
             BOT_WEBHOOK_SECRET?: string;
             SERVER_HOST?: string;
