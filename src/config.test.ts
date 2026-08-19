@@ -7,7 +7,9 @@ process.env.BACKUP_ENCRYPTION_KEY = Buffer.alloc(32).toString("base64");
 process.env.NODE_ENV = "development";
 delete process.env.REDIS_URL;
 
-const { createConfig } = await import("./config.ts");
+const { createConfig, createConfigFromEnvironment } = await import(
+    "./config.ts"
+);
 
 const baseConfig = {
     backupEncryptionKey: Buffer.alloc(32).toString("base64"),
@@ -17,6 +19,52 @@ const baseConfig = {
 };
 
 describe("createConfig", () => {
+    it("does not expose rejected environment values", () => {
+        const secret = "TEST_SECRET_TOKEN_VALUE";
+
+        assert.throws(
+            () =>
+                createConfigFromEnvironment({
+                    BACKUP_ENCRYPTION_KEY: Buffer.alloc(32).toString("base64"),
+                    BOT_MODE: "polling",
+                    BOT_TOKEN: secret,
+                    NODE_ENV: "development",
+                }),
+            (error: unknown) => {
+                assert.ok(error instanceof Error);
+                assert.equal(
+                    error.message,
+                    "Invalid application configuration: BOT_TOKEN",
+                );
+                assert.equal(error.cause, undefined);
+                assert.doesNotMatch(String(error), new RegExp(secret));
+                return true;
+            },
+        );
+    });
+
+    it("reports malformed JSON by environment variable name", () => {
+        assert.throws(
+            () =>
+                createConfigFromEnvironment({
+                    ADMIN_IDS: "[",
+                    BACKUP_ENCRYPTION_KEY: Buffer.alloc(32).toString("base64"),
+                    BOT_MODE: "polling",
+                    BOT_TOKEN: "123456:test-token",
+                    NODE_ENV: "development",
+                }),
+            (error: unknown) => {
+                assert.ok(error instanceof Error);
+                assert.equal(
+                    error.message,
+                    "Invalid application configuration: ADMIN_IDS",
+                );
+                assert.doesNotMatch(String(error), /Received|Unexpected|\[/);
+                return true;
+            },
+        );
+    });
+
     it("accepts positive safe Telegram administrator identifiers", () => {
         const config = createConfig({
             ...baseConfig,

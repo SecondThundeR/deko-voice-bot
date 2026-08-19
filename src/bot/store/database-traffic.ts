@@ -1,4 +1,4 @@
-import type { Middleware } from "grammy";
+import type { MiddlewareFn } from "grammy";
 
 import type { Context } from "#root/bot/context.js";
 
@@ -17,7 +17,7 @@ export function isDatabaseImportMaintenanceActive() {
     return isImportMaintenanceActive;
 }
 
-export function databaseTrafficGatekeep(): Middleware<Context> {
+export function databaseTrafficGatekeep(): MiddlewareFn<Context> {
     return async (ctx, next) => {
         if (isImportMaintenanceActive) {
             if (ctx.inlineQuery) {

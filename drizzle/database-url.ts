@@ -23,3 +23,11 @@ const databaseUrlSchema = v.pipe(
 export function parseDatabaseUrl(input: unknown) {
     return v.parse(databaseUrlSchema, input);
 }
+
+export function parseDatabaseUrlFromEnvironment(input: unknown) {
+    try {
+        return parseDatabaseUrl(input);
+    } catch {
+        throw new Error("Invalid DATABASE_URL configuration");
+    }
+}

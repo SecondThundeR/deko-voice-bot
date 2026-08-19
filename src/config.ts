@@ -8,7 +8,7 @@ const baseConfigSchema = v.object({
         "development",
     ),
     useDebug: v.optional(
-        v.pipe(v.string(), v.transform(JSON.parse), v.boolean()),
+        v.pipe(v.string(), v.parseJson(), v.boolean()),
         "false",
     ),
     logLevel: v.optional(
@@ -27,14 +27,12 @@ const baseConfigSchema = v.object({
         "info",
     ),
     logFormat: v.optional(v.picklist(["pretty", "json"]), "pretty"),
-    logColorize: v.optional(
-        v.pipe(v.string(), v.transform(JSON.parse), v.boolean()),
-    ),
+    logColorize: v.optional(v.pipe(v.string(), v.parseJson(), v.boolean())),
     botToken: v.pipe(v.string(), v.regex(/^\d+:[\w-]+$/, "Invalid token")),
     botAllowedUpdates: v.optional(
         v.pipe(
             v.string(),
-            v.transform(JSON.parse),
+            v.parseJson(),
             v.array(v.picklist(API_CONSTANTS.ALL_UPDATE_TYPES)),
         ),
         "[]",
@@ -42,7 +40,7 @@ const baseConfigSchema = v.object({
     adminIds: v.optional(
         v.pipe(
             v.string(),
-            v.transform(JSON.parse),
+            v.parseJson(),
             v.array(v.pipe(v.number(), v.safeInteger(), v.minValue(1))),
         ),
         "[]",
@@ -132,34 +130,77 @@ export function createConfig(input: unknown) {
     return v.parse(configSchema, input);
 }
 
-export const config = createConfigFromEnvironment();
+type Environment = Record<string, string | undefined>;
 
-function createConfigFromEnvironment() {
-    loadEnvironmentFile();
+const CONFIG_KEY_TO_ENVIRONMENT_VARIABLE = {
+    adminIds: "ADMIN_IDS",
+    backupEncryptionKey: "BACKUP_ENCRYPTION_KEY",
+    backupMaxSizeMb: "BACKUP_MAX_SIZE_MB",
+    botAllowedUpdates: "BOT_ALLOWED_UPDATES",
+    botMode: "BOT_MODE",
+    botToken: "BOT_TOKEN",
+    botWebhook: "BOT_WEBHOOK",
+    botWebhookSecret: "BOT_WEBHOOK_SECRET",
+    importSessionTtlMinutes: "IMPORT_SESSION_TTL_MINUTES",
+    logColorize: "LOG_COLORIZE",
+    logFormat: "LOG_FORMAT",
+    logLevel: "LOG_LEVEL",
+    nodeEnv: "NODE_ENV",
+    redisUrl: "REDIS_URL",
+    serverHost: "SERVER_HOST",
+    serverPort: "SERVER_PORT",
+    useDebug: "USE_DEBUG",
+} as const;
 
+function getInvalidEnvironmentVariables(error: unknown) {
+    if (!v.isValiError(error)) return [];
+
+    const variables = new Set<string>();
+    for (const issue of error.issues) {
+        const configKey = issue.path?.find(
+            (item) => item.type === "object" && typeof item.key === "string",
+        )?.key;
+        if (typeof configKey !== "string") continue;
+
+        const variable =
+            CONFIG_KEY_TO_ENVIRONMENT_VARIABLE[
+                configKey as keyof typeof CONFIG_KEY_TO_ENVIRONMENT_VARIABLE
+            ];
+        if (variable) variables.add(variable);
+    }
+    return [...variables];
+}
+
+export function createConfigFromEnvironment(environment: Environment) {
     try {
         return createConfig({
-            adminIds: process.env.ADMIN_IDS,
-            backupEncryptionKey: process.env.BACKUP_ENCRYPTION_KEY,
-            backupMaxSizeMb: process.env.BACKUP_MAX_SIZE_MB,
-            botAllowedUpdates: process.env.BOT_ALLOWED_UPDATES,
-            botMode: process.env.BOT_MODE,
-            botToken: process.env.BOT_TOKEN,
-            botWebhook: process.env.BOT_WEBHOOK,
-            botWebhookSecret: process.env.BOT_WEBHOOK_SECRET,
-            importSessionTtlMinutes: process.env.IMPORT_SESSION_TTL_MINUTES,
-            logColorize: process.env.LOG_COLORIZE,
-            logFormat: process.env.LOG_FORMAT,
-            logLevel: process.env.LOG_LEVEL,
-            nodeEnv: process.env.NODE_ENV,
-            redisUrl: process.env.REDIS_URL,
-            serverHost: process.env.SERVER_HOST,
-            serverPort: process.env.SERVER_PORT,
-            useDebug: process.env.USE_DEBUG,
+            adminIds: environment.ADMIN_IDS,
+            backupEncryptionKey: environment.BACKUP_ENCRYPTION_KEY,
+            backupMaxSizeMb: environment.BACKUP_MAX_SIZE_MB,
+            botAllowedUpdates: environment.BOT_ALLOWED_UPDATES,
+            botMode: environment.BOT_MODE,
+            botToken: environment.BOT_TOKEN,
+            botWebhook: environment.BOT_WEBHOOK,
+            botWebhookSecret: environment.BOT_WEBHOOK_SECRET,
+            importSessionTtlMinutes: environment.IMPORT_SESSION_TTL_MINUTES,
+            logColorize: environment.LOG_COLORIZE,
+            logFormat: environment.LOG_FORMAT,
+            logLevel: environment.LOG_LEVEL,
+            nodeEnv: environment.NODE_ENV,
+            redisUrl: environment.REDIS_URL,
+            serverHost: environment.SERVER_HOST,
+            serverPort: environment.SERVER_PORT,
+            useDebug: environment.USE_DEBUG,
         });
     } catch (error) {
-        throw new Error("Invalid config", {
-            cause: error,
-        });
+        const invalidVariables = getInvalidEnvironmentVariables(error);
+        const suffix =
+            invalidVariables.length > 0
+                ? `: ${invalidVariables.join(", ")}`
+                : "";
+        throw new Error(`Invalid application configuration${suffix}`);
     }
 }
+
+loadEnvironmentFile();
+export const config = createConfigFromEnvironment(process.env);

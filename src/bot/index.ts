@@ -137,6 +137,7 @@ export function createBot(
         }),
     );
     protectedBot.use(i18n);
+    protectedBot.use(databaseTrafficGatekeep());
     protectedBot.use(
         conversations({
             plugins: [i18n],
@@ -148,7 +149,6 @@ export function createBot(
             },
         }),
     );
-    protectedBot.use(databaseTrafficGatekeep());
     protectedBot.use(maintenanceGatekeep());
     protectedBot.use(inlineQueryFeature);
     protectedBot.use(cancelFeature);
