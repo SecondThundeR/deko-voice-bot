@@ -1,8 +1,8 @@
 import { unlink } from "node:fs/promises";
 import type { Conversation } from "@grammyjs/conversations";
 import { InputFile } from "grammy";
+import { apiClient } from "#root/api/client.js";
 import type { Context, ConversationContext } from "#root/bot/context.js";
-import { operationsClient } from "#root/operations/client.js";
 import { downloadTelegramFileToPath } from "./api.ts";
 import { createVoiceTempFilePaths } from "./general.ts";
 
@@ -50,7 +50,7 @@ export async function sendConvertedVoice({
 
         try {
             await conversation.external(() =>
-                operationsClient.convertVoice(input, output),
+                apiClient.convertVoice(input, output),
             );
         } catch (error) {
             return {

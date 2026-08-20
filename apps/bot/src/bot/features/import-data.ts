@@ -5,13 +5,13 @@ import {
 } from "@deko-voice-bot/backup";
 import { getSafeErrorInfo } from "@deko-voice-bot/shared";
 import { Composer, InlineKeyboard } from "grammy";
+import { apiClient } from "#root/api/client.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { downloadTelegramFileToPath } from "#root/bot/helpers/api.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
 import { databaseImportCoordinator } from "#root/bot/store/database-import.js";
 import { importSessions } from "#root/bot/store/import-sessions.js";
-import { operationsClient } from "#root/operations/client.js";
 
 const IMPORT_CALLBACK = /^import:(confirm|cancel):([0-9a-f-]{36})$/;
 
@@ -90,7 +90,7 @@ feature.on(
                 throw new Error("Failed to download backup file");
             }
 
-            const { sha256, size } = await operationsClient.prepareImport(
+            const { sha256, size } = await apiClient.prepareImport(
                 session.operationId,
                 paths.encrypted,
             );
@@ -124,7 +124,7 @@ feature.on(
             await importSessions.cancel(ctx.from.id, ctx.chat.id);
             await Promise.allSettled([
                 removeBackupTempPaths(paths),
-                operationsClient.cancelImport(session.operationId),
+                apiClient.cancelImport(session.operationId),
             ]);
             ctx.logger.warn({
                 msg: "Database import file validation failed",
@@ -161,7 +161,7 @@ feature.callbackQuery(
             });
         });
         if (action === "cancel") {
-            await operationsClient
+            await apiClient
                 .cancelImport(session.operationId)
                 .catch((error: unknown) => {
                     ctx.logger.warn({
@@ -190,9 +190,7 @@ feature.callbackQuery(
             session,
         });
         if (!started) {
-            await operationsClient
-                .cancelImport(session.operationId)
-                .catch(() => {});
+            await apiClient.cancelImport(session.operationId).catch(() => {});
             return ctx.editMessageText(
                 ctx.t("import-error", {
                     operationId: session.operationId,

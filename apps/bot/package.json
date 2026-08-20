@@ -19,7 +19,7 @@
     },
     "dependencies": {
         "@deko-voice-bot/backup": "workspace:*",
-        "@deko-voice-bot/operations-contract": "workspace:*",
+        "@deko-voice-bot/contract": "workspace:*",
         "@deko-voice-bot/shared": "workspace:*",
         "@grammyjs/auto-chat-action": "0.1.1",
         "@grammyjs/commands": "1.4.0",

@@ -56,8 +56,8 @@ const baseConfigSchema = v.object({
         ),
         "5",
     ),
-    operationsToken: v.pipe(v.string(), v.minLength(24)),
-    operationsUrl: v.pipe(v.string(), v.url()),
+    apiToken: v.pipe(v.string(), v.minLength(24)),
+    apiUrl: v.pipe(v.string(), v.url()),
 });
 
 const rawConfigSchema = v.variant("botMode", [
@@ -117,8 +117,8 @@ const CONFIG_KEY_TO_ENVIRONMENT_VARIABLE = {
     logFormat: "LOG_FORMAT",
     logLevel: "LOG_LEVEL",
     nodeEnv: "NODE_ENV",
-    operationsToken: "OPERATIONS_TOKEN",
-    operationsUrl: "OPERATIONS_URL",
+    apiToken: "API_TOKEN",
+    apiUrl: "API_URL",
     serverHost: "SERVER_HOST",
     serverPort: "SERVER_PORT",
     useDebug: "USE_DEBUG",
@@ -157,8 +157,8 @@ export function createConfigFromEnvironment(environment: Environment) {
             logFormat: environment.LOG_FORMAT,
             logLevel: environment.LOG_LEVEL,
             nodeEnv: environment.NODE_ENV,
-            operationsToken: environment.OPERATIONS_TOKEN,
-            operationsUrl: environment.OPERATIONS_URL,
+            apiToken: environment.API_TOKEN,
+            apiUrl: environment.API_URL,
             serverHost: environment.SERVER_HOST,
             serverPort: environment.SERVER_PORT,
             useDebug: environment.USE_DEBUG,

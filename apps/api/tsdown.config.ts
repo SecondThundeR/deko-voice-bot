@@ -13,4 +13,7 @@ export default defineConfig({
             "@deko-voice-bot/shared",
         ],
     },
+    outputOptions: {
+        dir: "dist",
+    },
 });

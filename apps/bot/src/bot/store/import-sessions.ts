@@ -186,6 +186,6 @@ export class ImportSessionStore {
 }
 
 export const importSessions = new ImportSessionStore(async (operationId) => {
-    const { operationsClient } = await import("#root/operations/client.js");
-    await operationsClient.cancelImport(operationId);
+    const { apiClient } = await import("#root/api/client.js");
+    await apiClient.cancelImport(operationId);
 });

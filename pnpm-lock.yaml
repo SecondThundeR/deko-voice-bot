@@ -27,14 +27,41 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
 
+  apps/api:
+    dependencies:
+      '@deko-voice-bot/backup':
+        specifier: workspace:*
+        version: link:../../packages/backup
+      '@deko-voice-bot/contract':
+        specifier: workspace:*
+        version: link:../../packages/contract
+      '@deko-voice-bot/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@hono/node-server':
+        specifier: 2.1.0
+        version: 2.1.0(hono@4.13.1)
+      hono:
+        specifier: 4.13.1
+        version: 4.13.1
+      pino:
+        specifier: 10.3.1
+        version: 10.3.1
+      postgres:
+        specifier: 3.4.9
+        version: 3.4.9
+      valibot:
+        specifier: 1.4.2
+        version: 1.4.2(typescript@7.0.2)
+
   apps/bot:
     dependencies:
       '@deko-voice-bot/backup':
         specifier: workspace:*
         version: link:../../packages/backup
-      '@deko-voice-bot/operations-contract':
+      '@deko-voice-bot/contract':
         specifier: workspace:*
-        version: link:../../packages/operations-contract
+        version: link:../../packages/contract
       '@deko-voice-bot/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -90,33 +117,6 @@ importers:
         specifier: 1.4.2
         version: 1.4.2(typescript@7.0.2)
 
-  apps/operations:
-    dependencies:
-      '@deko-voice-bot/backup':
-        specifier: workspace:*
-        version: link:../../packages/backup
-      '@deko-voice-bot/operations-contract':
-        specifier: workspace:*
-        version: link:../../packages/operations-contract
-      '@deko-voice-bot/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
-      '@hono/node-server':
-        specifier: 2.1.0
-        version: 2.1.0(hono@4.13.1)
-      hono:
-        specifier: 4.13.1
-        version: 4.13.1
-      pino:
-        specifier: 10.3.1
-        version: 10.3.1
-      postgres:
-        specifier: 3.4.9
-        version: 3.4.9
-      valibot:
-        specifier: 1.4.2
-        version: 1.4.2(typescript@7.0.2)
-
   packages/backup:
     dependencies:
       '@deko-voice-bot/shared':
@@ -126,7 +126,7 @@ importers:
         specifier: 3.4.9
         version: 3.4.9
 
-  packages/operations-contract:
+  packages/contract:
     dependencies:
       valibot:
         specifier: 1.4.2

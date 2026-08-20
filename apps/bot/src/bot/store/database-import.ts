@@ -9,9 +9,9 @@ import {
     closeDatabaseConnection,
     reopenDatabaseConnection,
 } from "#drizzle/db.js";
+import { apiClient } from "#root/api/client.js";
 import type { Context } from "#root/bot/context.js";
 import type { Logger } from "#root/logger.js";
-import { operationsClient } from "#root/operations/client.js";
 import {
     beginDatabaseImportMaintenance,
     endDatabaseImportMaintenance,
@@ -89,11 +89,10 @@ export class DatabaseImportCoordinator {
                 await createBackupTempPaths("pre-import");
             emergencyPaths = currentEmergencyPaths;
 
-            const emergencyBackup =
-                await operationsClient.downloadEmergencyBackup(
-                    session.operationId,
-                    currentEmergencyPaths.encrypted,
-                );
+            const emergencyBackup = await apiClient.downloadEmergencyBackup(
+                session.operationId,
+                currentEmergencyPaths.encrypted,
+            );
 
             await api.sendDocument(
                 chatId,
@@ -110,9 +109,9 @@ export class DatabaseImportCoordinator {
             databaseDisconnected = true;
             try {
                 restoreMayBeActive = true;
-                await operationsClient.restoreImport(session.operationId);
+                await apiClient.restoreImport(session.operationId);
             } finally {
-                await operationsClient.waitForRestoreIdle();
+                await apiClient.waitForRestoreIdle();
                 restoreMayBeActive = false;
             }
             await reopenDatabaseConnection();
@@ -146,7 +145,7 @@ export class DatabaseImportCoordinator {
         } finally {
             if (restoreMayBeActive) {
                 try {
-                    await operationsClient.waitForRestoreIdle();
+                    await apiClient.waitForRestoreIdle();
                     restoreMayBeActive = false;
                 } catch (error) {
                     logger.error({
@@ -177,7 +176,7 @@ export class DatabaseImportCoordinator {
             }
             await Promise.allSettled([
                 ...(!restoreMayBeActive
-                    ? [operationsClient.cancelImport(session.operationId)]
+                    ? [apiClient.cancelImport(session.operationId)]
                     : []),
                 ...(emergencyPaths
                     ? [removeBackupTempPaths(emergencyPaths)]

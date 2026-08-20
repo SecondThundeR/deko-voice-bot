@@ -6,10 +6,10 @@ import {
 import { getSafeErrorInfo } from "@deko-voice-bot/shared";
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer, InputFile } from "grammy";
+import { apiClient } from "#root/api/client.js";
 import type { Context } from "#root/bot/context.js";
 import { isAdmin } from "#root/bot/filter/is-admin.js";
 import { logHandle } from "#root/bot/helpers/logging.js";
-import { operationsClient } from "#root/operations/client.js";
 
 const composer = new Composer<Context>();
 const feature = composer.chatType("private").filter(isAdmin);
@@ -23,7 +23,7 @@ feature.command(
         const paths = await createBackupTempPaths("export");
 
         try {
-            const { fileName, sha256 } = await operationsClient.exportDatabase(
+            const { fileName, sha256 } = await apiClient.exportDatabase(
                 paths.encrypted,
             );
 

@@ -4,13 +4,13 @@ import {
     checkDatabaseConnection,
     closeDatabaseConnection,
 } from "#drizzle/db.js";
+import { apiClient } from "./api/client.ts";
 import { BOT_ALLOWED_UPDATES } from "./bot/constants/updates.ts";
 import { createBot } from "./bot/index.ts";
 import { databaseImportCoordinator } from "./bot/store/database-import.ts";
 import { config, type PollingConfig, type WebhookConfig } from "./config.ts";
 import { createLifecycle } from "./lifecycle.ts";
 import { logger } from "./logger.ts";
-import { operationsClient } from "./operations/client.ts";
 import { createServer, createServerManager } from "./server/index.ts";
 
 const lifecycle = createLifecycle(logger);
@@ -78,8 +78,8 @@ async function startWebhook(config: WebhookConfig) {
 }
 
 try {
-    await operationsClient.waitForRestoreIdle();
-    logger.info({ msg: "Operations service connection established" });
+    await apiClient.waitForRestoreIdle();
+    logger.info({ msg: "API service connection established" });
     await checkDatabaseConnection();
     logger.info({ msg: "Database connection established" });
 
