@@ -1,12 +1,10 @@
-import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import postgres from "postgres";
 
 import { BackupError } from "./errors.ts";
+import { type ProcessResult, runProcess } from "./process.ts";
 
-const MAX_STDERR_BYTES = 16 * 1024;
-const DATABASE_UTILITY_TIMEOUT_MS = 5 * 60_000;
 const REQUIRED_TABLES = [
     "feature_flags",
     "payments",
@@ -19,56 +17,6 @@ const REQUIRED_CONSTRAINTS = [
     "voices_uses_amount_nonnegative",
     "users_uses_amount_nonnegative",
 ] as const;
-
-type ProcessResult = {
-    exitCode: number;
-    stderr: string;
-    stdout: string;
-};
-
-async function runDatabaseUtility(
-    executable: string,
-    args: string[],
-    captureStdout = false,
-    env?: Partial<NodeJS.ProcessEnv>,
-): Promise<ProcessResult> {
-    const child = spawn(executable, args, {
-        env: { ...process.env, ...env },
-        stdio: ["ignore", captureStdout ? "pipe" : "ignore", "pipe"],
-    });
-    const timeout = setTimeout(
-        () => child.kill("SIGTERM"),
-        DATABASE_UTILITY_TIMEOUT_MS,
-    );
-    const stderrChunks: Buffer[] = [];
-    const stdoutChunks: Buffer[] = [];
-    let stderrBytes = 0;
-
-    child.stderr?.on("data", (chunk: Buffer) => {
-        if (stderrBytes < MAX_STDERR_BYTES) {
-            const remaining = MAX_STDERR_BYTES - stderrBytes;
-            stderrChunks.push(chunk.subarray(0, remaining));
-        }
-        stderrBytes += chunk.length;
-    });
-    child.stdout?.on("data", (chunk: Buffer) => stdoutChunks.push(chunk));
-
-    const exitCode = await new Promise<number>((resolve, reject) => {
-        child.once("error", reject);
-        child.once("close", (code) => resolve(code ?? 1));
-    });
-    clearTimeout(timeout);
-
-    const stderr = Buffer.concat(stderrChunks).toString("utf8");
-    return {
-        exitCode,
-        stderr:
-            stderrBytes > MAX_STDERR_BYTES
-                ? `${stderr}\n... stderr output truncated`
-                : stderr,
-        stdout: Buffer.concat(stdoutChunks).toString("utf8"),
-    };
-}
 
 function getUtilityConnection(databaseUrl: string) {
     const parsed = new URL(databaseUrl);
@@ -84,6 +32,13 @@ function assertSuccessfulProcess(
     result: ProcessResult,
     utility: "pg_dump" | "pg_restore",
 ) {
+    if (result.timedOut) {
+        throw new BackupError(
+            `${utility} timed out`,
+            `${utility.toUpperCase()}_TIMEOUT`,
+            { cause: result.stderr },
+        );
+    }
     if (result.exitCode !== 0) {
         throw new BackupError(
             `${utility} exited with code ${result.exitCode}`,
@@ -98,7 +53,7 @@ export async function createDatabaseDump(
     outputPath: string,
 ) {
     const connection = getUtilityConnection(databaseUrl);
-    const result = await runDatabaseUtility(
+    const result = await runProcess(
         "pg_dump",
         [
             connection.url,
@@ -109,18 +64,15 @@ export async function createDatabaseDump(
             "--file",
             outputPath,
         ],
-        false,
-        connection.env,
+        { env: connection.env },
     );
     assertSuccessfulProcess(result, "pg_dump");
 }
 
 export async function validateDatabaseDump(dumpPath: string) {
-    const result = await runDatabaseUtility(
-        "pg_restore",
-        ["--list", dumpPath],
-        true,
-    );
+    const result = await runProcess("pg_restore", ["--list", dumpPath], {
+        captureStdout: true,
+    });
     assertSuccessfulProcess(result, "pg_restore");
 
     const missingTables = REQUIRED_TABLES.filter(
@@ -157,7 +109,7 @@ export async function restoreDatabaseDump(
     dumpPath: string,
 ) {
     const connection = getUtilityConnection(databaseUrl);
-    const result = await runDatabaseUtility(
+    const result = await runProcess(
         "pg_restore",
         [
             "--dbname",
@@ -170,8 +122,7 @@ export async function restoreDatabaseDump(
             "--no-acl",
             dumpPath,
         ],
-        false,
-        connection.env,
+        { env: connection.env },
     );
     assertSuccessfulProcess(result, "pg_restore");
 }
@@ -180,7 +131,24 @@ export async function normalizeRestoredDatabase(databaseUrl: string) {
     const client = postgres(databaseUrl, { max: 1 });
 
     try {
-        await client`drop table if exists processed_usage_updates`;
+        await client.begin(async (transaction) => {
+            await transaction`drop schema if exists bot_runtime cascade`;
+
+            const tables = await transaction<{ tableName: string }[]>`
+                select table_name as "tableName"
+                from information_schema.tables
+                where table_schema = 'public'
+                  and table_type = 'BASE TABLE'
+            `;
+            const requiredTables = new Set<string>(REQUIRED_TABLES);
+            const unexpectedTables = tables.filter(
+                ({ tableName }) => !requiredTables.has(tableName),
+            );
+
+            for (const { tableName } of unexpectedTables) {
+                await transaction`drop table ${transaction(tableName)} cascade`;
+            }
+        });
     } finally {
         await client.end({ timeout: 5 });
     }
@@ -202,6 +170,15 @@ export async function validateRestoredDatabase(databaseUrl: string) {
         if (missingTables.length > 0) {
             throw new BackupError(
                 `The restored database is missing required tables: ${missingTables.join(", ")}`,
+                "RESTORED_SCHEMA_MISMATCH",
+            );
+        }
+        const unexpectedTables = [...restoredTables].filter(
+            (table) => !REQUIRED_TABLES.some((required) => required === table),
+        );
+        if (unexpectedTables.length > 0) {
+            throw new BackupError(
+                `The restored database contains unexpected tables: ${unexpectedTables.join(", ")}`,
                 "RESTORED_SCHEMA_MISMATCH",
             );
         }
