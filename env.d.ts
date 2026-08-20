@@ -10,14 +10,9 @@ declare global {
             SERVER_PORT?: string;
             DATABASE_URL: string;
             BACKUP_ENCRYPTION_KEY: string;
+            BACKUP_CHAT_ID?: string;
             BACKUP_MAX_SIZE_MB?: string;
             IMPORT_SESSION_TTL_MINUTES?: string;
-            API_URL: string;
-            API_TOKEN: string;
-            API_HOST?: string;
-            API_PORT?: string;
-            API_IMPORT_TTL_MINUTES?: string;
-            API_VOICE_MAX_SIZE_MB?: string;
             ADMIN_IDS?: string;
             LOG_LEVEL?:
                 | "trace"

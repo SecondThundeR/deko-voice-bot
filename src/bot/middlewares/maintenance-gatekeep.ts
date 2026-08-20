@@ -1,0 +1,46 @@
+import type { Middleware } from "grammy";
+import { getFeatureFlag } from "#drizzle/queries/feature-flags.js";
+import { MAINTENANCE_FEATURE_FLAG } from "#root/bot/constants/feature-flags.js";
+import type { Context } from "#root/bot/context.js";
+import { isAdmin } from "#root/bot/filter/is-admin.js";
+import {
+    getCachedMaintenanceFeatureFlag,
+    setCachedMaintenanceFeatureFlag,
+} from "#root/bot/maintenance/state.js";
+
+export function maintenanceGatekeep(): Middleware<Context> {
+    return async (ctx, next) => {
+        if (isAdmin(ctx)) {
+            return next();
+        }
+
+        let maintenanceFeatureFlagStatus = getCachedMaintenanceFeatureFlag();
+
+        if (maintenanceFeatureFlagStatus === null) {
+            maintenanceFeatureFlagStatus =
+                (await getFeatureFlag(MAINTENANCE_FEATURE_FLAG)) ?? false;
+            setCachedMaintenanceFeatureFlag(maintenanceFeatureFlagStatus);
+        }
+
+        if (!maintenanceFeatureFlagStatus) {
+            return next();
+        }
+
+        if (ctx.inlineQuery) {
+            return ctx.answerInlineQuery([], {
+                button: {
+                    text: ctx.t("maintenance-inline-button"),
+                    start_parameter: MAINTENANCE_FEATURE_FLAG,
+                },
+                cache_time: 30,
+                is_personal: true,
+            });
+        }
+
+        const messageId =
+            ctx.match === MAINTENANCE_FEATURE_FLAG
+                ? "maintenance-inline-unavailable"
+                : "maintenance-chat-unavailable";
+        return ctx.reply(ctx.t(messageId));
+    };
+}

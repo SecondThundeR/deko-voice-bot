@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: August 19, 2026
+Last updated: August 20, 2026
 
 This Privacy Policy explains how the Deko Voice Bot for Telegram (the "Bot"), operated by Uladzislau Hramyka in Belarus (the "Service Provider"), collects, uses, stores, and shares information. The Bot is provided free of charge and on an "AS IS" basis. Optional donations are processed through Telegram Stars.
 
@@ -65,29 +65,29 @@ You can opt out of usage analytics by sending `/optout` in a private chat with t
 
 - deletes your saved first and last name and username;
 - resets your usage count and last-use time;
-- deletes your favorites; and
+- keeps your favorites available; and
 - prevents future inline-send activity from updating your personal usage profile or including you in identified user rankings while you remain opted out.
 
 To remember and honor your choice, the Bot retains your Telegram user ID together with an opt-out flag. This record may still contribute to aggregate statistics, such as the total number of users who opted out, but your cleared profile and activity are not shown in individual statistics. Therefore, `/optout` does not delete every record containing your Telegram user ID. Payment records are also retained after opt-out as part of the Bot's complete payment history and for refunds, dispute handling, security, and compliance obligations. Technical logs and copies in existing manually created exports are not deleted by the `/optout` command.
 
-You can opt back in by sending `/optin` in a private chat. This restores collection of your profile and usage statistics from that point forward; the previously cleared statistics and favorites are not restored by the Bot.
+You can opt back in by sending `/optin` in a private chat. This restores collection of your profile and usage statistics from that point forward. Previously cleared profile and usage statistics are not restored; favorites were not deleted and remain available.
 
 For a broader deletion request, contact the Service Provider at awayfromgalaxy@gmail.com. Some information may still need to be retained where necessary to honor your opt-out, process or document payments and refunds, resolve disputes, maintain security, or comply with applicable law. Data already held by Telegram must be managed through Telegram.
 
 ## Access to Your Information
 
-You can use `/mydata` in a private chat with the Bot to view the active usage profile stored in the Bot's users database: your Telegram user ID, available name and username, usage count, and last-use time. This command does not include favorites, payment records, temporary session data, technical records, logs, or backups.
+You can use `/mydata` in a private chat with the Bot to view your Telegram user ID, favorites count, analytics status and, while analytics are enabled, the available name and username, usage count, and last-use time stored in the Bot's users database. This command does not list individual favorites, payment records, temporary session data, technical records, logs, or backups.
 
 To request access to other personal information held by the Service Provider, correction of inaccurate information, or a portable copy, contact awayfromgalaxy@gmail.com. These requests are reviewed and fulfilled manually. The Service Provider may need to verify that the Telegram account or payment record belongs to you before fulfilling a request.
 
 ## Data Retention
 
-- Active usage profiles and favorites are retained while the Bot operates, unless you opt out or request deletion.
+- Active usage profiles are retained while the Bot operates, unless you opt out or request deletion. Favorites remain available after analytics opt-out and are retained unless you request their deletion.
 - The Telegram user ID and opt-out flag are retained for as long as necessary to honor the opt-out choice.
 - In-memory session and conversation data expires within 24 hours after the latest session write and is discarded when the Bot process restarts.
 - Payment records are retained indefinitely as the Bot's complete payment and refund history.
 - Railway service logs are retained for 7 days under the Service Provider's current Hobby plan. Railway audit logs are retained for 48 hours.
-- Point-in-time recovery is not currently enabled. Administrative database export files may be created manually. Exports are authenticated and encrypted before being sent through Telegram, and temporary plaintext and encrypted files are deleted from the Bot host after the operation. The encrypted copy delivered through Telegram remains subject to Telegram's storage and retention controls.
+- Point-in-time recovery is not currently enabled. Administrative database export files may be created manually, and encrypted daily backups may be sent to a private Telegram channel configured by the Service Provider. Backups are authenticated and encrypted before being sent through Telegram, and temporary plaintext and encrypted files are deleted from the Bot host after the operation. Copies delivered through Telegram remain subject to Telegram's storage and retention controls.
 
 ## Sharing and Service Providers
 
