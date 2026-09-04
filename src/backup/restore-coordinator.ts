@@ -86,11 +86,7 @@ class ImportSessionStore {
 
     addAwaitingConfirmation(
         base: ImportSession,
-        data: Omit<ConfirmedImportSession, keyof ImportSession | "stage"> & {
-            paths: BackupTempPaths;
-            sha256: string;
-            size: number;
-        },
+        data: Pick<ConfirmedImportSession, "paths" | "sha256" | "size">,
         ttlMs: number,
     ) {
         const key = this.#key(base.userId, base.chatId);
@@ -173,10 +169,6 @@ export const importSessions = new ImportSessionStore();
 let restoreMaintenanceActive = false;
 let activeRequests = 0;
 const drainWaiters = new Set<() => void>();
-
-export function isDatabaseRestoreActive() {
-    return restoreMaintenanceActive;
-}
 
 export function databaseTrafficGatekeep(): MiddlewareFn<Context> {
     return async (ctx, next) => {
