@@ -5,9 +5,9 @@
     "private": true,
     "module": "src/main.ts",
     "license": "MIT",
-    "packageManager": "pnpm@11.21.0",
+    "packageManager": "pnpm@12.3.4",
     "engines": {
-        "node": ">=24.19.0"
+        "node": ">=24.20.0"
     },
     "imports": {
         "#root/*.js": "./src/*.ts",

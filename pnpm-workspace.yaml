@@ -1,9 +1,4 @@
 allowBuilds:
   esbuild: true
 overrides:
-  esbuild@<=0.24.2: ^0.28.1
-confirmModulesPurge: false
-minimumReleaseAgeExclude:
-  - '@types/node@26.1.2'
-  - '@hono/node-server@2.1.0'
-  - hono@4.13.0
+  esbuild@<=0.24.2: ^0.28.2
