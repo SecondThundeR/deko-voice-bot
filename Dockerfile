@@ -36,6 +36,7 @@ FROM base AS release
 ENV NODE_ENV=production
 COPY --from=mwader/static-ffmpeg:8.1.2 /ffmpeg /ffprobe /usr/local/bin/
 COPY --from=prod-deps --chown=node:node /usr/src/app/node_modules node_modules
+COPY --from=build --chown=node:node /usr/src/app/src/environment.ts src/environment.ts
 COPY --from=build --chown=node:node /usr/src/app/dist dist
 COPY --from=build --chown=node:node /usr/src/app/drizzle drizzle
 COPY --from=build --chown=node:node /usr/src/app/locales locales
