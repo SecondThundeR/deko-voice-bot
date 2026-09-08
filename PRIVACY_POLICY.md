@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: August 20, 2026
+Last updated: September 8, 2026
 
 This Privacy Policy explains how the Deko Voice Bot for Telegram (the "Bot"), operated by Uladzislau Hramyka in Belarus (the "Service Provider"), collects, uses, stores, and shares information. The Bot is provided free of charge and on an "AS IS" basis. Optional donations are processed through Telegram Stars.
 
