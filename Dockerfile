@@ -1,7 +1,7 @@
-FROM node:24.20.0-slim AS base
+FROM node:24.21.0-slim AS base
 WORKDIR /usr/src/app
 
-RUN npm install -g pnpm@12.3.4
+RUN npm install -g pnpm@12.6.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
