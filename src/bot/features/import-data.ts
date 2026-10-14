@@ -194,6 +194,9 @@ feature.callbackQuery(
                 error: ctx.t("import-error", {
                     operationId: session.operationId,
                 }),
+                recoveryRequired: ctx.t("import-recovery-required", {
+                    operationId: session.operationId,
+                }),
                 preparing: ctx.t("import-preparing"),
             },
             session,

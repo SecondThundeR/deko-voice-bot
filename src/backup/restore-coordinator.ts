@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { MiddlewareFn } from "grammy";
-import { InputFile } from "grammy";
+import { type Api, InputFile } from "grammy";
 
 import { withDatabaseDisconnected } from "#drizzle/db.js";
 import { databaseUrl } from "#drizzle/env.js";
@@ -166,50 +166,8 @@ class ImportSessionStore {
 
 export const importSessions = new ImportSessionStore();
 
-let restoreMaintenanceActive = false;
-let activeRequests = 0;
-const drainWaiters = new Set<() => void>();
-
-export function databaseTrafficGatekeep(): MiddlewareFn<Context> {
-    return async (ctx, next) => {
-        if (restoreMaintenanceActive) {
-            if (ctx.inlineQuery) {
-                return ctx.answerInlineQuery([], {
-                    button: {
-                        text: ctx.t("maintenance-inline-button"),
-                        start_parameter: "maintenance",
-                    },
-                    cache_time: 30,
-                    is_personal: true,
-                });
-            }
-            return ctx.reply(ctx.t("maintenance-chat-unavailable"));
-        }
-
-        activeRequests += 1;
-        try {
-            await next();
-        } finally {
-            activeRequests -= 1;
-            if (activeRequests <= 1) {
-                for (const resolve of drainWaiters) resolve();
-                drainWaiters.clear();
-            }
-        }
-    };
-}
-
-async function beginRestoreMaintenance() {
-    if (restoreMaintenanceActive) return false;
-    restoreMaintenanceActive = true;
-    while (activeRequests > 1) {
-        await new Promise<void>((resolve) => drainWaiters.add(resolve));
-    }
-    return true;
-}
-
-type RestoreJob = {
-    api: Context["api"];
+export type RestoreJob = {
+    api: Api;
     chatId: number;
     encryptionKey: string;
     logger: Logger;
@@ -218,17 +176,76 @@ type RestoreJob = {
         completed: string;
         emergencyBackup: (sha256: string) => string;
         error: string;
+        recoveryRequired: string;
         preparing: string;
     };
     session: ConfirmedImportSession;
 };
 
-class DatabaseRestoreCoordinator {
+const restoreDependencies = {
+    createEncryptedDatabaseBackup,
+    withBackupAdvisoryLock,
+    withDatabaseDisconnected,
+    restoreDatabaseDump,
+    normalizeRestoredDatabase,
+    validateRestoredDatabase,
+};
+
+export class DatabaseRestoreCoordinator {
     #activeTask: Promise<void> | null = null;
+    #restoreMaintenanceActive = false;
+    #activeRequests = 0;
+    readonly #drainWaiters = new Set<() => void>();
+
+    readonly #dependencies: typeof restoreDependencies;
+
+    constructor(dependencies = restoreDependencies) {
+        this.#dependencies = dependencies;
+    }
+
+    databaseTrafficGatekeep(): MiddlewareFn<Context> {
+        return async (ctx, next) => {
+            if (this.#restoreMaintenanceActive) {
+                if (ctx.inlineQuery) {
+                    return ctx.answerInlineQuery([], {
+                        button: {
+                            text: ctx.t("maintenance-inline-button"),
+                            start_parameter: "maintenance",
+                        },
+                        cache_time: 30,
+                        is_personal: true,
+                    });
+                }
+                return ctx.reply(ctx.t("maintenance-chat-unavailable"));
+            }
+
+            this.#activeRequests += 1;
+            try {
+                await next();
+            } finally {
+                this.#activeRequests -= 1;
+                if (this.#activeRequests <= 1) {
+                    for (const resolve of this.#drainWaiters) resolve();
+                    this.#drainWaiters.clear();
+                }
+            }
+        };
+    }
+
+    async #beginRestoreMaintenance() {
+        if (this.#restoreMaintenanceActive) return false;
+        this.#restoreMaintenanceActive = true;
+        while (this.#activeRequests > 1) {
+            await new Promise<void>((resolve) =>
+                this.#drainWaiters.add(resolve),
+            );
+        }
+        return true;
+    }
 
     start(job: RestoreJob) {
-        if (this.#activeTask) return false;
-        const maintenance = beginRestoreMaintenance();
+        if (this.#activeTask || this.#restoreMaintenanceActive) return false;
+        const maintenance = this.#beginRestoreMaintenance();
         const task = this.#run(job, maintenance).finally(() => {
             if (this.#activeTask === task) this.#activeTask = null;
         });
@@ -243,6 +260,7 @@ class DatabaseRestoreCoordinator {
     async #run(job: RestoreJob, maintenance: Promise<boolean>) {
         const { api, chatId, logger, messageId, messages, session } = job;
         let maintenanceStarted = false;
+        let databaseSafe = true;
         let emergencyPaths: BackupTempPaths | undefined;
 
         try {
@@ -256,30 +274,45 @@ class DatabaseRestoreCoordinator {
             emergencyPaths = await createBackupTempPaths("pre-import");
             const currentEmergencyPaths = emergencyPaths;
 
-            await withBackupAdvisoryLock(databaseUrl, async () => {
-                const emergencySha256 = await createEncryptedDatabaseBackup({
-                    databaseUrl,
-                    encryptionKey,
-                    paths: currentEmergencyPaths,
-                });
-                await api.sendDocument(
-                    chatId,
-                    new InputFile(
-                        currentEmergencyPaths.encrypted,
-                        createDatedBackupFileName("pre-import"),
-                    ),
-                    { caption: messages.emergencyBackup(emergencySha256) },
-                );
+            await this.#dependencies.withBackupAdvisoryLock(
+                databaseUrl,
+                async () => {
+                    const emergencySha256 =
+                        await this.#dependencies.createEncryptedDatabaseBackup({
+                            databaseUrl,
+                            encryptionKey,
+                            paths: currentEmergencyPaths,
+                        });
+                    await api.sendDocument(
+                        chatId,
+                        new InputFile(
+                            currentEmergencyPaths.encrypted,
+                            createDatedBackupFileName("pre-import"),
+                        ),
+                        { caption: messages.emergencyBackup(emergencySha256) },
+                    );
 
-                await withDatabaseDisconnected(async () => {
-                    await restoreDatabaseDump(databaseUrl, session.paths.dump);
-                    await normalizeRestoredDatabase(databaseUrl);
-                });
-                setCachedMaintenanceFeatureFlag(null);
-                await validateRestoredDatabase(databaseUrl);
-                clearBotSessionState();
-                await importSessions.clear();
-            });
+                    databaseSafe = false;
+                    await this.#dependencies.withDatabaseDisconnected(
+                        async () => {
+                            await this.#dependencies.restoreDatabaseDump(
+                                databaseUrl,
+                                session.paths.dump,
+                            );
+                            await this.#dependencies.normalizeRestoredDatabase(
+                                databaseUrl,
+                            );
+                        },
+                    );
+                    setCachedMaintenanceFeatureFlag(null);
+                    await this.#dependencies.validateRestoredDatabase(
+                        databaseUrl,
+                    );
+                    clearBotSessionState();
+                    await importSessions.clear();
+                    databaseSafe = true;
+                },
+            );
 
             logger.info({
                 msg: "Database import completed",
@@ -292,11 +325,19 @@ class DatabaseRestoreCoordinator {
             logger.error({
                 msg: "Database import failed",
                 operationId: session.operationId,
+                databaseTrafficBlocked: !databaseSafe,
                 ...getSafeErrorInfo(error),
             });
-            await api.sendMessage(chatId, messages.error).catch(() => {});
+            await api
+                .sendMessage(
+                    chatId,
+                    databaseSafe ? messages.error : messages.recoveryRequired,
+                )
+                .catch(() => {});
         } finally {
-            if (maintenanceStarted) restoreMaintenanceActive = false;
+            if (maintenanceStarted && databaseSafe) {
+                this.#restoreMaintenanceActive = false;
+            }
             await Promise.allSettled([
                 removeBackupTempPaths(session.paths),
                 ...(emergencyPaths
@@ -308,3 +349,7 @@ class DatabaseRestoreCoordinator {
 }
 
 export const databaseRestoreCoordinator = new DatabaseRestoreCoordinator();
+
+export function databaseTrafficGatekeep(): MiddlewareFn<Context> {
+    return databaseRestoreCoordinator.databaseTrafficGatekeep();
+}
