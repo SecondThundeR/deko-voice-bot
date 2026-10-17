@@ -5,7 +5,7 @@
     "private": true,
     "module": "src/main.ts",
     "license": "MIT",
-    "packageManager": "pnpm@12.11.2",
+    "packageManager": "pnpm@12.14.0",
     "engines": {
         "node": ">=24.21.0"
     },
