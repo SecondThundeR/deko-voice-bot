@@ -1,4 +1,4 @@
-FROM node:24.21.0-slim AS base
+FROM node:24.22.0-slim AS base
 WORKDIR /usr/src/app
 
 RUN npm install -g pnpm@12.14.0
