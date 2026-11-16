@@ -1,8 +1,9 @@
 allowBuilds:
-  esbuild: true
+    esbuild: true
 
 minimumReleaseAgeExclude:
-  - tsdown@0.23.5
+    - tsdown@0.23.5
+    - hono@4.13.19
 
 overrides:
-  '@esbuild-kit/core-utils>esbuild': 0.25.12
+    "@esbuild-kit/core-utils>esbuild": 0.25.12
